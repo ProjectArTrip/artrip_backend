@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+.idea
+.env
+db
+mongodb
+/src/main/resources/application.yml
