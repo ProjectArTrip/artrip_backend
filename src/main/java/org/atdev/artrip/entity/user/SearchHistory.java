@@ -19,7 +19,7 @@ public class SearchHistory {
     private Long searchHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "created_at", nullable = false, updatable = false)

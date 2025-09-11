@@ -21,7 +21,7 @@ public class Notification {
     private Long notificationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "type", nullable = false)

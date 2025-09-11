@@ -19,7 +19,7 @@ public class SocialAccounts {
     private Long socialId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "provider", nullable = false)

@@ -25,11 +25,11 @@ public class Review {
     private Long reviewId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "exhibit_id", nullable = false)
+    @JoinColumn(name = "exhibit_id", nullable = false)
     private Exhibit exhibit;
 
     @Column(name = "content", nullable = false, length = 2000)

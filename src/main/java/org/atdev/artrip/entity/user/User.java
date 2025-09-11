@@ -2,6 +2,7 @@ package org.atdev.artrip.entity.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.entity.Enum.Role;
 import org.atdev.artrip.entity.image.Imges;
 import org.atdev.artrip.entity.notification.Notification;
 import org.atdev.artrip.entity.review.Review;
@@ -32,8 +33,9 @@ public class User {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @Column(name = "role")
-    private String role; // Object → String/Enum 사용 권장
+    @Enumerated(EnumType.STRING) // 여기서 STRING으로 매핑
+    @Column(name = "role", nullable = false)
+    private Role role;
 
     @Column(name = "stamp_num")
     private Byte stampNum;

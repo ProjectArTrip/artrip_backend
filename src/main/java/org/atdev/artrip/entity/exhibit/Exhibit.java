@@ -2,6 +2,9 @@ package org.atdev.artrip.entity.exhibit;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.entity.Enum.Genre;
+import org.atdev.artrip.entity.Enum.Status;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
@@ -34,8 +37,9 @@ public class Exhibit {
     @Column(name = "end_date")
     private Timestamp endDate;
 
-    @Column(name = "status")
-    private String status;
+    @Enumerated(EnumType.STRING) // DB가 CHAR/VARCHAR이면 STRING
+    @Column(name = "status", nullable = false)
+    private Status status; // Java enum
 
     @Column(name = "poster_url")
     private String posterUrl;
@@ -49,8 +53,9 @@ public class Exhibit {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
-    @Column(name = "genre")
-    private String genre;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "genre", nullable = false)
+    private Genre genre;
 
     @Column(name = "latitude")
     private BigDecimal latitude;

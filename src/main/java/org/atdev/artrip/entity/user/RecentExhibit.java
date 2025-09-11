@@ -16,11 +16,11 @@ public class RecentExhibit {
     private long recentExhibitId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "exhibit_id")
+    @JoinColumn(name = "exhibit_id")
     private Exhibit exhibit;
 
     @Column(name = "view_at")

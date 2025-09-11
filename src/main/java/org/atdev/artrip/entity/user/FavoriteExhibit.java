@@ -21,11 +21,11 @@ public class FavoriteExhibit {
     private Long favoriteId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "exhibit_id", nullable = false)
+    @JoinColumn(name = "exhibit_id", nullable = false)
     private Exhibit exhibit;
 
     @Column(name = "created_at", nullable = false, updatable = false)

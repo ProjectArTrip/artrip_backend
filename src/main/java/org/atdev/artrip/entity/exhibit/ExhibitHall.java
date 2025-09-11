@@ -18,10 +18,6 @@ public class ExhibitHall {
     @Column(name = "exhibit_hall_id")
     private Long exhibitHallId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exhibit_id", referencedColumnName = "exhibit_id")
-    private Exhibit exhibit;
-
     @Column(name = "name", nullable = false)
     private String name;
 
