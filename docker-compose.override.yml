@@ -5,8 +5,8 @@
       container_name: backend
       build:
         context: .
-        tags:
-          - develop
+        dockerfile: Dockerfile
+      image: backend:develop
       ports:
         - ${HTTP_PORT:-880}:8080
       volumes:

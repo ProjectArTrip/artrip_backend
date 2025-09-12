@@ -1,4 +1,4 @@
-package org.atdev.artrip.greeting;
+package org.atdev.artrip;
 
 import lombok.Getter;
 
