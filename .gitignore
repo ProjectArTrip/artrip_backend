@@ -40,3 +40,5 @@ out/
 db
 mongodb
 /src/main/resources/application.yml
+.DS_Store
+elasticsearch/
