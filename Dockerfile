@@ -1,4 +1,4 @@
-FROM gradle:8.5-jdk17-alpine AS builder
+FROM --platform=linux/amd64 gradle:8.5-jdk17-alpine AS builder
 
 WORKDIR /app
 COPY . .

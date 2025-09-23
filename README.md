@@ -1,10 +1,10 @@
-    # Artrip
+# Artrip
 
 > Java Monologue 버전
 
 ## Tech Stack
 - Java, SpringBoot
-- Docker, MySQL, MongoDB
+- Docker, MySQL, MongoDB, Elasticsearch
 
 ## Getting Started
 

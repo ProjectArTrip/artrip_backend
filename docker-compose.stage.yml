@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: art-stage-backend
+    image: art-stage-backend:latest
+    build:
+        context: .
+        dockerfile: Dockerfile
+        tags:
+            - stage
+    ports:
+      - 881:8080
