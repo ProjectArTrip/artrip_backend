@@ -2,6 +2,8 @@ package org.atdev.artrip.entity.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.sql.Timestamp;
 
 @Entity
@@ -23,6 +25,7 @@ public class SearchHistory {
     private User user;
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private Timestamp createdAt;
 
     @Column(name = "content", nullable = false)
