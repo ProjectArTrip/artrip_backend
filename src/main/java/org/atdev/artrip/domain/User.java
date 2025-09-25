@@ -1,0 +1,66 @@
+package org.atdev.artrip.domain;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import lombok.*;
+import org.atdev.artrip.domain.Enum.Role;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EntityListeners(AuditingEntityListener.class)
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private Timestamp updatedAt;
+
+    @Enumerated(EnumType.STRING) // 여기서 STRING으로 매핑
+    @Column(name = "role", nullable = false)
+    private Role role;
+
+    @Column(name = "stamp_num")
+    private Byte stampNum;
+
+    @Column(name = "push_token")
+    private String pushToken;
+
+    @Email
+    @Column(name = "email",nullable = true)
+    private String email;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SocialAccounts> socialAccounts = new ArrayList<>();
+
+    public void updateUserInfo(String name, String email) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (email != null) {
+            this.email = email;
+        }
+    }
+}
