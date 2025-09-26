@@ -2,6 +2,7 @@ package org.atdev.artrip.auth.jwt;
 
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.auth.jwt.exception.JwtAuthenticationException;
@@ -27,8 +28,8 @@ public class JwtProvider {
 
     public JwtProvider(@Value("${spring.jwt.secret}") String secretKey) {
         log.debug("Secret key from application.yml: {}", secretKey);
-        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
-        this.key = Keys.hmacShaKeyFor(keyBytes);  // HMAC SHA Key 생성
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public Authentication getAuthentication(String accessToken) {
