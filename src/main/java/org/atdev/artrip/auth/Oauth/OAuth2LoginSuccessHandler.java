@@ -40,14 +40,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
 
-        String registrationId = authToken.getAuthorizedClientRegistrationId(); // "kakao", "google", "apple"
+        String registrationId = authToken.getAuthorizedClientRegistrationId();
         Provider provider = Provider.valueOf(registrationId.toUpperCase());
 
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
 
-        String providerId = userInfo.getId();     // provider별 구현체에서 가져오는 고유 ID
-        String email = userInfo.getEmail();       // provider별 구현체에서 가져오는 이메일
-        String name = userInfo.getName();         // provider별 구현체에서 가져오는 이름
+        String providerId = userInfo.getId();
+        String email = userInfo.getEmail();
+        String name = userInfo.getName();
 
 
         User user = userRepository.findBySocialAccountsProviderAndProviderId(provider, providerId)

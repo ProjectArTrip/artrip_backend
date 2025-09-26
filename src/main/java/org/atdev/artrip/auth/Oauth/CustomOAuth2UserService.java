@@ -51,9 +51,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            user.updateUserInfo(userInfo.getName(), userInfo.getEmail());
-            return userRepository.save(user);
+
+            boolean isUpdated = user.updateUserInfo(userInfo.getName(), userInfo.getEmail());
+            if (isUpdated) {
+                return userRepository.save(user);
+            }
+            return user;
         }
+
         User newUser = User.builder()
                 .name(userInfo.getName())
                 .email(userInfo.getEmail())

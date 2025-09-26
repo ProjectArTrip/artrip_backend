@@ -60,7 +60,7 @@ public class JwtGenerator {
                 .refreshToken(refreshToken)
                 .build();
     }
-    public String createAccessToken(Role role) {// refresh 갱신?할떄 사용
+    public String createAccessToken(Role role) {// refresh 재발행때 사용
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
