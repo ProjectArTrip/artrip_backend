@@ -55,12 +55,19 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SocialAccounts> socialAccounts = new ArrayList<>();
 
-    public void updateUserInfo(String name, String email) {
-        if (name != null) {
+    public boolean updateUserInfo(String name, String email) {
+        boolean changed = false;
+
+        if (name != null && !name.equals(this.name)) {
             this.name = name;
+            changed = true;
         }
-        if (email != null) {
+
+        if (email != null && !email.equals(this.email)) {
             this.email = email;
+            changed = true;
         }
+
+        return changed; // 변경 시 true, 없으면 false
     }
 }
