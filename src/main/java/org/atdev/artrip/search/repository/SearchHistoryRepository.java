@@ -1,6 +1,5 @@
 package org.atdev.artrip.search.repository;
 
-import org.atdev.artrip.entity.user.SearchHistory;
 import org.atdev.artrip.search.document.SearchHistoryDocument;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 

@@ -1,6 +1,6 @@
 package org.atdev.artrip.search.repository;
 
-import org.atdev.artrip.entity.user.SearchHistory;
+import org.atdev.artrip.domain.SearchHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

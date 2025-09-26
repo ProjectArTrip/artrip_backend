@@ -1,7 +1,7 @@
 package org.atdev.artrip.search.service;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.entity.user.SearchHistory;
+import org.atdev.artrip.domain.SearchHistory;
 import org.atdev.artrip.search.document.SearchHistoryDocument;
 import org.atdev.artrip.search.repository.JpaSearchHistoryRepository;
 import org.atdev.artrip.search.repository.SearchHistoryRepository;

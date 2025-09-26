@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.search.document.ExhibitDocument;
 import org.atdev.artrip.search.dto.ExhibitResponse;
 import org.atdev.artrip.search.repository.ExhibitSearchRepository;
-import org.atdev.artrip.entity.exhibit.Exhibit;
+import org.atdev.artrip.domain.Exhibit;
 import org.atdev.artrip.search.repository.ExhibitRepository;
 import org.springframework.stereotype.Service;
 
