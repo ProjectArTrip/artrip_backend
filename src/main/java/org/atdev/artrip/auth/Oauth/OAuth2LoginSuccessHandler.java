@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.auth.jwt.JwtGenerator;
 import org.atdev.artrip.auth.jwt.JwtToken;
-import org.atdev.artrip.auth.jwt.entity.RefreshToken;
-import org.atdev.artrip.auth.jwt.repository.RefreshTokenRepository;
+import org.atdev.artrip.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.Enum.Provider;
 import org.atdev.artrip.domain.User;
 import org.atdev.artrip.repository.UserRepository;
@@ -27,8 +26,8 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtGenerator jwtGenerator;
-    private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository; // 변경됨
 
 
     @Override
@@ -55,22 +54,34 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         JwtToken jwtToken = jwtGenerator.generateToken(user, user.getRole());
 
-        // RefreshToken 저장 (username = providerId 로 임시 관리)
-        refreshTokenRepository.findByUsername(providerId)
-                .ifPresentOrElse(
-                        existing -> {
-                            RefreshToken updated = existing.toBuilder()
-                                    .refreshToken(jwtToken.getRefreshToken())
-                                    .build();
-                            refreshTokenRepository.save(updated);
-                        },
-                        () -> refreshTokenRepository.save(
-                                RefreshToken.builder()
-                                        .username(providerId) // 임시 추후 email+redis로 변경
-                                        .refreshToken(jwtToken.getRefreshToken())
-                                        .build())
-                );
+//        String redisKey = "refresh:" + user.getName();
+        String refreshToken = jwtToken.getRefreshToken();
+        String redisKey = refreshToken;
 
+        refreshTokenRedisRepository.save(
+                redisKey,
+                String.valueOf(user.getUserId()),
+                1000L * 60 * 60 * 24 * 7
+        );
+
+        //  provideid로 찾기 디비저장
+//        RefreshToken 저장 (username = providerId 로 임시 관리)
+//        refreshTokenRepository.findByUsername(providerId)
+//                .ifPresentOrElse(
+//                        existing -> {
+//                            RefreshToken updated = existing.toBuilder()
+//                                    .refreshToken(jwtToken.getRefreshToken())
+//                                    .build();
+//                            refreshTokenRepository.save(updated);
+//                        },
+//                        () -> refreshTokenRepository.save(
+//                                RefreshToken.builder()
+//                                        .username(providerId) // 임시 추후 email+redis로 변경
+//                                        .refreshToken(jwtToken.getRefreshToken())
+//                                        .build())
+//                );
+
+        // 이메일로 찾기
 //        String email = (String) oAuth2User.getAttributes().get("email");
 //
 //        User user = userRepository.findByEmail(email)
@@ -114,10 +125,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader("Set-Cookie", accessCookie.toString());
 
         log.info("로그인성공 실행됨");
-
-//        response.sendRedirect("/");
-//        getRedirectStrategy().sendRedirect(request, response, redirectUri);
-
 
     }
 }
