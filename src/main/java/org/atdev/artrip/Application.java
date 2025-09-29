@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.sql.DataSource;
 
@@ -30,6 +31,24 @@ public class Application {
                 e.printStackTrace();
             }
         };
+    }
+
+    @Bean
+    public CommandLineRunner testRedis(StringRedisTemplate redisTemplate) {
+    return args -> {
+        System.out.println("Redis 연결 체크");
+
+        try {
+            redisTemplate.opsForValue().set("testKey", "greeting");
+
+            String value = redisTemplate.opsForValue().get("testKey");
+            System.out.println("Redis 연결 성공 : " + value);
+        } catch (Exception e) {
+            System.err.println("Redis 연결 실패");
+            e.printStackTrace();
+        }
+
+    };
     }
 }
 
