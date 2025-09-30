@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,6 +29,9 @@ public class JwtProvider {
         log.debug("Secret key from application.yml: {}", secretKey);
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
+    public Key getKey() {
+        return key;
     }
 
     public Authentication getAuthentication(String accessToken) {
@@ -93,6 +95,10 @@ public class JwtProvider {
             return e.getClaims();
         }
     }
+
+
+
+
 }
 
 

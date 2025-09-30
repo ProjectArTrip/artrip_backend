@@ -27,10 +27,8 @@ public class JwtGenerator {
     @Value("${spring.jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
 
-    public JwtGenerator(@Value("${spring.jwt.secret}") String secretKey) {
-
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+    public JwtGenerator(JwtProvider keyProvider) {
+        this.key = keyProvider.getKey();
     }
 
     public JwtToken generateToken(User user, Role roles) {
@@ -60,12 +58,14 @@ public class JwtGenerator {
                 .refreshToken(refreshToken)
                 .build();
     }
-    public String createAccessToken(Role role) {// refresh 재발행때 사용
+
+    public String createAccessToken(String subject, String roles) {// refresh 재발행때 사용
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
                 .setIssuer(jwtIssuer)
-                .claim("auth", role)
+                .setSubject(subject)
+                .claim("auth", roles)
                 .setExpiration(new Date(now + accessTokenExpirationMillis))
                 .setIssuedAt(new Date(now))
                 .signWith(key, SignatureAlgorithm.HS256)
