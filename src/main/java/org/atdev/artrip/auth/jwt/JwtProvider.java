@@ -96,19 +96,7 @@ public class JwtProvider {
         }
     }
 
-//    public String getUserIdFromRefreshToken(String refreshToken) {
-//        try {
-//            Claims claims = Jwts.parserBuilder()
-//                    .setSigningKey(key) // JWT 생성 시 사용한 same secret key
-//                    .build()
-//                    .parseClaimsJws(refreshToken)
-//                    .getBody();
-//
-//            return claims.getSubject(); // JWT 발급 시 userId를 subject에 넣었으면 그대로 가져오기
-//        } catch (JwtException e) {
-//            throw new JwtAuthenticationException("리프레시 토큰이 유효하지 않습니다.");
-//        }
-//    }
+
 
 
 }

@@ -11,7 +11,6 @@ import java.time.Duration;
 public class RefreshTokenRedisRepository {
 
     private final StringRedisTemplate redisTemplate;
-//    private static final String PREFIX = "refresh:";
 
     public void save(String key, String userid, long expirationMillis) {
         redisTemplate.opsForValue().set(
