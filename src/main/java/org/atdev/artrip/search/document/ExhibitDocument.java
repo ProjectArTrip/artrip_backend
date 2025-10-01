@@ -2,6 +2,8 @@ package org.atdev.artrip.search.document;
 
 import jakarta.persistence.Id;
 import lombok.Data;
+import org.atdev.artrip.domain.Enum.Genre;
+import org.atdev.artrip.domain.Enum.Status;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -28,10 +30,10 @@ public class ExhibitDocument {
 //    @Field(type = FieldType.Date, format = DateFormat.epoch_millis)
     private Long endDate;
 
-    private String status;
+    private Status status;
     private String posterUrl;
     private String ticketUrl;
-    private String genre;
+    private Genre genre;
     private BigDecimal latitude;
     private BigDecimal longitude;
 

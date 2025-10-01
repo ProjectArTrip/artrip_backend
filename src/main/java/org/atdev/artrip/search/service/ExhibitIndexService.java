@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.search.document.ExhibitDocument;
 import org.atdev.artrip.search.dto.ExhibitResponse;
 import org.atdev.artrip.search.repository.ExhibitSearchRepository;
-import org.atdev.artrip.domain.Exhibit;
+import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.search.repository.ExhibitRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,12 +30,12 @@ public class ExhibitIndexService {
             doc.setId(e.getExhibitId());
             doc.setTitle(e.getTitle());
             doc.setDescription(e.getDescription());
-            doc.setStartDate(e.getStartDate() != null ? e.getStartDate().getTime() : null);
-            doc.setEndDate(e.getEndDate() != null ? e.getEndDate().getTime() : null);
-            doc.setStatus(e.getStatus().toString());
+            doc.setStartDate(e.getStartDate() != null ? e.getStartDate().toInstant(ZoneOffset.UTC).toEpochMilli() : null);
+            doc.setEndDate(e.getEndDate() != null ? e.getEndDate().toInstant(ZoneOffset.UTC).toEpochMilli() : null);
+            doc.setStatus(e.getStatus());
             doc.setPosterUrl(e.getPosterUrl());
             doc.setTicketUrl(e.getTicketUrl());
-            doc.setGenre(e.getGenre().toString());
+            doc.setGenre(e.getGenre());
             doc.setLatitude(e.getLatitude());
             doc.setLongitude(e.getLongitude());
 
