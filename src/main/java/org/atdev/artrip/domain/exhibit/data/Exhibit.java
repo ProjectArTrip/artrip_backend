@@ -7,7 +7,6 @@ import org.atdev.artrip.domain.Enum.Status;
 import org.atdev.artrip.domain.ExhibitHall;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
