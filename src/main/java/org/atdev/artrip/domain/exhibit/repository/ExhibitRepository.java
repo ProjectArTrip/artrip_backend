@@ -1,4 +1,4 @@
-package org.atdev.artrip.search.repository;
+package org.atdev.artrip.domain.exhibit.repository;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +9,8 @@ import java.util.List;
 
 @Repository
 public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
+
+
     @Query(value = "SELECT * FROM exhibit ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<Exhibit> findRandomExhibits(@Param("limit") int limit);
 
@@ -19,6 +21,9 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
         LIMIT :limit
         """, nativeQuery = true)
     List<Exhibit> findThemeExhibits(@Param("genre") String genre, @Param("limit") int limit);
+
+
+
 
 
 
