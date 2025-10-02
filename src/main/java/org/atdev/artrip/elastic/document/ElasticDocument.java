@@ -1,22 +1,21 @@
-package org.atdev.artrip.search.document;
+package org.atdev.artrip.elastic.document;
 
 import jakarta.persistence.Id;
 import lombok.Data;
+<<<<<<< HEAD:src/main/java/org/atdev/artrip/search/document/ExhibitDocument.java
 import org.atdev.artrip.domain.Enum.Genre;
 import org.atdev.artrip.domain.Enum.Status;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
+=======
+>>>>>>> developer:src/main/java/org/atdev/artrip/elastic/document/ElasticDocument.java
 import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 
 @Data
 @Document(indexName = "exhibits")
-public class ExhibitDocument {
+public class ElasticDocument {
 
     @Id
     private Long id;

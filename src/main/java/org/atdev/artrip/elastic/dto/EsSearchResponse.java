@@ -1,4 +1,4 @@
-package org.atdev.artrip.search.dto;
+package org.atdev.artrip.elastic.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import org.atdev.artrip.domain.Enum.Status;
 @Data
 @Builder
 @AllArgsConstructor
-public class ExhibitResponse {
+public class EsSearchResponse {
 
     private Long id;
     private String title;

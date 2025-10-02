@@ -1,4 +1,4 @@
-package org.atdev.artrip.search.document;
+package org.atdev.artrip.elastic.document;
 
 import jakarta.persistence.Id;
 import lombok.Data;
@@ -7,11 +7,9 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.time.LocalDateTime;
-
 @Data
 @Document(indexName = "search_history")
-public class SearchHistoryDocument {
+public class EsSearchHistoryDocument {
 
     @Id
     private String id;
