@@ -2,8 +2,10 @@ package org.atdev.artrip.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.domain.exhibit.data.Exhibit;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -35,10 +37,10 @@ public class Review {
     private Timestamp visitDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Stamp> stamps;
@@ -47,7 +49,7 @@ public class Review {
     private List<Imges> images;
 
     // 편의 메서드: 리뷰 업데이트
-    public void updateContent(String newContent, Timestamp updatedAt) {
+    public void updateContent(String newContent, LocalDateTime updatedAt) {
         this.content = newContent;
         this.updatedAt = updatedAt;
     }

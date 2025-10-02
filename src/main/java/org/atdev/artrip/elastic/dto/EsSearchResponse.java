@@ -3,6 +3,8 @@ package org.atdev.artrip.elastic.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.atdev.artrip.domain.Enum.Genre;
+import org.atdev.artrip.domain.Enum.Status;
 
 @Data
 @Builder
@@ -16,10 +18,10 @@ public class EsSearchResponse {
     private String startDate;
     private String endDate;
 
-    private String status;
+    private Status status;
     private String posterUrl;
     private String ticketUrl;
-    private String genre;
+    private Genre genre;
 
     private Double latitude;
     private Double longitude;

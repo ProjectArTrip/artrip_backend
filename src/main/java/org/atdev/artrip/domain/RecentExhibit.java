@@ -2,8 +2,10 @@ package org.atdev.artrip.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.atdev.artrip.domain.exhibit.data.Exhibit;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "recent_exhibit", schema = "art_dev")
@@ -23,5 +25,5 @@ public class RecentExhibit {
     private Exhibit exhibit;
 
     @Column(name = "view_at")
-    private Timestamp viewAt;
+    private LocalDateTime viewAt;
 }

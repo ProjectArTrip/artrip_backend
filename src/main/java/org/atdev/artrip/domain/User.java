@@ -35,7 +35,7 @@ public class User {
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING) // 여기서 STRING으로 매핑
     @Column(name = "role", nullable = false)
