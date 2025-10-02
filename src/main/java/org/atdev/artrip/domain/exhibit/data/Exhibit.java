@@ -1,12 +1,14 @@
-package org.atdev.artrip.domain;
+package org.atdev.artrip.domain.exhibit.data;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.domain.Enum.Genre;
 import org.atdev.artrip.domain.Enum.Status;
+import org.atdev.artrip.domain.ExhibitHall;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "exhibit", schema = "art_dev")
@@ -22,8 +24,9 @@ public class Exhibit {
     @Column(name = "exhibit_id")
     private Long exhibitId;
 
-    @Column(name = "exhibit_hall_id")
-    private Long exhibitHallId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exhibit_hall_id")
+    private ExhibitHall exhibitHall;
 
     @Column(name = "title")
     private String title;
@@ -32,10 +35,10 @@ public class Exhibit {
     private String description;
 
     @Column(name = "start_date")
-    private Timestamp startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date")
-    private Timestamp endDate;
+    private LocalDateTime endDate;
 
     @Enumerated(EnumType.STRING) // DB가 CHAR/VARCHAR이면 STRING
     @Column(name = "status", nullable = false)
@@ -48,10 +51,10 @@ public class Exhibit {
     private String ticketUrl;
 
     @Column(name = "created_at", updatable = false)
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Timestamp updatedAt;
+    private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "genre", nullable = false)

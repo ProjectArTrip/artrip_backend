@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notification", schema = "art_dev")
@@ -30,7 +31,7 @@ public class Notification {
     private String message;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "is_read")
     private Boolean isRead;  // Byte → Boolean로 변경, true = 읽음, false = 안 읽음

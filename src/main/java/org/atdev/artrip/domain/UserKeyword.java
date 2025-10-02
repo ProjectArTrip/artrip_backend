@@ -3,6 +3,7 @@ package org.atdev.artrip.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user_keyword", schema = "art_dev")
@@ -27,5 +28,5 @@ public class UserKeyword {
     private Keyword keyword;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 }

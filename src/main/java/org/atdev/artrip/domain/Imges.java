@@ -2,8 +2,10 @@ package org.atdev.artrip.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.atdev.artrip.domain.exhibit.data.Exhibit;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "imges", schema = "art_dev")
@@ -33,5 +35,5 @@ public class Imges {
     private Integer curationId;
 
     @Column(name = "created_at")
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 }
