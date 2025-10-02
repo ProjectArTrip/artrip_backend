@@ -6,8 +6,11 @@ import org.atdev.artrip.domain.Enum.Genre;
 import org.atdev.artrip.domain.Enum.Status;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -20,11 +23,11 @@ public class ElasticDocument {
     private String title;
     private String description;
 
-//    @Field(type = FieldType.Date, format = DateFormat.epoch_millis)
-    private Long startDate;
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    private LocalDateTime startDate;
 
-//    @Field(type = FieldType.Date, format = DateFormat.epoch_millis)
-    private Long endDate;
+    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
+    private LocalDateTime endDate;
 
     private Status status;
     private String posterUrl;
