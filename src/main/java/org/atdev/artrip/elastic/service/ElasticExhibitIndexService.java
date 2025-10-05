@@ -7,13 +7,11 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.elastic.document.ElasticDocument;
 import org.atdev.artrip.elastic.dto.EsSearchResponse;
 import org.atdev.artrip.elastic.repository.ElasticExhibitSearchRepository;
-import org.atdev.artrip.domain.Exhibit;
+import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.elastic.repository.EsExhibitRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,12 +29,12 @@ public class ElasticExhibitIndexService {
         doc.setId(exhibit.getExhibitId());
         doc.setTitle(exhibit.getTitle());
         doc.setDescription(exhibit.getDescription());
-        doc.setStartDate(exhibit.getStartDate() != null ? exhibit.getStartDate().getTime() : null);
-        doc.setEndDate(exhibit.getEndDate() != null ? exhibit.getEndDate().getTime() : null);
-        doc.setStatus(exhibit.getStatus() != null ? exhibit.getStatus().toString() : null);
+        doc.setStartDate(exhibit.getStartDate());
+        doc.setEndDate(exhibit.getEndDate());
+        doc.setStatus(exhibit.getStatus());
         doc.setPosterUrl(exhibit.getPosterUrl());
         doc.setTicketUrl(exhibit.getTicketUrl());
-        doc.setGenre(exhibit.getGenre() != null ? exhibit.getGenre().toString() : null);
+        doc.setGenre(exhibit.getGenre());
         doc.setLatitude(exhibit.getLatitude());
         doc.setLongitude(exhibit.getLongitude());
         return doc;
@@ -61,8 +59,8 @@ public class ElasticExhibitIndexService {
 
             return count;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            log.error("Elasticsearch indexing error: {}", e.getClass().getName(), e);
+            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -76,8 +74,8 @@ public class ElasticExhibitIndexService {
         }
     }
 
-    public List<EsSearchResponse> searchExhibits(String keyword){
-        ZoneId zone = ZoneId.systemDefault();
+    public List<EsSearchResponse> searchExhibits(String keyword) {
+
         DateTimeFormatter fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
         List<ElasticDocument> docs = elasticExhibitSearchRepository.findByTitleContaining(keyword);
@@ -87,16 +85,11 @@ public class ElasticExhibitIndexService {
                         .id(doc.getId())
                         .title(doc.getTitle())
                         .description(doc.getDescription())
+                        // ⭐ 이미 LocalDateTime이므로 그냥 format만 하면 됨
                         .startDate(doc.getStartDate() == null ? null :
-                                Instant.ofEpochMilli(doc.getStartDate())
-                                        .atZone(zone)
-                                        .toLocalDateTime()
-                                        .format(fmt))
+                                doc.getStartDate().format(fmt))
                         .endDate(doc.getEndDate() == null ? null :
-                                Instant.ofEpochMilli(doc.getEndDate())
-                                        .atZone(zone)
-                                        .toLocalDateTime()
-                                        .format(fmt))
+                                doc.getEndDate().format(fmt))
                         .status(doc.getStatus())
                         .posterUrl(doc.getPosterUrl())
                         .ticketUrl(doc.getTicketUrl())
