@@ -1,7 +1,7 @@
-package org.atdev.artrip.search;
+package org.atdev.artrip.elastic;
 
-import org.atdev.artrip.search.repository.ExhibitSearchRepository;
-import org.atdev.artrip.search.service.ExhibitIndexService;
+import org.atdev.artrip.elastic.repository.ElasticExhibitSearchRepository;
+import org.atdev.artrip.elastic.service.ElasticExhibitIndexService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,10 +10,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class ExhibitSearchTest {
 
     @Autowired
-    ExhibitIndexService indexService;
+    ElasticExhibitIndexService indexService;
 
     @Autowired
-    ExhibitSearchRepository repository;
+    ElasticExhibitSearchRepository repository;
 
     @Test
     void testSearch(){
