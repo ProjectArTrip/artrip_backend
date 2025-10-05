@@ -2,6 +2,7 @@ package org.atdev.artrip.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.domain.auth.data.User;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
