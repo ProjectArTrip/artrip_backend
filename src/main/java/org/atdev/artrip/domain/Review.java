@@ -2,6 +2,7 @@ package org.atdev.artrip.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 
 import java.sql.Timestamp;

@@ -1,7 +1,7 @@
 package org.atdev.artrip.domain.home.web.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.home.reponse.HomeExhibitResponse;
+import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,6 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
-
     @GetMapping("/genre")
     public ResponseEntity<List<HomeExhibitResponse>> getRandomExhibits(
             @RequestParam(defaultValue = "전체") String genre) {
@@ -39,5 +38,6 @@ public class HomeController {
 //        List<HomeExhibitResponse> exhibits = exhibitService.getCuratedExhibits();
 //        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
 //    }
+
 
 }
