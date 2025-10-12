@@ -1,33 +1,32 @@
-package org.atdev.artrip.domain;
+package org.atdev.artrip.domain.keyword.data;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.domain.auth.data.User;
-import org.atdev.artrip.domain.exhibit.data.Exhibit;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "favorite_exhibit", schema = "art_dev")
+@Table(name = "user_keyword", schema = "art_dev")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FavoriteExhibit {
+public class UserKeyword {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "favorite_id")
-    private Long favoriteId;
+    @Column(name = "id")
+    private Long Id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exhibit_id", nullable = false)
-    private Exhibit exhibit;
+    @JoinColumn(name = "keyword_id")
+    private Keyword keyword;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

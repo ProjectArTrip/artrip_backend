@@ -3,12 +3,10 @@ package org.atdev.artrip.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.domain.Enum.Provider;
+import org.atdev.artrip.domain.auth.data.User;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "social_accounts", schema = "art_dev")
