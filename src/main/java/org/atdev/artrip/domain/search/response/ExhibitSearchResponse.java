@@ -1,4 +1,4 @@
-package org.atdev.artrip.elastic.dto;
+package org.atdev.artrip.domain.search.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,12 @@ import lombok.Data;
 import org.atdev.artrip.domain.Enum.Genre;
 import org.atdev.artrip.domain.Enum.Status;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 @AllArgsConstructor
-public class EsSearchResponse {
+public class ExhibitSearchResponse {
 
     private Long id;
     private String title;
@@ -23,6 +25,6 @@ public class EsSearchResponse {
     private String ticketUrl;
     private Genre genre;
 
-    private Double latitude;
-    private Double longitude;
+    private BigDecimal latitude;
+    private BigDecimal longitude;
 }

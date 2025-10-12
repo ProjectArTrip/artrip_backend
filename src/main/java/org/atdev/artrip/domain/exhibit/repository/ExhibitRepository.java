@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -21,6 +23,8 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
         LIMIT :limit
         """, nativeQuery = true)
     List<Exhibit> findThemeExhibits(@Param("genre") String genre, @Param("limit") int limit);
+
+    List<Exhibit> findByUpdatedAtAfter(LocalDateTime time);
 
 
 

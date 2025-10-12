@@ -1,7 +1,10 @@
 package org.atdev.artrip.elastic.document;
 
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.atdev.artrip.domain.Enum.Genre;
 import org.atdev.artrip.domain.Enum.Status;
 import org.springframework.data.elasticsearch.annotations.DateFormat;
@@ -14,8 +17,11 @@ import java.time.LocalDateTime;
 
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Document(indexName = "exhibits")
-public class ElasticDocument {
+public class ExhibitDocument {
 
     @Id
     private Long id;

@@ -1,10 +1,12 @@
-package org.atdev.artrip.domain;
+package org.atdev.artrip.domain.search.data;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.domain.User;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "search_history", schema = "art_dev")
@@ -26,7 +28,7 @@ public class SearchHistory {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    private Timestamp createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "content", nullable = false)
     private String content;

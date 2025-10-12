@@ -1,8 +1,8 @@
-package org.atdev.artrip.global.config;
+package org.atdev.artrip.elastic.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.elastic.service.ElasticExhibitIndexService;
+import org.atdev.artrip.elastic.service.ExhibitIndexService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class ElasticsearchConfig {
+public class ElasticsearchIndexConfig {
 
-    private final ElasticExhibitIndexService indexService;
+    private final ExhibitIndexService indexService;
 
     @Bean
     @Profile("!test")
