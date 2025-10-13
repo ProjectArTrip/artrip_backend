@@ -2,8 +2,8 @@ package org.atdev.artrip.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.domain.auth.data.User;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity

@@ -1,10 +1,10 @@
 package org.atdev.artrip.global.config;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.auth.Oauth.CustomOAuth2UserService;
-import org.atdev.artrip.auth.Oauth.OAuth2LoginSuccessHandler;
-import org.atdev.artrip.auth.jwt.JwtAuthenticationFilter;
-import org.atdev.artrip.auth.jwt.JwtProvider;
+import org.atdev.artrip.domain.auth.Oauth.CustomOAuth2UserService;
+import org.atdev.artrip.domain.auth.Oauth.OAuth2LoginSuccessHandler;
+import org.atdev.artrip.domain.auth.jwt.JwtAuthenticationFilter;
+import org.atdev.artrip.domain.auth.jwt.JwtProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

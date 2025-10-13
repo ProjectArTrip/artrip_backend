@@ -1,34 +1,35 @@
-package org.atdev.artrip.domain;
+package org.atdev.artrip.domain.search.data;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.domain.auth.data.User;
-import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "favorite_exhibit", schema = "art_dev")
+@Table(name = "search_history", schema = "art_dev")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FavoriteExhibit {
+public class SearchHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "favorite_id")
-    private Long favoriteId;
+    @Column(name = "search_history_id")
+    private Long searchHistoryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exhibit_id", nullable = false)
-    private Exhibit exhibit;
-
     @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @Column(name = "content", nullable = false)
+    private String content;
 }
