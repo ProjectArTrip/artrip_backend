@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "exhibit", schema = "art_dev")
+@EntityListeners(ExhibitEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
