@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.atdev.artrip.domain.User;
+import org.atdev.artrip.domain.auth.data.User;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

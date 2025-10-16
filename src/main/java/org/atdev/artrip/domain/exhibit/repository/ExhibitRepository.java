@@ -26,9 +26,4 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
 
     List<Exhibit> findByUpdatedAtAfter(LocalDateTime time);
 
-
-
-
-
-
 }
