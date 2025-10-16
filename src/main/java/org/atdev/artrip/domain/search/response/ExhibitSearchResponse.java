@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.atdev.artrip.domain.Enum.Status;
+import org.atdev.artrip.elastic.document.KeywordInfo;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,8 +24,9 @@ public class ExhibitSearchResponse {
     private Status status;
     private String posterUrl;
     private String ticketUrl;
-    private Genre genre;
 
     private BigDecimal latitude;
     private BigDecimal longitude;
+
+    private List<KeywordInfo> keywords;
 }
