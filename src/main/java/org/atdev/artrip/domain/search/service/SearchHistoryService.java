@@ -2,14 +2,14 @@ package org.atdev.artrip.domain.search.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.domain.User;
+import org.atdev.artrip.domain.auth.data.User;
+import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.search.data.SearchHistory;
 import org.atdev.artrip.domain.search.repository.SearchHistoryRepository;
 import org.atdev.artrip.elastic.document.SearchHistoryDocument;
 import org.atdev.artrip.elastic.repository.SearchHistoryDocumentRepository;
 import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

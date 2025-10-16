@@ -2,12 +2,14 @@ package org.atdev.artrip.domain.exhibit.data;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.atdev.artrip.domain.Enum.Genre;
 import org.atdev.artrip.domain.Enum.Status;
 import org.atdev.artrip.domain.ExhibitHall;
+import org.atdev.artrip.domain.keyword.data.Keyword;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "exhibit", schema = "art_dev")
@@ -42,7 +44,7 @@ public class Exhibit {
 
     @Enumerated(EnumType.STRING) // DB가 CHAR/VARCHAR이면 STRING
     @Column(name = "status", nullable = false)
-    private Status status; // Java enum
+    private Status status;
 
     @Column(name = "poster_url")
     private String posterUrl;
@@ -56,13 +58,17 @@ public class Exhibit {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "genre", nullable = false)
-    private Genre genre;
-
     @Column(name = "latitude")
     private BigDecimal latitude;
 
     @Column(name = "longitude")
     private BigDecimal longitude;
+
+    @ManyToMany
+    @JoinTable(
+            name = "exhibit_keyword",
+            joinColumns = @JoinColumn(name = "exhibit_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
+    )
+    private Set<Keyword> keywords = new HashSet<>();
 }

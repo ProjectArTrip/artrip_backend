@@ -3,7 +3,6 @@ package org.atdev.artrip.domain.search.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.atdev.artrip.domain.Enum.Genre;
 import org.atdev.artrip.domain.Enum.Status;
 
 import java.math.BigDecimal;
