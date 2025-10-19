@@ -20,7 +20,8 @@ public class HomeController {
     private final HomeService homeService;
 
     @GetMapping("recommend/today")
-    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getTodayRecommendations() {
+    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getTodayRecommendations(
+    ) {
         List<HomeExhibitResponse> exhibits = homeService.getTodayRecommendedExhibits();
         return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }

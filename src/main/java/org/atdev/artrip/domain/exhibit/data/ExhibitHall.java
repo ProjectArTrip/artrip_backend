@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain;
+package org.atdev.artrip.domain.exhibit.data;
 
 import jakarta.persistence.*;
 import lombok.*;

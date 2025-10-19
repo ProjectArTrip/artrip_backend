@@ -48,7 +48,7 @@ public class ExhibitSearchService {
                 .status(doc.getStatus())
                 .posterUrl(doc.getPosterUrl())
                 .ticketUrl(doc.getTicketUrl())
-                .genre(doc.getGenre())
+//                .genre(doc.getGenre())
                 .latitude(doc.getLatitude())
                 .longitude(doc.getLongitude())
                 .build();

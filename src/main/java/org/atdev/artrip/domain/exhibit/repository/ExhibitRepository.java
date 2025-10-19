@@ -16,6 +16,16 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     @Query(value = "SELECT * FROM exhibit ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<Exhibit> findRandomExhibits(@Param("limit") int limit);
 
+//    @Query(value = """
+//    SELECT *
+//    FROM exhibit
+//    WHERE region = :region
+//    ORDER BY RAND()
+//    LIMIT :limit
+//    """, nativeQuery = true)
+//    List<Exhibit> findRandomExhibitsByRegion(@Param("region") String region,
+//                                             @Param("limit") int limit);
+
     @Query(value = """
         SELECT * FROM exhibit
         WHERE (:genre = '전체' OR genre = :genre)

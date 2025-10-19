@@ -37,7 +37,7 @@ public class ExhibitDocument {
     private Status status;
     private String posterUrl;
     private String ticketUrl;
-    private Genre genre;
+//    private Genre genre;
     private BigDecimal latitude;
     private BigDecimal longitude;
 

@@ -22,7 +22,7 @@ public class ExhibitSearchResponse {
     private Status status;
     private String posterUrl;
     private String ticketUrl;
-    private Genre genre;
+//    private String genre;
 
     private BigDecimal latitude;
     private BigDecimal longitude;

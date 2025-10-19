@@ -20,7 +20,7 @@ public class HomeService {
 
     // 오늘 추천 전시
     public List<HomeExhibitResponse> getTodayRecommendedExhibits() {
-        return exhibitRepository.findRandomExhibits(5)
+        return exhibitRepository.findRandomExhibits(3)
                 .stream()
                 .map(this::toHomeExhibitResponse)
                 .toList();
