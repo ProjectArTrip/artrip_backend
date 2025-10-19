@@ -27,7 +27,7 @@ public class SearchController {
     public ApiResponse<List<ExhibitSearchResponse>> searchExhibits(@RequestParam String keyword
     , @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = extractUserId(userDetails);
-        List<ExhibitSearchResponse> results = exhibitSearchService.search(keyword, userId);
+        List<ExhibitSearchResponse> results = exhibitSearchService.keywordSearch(keyword, userId);
         return ApiResponse.onSuccess(results);
     }
 
