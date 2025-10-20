@@ -24,10 +24,7 @@ public class ExhibitSearchResponse {
     private Status status;
     private String posterUrl;
     private String ticketUrl;
-<<<<<<< HEAD
-=======
 
->>>>>>> developer
     private BigDecimal latitude;
     private BigDecimal longitude;
 

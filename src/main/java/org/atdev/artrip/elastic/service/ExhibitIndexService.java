@@ -42,10 +42,6 @@ public class ExhibitIndexService {
                 .status(exhibit.getStatus())
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
-<<<<<<< HEAD
-//                .genre(exhibit.getGenre())
-=======
->>>>>>> developer
                 .latitude(exhibit.getLatitude())
                 .longitude(exhibit.getLongitude())
                 .keywords(keywordInfos)

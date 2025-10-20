@@ -48,10 +48,6 @@ public class ExhibitSearchService {
                 .status(doc.getStatus())
                 .posterUrl(doc.getPosterUrl())
                 .ticketUrl(doc.getTicketUrl())
-<<<<<<< HEAD
-//                .genre(doc.getGenre())
-=======
->>>>>>> developer
                 .latitude(doc.getLatitude())
                 .longitude(doc.getLongitude())
                 .keywords(doc.getKeywords())
