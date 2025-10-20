@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
@@ -39,5 +40,11 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     List<String> findAllGenres();
 
     List<Exhibit> findByUpdatedAtAfter(LocalDateTime time);
+
+    @Query("SELECT DISTINCT e FROM Exhibit e LEFT JOIN FETCH e.keywords WHERE e.exhibitId = :id")
+    Optional<Exhibit> findByIdWithKeywords(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT e FROM Exhibit e LEFT JOIN FETCH e.keywords")
+    List<Exhibit> findAllWithKeywords();
 
 }

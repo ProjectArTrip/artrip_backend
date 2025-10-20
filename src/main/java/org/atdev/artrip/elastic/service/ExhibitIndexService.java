@@ -3,6 +3,7 @@ package org.atdev.artrip.elastic.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
+import org.atdev.artrip.elastic.document.KeywordInfo;
 import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.elastic.document.ExhibitDocument;
@@ -25,6 +26,13 @@ public class ExhibitIndexService {
     private final ExhibitDocumentRepository exhibitDocumentRepository;
 
     private ExhibitDocument convertToDocument(Exhibit exhibit) {
+        List<KeywordInfo> keywordInfos = exhibit.getKeywords().stream()
+                .map(keyword -> KeywordInfo.builder()
+                        .name(keyword.getName())
+                        .type(keyword.getType())
+                        .build())
+                .collect(Collectors.toList());
+
         return ExhibitDocument.builder()
                 .id(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
@@ -34,16 +42,20 @@ public class ExhibitIndexService {
                 .status(exhibit.getStatus())
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
+<<<<<<< HEAD
 //                .genre(exhibit.getGenre())
+=======
+>>>>>>> developer
                 .latitude(exhibit.getLatitude())
                 .longitude(exhibit.getLongitude())
+                .keywords(keywordInfos)
                 .build();
     }
 
     @Transactional
     public int indexAllExhibits(){
         try{
-            List<Exhibit> exhibits = exhibitRepository.findAll();
+            List<Exhibit> exhibits = exhibitRepository.findAllWithKeywords();
             int count = exhibits.size();
 
             if (exhibits.isEmpty()) {

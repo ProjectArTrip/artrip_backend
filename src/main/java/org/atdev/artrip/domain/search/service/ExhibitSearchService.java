@@ -18,11 +18,11 @@ public class ExhibitSearchService {
     private final ExhibitDocumentRepository exhibitDocumentRepository;
     private final SearchHistoryService searchHistoryService;
 
-    public List<ExhibitSearchResponse> search(String keyword, Long userId) {
+    public List<ExhibitSearchResponse> keywordSearch(String keyword, Long userId) {
         log.info("Searching for exhibits for user= {}, keyword= {}", userId, keyword);
 
-        List<ExhibitDocument> docs = exhibitDocumentRepository.findByTitleContaining(keyword);
-        log.info("Found {} exhibits for user= {}", docs.size(), userId);
+        List<ExhibitDocument> docs = exhibitDocumentRepository
+                .findByTitleContainingOrKeywordsNameContaining(keyword, keyword);
 
         if (userId != null && !keyword.isBlank()) {
             try {
@@ -48,9 +48,13 @@ public class ExhibitSearchService {
                 .status(doc.getStatus())
                 .posterUrl(doc.getPosterUrl())
                 .ticketUrl(doc.getTicketUrl())
+<<<<<<< HEAD
 //                .genre(doc.getGenre())
+=======
+>>>>>>> developer
                 .latitude(doc.getLatitude())
                 .longitude(doc.getLongitude())
+                .keywords(doc.getKeywords())
                 .build();
     }
 
