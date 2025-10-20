@@ -3,7 +3,7 @@ package org.atdev.artrip.domain.exhibit.data;
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.domain.Enum.Status;
-import org.atdev.artrip.domain.ExhibitHall;
+import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 
 import java.math.BigDecimal;
