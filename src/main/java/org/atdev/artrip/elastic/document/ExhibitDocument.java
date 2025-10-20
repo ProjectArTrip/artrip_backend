@@ -13,6 +13,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Data
@@ -37,8 +38,9 @@ public class ExhibitDocument {
     private Status status;
     private String posterUrl;
     private String ticketUrl;
-    private Genre genre;
     private BigDecimal latitude;
     private BigDecimal longitude;
+
+    private List<KeywordInfo> keywords;
 
 }
