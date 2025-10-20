@@ -36,11 +36,14 @@ public class HomeService {
 
     public List<HomeExhibitResponse> getThemeExhibits(String genre) {
 
-
-        return exhibitRepository.findThemeExhibits(genre, 5)
+        return exhibitRepository.findThemeExhibits(genre, 3)
                 .stream()
                 .map(this::toHomeExhibitResponse)
                 .toList();
+    }
+
+    public List<String> getAllGenres() {
+        return exhibitRepository.findAllGenres();
     }
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {

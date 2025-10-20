@@ -27,6 +27,12 @@ public class HomeController {
     }
 
     @GetMapping("/genre")
+    public ResponseEntity<List<String>> getGenres(){
+        List<String> genres = homeService.getAllGenres();
+        return ResponseEntity.ok(genres);
+    }
+
+    @GetMapping("/genre/theme")
     public ResponseEntity<List<HomeExhibitResponse>> getRandomExhibits(
             @RequestParam(defaultValue = "전체") String genre) {
 

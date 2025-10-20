@@ -16,23 +16,27 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     @Query(value = "SELECT * FROM exhibit ORDER BY RAND() LIMIT :limit", nativeQuery = true)
     List<Exhibit> findRandomExhibits(@Param("limit") int limit);
 
-//    @Query(value = """
-//    SELECT *
-//    FROM exhibit
-//    WHERE region = :region
-//    ORDER BY RAND()
-//    LIMIT :limit
-//    """, nativeQuery = true)
-//    List<Exhibit> findRandomExhibitsByRegion(@Param("region") String region,
-//                                             @Param("limit") int limit);
 
     @Query(value = """
-        SELECT * FROM exhibit
-        WHERE (:genre = '전체' OR genre = :genre)
-        ORDER BY RAND()
-        LIMIT :limit
-        """, nativeQuery = true)
+    SELECT e.*
+    FROM exhibit e
+    JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
+    JOIN keyword k ON ek.keyword_id = k.keyword_id
+    WHERE k.keyword_type = 'GENRE'
+      AND k.keyword_name = :genre
+      AND e.end_date >= NOW()
+    ORDER BY RAND()
+    LIMIT :limit
+    """, nativeQuery = true)
     List<Exhibit> findThemeExhibits(@Param("genre") String genre, @Param("limit") int limit);
+
+    @Query(value = """
+        SELECT DISTINCT k.keyword_name
+        FROM keyword k
+        WHERE k.keyword_type = 'GENRE'
+        ORDER BY k.keyword_name ASC
+        """, nativeQuery = true)
+    List<String> findAllGenres();
 
     List<Exhibit> findByUpdatedAtAfter(LocalDateTime time);
 
