@@ -46,6 +46,22 @@ public class HomeService {
         return exhibitRepository.findAllGenres();
     }
 
+    public List<HomeExhibitResponse> getAllgenreExhibits(String genre,Boolean isDomestic){
+
+        return exhibitRepository.findAllByGenreAndDomestic(genre, isDomestic)
+                .stream()
+                .map(this::toHomeExhibitResponse)
+                .toList();
+    }
+
+    public HomeExhibitResponse getExhibitDetail(Long exhibitId) {
+        Exhibit exhibit = exhibitRepository.findById(exhibitId)
+                .orElseThrow(() -> new RuntimeException("해당 전시를 찾을 수 없습니다"));
+
+        return toHomeExhibitResponse(exhibit);
+    }
+
+
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
         var hall = exhibit.getExhibitHall();
         return HomeExhibitResponse.builder()

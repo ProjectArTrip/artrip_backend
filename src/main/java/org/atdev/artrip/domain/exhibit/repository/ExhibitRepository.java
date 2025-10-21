@@ -41,6 +41,23 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     List<Exhibit> findThemeExhibits(@Param("genre") String genre, @Param("limit") int limit, @Param("isDomestic") Boolean isDomestic);
 
     @Query(value = """
+    SELECT e.*
+    FROM exhibit e
+    JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
+    JOIN keyword k ON ek.keyword_id = k.keyword_id
+    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
+    WHERE k.type = 'GENRE'
+      AND k.name = :genre
+      AND e.end_date >= NOW()
+      AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
+    """, nativeQuery = true)
+    List<Exhibit> findAllByGenreAndDomestic(
+            @Param("genre") String genre,
+            @Param("isDomestic") Boolean isDomestic
+    );
+
+
+    @Query(value = """
         SELECT DISTINCT k.name
         FROM keyword k
         WHERE k.type = 'GENRE'

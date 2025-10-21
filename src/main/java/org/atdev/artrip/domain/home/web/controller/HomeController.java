@@ -6,10 +6,7 @@ import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -44,6 +41,27 @@ public class HomeController {
         List<HomeExhibitResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
         return ResponseEntity.ok(exhibits);
     }
+
+    @Operation(summary = "장르별 전체 조회", description = "true=국내, false=국외")
+    @GetMapping("/genre/all")
+    public ResponseEntity<List<HomeExhibitResponse>> getAllExhibits(
+            @RequestParam String genre,
+            @RequestParam Boolean isDomestic){
+
+        List<HomeExhibitResponse> exhibits = homeService.getAllgenreExhibits(genre,isDomestic);
+        return ResponseEntity.ok(exhibits);
+    }
+
+    @Operation(summary = "장르 상세 조회")
+    @GetMapping("/genre/{id}")
+    public ResponseEntity<HomeExhibitResponse> getExhibit(
+            @PathVariable Long id){
+
+        HomeExhibitResponse exhibit= homeService.getExhibitDetail(id);
+
+        return ResponseEntity.ok(exhibit);
+    }
+
 
     //    @GetMapping("/curation")
 //    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getCuratedExhibits() {
