@@ -1,6 +1,7 @@
 package org.atdev.artrip.domain.search.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.search.service.SearchHistoryService;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/search")
 @Slf4j
+@Tag(name = "Search", description = "전시회 검색 및 검색어 관리 API")
 public class SearchController {
 
     private final ExhibitSearchService exhibitSearchService;
