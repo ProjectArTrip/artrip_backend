@@ -23,8 +23,8 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     FROM exhibit e
     JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
     JOIN keyword k ON ek.keyword_id = k.keyword_id
-    WHERE k.keyword_type = 'GENRE'
-      AND k.keyword_name = :genre
+    WHERE k.type = 'GENRE'
+      AND k.name = :genre
       AND e.end_date >= NOW()
     ORDER BY RAND()
     LIMIT :limit
@@ -32,10 +32,10 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     List<Exhibit> findThemeExhibits(@Param("genre") String genre, @Param("limit") int limit);
 
     @Query(value = """
-        SELECT DISTINCT k.keyword_name
+        SELECT DISTINCT k.name
         FROM keyword k
-        WHERE k.keyword_type = 'GENRE'
-        ORDER BY k.keyword_name ASC
+        WHERE k.type = 'GENRE'
+        ORDER BY k.name ASC
         """, nativeQuery = true)
     List<String> findAllGenres();
 
