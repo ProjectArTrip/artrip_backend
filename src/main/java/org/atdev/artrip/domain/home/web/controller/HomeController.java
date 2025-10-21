@@ -1,5 +1,6 @@
 package org.atdev.artrip.domain.home.web.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
@@ -19,24 +20,28 @@ public class HomeController {
 
     private final HomeService homeService;
 
+    @Operation(summary = "오늘의 전시 추천", description = "전시데이터 3개 랜덤 조회, true=국내, false=국외")
     @GetMapping("recommend/today")
     public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getTodayRecommendations(
-    ) {
-        List<HomeExhibitResponse> exhibits = homeService.getTodayRecommendedExhibits();
+            @RequestParam Boolean isDomestic) {
+        List<HomeExhibitResponse> exhibits = homeService.getTodayRecommendedExhibits(isDomestic);
         return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
+    @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @GetMapping("/genre")
     public ResponseEntity<List<String>> getGenres(){
         List<String> genres = homeService.getAllGenres();
         return ResponseEntity.ok(genres);
     }
 
-    @GetMapping("/genre/theme")
+    @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
+    @GetMapping("/genre/random")
     public ResponseEntity<List<HomeExhibitResponse>> getRandomExhibits(
-            @RequestParam(defaultValue = "전체") String genre) {
+            @RequestParam String genre,
+            @RequestParam Boolean isDomestic){
 
-        List<HomeExhibitResponse> exhibits = homeService.getThemeExhibits(genre);
+        List<HomeExhibitResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
         return ResponseEntity.ok(exhibits);
     }
 

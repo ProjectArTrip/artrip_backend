@@ -19,8 +19,8 @@ public class HomeService {
 
 
     // 오늘 추천 전시
-    public List<HomeExhibitResponse> getTodayRecommendedExhibits() {
-        return exhibitRepository.findRandomExhibits(3)
+    public List<HomeExhibitResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
+        return exhibitRepository.findRandomExhibits(3,isDomestic)
                 .stream()
                 .map(this::toHomeExhibitResponse)
                 .toList();
@@ -34,9 +34,9 @@ public class HomeService {
 //                .toList();
 //    }
 
-    public List<HomeExhibitResponse> getThemeExhibits(String genre) {
+    public List<HomeExhibitResponse> getThemeExhibits(String genre,Boolean isDomestic) {
 
-        return exhibitRepository.findThemeExhibits(genre, 3)
+        return exhibitRepository.findThemeExhibits(genre, 3, isDomestic)
                 .stream()
                 .map(this::toHomeExhibitResponse)
                 .toList();
