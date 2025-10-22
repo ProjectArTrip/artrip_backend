@@ -1,10 +1,12 @@
 package org.atdev.artrip.domain.exhibit.repository;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -73,4 +75,5 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     @Query("SELECT DISTINCT e FROM Exhibit e LEFT JOIN FETCH e.keywords")
     List<Exhibit> findAllWithKeywords();
 
+    Page<Exhibit> findByDescriptionContaining(String description, Pageable pageable);
 }

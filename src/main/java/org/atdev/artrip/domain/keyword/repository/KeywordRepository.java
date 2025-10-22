@@ -11,5 +11,4 @@ import java.util.Optional;
 @Repository
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
-
 }
