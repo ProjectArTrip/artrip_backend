@@ -1,5 +1,6 @@
 package org.atdev.artrip.domain.auth.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
+    @Operation(summary = "토큰 재발행", description = "refresh토큰으로 access토큰을 재발행합니다")
     @PostMapping("/reissue")
     public ResponseEntity<ApiResponse<String>> reissue(
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
@@ -59,6 +61,7 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse<>(true, "200", "성공", newAccessToken));
     }
 
+    @Operation(summary = "로그아웃", description = "refresh, access 토큰을 제거합니다.")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                        HttpServletResponse response) {
