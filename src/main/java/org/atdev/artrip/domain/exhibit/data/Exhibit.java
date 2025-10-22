@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.exhibit.data;
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.domain.Enum.Status;
+
 import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 
@@ -64,7 +65,9 @@ public class Exhibit {
     @Column(name = "longitude")
     private BigDecimal longitude;
 
+
     @ManyToMany
+    @Builder.Default
     @JoinTable(
             name = "exhibit_keyword",
             joinColumns = @JoinColumn(name = "exhibit_id"),
