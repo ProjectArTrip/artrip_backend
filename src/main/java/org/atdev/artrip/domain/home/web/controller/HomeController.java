@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.home.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
+import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,9 @@ public class HomeController {
 
     @Operation(summary = "오늘의 전시 추천", description = "전시데이터 3개 랜덤 조회, true=국내, false=국외")
     @GetMapping("recommend/today")
-    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getTodayRecommendations(
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getTodayRecommendations(
             @RequestParam Boolean isDomestic) {
-        List<HomeExhibitResponse> exhibits = homeService.getTodayRecommendedExhibits(isDomestic);
+        List<HomeListResponse> exhibits = homeService.getTodayRecommendedExhibits(isDomestic);
         return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
@@ -34,21 +35,21 @@ public class HomeController {
 
     @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
     @GetMapping("/genre/random")
-    public ResponseEntity<List<HomeExhibitResponse>> getRandomExhibits(
+    public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
             @RequestParam String genre,
             @RequestParam Boolean isDomestic){
 
-        List<HomeExhibitResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
+        List<HomeListResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
         return ResponseEntity.ok(exhibits);
     }
 
     @Operation(summary = "장르별 전체 조회", description = "true=국내, false=국외")
     @GetMapping("/genre/all")
-    public ResponseEntity<List<HomeExhibitResponse>> getAllExhibits(
+    public ResponseEntity<List<HomeListResponse>> getAllExhibits(
             @RequestParam String genre,
             @RequestParam Boolean isDomestic){
 
-        List<HomeExhibitResponse> exhibits = homeService.getAllgenreExhibits(genre,isDomestic);
+        List<HomeListResponse> exhibits = homeService.getAllgenreExhibits(genre,isDomestic);
         return ResponseEntity.ok(exhibits);
     }
 

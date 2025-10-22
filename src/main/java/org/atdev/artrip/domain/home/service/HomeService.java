@@ -5,6 +5,7 @@ import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
+import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
@@ -19,10 +20,10 @@ public class HomeService {
 
 
     // 오늘 추천 전시
-    public List<HomeExhibitResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
+    public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
         return exhibitRepository.findRandomExhibits(3,isDomestic)
                 .stream()
-                .map(this::toHomeExhibitResponse)
+                .map(this::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -34,11 +35,11 @@ public class HomeService {
 //                .toList();
 //    }
 
-    public List<HomeExhibitResponse> getThemeExhibits(String genre,Boolean isDomestic) {
+    public List<HomeListResponse> getThemeExhibits(String genre,Boolean isDomestic) {
 
         return exhibitRepository.findThemeExhibits(genre, 3, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitResponse)
+                .map(this::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -46,11 +47,11 @@ public class HomeService {
         return exhibitRepository.findAllGenres();
     }
 
-    public List<HomeExhibitResponse> getAllgenreExhibits(String genre,Boolean isDomestic){
+    public List<HomeListResponse> getAllgenreExhibits(String genre,Boolean isDomestic){
 
         return exhibitRepository.findAllByGenreAndDomestic(genre, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitResponse)
+                .map(this::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -73,6 +74,19 @@ public class HomeService {
                 .region(hall != null ? hall.getRegion() : null)
                 .startDate(exhibit.getStartDate().format(formatter))
                 .endDate(exhibit.getEndDate().format(formatter))
+                .build();
+    }
+
+    private HomeListResponse toHomeExhibitListResponse(Exhibit exhibit){
+
+        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
+
+        return HomeListResponse.builder()
+                .exhibit_id(exhibit.getExhibitId())
+                .title(exhibit.getTitle())
+                .posterUrl(exhibit.getPosterUrl())
+                .status(exhibit.getStatus())
+                .exhibitPeriod(period)
                 .build();
     }
 
