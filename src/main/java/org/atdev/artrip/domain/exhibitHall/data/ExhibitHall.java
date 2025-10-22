@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:src/main/java/org/atdev/artrip/domain/exhibit/data/ExhibitHall.java
-package org.atdev.artrip.domain.exhibit.data;
-========
 package org.atdev.artrip.domain.exhibitHall.data;
->>>>>>>> main:src/main/java/org/atdev/artrip/domain/exhibitHall/data/ExhibitHall.java
 
 import jakarta.persistence.*;
 import lombok.*;
