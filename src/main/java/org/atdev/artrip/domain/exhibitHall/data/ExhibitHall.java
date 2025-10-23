@@ -1,4 +1,3 @@
-
 package org.atdev.artrip.domain.exhibitHall.data;
 
 import jakarta.persistence.*;
