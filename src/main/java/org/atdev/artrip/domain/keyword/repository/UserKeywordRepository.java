@@ -15,4 +15,6 @@ public interface UserKeywordRepository extends JpaRepository<UserKeyword, Long> 
     void deleteByUser(User user);
 
     List<UserKeyword> findAllByUserUserId(Long userId);
+
+    List<UserKeyword> findByUser_UserId(Long userId);
 }
