@@ -13,6 +13,7 @@ import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -112,6 +113,14 @@ public class HomeService {
                 .collect(Collectors.toSet());
 
         return exhibitRepository.findAllByKeywords(genres,styles,isDomestic)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
+
+    public List<HomeListResponse> getSchedule(Boolean isDomestic,LocalDate date){
+
+        return exhibitRepository.findRandomExhibitsByDate(isDomestic,date,2)
                 .stream()
                 .map(this::toHomeExhibitListResponse)
                 .toList();
