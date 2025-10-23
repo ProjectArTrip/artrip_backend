@@ -7,9 +7,12 @@ import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -61,6 +64,32 @@ public class HomeController {
         HomeExhibitResponse exhibit= homeService.getExhibitDetail(id);
 
         return ResponseEntity.ok(exhibit);
+    }
+
+    @Operation(summary = "사용자 맞춤 전시 추천")
+    @GetMapping("/personalized")
+    public ResponseEntity<List<HomeListResponse>> getPersonalized(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam Boolean isDomestic){//문자열 형태로 userid뽑아올수있음
+
+        long userId = Long.parseLong(userDetails.getUsername());
+
+        List<HomeListResponse> exhibits= homeService.getPersonalized(userId,isDomestic);
+
+        return ResponseEntity.ok(exhibits);
+    }
+
+    @Operation(summary = "사용자 맞춤 전시 전체 조회")
+    @GetMapping("/personalized/all")
+    public ResponseEntity<List<HomeListResponse>> getAllPersonalized(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam Boolean isDomestic){
+
+        long userId = Long.parseLong(userDetails.getUsername());
+
+        List<HomeListResponse> exhibits= homeService.getAllPersonalized(userId,isDomestic);
+
+        return ResponseEntity.ok(exhibits);
     }
 
 
