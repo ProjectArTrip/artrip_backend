@@ -1,21 +1,30 @@
 package org.atdev.artrip.domain.home.service;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.keyword.data.Keyword;
+import org.atdev.artrip.domain.keyword.data.UserKeyword;
+import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
+import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class HomeService {
 
     private final ExhibitRepository exhibitRepository;
+    private final UserKeywordRepository userkeywordRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
 
@@ -37,7 +46,7 @@ public class HomeService {
 
     public List<HomeListResponse> getThemeExhibits(String genre,Boolean isDomestic) {
 
-        return exhibitRepository.findThemeExhibits(genre, 3, isDomestic)
+        return exhibitRepository.findThemeExhibits(genre, 2, isDomestic)
                 .stream()
                 .map(this::toHomeExhibitListResponse)
                 .toList();
@@ -61,6 +70,53 @@ public class HomeService {
 
         return toHomeExhibitResponse(exhibit);
     }
+
+    public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
+
+        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
+                .stream()
+                .map(UserKeyword::getKeyword)
+                .toList();
+
+        Set<String> genres = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        Set<String> styles = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        return exhibitRepository.findRandomByKeywords(genres,styles,3, isDomestic)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
+
+    public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
+
+        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
+                .stream()
+                .map(UserKeyword::getKeyword)
+                .toList();
+
+        Set<String> genres = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        Set<String> styles = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        return exhibitRepository.findAllByKeywords(genres,styles,isDomestic)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
+
 
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
@@ -89,5 +145,6 @@ public class HomeService {
                 .exhibitPeriod(period)
                 .build();
     }
+
 
 }
