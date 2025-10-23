@@ -126,6 +126,13 @@ public class HomeService {
                 .toList();
     }
 
+    public List<HomeListResponse> getAllSchedule(Boolean isDomestic,LocalDate date){
+
+        return exhibitRepository.findAllByDate(isDomestic,date)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
 
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {

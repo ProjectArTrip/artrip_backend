@@ -140,6 +140,16 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
                                            @Param("date") LocalDate date,
                                            @Param("limit") int limit);
 
+    @Query(value = """
+        SELECT e.* 
+        FROM exhibit e
+        JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
+        WHERE :date BETWEEN e.start_date AND e.end_date
+        AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
+        """, nativeQuery = true)
+    List<Exhibit> findAllByDate(@Param("isDomestic") Boolean isDomestic,
+                                @Param("date") LocalDate date);
+
 
     List<Exhibit> findByUpdatedAtAfter(LocalDateTime time);
 

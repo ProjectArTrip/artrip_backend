@@ -105,7 +105,16 @@ public class HomeController {
         return ResponseEntity.ok(exhibits);
     }
 
+    @Operation(summary = "이번주 전시 일정 전체 조회")
+    @GetMapping("/schedule/all")
+    public ResponseEntity<List<HomeListResponse>> getAllSchedule(
+            @RequestParam(name = "isDomestic", required = false) Boolean isDomestic,
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
+        List<HomeListResponse> exhibits= homeService.getAllSchedule(isDomestic,date);
+
+        return ResponseEntity.ok(exhibits);
+    }
 
 
     //    @GetMapping("/curation")
