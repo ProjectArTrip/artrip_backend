@@ -6,11 +6,13 @@ import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -88,6 +90,28 @@ public class HomeController {
         long userId = Long.parseLong(userDetails.getUsername());
 
         List<HomeListResponse> exhibits= homeService.getAllPersonalized(userId,isDomestic);
+
+        return ResponseEntity.ok(exhibits);
+    }
+
+    @Operation(summary = "이번주 전시 일정 랜덤 조회")
+    @GetMapping("/schedule")
+    public ResponseEntity<List<HomeListResponse>> getSchedule(
+            @RequestParam Boolean isDomestic,
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+
+        List<HomeListResponse> exhibits= homeService.getSchedule(isDomestic,date);
+
+        return ResponseEntity.ok(exhibits);
+    }
+
+    @Operation(summary = "이번주 전시 일정 전체 조회")
+    @GetMapping("/schedule/all")
+    public ResponseEntity<List<HomeListResponse>> getAllSchedule(
+            @RequestParam(name = "isDomestic", required = false) Boolean isDomestic,
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+
+        List<HomeListResponse> exhibits= homeService.getAllSchedule(isDomestic,date);
 
         return ResponseEntity.ok(exhibits);
     }
