@@ -16,7 +16,7 @@ public class ExhibitListResponse {
 
     private Long exhibitId;
     private String title;
-    private String posterUrl;
+    private String posterUrl; // 이미지 URL
     private Status status;
 
     private LocalDateTime startDate;

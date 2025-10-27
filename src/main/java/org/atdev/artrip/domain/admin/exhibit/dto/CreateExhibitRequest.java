@@ -18,6 +18,7 @@ public class CreateExhibitRequest {
     private String address;
     private String country;
     private String region;
+    private String phone;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -26,7 +27,7 @@ public class CreateExhibitRequest {
 
     private Status status;
 
-    private String posterUrl;
+    private String posterUrl; // 이미지 URL
     private String ticketUrl;
 
     private BigDecimal latitude;

@@ -150,9 +150,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     List<Exhibit> findAllByDate(@Param("isDomestic") Boolean isDomestic,
                                 @Param("date") LocalDate date);
 
-
-    List<Exhibit> findByUpdatedAtAfter(LocalDateTime time);
-
     @Query("SELECT DISTINCT e FROM Exhibit e LEFT JOIN FETCH e.keywords WHERE e.exhibitId = :id")
     Optional<Exhibit> findByIdWithKeywords(@Param("id") Long id);
 
@@ -160,4 +157,7 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     List<Exhibit> findAllWithKeywords();
 
     Page<Exhibit> findByDescriptionContaining(String description, Pageable pageable);
+
+    long countByExhibitHall_ExhibitHallId(Long exhibitHallId);
+
 }
