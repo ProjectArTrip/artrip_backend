@@ -68,7 +68,7 @@ public class AdminExhibitService {
 
     @Transactional
     public Long createExhibit(CreateExhibitRequest request) {
-        log.info("Admin Creating exhibit : title={}", request.getTitle());
+        log.info("Admin Creating exhibit : title={}", request);
 
         ExhibitHall exhibitHall = getOrCreateExhibitHall(
                 request.getExhibitHallId(),
@@ -76,6 +76,7 @@ public class AdminExhibitService {
                 request.getAddress(),
                 request.getCountry(),
                 request.getRegion(),
+                request.getPhone(),
                 request.getOpeningHours());
 
         List<Keyword> keywords = List.of();
@@ -97,32 +98,24 @@ public class AdminExhibitService {
                 .ticketUrl(request.getTicketUrl())
                 .posterUrl(request.getPosterUrl())
                 .latitude(request.getLatitude())
-                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+        exhibit.getKeywords().addAll(keywords);
 
         Exhibit savedExhibit = exhibitRepository.save(exhibit);
 
+        log.info("Exhibit created : id={}, keywords.size={} ",
+                savedExhibit.getExhibitId(),
+                savedExhibit.getKeywords().size());
+
         try {
-            exhibit.getKeywords().addAll(keywords);
-
-            log.info("Exhibit created : id={}, keywords.size={} ",
-                    savedExhibit.getExhibitId(),
-                    savedExhibit.getKeywords().size());
-
-            try {
-                exhibitIndexService.indexExhibit(savedExhibit);
-            } catch (Exception e) {
-                log.error("Admin ES Index Error", e.getMessage());
-                throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
-            }
-
+            exhibitIndexService.indexExhibit(savedExhibit);
+            log.info("Exhibit indexing failed : id={}, error={}",savedExhibit.getExhibitId());
         } catch (Exception e) {
-            log.error("Admin Exhibit Creation Error", e.getMessage());
-            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+            log.error("Exhibit indexing failed", e);
         }
-
         return savedExhibit.getExhibitId();
     }
 
@@ -140,6 +133,7 @@ public class AdminExhibitService {
                     request.getAddress(),
                     request.getCountry(),
                     request.getRegion(),
+                    request.getPhone(),
                     request.getOpeningHours()
             );
             exhibit.setExhibitHall(exhibitHall);
@@ -152,8 +146,6 @@ public class AdminExhibitService {
         if (request.getStatus() != null) exhibit.setStatus(request.getStatus());
         if (request.getTicketUrl() != null) exhibit.setTicketUrl(request.getTicketUrl());
         if (request.getPosterUrl() != null) exhibit.setPosterUrl(request.getPosterUrl());
-        if (request.getLatitude() != null) exhibit.setLatitude(request.getLatitude());
-        if (request.getLongitude() != null) exhibit.setLongitude(request.getLongitude());
 
         exhibit.setUpdatedAt(LocalDateTime.now());
 
@@ -190,8 +182,9 @@ public class AdminExhibitService {
         try {
             exhibitIndexService.deleteExhibit(exhibitId);
         } catch (Exception e) {
-        log.error("Admin Exhibit Deletion Error", e.getMessage());}
+        log.error("Admin Exhibit Deletion Error", e.getMessage());
             throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+        }
     }
 
     private ExhibitHall getOrCreateExhibitHall(Long exhibitHallId,
@@ -199,6 +192,7 @@ public class AdminExhibitService {
                                                     String address,
                                                     String country,
                                                     String region,
+                                                    String phone,
                                                     String openingHours) {
 
         if (exhibitHallId != null) {
@@ -210,6 +204,7 @@ public class AdminExhibitService {
                     .address(address)
                     .country(country)
                     .region(region)
+                    .phone(phone)
                     .openingHours(openingHours)
                     .build();
             return exhibitHallRepository.save(hall);
@@ -247,7 +242,7 @@ public class AdminExhibitService {
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
                 .latitude(exhibit.getLatitude())
-                .latitude(exhibit.getLatitude())
+                .longitude(exhibit.getLongitude())
                 .keywords(exhibit.getKeywords().stream()
                         .map(this::convertToKeywordInfo)
                         .collect(Collectors.toList()))

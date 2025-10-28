@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.exhibitHall.data;
 import jakarta.persistence.*;
 import lombok.*;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "exhibit_hall", schema = "art_dev")
@@ -33,8 +34,8 @@ public class ExhibitHall {
     @Column(name = "opening_hours")
     private String openingHours;
 
-    @Column(name = "closed_days")
-    private Timestamp closedDays;
+    @Column(name = "closed_days", length = 255)
+    private String closedDays;
 
     @Column(name = "phone")
     private String phone;
@@ -45,4 +46,10 @@ public class ExhibitHall {
     @Column(name = "is_domestic")
     private Boolean isDomestic;  // Byte → Boolean으로 변경, JPA에서 매핑 가능
     // true = 국내, false = 해외
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 }

@@ -18,6 +18,7 @@ public class UpdateExhibitRequest {
     private String address;
     private String country;
     private String region;
+    private String phone;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -27,9 +28,6 @@ public class UpdateExhibitRequest {
 
     private String posterUrl;
     private String ticketUrl;
-
-    private BigDecimal latitude;
-    private BigDecimal longitude;
 
     private List<Long> keywordIds;
 }
