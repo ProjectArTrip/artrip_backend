@@ -33,44 +33,44 @@ public class HomeController {
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @GetMapping("/genre")
-    public ResponseEntity<List<String>> getGenres(){
+    public ResponseEntity<ApiResponse<List<String>>> getGenres(){
         List<String> genres = homeService.getAllGenres();
-        return ResponseEntity.ok(genres);
+        return ResponseEntity.ok(ApiResponse.onSuccess(genres));
     }
 
     @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
     @GetMapping("/genre/random")
-    public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getRandomExhibits(
             @RequestParam String genre,
             @RequestParam Boolean isDomestic){
 
         List<HomeListResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
-        return ResponseEntity.ok(exhibits);
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
     @Operation(summary = "장르별 전체 조회", description = "true=국내, false=국외")
     @GetMapping("/genre/all")
-    public ResponseEntity<List<HomeListResponse>> getAllExhibits(
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getAllExhibits(
             @RequestParam String genre,
             @RequestParam Boolean isDomestic){
 
         List<HomeListResponse> exhibits = homeService.getAllgenreExhibits(genre,isDomestic);
-        return ResponseEntity.ok(exhibits);
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
     @Operation(summary = "장르 상세 조회")
     @GetMapping("/genre/{id}")
-    public ResponseEntity<HomeExhibitResponse> getExhibit(
+    public ResponseEntity<ApiResponse<HomeExhibitResponse>> getExhibit(
             @PathVariable Long id){
 
         HomeExhibitResponse exhibit= homeService.getExhibitDetail(id);
 
-        return ResponseEntity.ok(exhibit);
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibit));
     }
 
     @Operation(summary = "사용자 맞춤 전시 추천")
     @GetMapping("/personalized")
-    public ResponseEntity<List<HomeListResponse>> getPersonalized(
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam Boolean isDomestic){//문자열 형태로 userid뽑아올수있음
 
@@ -78,12 +78,12 @@ public class HomeController {
 
         List<HomeListResponse> exhibits= homeService.getPersonalized(userId,isDomestic);
 
-        return ResponseEntity.ok(exhibits);
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
     @Operation(summary = "사용자 맞춤 전시 전체 조회")
     @GetMapping("/personalized/all")
-    public ResponseEntity<List<HomeListResponse>> getAllPersonalized(
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getAllPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestParam Boolean isDomestic){
 
@@ -91,29 +91,29 @@ public class HomeController {
 
         List<HomeListResponse> exhibits= homeService.getAllPersonalized(userId,isDomestic);
 
-        return ResponseEntity.ok(exhibits);
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
     @Operation(summary = "이번주 전시 일정 랜덤 조회")
     @GetMapping("/schedule")
-    public ResponseEntity<List<HomeListResponse>> getSchedule(
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getSchedule(
             @RequestParam Boolean isDomestic,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         List<HomeListResponse> exhibits= homeService.getSchedule(isDomestic,date);
 
-        return ResponseEntity.ok(exhibits);
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
     @Operation(summary = "이번주 전시 일정 전체 조회")
     @GetMapping("/schedule/all")
-    public ResponseEntity<List<HomeListResponse>> getAllSchedule(
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getAllSchedule(
             @RequestParam(name = "isDomestic", required = false) Boolean isDomestic,
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
 
         List<HomeListResponse> exhibits= homeService.getAllSchedule(isDomestic,date);
 
-        return ResponseEntity.ok(exhibits);
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
 
