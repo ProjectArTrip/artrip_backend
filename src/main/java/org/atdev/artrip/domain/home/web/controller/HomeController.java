@@ -123,5 +123,20 @@ public class HomeController {
 //        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
 //    }
 
+    @Operation(summary = "해외 국가 목록 조회")
+    @GetMapping("/overseas")
+    public ResponseEntity<List<String>> getOverseas(){
+
+        List<String> OverseasList = homeService.getOverseas();
+        return ResponseEntity.ok(OverseasList);
+    }
+
+    @Operation(summary = "국내 지역 목록 조회")
+    @GetMapping("/domestic")
+    public ResponseEntity<List<String>> getDomestic(){
+
+        List<String> domesticList = homeService.getDomestic();
+        return ResponseEntity.ok(domesticList);
+    }
 
 }

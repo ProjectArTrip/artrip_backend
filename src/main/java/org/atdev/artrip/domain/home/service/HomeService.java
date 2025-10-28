@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.home.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
@@ -27,7 +28,7 @@ public class HomeService {
     private final ExhibitRepository exhibitRepository;
     private final UserKeywordRepository userkeywordRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+    private final ExhibitHallRepository exhibitHallRepository;
 
     // 오늘 추천 전시
     public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
@@ -132,6 +133,14 @@ public class HomeService {
                 .stream()
                 .map(this::toHomeExhibitListResponse)
                 .toList();
+    }
+
+    public List<String> getOverseas(){
+        return exhibitHallRepository.findAllOverseasCountries();
+    }
+
+    public List<String> getDomestic(){
+        return exhibitHallRepository.findAllDomesticRegions();
     }
 
 
