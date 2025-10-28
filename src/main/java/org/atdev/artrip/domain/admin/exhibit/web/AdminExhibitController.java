@@ -2,16 +2,18 @@ package org.atdev.artrip.domain.admin.exhibit.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.PostRemove;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.admin.common.dto.Criteria;
 import org.atdev.artrip.domain.admin.common.dto.PagingResponseDTO;
+import org.atdev.artrip.domain.admin.exhibit.dto.CreateExhibitRequest;
+import org.atdev.artrip.domain.admin.exhibit.dto.ExhibitAdminResponse;
 import org.atdev.artrip.domain.admin.exhibit.dto.ExhibitListResponse;
+import org.atdev.artrip.domain.admin.exhibit.dto.UpdateExhibitRequest;
 import org.atdev.artrip.domain.admin.exhibit.service.AdminExhibitService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +24,18 @@ public class AdminExhibitController {
 
     private final AdminExhibitService adminExhibitService;
 
-    @Operation(summary = "전시 목록 조회", description = "전시 목록 페이징 조회 및 검색어 필터링")
+    @Operation(summary = "전시 전체 및 검색 조회", description = """
+            ### 1. 전체 목록 조회
+            - searchValue를 비워두면 전체 전시 조회
+            
+            ### 2. 검색
+            - searchValue에 검색어 입력 시 전시 이름에서 검색
+            
+            ### 3. 페이징
+            - sortField: exhibitId, title, createdAt
+            - sortDirection: ASC, DESC
+            """
+    )
     @GetMapping
     public ApiResponse<PagingResponseDTO<ExhibitListResponse>> getExhibitList(Criteria cri) {
         log.info("Admin getting exhibit list: {}", cri);
@@ -30,7 +43,44 @@ public class AdminExhibitController {
         PagingResponseDTO<ExhibitListResponse> result = adminExhibitService.getExhibitList(cri);
 
         return ApiResponse.onSuccess(result);
-
     }
 
+    @Operation(summary = "전시 상세 조회", description = "특정 전시의 상세 정보를 조회합니다.")
+    @GetMapping("/{exhibitId}")
+    public ApiResponse<ExhibitAdminResponse> getExhibit(@PathVariable Long exhibitId) {
+        log.info("Admin getting exhibit : {}", exhibitId);
+
+        ExhibitAdminResponse result = adminExhibitService.getExhibit(exhibitId);
+
+        return ApiResponse.onSuccess(result);
+    }
+
+    @Operation(summary = "전시 등록", description = "새로운 전시를 등록합니다.")
+    @PostMapping
+    public ApiResponse<Long> createExhibit(@RequestBody CreateExhibitRequest request) {
+        log.info("Admin creating exhibit: title = {}", request.getTitle());
+
+        Long exhibitId = adminExhibitService.createExhibit(request);
+
+        return ApiResponse.onSuccess(exhibitId);
+    }
+
+    @Operation(summary = "전시 수정", description = "특정 전시를 수정합니다.")
+    @PutMapping("/{exhibitId}")
+    public ApiResponse<Long> updateExhibit(@PathVariable Long exhibitId, @RequestBody UpdateExhibitRequest request){
+    log.info("Admin updating exhibit: {}", request.getTitle());
+
+    Long updatedId = adminExhibitService.updateExhibit(exhibitId, request);
+
+    return ApiResponse.onSuccess(updatedId);
+    }
+
+    @Operation(summary = "전시 삭제", description = "특정 전시를 삭제합니다.")
+    @DeleteMapping("/{exhibitId}")
+    public ApiResponse<Void> deleteExhibit(@PathVariable Long exhibitId) {
+        log.info("Admin deleting exhibit: {}", exhibitId);
+
+        adminExhibitService.deleteExhibit(exhibitId);
+        return ApiResponse.onSuccess(null);
+    }
 }
