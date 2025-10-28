@@ -125,18 +125,27 @@ public class HomeController {
 
     @Operation(summary = "해외 국가 목록 조회")
     @GetMapping("/overseas")
-    public ResponseEntity<List<String>> getOverseas(){
+    public ResponseEntity<ApiResponse<List<String>>> getOverseas(){
 
         List<String> OverseasList = homeService.getOverseas();
-        return ResponseEntity.ok(OverseasList);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(OverseasList));
     }
 
     @Operation(summary = "국내 지역 목록 조회")
     @GetMapping("/domestic")
-    public ResponseEntity<List<String>> getDomestic(){
+    public ResponseEntity<ApiResponse<List<String>>> getDomestic(){
 
         List<String> domesticList = homeService.getDomestic();
-        return ResponseEntity.ok(domesticList);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(domesticList));
     }
 
+//    @Operation(summary = "해외 특정 국가 랜덤 조회")
+//    @GetMapping("/domestic/random")
+//    public ResponseEntity<List<HomeListResponse>> getRandomOverseas(){
+//
+//
+//        return ResponseEntity.ok(ApiResponse.onSuccess());
+//    }
 }
