@@ -141,11 +141,12 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(domesticList));
     }
 
-//    @Operation(summary = "해외 특정 국가 랜덤 조회")
-//    @GetMapping("/domestic/random")
-//    public ResponseEntity<List<HomeListResponse>> getRandomOverseas(){
-//
-//
-//        return ResponseEntity.ok(ApiResponse.onSuccess());
-//    }
+    @Operation(summary = "해외 특정 국가 랜덤 조회")
+    @GetMapping("/overSeas/random")
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getRandomOverseas(@RequestParam String country){
+
+        List<HomeListResponse> random = homeService.getRandomOverseas(country, 3);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(random));
+    }
 }

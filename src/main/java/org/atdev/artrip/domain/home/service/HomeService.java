@@ -143,6 +143,14 @@ public class HomeService {
         return exhibitHallRepository.findAllDomesticRegions();
     }
 
+    public List<HomeListResponse> getRandomOverseas(String country, int limit){
+
+        return exhibitRepository.findRandomByCountry(country,limit)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
+
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
         var hall = exhibit.getExhibitHall();
