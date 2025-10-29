@@ -149,4 +149,13 @@ public class HomeController {
 
         return ResponseEntity.ok(ApiResponse.onSuccess(random));
     }
+
+    @Operation(summary = "국내 특정 지역 랜덤 조회")
+    @GetMapping("/domestic/random")
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getRandomDomestic(@RequestParam String region){
+
+        List<HomeListResponse> random = homeService.getRandomDomestic(region, 3);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(random));
+    }
 }

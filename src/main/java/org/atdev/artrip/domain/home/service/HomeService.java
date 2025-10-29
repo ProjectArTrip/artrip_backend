@@ -151,6 +151,14 @@ public class HomeService {
                 .toList();
     }
 
+    public List<HomeListResponse> getRandomDomestic(String region, int limit){
+
+        return exhibitRepository.findRandomByRegion(region, limit)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
+
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
         var hall = exhibit.getExhibitHall();

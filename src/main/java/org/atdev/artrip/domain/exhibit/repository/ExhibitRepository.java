@@ -172,4 +172,15 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
 """, nativeQuery = true)
     List<Exhibit> findRandomByCountry(@Param("country") String country, @Param("limit") int limit);
 
+    @Query(value = """
+    SELECT e.*
+    FROM exhibit e
+    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
+    WHERE h.region = :region
+    ORDER BY RAND()
+    LIMIT :limit
+""", nativeQuery = true)
+    List<Exhibit> findRandomByRegion(@Param("region") String region, @Param("limit") int limit);
+
+
 }
