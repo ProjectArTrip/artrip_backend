@@ -3,19 +3,19 @@ package org.atdev.artrip.domain.home.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
-import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,7 +27,7 @@ public class HomeService {
     private final ExhibitRepository exhibitRepository;
     private final UserKeywordRepository userkeywordRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+    private final ExhibitHallRepository exhibitHallRepository;
 
     // 오늘 추천 전시
     public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
@@ -129,6 +129,30 @@ public class HomeService {
     public List<HomeListResponse> getAllSchedule(Boolean isDomestic,LocalDate date){
 
         return exhibitRepository.findAllByDate(isDomestic,date)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
+
+    public List<String> getOverseas(){
+        return exhibitHallRepository.findAllOverseasCountries();
+    }
+
+    public List<String> getDomestic(){
+        return exhibitHallRepository.findAllDomesticRegions();
+    }
+
+    public List<HomeListResponse> getRandomOverseas(String country, int limit){
+
+        return exhibitRepository.findRandomByCountry(country,limit)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
+    }
+
+    public List<HomeListResponse> getRandomDomestic(String region, Pageable pageable){
+
+        return exhibitRepository.findAllByRegion(region, pageable)
                 .stream()
                 .map(this::toHomeExhibitListResponse)
                 .toList();
