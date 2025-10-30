@@ -1,6 +1,7 @@
 package org.atdev.artrip.domain.exhibit.repository;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -159,5 +160,25 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     Page<Exhibit> findByDescriptionContaining(String description, Pageable pageable);
 
     long countByExhibitHall_ExhibitHallId(Long exhibitHallId);
+
+
+    @Query(value = """
+    SELECT e.*
+    FROM exhibit e
+    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
+    WHERE h.country = :country
+    ORDER BY RAND()
+    LIMIT :limit
+""", nativeQuery = true)
+    List<Exhibit> findRandomByCountry(@Param("country") String country, @Param("limit") int limit);
+
+    @Query("""
+    SELECT e
+    FROM Exhibit e
+    JOIN e.exhibitHall h
+    WHERE h.region = :region
+""")
+    Page<Exhibit> findAllByRegion(@Param("region") String region, Pageable pageable);
+
 
 }
