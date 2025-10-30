@@ -158,6 +158,12 @@ public class HomeService {
                 .toList();
     }
 
+    public List<HomeListResponse> getOverSeasCondition(String country, LocalDate startDate, LocalDate endDate, Pageable page){
+
+        return exhibitRepository.findByCountryAndPeriod(country,startDate,endDate,page);
+
+    }
+
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
         var hall = exhibit.getExhibitHall();

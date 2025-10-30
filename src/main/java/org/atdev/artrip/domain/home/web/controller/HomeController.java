@@ -143,7 +143,7 @@ public class HomeController {
     }
 
     @Operation(summary = "해외 특정 국가 랜덤 조회",description = "특정 해외 국가 전시데이터 3개 랜덤조회")
-    @GetMapping("/overSeas/random")
+    @GetMapping("/overseas/random")
     public ResponseEntity<ApiResponse<List<HomeListResponse>>> getRandomOverseas(@RequestParam String country){
 
         List<HomeListResponse> random = homeService.getRandomOverseas(country, 3);
@@ -158,6 +158,17 @@ public class HomeController {
         List<HomeListResponse> random = homeService.getRandomDomestic(region, Pageable.ofSize(20));
 
         return ResponseEntity.ok(ApiResponse.onSuccess(random));
+    }
+
+    @Operation(summary = "해외 전시 조건 설정",description = "특정 해외 국가 + 전시 기간으로 필터링하여 전시 데이터 조회")
+    @GetMapping("/overseas/filter")
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getOverSeasCondition(@RequestParam String country,
+                                                                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate){
+
+        List<HomeListResponse> filter = homeService.getOverSeasCondition(country,startDate,endDate,Pageable.ofSize(20));
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(filter));
     }
 
 }
