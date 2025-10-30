@@ -6,6 +6,7 @@ import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -141,7 +142,7 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(domesticList));
     }
 
-    @Operation(summary = "해외 특정 국가 랜덤 조회")
+    @Operation(summary = "해외 특정 국가 랜덤 조회",description = "특정 해외 국가 전시데이터 3개 랜덤조회")
     @GetMapping("/overSeas/random")
     public ResponseEntity<ApiResponse<List<HomeListResponse>>> getRandomOverseas(@RequestParam String country){
 
@@ -150,12 +151,13 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(random));
     }
 
-    @Operation(summary = "국내 특정 지역 랜덤 조회")
-    @GetMapping("/domestic/random")
+    @Operation(summary = "국내 지역 전체 조회",description = "국내 지역 전시 전체 조회 1p 당 20개씩 조회.")
+    @GetMapping("/domestic/all")
     public ResponseEntity<ApiResponse<List<HomeListResponse>>> getRandomDomestic(@RequestParam String region){
 
-        List<HomeListResponse> random = homeService.getRandomDomestic(region, 3);
+        List<HomeListResponse> random = homeService.getRandomDomestic(region, Pageable.ofSize(20));
 
         return ResponseEntity.ok(ApiResponse.onSuccess(random));
     }
+
 }

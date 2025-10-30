@@ -172,15 +172,13 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
 """, nativeQuery = true)
     List<Exhibit> findRandomByCountry(@Param("country") String country, @Param("limit") int limit);
 
-    @Query(value = """
-    SELECT e.*
-    FROM exhibit e
-    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
+    @Query("""
+    SELECT e
+    FROM Exhibit e
+    JOIN e.exhibitHall h
     WHERE h.region = :region
-    ORDER BY RAND()
-    LIMIT :limit
-""", nativeQuery = true)
-    List<Exhibit> findRandomByRegion(@Param("region") String region, @Param("limit") int limit);
+""")
+    Page<Exhibit> findAllByRegion(@Param("region") String region, Pageable pageable);
 
 
 }

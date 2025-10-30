@@ -10,13 +10,12 @@ import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
-import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -151,9 +150,9 @@ public class HomeService {
                 .toList();
     }
 
-    public List<HomeListResponse> getRandomDomestic(String region, int limit){
+    public List<HomeListResponse> getRandomDomestic(String region, Pageable pageable){
 
-        return exhibitRepository.findRandomByRegion(region, limit)
+        return exhibitRepository.findAllByRegion(region, pageable)
                 .stream()
                 .map(this::toHomeExhibitListResponse)
                 .toList();
