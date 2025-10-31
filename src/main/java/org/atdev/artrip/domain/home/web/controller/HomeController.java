@@ -162,9 +162,9 @@ public class HomeController {
 
     @Operation(summary = "해외 전시 조건 설정",description = "특정 해외 국가 + 전시 기간으로 필터링하여 전시 데이터 조회")
     @GetMapping("/overseas/filter")
-    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getOverSeasCondition(@RequestParam String country,
-                                                                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate){
+    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getOverSeasCondition(@RequestParam(name = "country") String country,
+                                                                                    @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                                    @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate){
 
         List<HomeListResponse> filter = homeService.getOverSeasCondition(country,startDate,endDate,Pageable.ofSize(20));
 

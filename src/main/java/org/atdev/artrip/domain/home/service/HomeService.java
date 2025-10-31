@@ -160,7 +160,10 @@ public class HomeService {
 
     public List<HomeListResponse> getOverSeasCondition(String country, LocalDate startDate, LocalDate endDate, Pageable page){
 
-        return exhibitRepository.findByCountryAndPeriod(country,startDate,endDate,page);
+        return exhibitRepository.findByCountryAndPeriod(country,startDate,endDate,page)
+                .stream()
+                .map(this::toHomeExhibitListResponse)
+                .toList();
 
     }
 

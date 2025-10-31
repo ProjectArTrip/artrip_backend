@@ -182,16 +182,31 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
 
 
 
+//    @Query("""
+//    SELECT e
+//    FROM Exhibit e
+//    JOIN e.exhibitHall h
+//    WHERE h.country = :country
+//      AND e.startDate <= :startDate
+//      AND e.endDate >= :endDate
+//""")
+//    Page<Exhibit> findByCountryAndPeriod(@Param("country") String country,
+//                                         @Param("startDate") LocalDate startDate,
+//                                         @Param("endDate") LocalDate endDate,
+//                                         Pageable pageable);
+
     @Query("""
     SELECT e
     FROM Exhibit e
     JOIN e.exhibitHall h
     WHERE h.country = :country
-      AND e.startDate <= :endDate
-      AND e.endDate >= :startDate
-""")
-    Page<Exhibit> findByCountryAndPeriod(@Param("country") String country,
-                                         @Param("startDate") LocalDate startDate,
-                                         @Param("endDate") LocalDate endDate,
-                                         Pageable pageable);
+      AND FUNCTION('DATE', e.startDate) <= :startDate
+      AND FUNCTION('DATE', e.endDate) >= :endDate
+    """)
+    Page<Exhibit> findByCountryAndPeriod(
+            @Param("country") String country,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            Pageable pageable
+    );
 }
