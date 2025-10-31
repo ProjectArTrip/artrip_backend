@@ -171,4 +171,15 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(filter));
     }
 
+//    @Operation(summary = "해외 전시 필터 설정",description = "특정 해외 국가 + 카테고리(장르)로 필터링하여 해외 전시 데이터 조회")
+//    @GetMapping("/overseas/detail")
+//    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getdetailFilter(@RequestParam(name = "country") String country,
+//                                                                               @RequestParam(name = "genre") String Genre){
+//
+//        List<HomeListResponse> filter = homeService.getdetailFilter(country,Pageable.ofSize(20));
+//
+//        return ResponseEntity.ok(ApiResponse.onSuccess(filter));
+//    }
+
+
 }

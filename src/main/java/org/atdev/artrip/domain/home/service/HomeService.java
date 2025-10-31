@@ -164,8 +164,12 @@ public class HomeService {
                 .stream()
                 .map(this::toHomeExhibitListResponse)
                 .toList();
-
     }
+
+//    public List<HomeListResponse> getdetailFilter(String country, String genre){
+//
+//        return exhibitRepository.findByCountryAndGenre()
+//    }
 
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
@@ -194,6 +198,7 @@ public class HomeService {
                 .exhibitPeriod(period)
                 .build();
     }
+
 
 
 }
