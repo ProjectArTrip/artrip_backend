@@ -1,7 +1,9 @@
-package org.atdev.artrip.domain;
+package org.atdev.artrip.domain.review.data;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.domain.Imges;
+import org.atdev.artrip.domain.Stamp;
 import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 

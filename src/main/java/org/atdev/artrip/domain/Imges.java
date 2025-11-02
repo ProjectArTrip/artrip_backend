@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.review.data.Review;
 
 import java.time.LocalDateTime;
 
