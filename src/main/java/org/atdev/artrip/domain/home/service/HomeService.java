@@ -163,18 +163,6 @@ public class HomeService {
                 .toList();
     }
 
-//    @Cacheable(value = "exhibit:countryPeriod",
-//            key = "#country + ':' + #startDate + '-' + #endDate")
-//    public List<FilterResponse> getOverSeasCondition(String country, LocalDate startDate, LocalDate endDate, Pageable page){
-//        return fetchOverSeasCondition(country, startDate, endDate, page);
-//    }
-//
-//    private List<FilterResponse> fetchOverSeasCondition(String country, LocalDate startDate, LocalDate endDate, Pageable page){
-//        return exhibitRepository.findByCountryAndPeriod(country, startDate, endDate, page)
-//                .stream()
-//                .map(this::toFilterListResponse)
-//                .toList();
-//    }
 
     public List<FilterResponse> getFilteredExhibits(String country, LocalDate startDate, LocalDate endDate, Set<String> genres, Set<String> styles, Pageable pageable) {
 

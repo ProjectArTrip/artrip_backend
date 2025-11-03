@@ -182,21 +182,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
 
 
 
-    @Query("""
-    SELECT e
-    FROM Exhibit e
-    JOIN e.exhibitHall h
-    WHERE h.country = :country
-      AND FUNCTION('DATE', e.startDate) <= :startDate
-      AND FUNCTION('DATE', e.endDate) >= :endDate
-    """)
-    Page<Exhibit> findByCountryAndPeriod(//수정필요 function사용시 -> 풀스캔 db함수임
-            @Param("country") String country,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            Pageable pageable
-    );
-
     @Query(value = """
     SELECT DISTINCT e
     FROM Exhibit e

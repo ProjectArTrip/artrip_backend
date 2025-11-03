@@ -22,17 +22,5 @@ public class RedisConfig {
         return template;
     }
 
-    @Bean
-    public RedisCacheConfiguration cacheConfiguration() {
-        return RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(60)) // 캐시 TTL 60분
-                .disableCachingNullValues();
-    }
 
-    @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(cacheConfiguration())
-                .build();
-    }
 }
