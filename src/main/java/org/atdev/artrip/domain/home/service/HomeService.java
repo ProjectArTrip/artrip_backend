@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
+import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
@@ -11,6 +12,9 @@ import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +32,7 @@ public class HomeService {
     private final UserKeywordRepository userkeywordRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final ExhibitHallRepository exhibitHallRepository;
+
 
     // 오늘 추천 전시
     public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
@@ -158,18 +163,35 @@ public class HomeService {
                 .toList();
     }
 
-    public List<HomeListResponse> getOverSeasCondition(String country, LocalDate startDate, LocalDate endDate, Pageable page){
+//    @Cacheable(value = "exhibit:countryPeriod",
+//            key = "#country + ':' + #startDate + '-' + #endDate")
+//    public List<FilterResponse> getOverSeasCondition(String country, LocalDate startDate, LocalDate endDate, Pageable page){
+//        return fetchOverSeasCondition(country, startDate, endDate, page);
+//    }
+//
+//    private List<FilterResponse> fetchOverSeasCondition(String country, LocalDate startDate, LocalDate endDate, Pageable page){
+//        return exhibitRepository.findByCountryAndPeriod(country, startDate, endDate, page)
+//                .stream()
+//                .map(this::toFilterListResponse)
+//                .toList();
+//    }
 
-        return exhibitRepository.findByCountryAndPeriod(country,startDate,endDate,page)
-                .stream()
-                .map(this::toHomeExhibitListResponse)
+    public List<FilterResponse> getFilteredExhibits(String country, LocalDate startDate, LocalDate endDate, Set<String> genres, Set<String> styles, Pageable pageable) {
+
+        Page<Exhibit> exhibits = exhibitRepository.findExhibitsByDynamicFilters(
+                country,
+                startDate,
+                endDate,
+                genres != null && !genres.isEmpty() ? genres : null,
+                styles != null && !styles.isEmpty() ? styles : null,
+                pageable
+        );
+
+        return exhibits.stream()
+                .map(this::toFilterListResponse)
                 .toList();
     }
 
-//    public List<HomeListResponse> getdetailFilter(String country, String genre){
-//
-//        return exhibitRepository.findByCountryAndGenre()
-//    }
 
 
     private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
@@ -196,6 +218,33 @@ public class HomeService {
                 .posterUrl(exhibit.getPosterUrl())
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
+                .build();
+    }
+
+    private FilterResponse toFilterListResponse(Exhibit exhibit){
+
+        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
+
+        String genre = exhibit.getKeywords().stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .findFirst()        // 하나만 가져오기, 여러개면 List로 변경 가능
+                .orElse(null);
+
+        String style = exhibit.getKeywords().stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .findFirst()
+                .orElse(null);
+
+        return FilterResponse.builder()
+                .exhibit_id(exhibit.getExhibitId())
+                .title(exhibit.getTitle())
+                .posterUrl(exhibit.getPosterUrl())
+                .status(exhibit.getStatus())
+                .exhibitPeriod(period)
+                .genre(genre)
+                .style(style)
                 .build();
     }
 
