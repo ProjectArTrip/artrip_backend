@@ -163,7 +163,7 @@ public class HomeController {
     }
 
 
-    @Operation(summary = "전시 조건별 조회", description = "국가, 기간, 장르, 스타일로 전시 데이터를 조회합니다.")
+    @Operation(summary = "해외 전시 조건별 조회", description = "국가, 기간, 장르, 스타일로 전시 데이터를 조회")
     @GetMapping("overseas/filter")
     public ResponseEntity<ApiResponse<List<FilterResponse>>> getFilteredExhibits(
             @RequestParam String country,
