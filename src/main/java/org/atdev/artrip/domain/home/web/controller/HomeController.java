@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -160,26 +162,19 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(random));
     }
 
-    @Operation(summary = "해외 전시 조건 설정",description = "특정 해외 국가 + 전시 기간으로 필터링하여 전시 데이터 조회")
-    @GetMapping("/overseas/filter")
-    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getOverSeasCondition(@RequestParam(name = "country") String country,
-                                                                                    @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                                                    @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate){
 
-        List<HomeListResponse> filter = homeService.getOverSeasCondition(country,startDate,endDate,Pageable.ofSize(20));
+    @Operation(summary = "해외 전시 조건별 조회", description = "국가, 기간, 장르, 스타일로 전시 데이터를 조회")
+    @GetMapping("overseas/filter")
+    public ResponseEntity<ApiResponse<List<FilterResponse>>> getFilteredExhibits(
+            @RequestParam String country,
+            @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) Set<String> genres,
+            @RequestParam(required = false) Set<String> styles) {
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(filter));
+        List<FilterResponse> response = homeService.getFilteredExhibits(country, startDate, endDate, genres, styles, Pageable.ofSize(20));
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
-
-//    @Operation(summary = "해외 전시 필터 설정",description = "특정 해외 국가 + 카테고리(장르)로 필터링하여 해외 전시 데이터 조회")
-//    @GetMapping("/overseas/detail")
-//    public ResponseEntity<ApiResponse<List<HomeListResponse>>> getdetailFilter(@RequestParam(name = "country") String country,
-//                                                                               @RequestParam(name = "genre") String Genre){
-//
-//        List<HomeListResponse> filter = homeService.getdetailFilter(country,Pageable.ofSize(20));
-//
-//        return ResponseEntity.ok(ApiResponse.onSuccess(filter));
-//    }
-
 
 }
