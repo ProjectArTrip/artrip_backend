@@ -11,13 +11,15 @@ import org.atdev.artrip.domain.Enum.Status;
 @Setter
 @Builder
 @AllArgsConstructor
-public class HomeListResponse {
+public class FilterResponse {
 
     private Long exhibit_id;
     private String title;
     private String posterUrl;
     private Status status;
+    private String genre;
+    private String style;
+
 
     private String exhibitPeriod;
 }
-
