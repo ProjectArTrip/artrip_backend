@@ -3,11 +3,22 @@ FROM --platform=linux/amd64 gradle:8.5-jdk17-alpine AS builder
 WORKDIR /app
 COPY . .
 
-RUN gradle build -x test
+RUN gradle build -x test --no-daemon
 
-FROM bellsoft/liberica-openjdk-alpine:17
+FROM bellsoft/liberica-openjdk-alpine:17 AS develop
 
-ENV SPRING_PROFILE=dev
+WORKDIR /app
 
-COPY --from=builder /app/build/libs/*.jar /artrip.jar
-ENTRYPOINT ["sh", "-c", "java -Dspring.profiles.active=${SPRING_PROFILE} -jar /artrip.jar"]
+RUN apk add --no-cache curl netcat-openbsd
+
+COPY --from=builder /app/build/libs/*.jar /app/artrip.jar
+
+ENV SPRING_PROFILES_ACTIVE=dev
+
+ENTRYPOINT ["sh", "-c", "java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar /app/artrip.jar"]
+
+FROM develop as production
+
+ENV SPRING_PROFILES_ACTIVE=prod
+
+ENTRYPOINT ["java", "-jar", "/app/artrip.jar"]

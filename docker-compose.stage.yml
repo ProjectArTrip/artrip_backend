@@ -2,12 +2,52 @@ version: "3.8"
 
 services:
   app:
-    container_name: art-stage-backend
-    image: art-stage-backend:latest
+    container_name: backend-stage
+    image: artrip-backend:latest
     build:
-        context: .
-        dockerfile: Dockerfile
-        tags:
-            - stage
+        target: develop
     ports:
       - 881:8080
+    environment:
+      - SPRING_PROFILES_ACTIVE=stage
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes: []
+  
+  db: !reset {}
+
+  redis:
+    container_name: redis-stage
+    image: redis:7.2
+    ports: !reset
+      - "${REDIS_PORT:-63800}:6379"
+    volumes:
+      - redis-stage-data:/data
+
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: elasticsearch-stage
+    ports: !reset
+      - 9201:9200
+      - 9301:9300
+    environment: 
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - elasticsearch-stage-data:/usr/share/elasticsearch/data
+
+volumes:
+  redis-stage-data:
+  elasticsearch-stage-data:
