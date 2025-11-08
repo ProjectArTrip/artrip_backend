@@ -30,7 +30,10 @@ public class ReviewController {
                                                                             @RequestParam("content") String content,
                                                                             @AuthenticationPrincipal UserDetails userDetails){
 
+        Long userId = Long.valueOf(userDetails.getUsername());
 
-        return ResponseEntity.ok(ApiResponse.onSuccess());
+        reviewService.createReview(date, content, images, userId);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
     }
 }
