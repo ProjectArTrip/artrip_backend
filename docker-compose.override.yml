@@ -5,19 +5,23 @@
       container_name: backend
       build:
         context: .
-        dockerfile: Dockerfile
-      image: backend:develop
+        target: develop
+      image: artrip-backend:latest
       ports:
         - ${HTTP_PORT:-880}:8080
       volumes:
         - ./src:/app/src
       depends_on:
-        - db
-        - redis
-        - elasticsearch
-        - kibana
-      environment:
-        - SPRING_PROFILE=dev
+        elasticsearch:
+          condition: service_healthy
+        db:
+          condition: service_started
+        redis:
+          condition: service_started
+        kibana:
+          condition: service_started
+#      environment:
+#        - SPRING_PROFILES_ACTIVE=dev
 
     db:
       image: mysql:8.4
@@ -25,11 +29,11 @@
       platform: linux/amd64
       environment:
         MYSQL_USER: artrip
-        MYSQL_ROOT_PASSWORD: "artrip1!"
+        MYSQL_ROOT_PASSWORD: artrip1!
         MYSQL_DATABASE: artrip
         MYSQL_PASSWORD: artrip1!
       ports:
-        - "33068:3306"
+        - "${DB_PORT:-33069}:3306"
       volumes:
         - ./db/data:/var/lib/mysql
         - ./db/conf:/etc/mysql/conf.d
@@ -39,11 +43,9 @@
       container_name: redis
       restart: always
       ports:
-        - "63799:6379"
+        - "${REDIS_PORT:-63799}:6379"
       volumes:
         - redis-data:/data
-      environment:
-        - SPRING_PROFILES_ACTIVE=dev
 
     elasticsearch:
       image: elasticsearch:8.11.0
@@ -54,10 +56,16 @@
         - xpack.security.http.ssl.enabled=false
         - ES_JAVA_OPTS=-Xms1g -Xmx1g
       ports:
-        - "9200:9200"
-        - "9300:9300"
+        - "${ELASTICSEARCH_PORT:-9200}:9200"
+        - "${ELASTICSEARCH_TRANSPORT_PORT:-9300}:9300"
       volumes:
         - ./elasticsearch/data:/usr/share/elasticsearch/data
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 30s
 
     kibana:
       image: kibana:8.11.0
