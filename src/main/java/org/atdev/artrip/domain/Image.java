@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "imges", schema = "art_dev")
 @Data
-public class Imges {
+public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "img_id")
-    private long imgId;
+    private long imageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", referencedColumnName = "review_id")
