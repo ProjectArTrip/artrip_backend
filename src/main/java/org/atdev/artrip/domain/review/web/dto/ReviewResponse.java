@@ -18,7 +18,7 @@ public class ReviewResponse {
     private Long exhibitId;
     private LocalDate visitDate;
     private String content;
-    private List<String> imageUrls;
+    private List<ReviewImageResponse> images;
     private LocalDateTime createdAt;
 
 }

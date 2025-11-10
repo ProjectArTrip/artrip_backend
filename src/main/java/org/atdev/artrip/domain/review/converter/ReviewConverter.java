@@ -5,7 +5,9 @@ import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.review.data.Review;
 import org.atdev.artrip.domain.review.web.dto.ReviewCreateRequest;
+import org.atdev.artrip.domain.review.web.dto.ReviewImageResponse;
 import org.atdev.artrip.domain.review.web.dto.ReviewResponse;
+import org.atdev.artrip.domain.review.web.dto.ReviewUpdateRequest;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -46,21 +48,34 @@ public class ReviewConverter {
         return reviewImages;
     }
 
-    public ReviewResponse toReviewResponse(Review review, Exhibit exhibit) {
-        List<String> imageUrls = review.getImages() != null ?
+    public ReviewResponse toReviewResponse(Review review) {
+
+        List<ReviewImageResponse> imageList = review.getImages() != null ?
                 review.getImages().stream()
-                        .map(ReviewImage::getImageUrl)
+                        .map(img->new ReviewImageResponse(img.getImageId(),img.getImageUrl()))
                         .toList() :
                 List.of();
 
         return ReviewResponse.builder()
                 .reviewId(review.getReviewId())
-                .exhibitId(exhibit.getExhibitId())
                 .content(review.getContent())
                 .visitDate(review.getVisitDate())
-                .imageUrls(imageUrls)
+                .images(imageList)
                 .createdAt(review.getCreatedAt())
                 .build();
     }
+
+
+    public void updateReviewFromDto(Review review, ReviewUpdateRequest request) {
+
+        if (request.getContent() != null) {
+            review.setContent(request.getContent());
+        }
+        if (request.getDate() != null) {
+            review.setVisitDate(request.getDate());
+        }
+
+    }
+
 
 }
