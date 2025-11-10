@@ -53,7 +53,7 @@ public class ReviewService {
 
         List<ReviewImage> reviewImages = reviewConverter.toReviewImage(review,s3Urls);
 
-        if (reviewImages!=null||!reviewImages.isEmpty()){
+        if (reviewImages!=null&&!reviewImages.isEmpty()){
             reviewImageRepository.saveAll(reviewImages);
             review.setImages(reviewImages);
         }
