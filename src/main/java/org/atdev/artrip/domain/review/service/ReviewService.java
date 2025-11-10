@@ -44,12 +44,12 @@ public class ReviewService {
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
 
+        Review review = reviewConverter.toEntity(user,exhibit,request);
+        reviewRepository.save(review);
+
         List<String> s3Urls = (images == null || images.isEmpty())
                 ? new ArrayList<>()
                 : s3Service.upload(images);
-
-        Review review = reviewConverter.toEntity(user,exhibit,request);
-        reviewRepository.save(review);
 
         List<ReviewImage> reviewImages = reviewConverter.toReviewImage(review,s3Urls);
 
