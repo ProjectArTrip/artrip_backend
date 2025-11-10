@@ -12,6 +12,8 @@ import org.atdev.artrip.domain.review.repository.ReviewImageRepository;
 import org.atdev.artrip.domain.review.repository.ReviewRepository;
 import org.atdev.artrip.domain.review.web.dto.ReviewCreateRequest;
 import org.atdev.artrip.domain.review.web.dto.ReviewResponse;
+import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.S3Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,14 +35,14 @@ public class ReviewService {
 
 
     @Transactional
-    public ReviewResponse createReview(ReviewCreateRequest request, List<MultipartFile> images, Long userId){
+    public ReviewResponse createReview(Long exhibitId, ReviewCreateRequest request, List<MultipartFile> images, Long userId){
 
 
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
 
-        Exhibit exhibit = exhibitRepository.findById(request.getExhibitId())
-                .orElseThrow(() -> new RuntimeException("Exhibit not found"));
+        Exhibit exhibit = exhibitRepository.findById(exhibitId)
+                .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
 
         List<String> s3Urls = (images == null || images.isEmpty())
                 ? new ArrayList<>()

@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ReviewCreateRequest {
 
-    private Long exhibitId;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
     private String content;

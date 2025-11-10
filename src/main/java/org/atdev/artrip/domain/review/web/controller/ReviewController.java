@@ -22,14 +22,15 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @Operation(summary = "리뷰 생성")
-    @PostMapping("/")
-    public ResponseEntity<ApiResponse<ReviewResponse>> CreateReview(@RequestPart("images") List<MultipartFile> images,
+    @PostMapping("/{exhibitId}")
+    public ResponseEntity<ApiResponse<ReviewResponse>> CreateReview(@PathVariable Long exhibitId,
+                                                                    @RequestPart("images") List<MultipartFile> images,
                                                                     @RequestPart("request") ReviewCreateRequest request,
                                                                     @AuthenticationPrincipal UserDetails userDetails){
 
         Long userId = Long.valueOf(userDetails.getUsername());
 
-        ReviewResponse review = reviewService.createReview(request, images, userId);
+        ReviewResponse review = reviewService.createReview(exhibitId, request, images, userId);
 
         return ResponseEntity.ok(ApiResponse.onSuccess(review));
     }

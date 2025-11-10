@@ -18,6 +18,9 @@ public enum ErrorStatus implements BaseErrorCode {
     _EXHIBIT_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBIT404", "전시 정보를 찾을 수 없습니다."),
     _EXHIBIT_HALL_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBITHALL404", "전시관 정보를 찾을 수 없습니다."),
     _EXHIBIT_HALL_IN_USE(HttpStatus.BAD_REQUEST, "EXHIBITHALL400", "전시관이 전시와 연관되어 있어 삭제할 수 없습니다."),
+
+    _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404-NOT_FOUND", "존재하지 않는 회원입니다."),
+
     // s3 관련 응답
     _NOT_EXIST_FILE (HttpStatus.NOT_FOUND, "FILE404-NOT_FOUND", "존재하지 않는 파일입니다."),
     _NOT_EXIST_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "FILE400-EXT_MISSING", "확장자가 존재하지 않습니다."),
