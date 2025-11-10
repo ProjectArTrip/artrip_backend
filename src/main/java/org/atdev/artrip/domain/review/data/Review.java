@@ -2,13 +2,13 @@ package org.atdev.artrip.domain.review.data;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.atdev.artrip.domain.Image;
 import org.atdev.artrip.domain.Stamp;
 import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -49,9 +49,10 @@ public class Review {
     private List<Stamp> stamps;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> images;
+    @OrderBy("displayOrder ASC")
+    @Builder.Default
+    private List<ReviewImage> images= new ArrayList<>();
 
-    // 편의 메서드: 리뷰 업데이트
     public void updateContent(String newContent, LocalDateTime updatedAt) {
         this.content = newContent;
         this.updatedAt = updatedAt;

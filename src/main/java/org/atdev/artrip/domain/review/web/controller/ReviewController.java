@@ -2,18 +2,16 @@ package org.atdev.artrip.domain.review.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.review.service.ReviewService;
+import org.atdev.artrip.domain.review.web.dto.ReviewCreateRequest;
+import org.atdev.artrip.domain.review.web.dto.ReviewResponse;
 import org.atdev.artrip.global.apipayload.ApiResponse;
-import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -25,15 +23,14 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 생성")
     @PostMapping("/")
-    public ResponseEntity<ApiResponse<List<HomeListResponse>>> CreateReview(@RequestParam("images") List<MultipartFile> images,
-                                                                            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                                                                            @RequestParam("content") String content,
-                                                                            @AuthenticationPrincipal UserDetails userDetails){
+    public ResponseEntity<ApiResponse<ReviewResponse>> CreateReview(@RequestPart("images") List<MultipartFile> images,
+                                                                    @RequestPart("request") ReviewCreateRequest request,
+                                                                    @AuthenticationPrincipal UserDetails userDetails){
 
         Long userId = Long.valueOf(userDetails.getUsername());
 
-        reviewService.createReview(date, content, images, userId);
+        ReviewResponse review = reviewService.createReview(request, images, userId);
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+        return ResponseEntity.ok(ApiResponse.onSuccess(review));
     }
 }
