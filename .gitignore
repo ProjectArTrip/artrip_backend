@@ -46,3 +46,6 @@ mongodb
 .DS_Store
 elasticsearch/
 .cursorrules
+application-stage.yml
+application-prod.yml
+application-dev.yml
