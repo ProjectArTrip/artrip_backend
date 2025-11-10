@@ -17,9 +17,17 @@ public enum ErrorStatus implements BaseErrorCode {
     _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
     _EXHIBIT_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBIT404", "전시 정보를 찾을 수 없습니다."),
     _EXHIBIT_HALL_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBITHALL404", "전시관 정보를 찾을 수 없습니다."),
-    _EXHIBIT_HALL_IN_USE(HttpStatus.BAD_REQUEST, "EXHIBITHALL400", "전시관이 전시와 연관되어 있어 삭제할 수 없습니다.");
+    _EXHIBIT_HALL_IN_USE(HttpStatus.BAD_REQUEST, "EXHIBITHALL400", "전시관이 전시와 연관되어 있어 삭제할 수 없습니다."),
+    // s3 관련 응답
+    _NOT_EXIST_FILE (HttpStatus.NOT_FOUND, "FILE404-NOT_FOUND", "존재하지 않는 파일입니다."),
+    _NOT_EXIST_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "FILE400-EXT_MISSING", "확장자가 존재하지 않습니다."),
+    _INVALID_FILE_EXTENSION(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "FILE415-EXT_UNSUPPORTED", "허용되지 않는 확장자입니다."),
+    _INVALID_URL_FORMAT(HttpStatus.BAD_REQUEST, "FILE400-URL_INVALID", "잘못된 URL 형식입니다."),
+    _IO_EXCEPTION_UPLOAD_FILE(HttpStatus.INTERNAL_SERVER_ERROR, "FILE500-UPLOAD_IO", "업로드 중 오류가 발생했습니다."),
+    _IO_EXCEPTION_DELETE_FILE(HttpStatus.INTERNAL_SERVER_ERROR, "FILE500-DELETE_IO", "파일을 삭제할 수 없습니다.");
 
-    
+
+
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;
