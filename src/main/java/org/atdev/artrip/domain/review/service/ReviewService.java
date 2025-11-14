@@ -104,7 +104,6 @@ public class ReviewService {
                 s3Service.delete(urlsToDelete);
 
                 review.getImages().removeAll(imagesToDelete);
-//                reviewImageRepository.deleteAll(imagesToDelete);
             }
         }
 
@@ -141,4 +140,8 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
+    @Transactional
+    public void getAllReview(){
+
+    }
 }

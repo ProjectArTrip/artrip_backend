@@ -62,4 +62,15 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.onSuccess("리뷰 삭제 완료"));
     }
 
+    @Operation(summary = "리뷰 전체 조회")
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<ApiResponse<String>> GetAllReview(@PathVariable Long reviewId,
+                                                            @AuthenticationPrincipal UserDetails userDetails){
+
+        Long userId = Long.valueOf(userDetails.getUsername());
+
+        reviewService.getAllReview();
+
+        return ResponseEntity.ok(ApiResponse.onSuccess("리뷰 전체 조회 완료"));
+    }
 }
