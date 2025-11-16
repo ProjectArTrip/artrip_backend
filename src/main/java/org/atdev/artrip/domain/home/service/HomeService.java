@@ -84,6 +84,10 @@ public class HomeService {
 
     public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
 
+        if (!userRepository.existsById(userId)) {
+            throw new GeneralException(ErrorStatus._USER_NOT_FOUND);
+        }
+
         List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
                 .stream()
                 .map(UserKeyword::getKeyword)
@@ -174,6 +178,7 @@ public class HomeService {
 
 
     public List<FilterResponse> getFilteredExhibits(String country, LocalDate startDate, LocalDate endDate, Set<String> genres, Set<String> styles, Pageable pageable) {
+
 
         Page<Exhibit> exhibits = exhibitRepository.findExhibitsByDynamicFilters(
                 country,

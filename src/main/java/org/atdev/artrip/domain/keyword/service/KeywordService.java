@@ -26,6 +26,7 @@ public class KeywordService {
     private final UserRepository userRepository;
 
     public void saveUserKeywords(Long userId, List<Long> keywordIds) {
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
 
