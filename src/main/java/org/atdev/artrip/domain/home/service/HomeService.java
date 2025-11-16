@@ -12,6 +12,8 @@ import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
+import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -72,7 +74,7 @@ public class HomeService {
 
     public HomeExhibitResponse getExhibitDetail(Long exhibitId) {
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new RuntimeException("해당 전시를 찾을 수 없습니다"));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
 
         return toHomeExhibitResponse(exhibit);
     }
