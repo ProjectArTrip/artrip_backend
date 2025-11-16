@@ -2,6 +2,8 @@ package org.atdev.artrip.domain.home.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
+import org.atdev.artrip.domain.auth.data.User;
+import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.response.FilterResponse;
@@ -12,6 +14,8 @@ import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
+import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -32,6 +36,7 @@ public class HomeService {
     private final UserKeywordRepository userkeywordRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final ExhibitHallRepository exhibitHallRepository;
+    private final UserRepository userRepository;
 
 
     // 오늘 추천 전시
@@ -72,12 +77,16 @@ public class HomeService {
 
     public HomeExhibitResponse getExhibitDetail(Long exhibitId) {
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new RuntimeException("해당 전시를 찾을 수 없습니다"));
+                .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
 
         return toHomeExhibitResponse(exhibit);
     }
 
     public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
+
+        if (!userRepository.existsById(userId)) {
+            throw new GeneralException(ErrorStatus._USER_NOT_FOUND);
+        }
 
         List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
                 .stream()
@@ -101,6 +110,10 @@ public class HomeService {
     }
 
     public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
+
+        if (!userRepository.existsById(userId)) {
+            throw new GeneralException(ErrorStatus._USER_NOT_FOUND);
+        }
 
         List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
                 .stream()
@@ -165,6 +178,7 @@ public class HomeService {
 
 
     public List<FilterResponse> getFilteredExhibits(String country, LocalDate startDate, LocalDate endDate, Set<String> genres, Set<String> styles, Pageable pageable) {
+
 
         Page<Exhibit> exhibits = exhibitRepository.findExhibitsByDynamicFilters(
                 country,
