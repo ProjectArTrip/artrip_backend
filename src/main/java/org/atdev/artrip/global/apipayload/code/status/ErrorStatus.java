@@ -28,8 +28,6 @@ public enum ErrorStatus implements BaseErrorCode {
     _REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW404-NOT_FOUND", "리뷰 정보를 찾을 수 없습니다."),
     _REVIEW_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW403-NO_PERMISSION", "해당 유저에게 리뷰 수정권한이 없습니다."),
 
-    //날짜
-    _BAD_DATE_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400-DATE_INVALID", "날짜 형식이 잘못되었습니다. yyyy-MM-dd 형식으로 입력해주세요."),
 
     // s3 관련 응답
     _NOT_EXIST_FILE (HttpStatus.NOT_FOUND, "FILE404-NOT_FOUND", "존재하지 않는 파일입니다."),
