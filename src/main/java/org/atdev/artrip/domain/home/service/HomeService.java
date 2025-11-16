@@ -2,6 +2,8 @@ package org.atdev.artrip.domain.home.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
+import org.atdev.artrip.domain.auth.data.User;
+import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.response.FilterResponse;
@@ -34,6 +36,7 @@ public class HomeService {
     private final UserKeywordRepository userkeywordRepository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final ExhibitHallRepository exhibitHallRepository;
+    private final UserRepository userRepository;
 
 
     // 오늘 추천 전시
@@ -103,6 +106,10 @@ public class HomeService {
     }
 
     public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
+
+        if (!userRepository.existsById(userId)) {
+            throw new GeneralException(ErrorStatus._USER_NOT_FOUND);
+        }
 
         List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
                 .stream()
