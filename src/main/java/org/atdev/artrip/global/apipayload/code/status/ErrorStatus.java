@@ -23,6 +23,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     // 유저
     _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404-NOT_FOUND", "존재하지 않는 회원입니다."),
+    _INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-INVALID_REFRESH", "리프레시 토큰이 유효하지 않습니다."),
+
 
     //리뷰
     _REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW404-NOT_FOUND", "리뷰 정보를 찾을 수 없습니다."),
