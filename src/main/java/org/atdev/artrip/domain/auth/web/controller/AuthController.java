@@ -1,18 +1,14 @@
-package org.atdev.artrip.domain.auth.controller;
+package org.atdev.artrip.domain.auth.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.auth.jwt.JwtGenerator;
-import org.atdev.artrip.domain.auth.jwt.JwtProvider;
-import org.atdev.artrip.domain.auth.jwt.exception.JwtAuthenticationException;
+import org.atdev.artrip.domain.auth.jwt.JwtToken;
 import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
-import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.auth.service.AuthService;
+import org.atdev.artrip.domain.auth.web.dto.SocialLoginRequest;
+import org.atdev.artrip.domain.auth.web.dto.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.ApiResponse;
-import org.atdev.artrip.domain.auth.repository.UserRepository;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +29,7 @@ public class AuthController {
 
         String newAccessToken = authService.reissueToken(refreshToken, response);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "200", "성공", newAccessToken));
+        return ResponseEntity.ok(ApiResponse.onSuccess(newAccessToken));
     }
 
     @Operation(summary = "로그아웃", description = "refresh, access 토큰을 제거합니다.")
@@ -44,6 +40,18 @@ public class AuthController {
         authService.logout(refreshToken, response);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/social")
+    public ResponseEntity<ApiResponse<SocialLoginResponse>> socialLogin(@RequestBody SocialLoginRequest request) {
+
+        JwtToken jwt = authService.loginWithSocial(request.getProvider(), request.getIdToken());
+
+        SocialLoginResponse response = new SocialLoginResponse(
+                jwt.getAccessToken(),
+                jwt.getRefreshToken()
+        );
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
 }
