@@ -106,22 +106,34 @@ public class AuthService {
             default -> throw new IllegalArgumentException("지원하지 않는 provider: " + provider);
         };
 
-        User user = userRepository.findByEmail(socialUser.getEmail())
-                .orElseGet(() -> createNewUser(socialUser));
+        log.info("social 정보: {}",socialUser);
+        log.info("social email: {}",socialUser.getEmail());
+
+        String email = socialUser.getEmail() != null
+                ? socialUser.getEmail()
+                : "kakao_" + socialUser.getProviderId() + "@example.com";
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> createNewUser(socialUser,email));
+
+        log.info("user:{}",user);
 
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
 
         return jwt;
     }
 
-    private User createNewUser(SocialUserInfo info) {
+    private User createNewUser(SocialUserInfo info, String email) {
 
 
         User user = User.builder()
-                .email(info.getEmail())
+                .email(email)
                 .name(info.getNickname())
                 .role(Role.USER)
                 .build();
+
+        log.info("email: {}",email);
+        log.info("name: {}",info.getNickname());
 
         SocialAccounts social = SocialAccounts.builder()
                 .user(user)
@@ -129,10 +141,15 @@ public class AuthService {
                 .providerId(info.getProviderId())
                 .build();
 
+        log.info("Creating new user: {}", user);
+        log.info("Social account info: {}", social);
+
         user.getSocialAccounts().add(social);
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        log.info("Saved user: {}", savedUser);
 
+        return savedUser;
     }
 
 
@@ -158,9 +175,8 @@ public class AuthService {
             String email = verified.getClaim("email").asString();
             String nickname = verified.getClaim("nickname").asString();
             String sub = verified.getSubject();
-
+            log.info("email:{}, nickname:{}, sub:{}",email,nickname,sub);
             return new SocialUserInfo(email, nickname, sub);
-
 
         } catch (Exception e) {
             throw new GeneralException(ErrorStatus._SOCIAL_VERIFICATION_FAILED);
