@@ -42,6 +42,7 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분")
     @PostMapping("/social")
     public ResponseEntity<ApiResponse<SocialLoginResponse>> socialLogin(@RequestBody SocialLoginRequest request) {
 
