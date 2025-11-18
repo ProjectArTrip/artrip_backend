@@ -9,6 +9,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.Enum.Provider;
 import org.atdev.artrip.domain.Enum.Role;
 import org.atdev.artrip.domain.SocialAccounts;
@@ -24,10 +25,12 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -44,6 +47,7 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
+    @Transactional
     public String reissueToken(String refreshToken, HttpServletResponse response) {
         if (refreshToken == null) {
             throw new GeneralException(ErrorStatus._INVALID_REFRESH_TOKEN);
@@ -73,6 +77,7 @@ public class AuthService {
         return newAccessToken;
     }
 
+    @Transactional
     public void logout(String refreshToken, HttpServletResponse response) {
 
         if(refreshToken != null) {
@@ -92,6 +97,7 @@ public class AuthService {
         response.addCookie(cookie);
     }
 
+    @Transactional
     public JwtToken loginWithSocial(String provider, String idToken) {
 
         SocialUserInfo socialUser = switch (provider.toUpperCase()) {
@@ -110,6 +116,7 @@ public class AuthService {
 
     private User createNewUser(SocialUserInfo info) {
 
+
         User user = User.builder()
                 .email(info.getEmail())
                 .name(info.getNickname())
@@ -125,7 +132,9 @@ public class AuthService {
         user.getSocialAccounts().add(social);
 
         return userRepository.save(user);
+
     }
+
 
     private SocialUserInfo verifyKakao(String idToken) {
         try {
@@ -151,6 +160,7 @@ public class AuthService {
             String sub = verified.getSubject();
 
             return new SocialUserInfo(email, nickname, sub);
+
 
         } catch (Exception e) {
             throw new GeneralException(ErrorStatus._SOCIAL_VERIFICATION_FAILED);
