@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class SocialUserInfo {
     private String email;
-    private String nickname;
+    private String Nickname;
     private String ProviderId;
 }

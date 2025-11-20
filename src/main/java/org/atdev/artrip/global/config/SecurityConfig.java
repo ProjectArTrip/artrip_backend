@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/","/a","/login/**", "/oauth2/**", "/error",
-                                "/swagger-ui/**", "/v3/api-docs/**","/auth/reissue", "/auth/logout","/s3/**").permitAll()
+                                "/swagger-ui/**", "/v3/api-docs/**","/auth/reissue", "/auth/logout","/s3/**","auth/social").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()//스웨거 에러
                         .anyRequest().authenticated()
                 )
