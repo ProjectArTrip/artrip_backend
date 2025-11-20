@@ -1,0 +1,142 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Integrated CI/CD - Build, dockerize, and Push to GHCR
+
+on:
+  push:
+    branches: [ "developer", "main" ]
+    tags:
+      - "v*"
+env:
+  DOCKER_IMAGE: artrip-backend
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build -x test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine environment and tag
+        id: env
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo "ENV=prod" >> $GITHUB_OUTPUT
+            echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          elif [[ $GITHUB_REF == refs/heads/main ]]; then
+            echo "ENV=prod" >> $GITHUB_OUTPUT
+            echo "TAG=prod-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          elif [[ $GITHUB_REF == refs/heads/developer ]]; then
+            echo "ENV=dev" >> $GITHUB_OUTPUT 
+            echo "TAG=dev-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          else
+            echo "ENV=dev" >> $GITHUB_OUTPUT
+            echo "TAG=latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get Lowercase Repo Owner
+        id: lowercase_owner
+        run: |
+          LOWERCASE_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "OWNER=$LOWERCASE_OWNER" >> $GITHUB_OUTPUT
+
+      - name: Build and push to GHCR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: ${{ steps.env.outputs.ENV == 'prod' && 'production' || 'develop'}}
+          push: true
+          tags: |
+            ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:${{ steps.env.outputs.TAG }}
+            ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy to Dev Server (Developer)
+        if: github.ref == 'refs/heads/developer'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST_DEV }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
+          script: |
+            echo "Deploying ${{ steps.env.outputs.TAG }} to Dev Server"
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            IMAGE_TAG=ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:${{ steps.env.outputs.TAG }}
+            
+            docker pull $IMAGE_TAG
+            docker stop artrip_dev_container || true
+            docker rm artrip_dev_container || true
+            docker run -d --name artrip_dev_container -p 881:8080 $IMAGE_TAG
+
+      - name: Deploy to Production Server (Main)
+        if: github.ref == 'refs/heads/main'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST_PROD }}
+          username: ${{ secrets.SERVER_USER_PROD }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_PROD }}
+          script: |
+            echo "Deploying ${{ steps.env.outputs.TAG }} to Production Server"
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            IMAGE_TAG=ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:latest 
+            
+            docker pull $IMAGE_TAG
+            docker stop artrip_prod_container || true
+            docker rm artrip_prod_container || true
+            docker run -d --name artrip_prod_container -p 8080:8080 $IMAGE_TAG
+
+
+  dependency-submission:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
