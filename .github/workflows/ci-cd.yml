@@ -83,8 +83,8 @@ jobs:
           target: ${{ steps.env.outputs.ENV == 'prod' && 'production' || 'develop'}}
           push: true
           tags: |
-            ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:${{ steps.env.outputs.TAG }}
-            ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:latest
+            ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:${{ steps.env.outputs.TAG }}
+            ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
