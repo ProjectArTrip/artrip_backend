@@ -95,34 +95,37 @@ jobs:
           host: ${{ secrets.SERVER_HOST_DEV }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
+          port: ${{ secrets.SERVER_SSH_PORT_DEV }}
           script: |
             echo "Deploying ${{ steps.env.outputs.TAG }} to Dev Server"
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
+            cd /home/${{ secrets.SERVER_USER }}/${{ secrets.SERVER_DEV_PATH }}
+            
             IMAGE_TAG=ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:${{ steps.env.outputs.TAG }}
             
             docker pull $IMAGE_TAG
-            docker stop artrip_dev_container || true
-            docker rm artrip_dev_container || true
-            docker run -d --name artrip_dev_container -p 881:8080 $IMAGE_TAG
+            docker-compose down
+            docker-compose -f docker-compose.yml -f docker-compose.stage.yml pull
+            docker-compose -f docker-compose.yml -f docker-compose.stage.yml up -d
 
-      - name: Deploy to Production Server (Main)
-        if: github.ref == 'refs/heads/main'
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST_PROD }}
-          username: ${{ secrets.SERVER_USER_PROD }}
-          key: ${{ secrets.SSH_PRIVATE_KEY_PROD }}
-          script: |
-            echo "Deploying ${{ steps.env.outputs.TAG }} to Production Server"
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            IMAGE_TAG=ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:latest 
-            
-            docker pull $IMAGE_TAG
-            docker stop artrip_prod_container || true
-            docker rm artrip_prod_container || true
-            docker run -d --name artrip_prod_container -p 8080:8080 $IMAGE_TAG
+#      - name: Deploy to Production Server (Main)
+#        if: github.ref == 'refs/heads/main'
+#        uses: appleboy/ssh-action@v1.0.3
+#        with:
+#          host: ${{ secrets.SERVER_HOST_PROD }}
+#          username: ${{ secrets.SERVER_USER_PROD }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY_PROD }}
+#          script: |
+#            echo "Deploying ${{ steps.env.outputs.TAG }} to Production Server"
+#            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#
+#            IMAGE_TAG=ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:latest
+#
+#            docker pull $IMAGE_TAG
+#            docker stop artrip_prod_container || true
+#            docker rm artrip_prod_container || true
+#            docker run -d --name artrip_prod_container -p 8080:8080 $IMAGE_TAG
 
 
   dependency-submission:
