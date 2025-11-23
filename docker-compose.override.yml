@@ -1,87 +1,73 @@
-  version: "3.8"
+version: "3.8"
 
-  services:
-    app:
-      container_name: backend
-      build:
-        context: .
-        target: develop
-      image: artrip-backend:latest
-      ports:
-        - ${HTTP_PORT:-880}:8080
-      volumes:
-        - ./src:/app/src
-      depends_on:
-        elasticsearch:
-          condition: service_healthy
-        db:
-          condition: service_started
-        redis:
-          condition: service_started
-        kibana:
-          condition: service_started
-#      environment:
-#        - SPRING_PROFILES_ACTIVE=dev
+services:
+  app:
+    container_name: backend
+    build:
+      context: .
+      target: develop
+    image: artrip-backend:latest
+    ports:
+      - ${HTTP_PORT:-880}:8080
+    volumes:
+      - ./src:/app/src
+      - ./build/classes:/app/build/classes
+      - ./build/resources:/app/build/resources
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+    env_file:
+      - .env
 
-    db:
-      image: mysql:8.4
-      container_name: db
-      platform: linux/amd64
-      environment:
-        MYSQL_USER: artrip
-        MYSQL_ROOT_PASSWORD: artrip1!
-        MYSQL_DATABASE: artrip
-        MYSQL_PASSWORD: artrip1!
-      ports:
-        - "${DB_PORT:-33069}:3306"
-      volumes:
-        - ./db/data:/var/lib/mysql
-        - ./db/conf:/etc/mysql/conf.d
+  db:
+    image: mysql:8.4
+    container_name: db
+    platform: linux/amd64
+    environment:
+      MYSQL_USER: artrip
+      MYSQL_ROOT_PASSWORD: artrip1!
+      MYSQL_DATABASE: artrip
+      MYSQL_PASSWORD: artrip1!
+    ports:
+      - "33069:3306"
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/conf:/etc/mysql/conf.d
 
-    redis:
-      image: redis:7.2
-      container_name: redis
-      restart: always
-      ports:
-        - "${REDIS_PORT:-63799}:6379"
-      volumes:
-        - redis-data:/data
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: always
+    ports:
+      - "63799:6379"
+    volumes:
+      - redis-data:/data
 
-    elasticsearch:
-      image: elasticsearch:8.11.0
-      container_name: elastic
-      environment:
-        - discovery.type=single-node
-        - xpack.security.enabled=false
-        - xpack.security.http.ssl.enabled=false
-        - ES_JAVA_OPTS=-Xms1g -Xmx1g
-      ports:
-        - "${ELASTICSEARCH_PORT:-9200}:9200"
-        - "${ELASTICSEARCH_TRANSPORT_PORT:-9300}:9300"
-      volumes:
-        - ./elasticsearch/data:/usr/share/elasticsearch/data
-      healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-        start_period: 30s
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: elastic
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT:-9300}:9300"
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-    kibana:
-      image: kibana:8.11.0
-      container_name: kibana
-      environment:
-        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-        - ELASTICSEARCH_USERNAME=elasticsearch
-        - SERVER_HOST=0.0.0.0
-        - ELASTICSEARCH_PASSWORD=""
-        - xpack.security.enabled=false
-        - logging.level=debug
-      ports:
-        - "5601:5601"
-      depends_on:
-        - elasticsearch
-      restart: always
-
-  volumes:
-    redis-data:
+volumes:
+  redis-data:

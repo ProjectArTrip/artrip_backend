@@ -13,7 +13,7 @@ RUN apk add --no-cache curl netcat-openbsd
 
 COPY --from=builder /app/build/libs/*.jar /app/artrip.jar
 
-ENV SPRING_PROFILES_ACTIVE=dev
+ENV SPRING_PROFILES_ACTIVE=local
 
 ENTRYPOINT ["sh", "-c", "java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar /app/artrip.jar"]
 
