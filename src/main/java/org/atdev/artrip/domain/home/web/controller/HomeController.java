@@ -177,4 +177,12 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
 
+    @Operation(summary = "국내 전시 조건 필터",description = "기간, 지역, 장르, 전시 스타일 필터 조회")
+    @GetMapping("domestic/filter")
+    public ResponseEntity<ApiResponse<List<String>>> getDomesticFilter(){
+
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+    }
+
 }
