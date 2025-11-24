@@ -3,9 +3,10 @@ package org.atdev.artrip.domain.review.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.review.service.ReviewService;
-import org.atdev.artrip.domain.review.web.dto.ReviewCreateRequest;
-import org.atdev.artrip.domain.review.web.dto.ReviewResponse;
-import org.atdev.artrip.domain.review.web.dto.ReviewUpdateRequest;
+import org.atdev.artrip.domain.review.web.dto.request.ReviewCreateRequest;
+import org.atdev.artrip.domain.review.web.dto.response.ReviewSliceResponse;
+import org.atdev.artrip.domain.review.web.dto.response.ReviewResponse;
+import org.atdev.artrip.domain.review.web.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.global.apipayload.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,15 +63,19 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.onSuccess("리뷰 삭제 완료"));
     }
 
-    @Operation(summary = "리뷰 전체 조회")
-    @GetMapping("/{reviewId}")
-    public ResponseEntity<ApiResponse<String>> GetAllReview(@PathVariable Long reviewId,
-                                                            @AuthenticationPrincipal UserDetails userDetails){
+    @Operation(summary = "나의 리뷰 전체 조회 (무한스크롤)")
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<ReviewSliceResponse>> getAllReview(
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
         Long userId = Long.valueOf(userDetails.getUsername());
 
-        reviewService.getAllReview();
+        ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size);
 
-        return ResponseEntity.ok(ApiResponse.onSuccess("리뷰 전체 조회 완료"));
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
     }
+
+
 }
