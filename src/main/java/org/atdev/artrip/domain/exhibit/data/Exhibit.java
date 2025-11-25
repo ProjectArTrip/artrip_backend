@@ -65,6 +65,7 @@ public class Exhibit {
     @Column(name = "longitude")
     private BigDecimal longitude;
 
+    //enum 생성 정렬 등등
 
     @ManyToMany
     @Builder.Default

@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
+public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitRepositoryCustom{
 
 
     @Query(value = """
