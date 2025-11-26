@@ -10,7 +10,9 @@ import org.atdev.artrip.domain.favortie.data.FavoriteExhibit;
 import org.atdev.artrip.domain.favortie.dto.CalenderResponse;
 import org.atdev.artrip.domain.favortie.dto.FavoriteResponse;
 import org.atdev.artrip.domain.favortie.repository.FavoriteExhibitRepository;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.apipayload.exception.handler.ErrorHandler;
 import org.springframework.stereotype.Service;
@@ -36,13 +38,13 @@ public class FavoriteExhibitService {
     public FavoriteResponse addFavorite(Long userId, Long exhibitId) {
         log.info("Adding favorite exhibit. userId: {}, exhibitId: {}", userId, exhibitId);
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
 
-        Exhibit exhibit = exhibitRepository.findById(exhibitId).orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
+        Exhibit exhibit = exhibitRepository.findById(exhibitId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
         if (favoriteExhibitRepository.existsByUser_UserIdAndExhibit_ExhibitId(userId, exhibitId)) {
             log.info("Exhibit with id {} already exists", exhibitId);
-            throw new ErrorHandler(ErrorStatus._BAD_REQUEST);
+            throw new ErrorHandler(CommonError._BAD_REQUEST);
         }
 
         FavoriteExhibit favorite = FavoriteExhibit.builder()
@@ -60,7 +62,7 @@ public class FavoriteExhibitService {
         log.info("Getting favorites for exhibit. userId: {}", userId);
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
         List<FavoriteExhibit> favorites = favoriteExhibitRepository.findAllByUserIdWithExhibit(userId);
@@ -75,7 +77,7 @@ public class FavoriteExhibitService {
         log.info("Getting favorites for exhibit by date. userID: {}, date: {}", userId, date);
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
         List<FavoriteExhibit> favorites = favoriteExhibitRepository.findByUserIdAndDate(userId, date);
@@ -90,7 +92,7 @@ public class FavoriteExhibitService {
         log.info("Getting favorites for exhibit by country. userId: {}, country: {}", userId, country);
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
         List<FavoriteExhibit> favorites = favoriteExhibitRepository.findByUserIdAndCountry(userId, country);
@@ -105,7 +107,7 @@ public class FavoriteExhibitService {
         log.info("Getting calendar dates for userId: {}, year: {}, month: {}", userId, year, month);
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
         List<String> dateStrings = favoriteExhibitRepository.findExhibitDatesByUserIdAndYearMonth(userId, year, month);
@@ -126,7 +128,7 @@ public class FavoriteExhibitService {
         log.info("Getting favorite countries for exhibit. userId: {}", userId);
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            throw new GeneralException(UserError._USER_NOT_FOUND);
         }
         List<String> countries = favoriteExhibitRepository.findDistinctCountriesByUserId(userId);
         log.info("Favorite countries found: {}", countries);
@@ -142,7 +144,7 @@ public class FavoriteExhibitService {
         log.info("Removing favorite exhibit. userId: {}, exhibitId: {}", userId, exhibitId);
 
         FavoriteExhibit favorite = favoriteExhibitRepository.findByUserIdAndExhibitId(userId, exhibitId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
+                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
 
         favoriteExhibitRepository.delete(favorite);
         log.info("Favorite exhibit removed successfully. favoriteId: {}", favorite.getFavoriteId());

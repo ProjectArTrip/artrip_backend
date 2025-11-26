@@ -1,7 +1,6 @@
 package org.atdev.artrip.domain.admin.exhibitHall.web;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,7 @@ import org.atdev.artrip.domain.admin.exhibitHall.dto.ExhibitHallListResponse;
 import org.atdev.artrip.domain.admin.exhibitHall.dto.ExhibitHallResponse;
 import org.atdev.artrip.domain.admin.exhibitHall.dto.UpdateExhibitHallRequest;
 import org.atdev.artrip.domain.admin.exhibitHall.service.AdminExhibitHallService;
-import org.atdev.artrip.global.apipayload.ApiResponse;
+import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,52 +36,52 @@ public class AdminExhibitHallController {
             """
     )
     @GetMapping
-    public ApiResponse<PagingResponseDTO<ExhibitHallListResponse>> getExhibitHallList(Criteria cri) {
+    public CommonResponse<PagingResponseDTO<ExhibitHallListResponse>> getExhibitHallList(Criteria cri) {
         log.info("Admin getting exhibit hall : {}" , cri);
 
         PagingResponseDTO<ExhibitHallListResponse> result = adminExhibitHallService.getExhibitHallList(cri);
 
-        return ApiResponse.onSuccess(result);
+        return CommonResponse.onSuccess(result);
     }
 
     @Operation(summary = "전시관 상세 조회", description = "전시관 ID로 전시관 상세 조회")
     @GetMapping("/{exhibitHallId}")
-    public ApiResponse<ExhibitHallResponse> getExhibitHall(@PathVariable Long exhibitHallId) {
+    public CommonResponse<ExhibitHallResponse> getExhibitHall(@PathVariable Long exhibitHallId) {
         log.info("Admin getting exhibit hall : {}" , exhibitHallId);
 
         ExhibitHallResponse result = adminExhibitHallService.getExhibitHall(exhibitHallId);
 
-        return ApiResponse.onSuccess(result);
+        return CommonResponse.onSuccess(result);
     }
 
     @Operation(summary = "전시관 등록" )
     @PostMapping
-    public ApiResponse<Long> createExhibitHall(@RequestBody CreateExhibitHallRequest request) {
+    public CommonResponse<Long> createExhibitHall(@RequestBody CreateExhibitHallRequest request) {
         log.info("Admin creating exhibit hall : {}" , request);
 
         Long result = adminExhibitHallService.createExhibitHall(request);
 
-        return ApiResponse.onSuccess(result);
+        return CommonResponse.onSuccess(result);
     }
 
     @Operation(summary = "전시관 수정" )
     @PutMapping("/{exhibitHallId}")
-    public ApiResponse<Long> updateExhibitHall(@PathVariable Long exhibitHallId, @RequestBody UpdateExhibitHallRequest request) {
+    public CommonResponse<Long> updateExhibitHall(@PathVariable Long exhibitHallId, @RequestBody UpdateExhibitHallRequest request) {
         log.info("Admin updating exhibit hall : {}, {}", exhibitHallId, request);
 
         Long result = adminExhibitHallService.updateExhibitHall(exhibitHallId, request);
 
-        return ApiResponse.onSuccess(result);
+        return CommonResponse.onSuccess(result);
     }
 
     @Operation(summary = "전시관 삭제" )
     @DeleteMapping("/{exhibitHallId}")
-    public ApiResponse<Void> deleteExhibitHall(@PathVariable Long exhibitHallId) {
+    public CommonResponse<Void> deleteExhibitHall(@PathVariable Long exhibitHallId) {
         log.info("Admin deleting exhibit hall : {}" , exhibitHallId);
 
         adminExhibitHallService.deleteExhibitHall(exhibitHallId);
 
-        return ApiResponse.onSuccess(null);
+        return CommonResponse.onSuccess(null);
     }
 
 }

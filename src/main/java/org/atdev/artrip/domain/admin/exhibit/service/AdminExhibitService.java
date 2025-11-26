@@ -15,7 +15,8 @@ import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
 import org.atdev.artrip.elastic.service.ExhibitIndexService;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,7 +61,7 @@ public class AdminExhibitService {
         log.info("Admin Getting Exhibit : {}", exhibitId);
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
         return convertToAdminResponse(exhibit);
     }
@@ -84,7 +85,7 @@ public class AdminExhibitService {
         if (request.getKeywordIds() != null && !request.getKeywordIds().isEmpty()) {
             keywords = keywordRepository.findAllById(request.getKeywordIds());
             if (keywords.size() != request.getKeywordIds().size()) {
-                throw new GeneralException(ErrorStatus._BAD_REQUEST);
+                throw new GeneralException(CommonError._BAD_REQUEST);
             }
         }
 
@@ -124,7 +125,7 @@ public class AdminExhibitService {
         log.info("Admin Updating Exhibit : {}", exhibitId);
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
         if (request.getExhibitHallId() != null || request.getExhibitHallName() != null ) {
             ExhibitHall exhibitHall = getOrCreateExhibitHall(
@@ -163,7 +164,7 @@ public class AdminExhibitService {
 
         }catch (Exception e) {
             log.error("Admin Exhibit Update Error", e.getMessage());
-            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
         }
 
         return savedExhibit.getExhibitId();
@@ -174,7 +175,7 @@ public class AdminExhibitService {
         log.info("Admin Deleting Exhibit : {}", exhibitId);
 
         if (!exhibitRepository.existsById(exhibitId)) {
-            throw new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND);
+            throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
         }
 
         exhibitRepository.deleteById(exhibitId);
@@ -183,7 +184,7 @@ public class AdminExhibitService {
             exhibitIndexService.deleteExhibit(exhibitId);
         } catch (Exception e) {
         log.error("Admin Exhibit Deletion Error", e.getMessage());
-            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -197,7 +198,7 @@ public class AdminExhibitService {
 
         if (exhibitHallId != null) {
             return exhibitHallRepository.findById(exhibitHallId)
-                    .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
+                    .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
         } else if (exhibitHallName != null) {
             ExhibitHall hall = ExhibitHall.builder()
                     .name(exhibitHallName)
@@ -209,7 +210,7 @@ public class AdminExhibitService {
                     .build();
             return exhibitHallRepository.save(hall);
         } else {
-            throw new GeneralException(ErrorStatus._BAD_REQUEST);
+            throw new GeneralException(CommonError._BAD_REQUEST);
         }
     }
 

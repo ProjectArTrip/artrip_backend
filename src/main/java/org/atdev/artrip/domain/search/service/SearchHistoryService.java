@@ -8,7 +8,7 @@ import org.atdev.artrip.domain.search.data.SearchHistory;
 import org.atdev.artrip.domain.search.repository.SearchHistoryRepository;
 import org.atdev.artrip.elastic.document.SearchHistoryDocument;
 import org.atdev.artrip.elastic.repository.SearchHistoryDocumentRepository;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ public class SearchHistoryService {
         try {
             log.debug("Saving search history for userId: {}, keyword: {}", userId, keyword);
 
-            User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR));
+            User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(CommonError._INTERNAL_SERVER_ERROR));
 
             SearchHistory history = SearchHistory.builder()
                     .user(user)
@@ -74,7 +74,7 @@ public class SearchHistoryService {
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -91,7 +91,7 @@ public class SearchHistoryService {
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
         }
     }
 }
