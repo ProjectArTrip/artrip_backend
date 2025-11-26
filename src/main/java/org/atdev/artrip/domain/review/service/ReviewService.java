@@ -11,12 +11,11 @@ import org.atdev.artrip.domain.review.converter.ReviewConverter;
 import org.atdev.artrip.domain.review.data.Review;
 import org.atdev.artrip.domain.review.repository.ReviewImageRepository;
 import org.atdev.artrip.domain.review.repository.ReviewRepository;
-import org.atdev.artrip.domain.review.web.dto.request.ReviewCreateRequest;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewSliceResponse;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewListResponse;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewResponse;
-import org.atdev.artrip.domain.review.web.dto.request.ReviewUpdateRequest;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.domain.review.web.dto.ReviewCreateRequest;
+import org.atdev.artrip.domain.review.web.dto.ReviewResponse;
+import org.atdev.artrip.domain.review.web.dto.ReviewUpdateRequest;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.ReviewError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.S3Service;
 import org.springframework.data.domain.PageRequest;
@@ -46,10 +45,10 @@ public class ReviewService {
 
 
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
 
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
 
         Review review = reviewConverter.toEntity(user,exhibit,request);
         reviewRepository.save(review);
@@ -73,10 +72,10 @@ public class ReviewService {
 
 
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ErrorStatus._REVIEW_NOT_FOUND));
+                .orElseThrow(()-> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
 
         if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ErrorStatus._REVIEW_USER_NOT_FOUND);
+            throw new GeneralException(ReviewError._REVIEW_USER_NOT_FOUND);
         }
 
         reviewConverter.updateReviewFromDto(review, request);
@@ -127,10 +126,10 @@ public class ReviewService {
 
 
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ErrorStatus._REVIEW_NOT_FOUND));
+                .orElseThrow(()-> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
 
         if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ErrorStatus._REVIEW_USER_NOT_FOUND);
+            throw new GeneralException(ReviewError._REVIEW_USER_NOT_FOUND);
         }
 
 
