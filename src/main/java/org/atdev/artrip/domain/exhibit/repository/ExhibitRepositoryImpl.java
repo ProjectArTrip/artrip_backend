@@ -1,5 +1,6 @@
 package org.atdev.artrip.domain.exhibit.repository;
 
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         genreFilter(dto, k),
                         styleFilter(dto, k)
                 )
+                .orderBy(sortFilter(dto,e))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -62,6 +64,26 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, total);
+    }
+
+    private OrderSpecifier<?> sortFilter(ExhibitFilterDto dto, QExhibit e) {
+        if (dto.getSortType() == null) {
+            return e.createdAt.desc(); // 기본 정렬(최신순)
+        }
+
+        switch (dto.getSortType()) {
+//            case POPULAR:
+//                return e.likeCount.desc();
+
+            case LATEST:
+                return e.createdAt.desc();
+
+            case ENDING_SOON:
+                return e.endDate.asc();
+
+            default:
+                return e.createdAt.desc();
+        }
     }
 
     private BooleanExpression typeFilter(ExhibitFilterDto dto, QExhibitHall h) {
