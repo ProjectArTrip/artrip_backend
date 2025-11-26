@@ -62,4 +62,19 @@ public class ReviewController {
         return ResponseEntity.ok(CommonResponse.onSuccess("리뷰 삭제 완료"));
     }
 
+    @Operation(summary = "나의 리뷰 전체 조회 (무한스크롤)")
+    @GetMapping("/all")
+    public ResponseEntity<ApiResponse<ReviewSliceResponse>> getAllReview(
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Long userId = Long.valueOf(userDetails.getUsername());
+
+        ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size);
+
+        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+    }
+
+
 }

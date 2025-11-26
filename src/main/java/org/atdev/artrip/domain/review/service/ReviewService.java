@@ -18,6 +18,8 @@ import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ReviewError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.S3Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,7 +107,6 @@ public class ReviewService {
                 s3Service.delete(urlsToDelete);
 
                 review.getImages().removeAll(imagesToDelete);
-//                reviewImageRepository.deleteAll(imagesToDelete);
             }
         }
 
@@ -142,4 +143,26 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
+    @Transactional
+    public ReviewSliceResponse getAllReview(Long userId, Long cursor, int size){
+
+        Slice<Review> slice;
+
+        if (cursor == null) {
+            slice = reviewRepository.findTopByUserId(userId, PageRequest.ofSize(size));
+        } else {
+            slice = reviewRepository.findByUserIdAndIdLessThan(userId, cursor, PageRequest.ofSize(size));
+        }
+
+        Long nextCursor = slice.hasNext()
+                ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
+                : null;
+
+        List<ReviewListResponse> summaries = slice.getContent()
+                .stream()
+                .map(ReviewConverter::toSummary)
+                .toList();
+
+        return new ReviewSliceResponse(summaries, nextCursor, slice.hasNext());
+    }
 }

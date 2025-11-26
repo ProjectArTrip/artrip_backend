@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.review.web.dto;
+package org.atdev.artrip.domain.review.web.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

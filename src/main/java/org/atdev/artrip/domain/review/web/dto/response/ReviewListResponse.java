@@ -1,24 +1,21 @@
-package org.atdev.artrip.domain.review.web.dto;
+package org.atdev.artrip.domain.review.web.dto.response;
 
 import lombok.*;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ReviewResponse {
+public class ReviewListResponse {
 
     private Long reviewId;
-    private Long exhibitId;
+    private String reviewTitle;
     private LocalDate visitDate;
     private String content;
-    private List<ReviewImageResponse> images;
+    private String thumbnailUrl;
     private LocalDateTime createdAt;
-
 }

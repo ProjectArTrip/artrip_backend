@@ -1,19 +1,20 @@
-package org.atdev.artrip.domain.review.web.dto;
+package org.atdev.artrip.domain.review.web.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReviewUpdateRequest {
-    private String content;
+public class ReviewCreateRequest {
+
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate date;
-    private List<Long> deleteImageIds;
+    private String content;
 }
