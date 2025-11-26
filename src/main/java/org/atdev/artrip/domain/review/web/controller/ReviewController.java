@@ -3,9 +3,10 @@ package org.atdev.artrip.domain.review.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.review.service.ReviewService;
-import org.atdev.artrip.domain.review.web.dto.ReviewCreateRequest;
-import org.atdev.artrip.domain.review.web.dto.ReviewResponse;
-import org.atdev.artrip.domain.review.web.dto.ReviewUpdateRequest;
+import org.atdev.artrip.domain.review.web.dto.request.ReviewCreateRequest;
+import org.atdev.artrip.domain.review.web.dto.response.ReviewResponse;
+import org.atdev.artrip.domain.review.web.dto.request.ReviewUpdateRequest;
+import org.atdev.artrip.domain.review.web.dto.response.ReviewSliceResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,7 +65,7 @@ public class ReviewController {
 
     @Operation(summary = "나의 리뷰 전체 조회 (무한스크롤)")
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<ReviewSliceResponse>> getAllReview(
+    public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserDetails userDetails) {
@@ -73,7 +74,7 @@ public class ReviewController {
 
         ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size);
 
-        return ResponseEntity.ok(ApiResponse.onSuccess(response));
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
 
