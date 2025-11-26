@@ -11,7 +11,7 @@ import org.atdev.artrip.global.apipayload.code.status.SuccessStatus;
 @Getter
 @AllArgsConstructor
 @JsonPropertyOrder({"isSuccess", "code", "message", "result"})
-public class ApiResponse<T> {
+public class CommonResponse<T> {
 
     @JsonProperty("isSuccess")
     private final Boolean isSuccess;
@@ -21,17 +21,17 @@ public class ApiResponse<T> {
     private T result;
 
 
-    public static <T> ApiResponse<T> onSuccess(T result){
-        return new ApiResponse<>(true, SuccessStatus._OK.getCode() , SuccessStatus._OK.getMessage(), result);
+    public static <T> CommonResponse<T> onSuccess(T result){
+        return new CommonResponse<>(true, SuccessStatus._OK.getCode() , SuccessStatus._OK.getMessage(), result);
     }
 
-    public static <T> ApiResponse<T> of(BaseCode code, T result){
-        return new ApiResponse<>(true, code.getReasonHttpStatus().getCode() , code.getReasonHttpStatus().getMessage(), result);
+    public static <T> CommonResponse<T> of(BaseCode code, T result){
+        return new CommonResponse<>(true, code.getReasonHttpStatus().getCode() , code.getReasonHttpStatus().getMessage(), result);
     }
 
 
     // 실패한 경우 응답 생성
-    public static <T> ApiResponse<T> onFailure(String code, String message, T data){
-        return new ApiResponse<>(false, code, message, data);
+    public static <T> CommonResponse<T> onFailure(String code, String message, T data){
+        return new CommonResponse<>(false, code, message, data);
     }
 }

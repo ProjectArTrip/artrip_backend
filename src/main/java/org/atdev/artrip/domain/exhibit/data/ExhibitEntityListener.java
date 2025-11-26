@@ -5,7 +5,8 @@ import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.elastic.service.ExhibitIndexService;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -32,7 +33,7 @@ public class ExhibitEntityListener {
             indexService.indexExhibit(exhibit);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND);
+            throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
         }
     }
 
@@ -46,7 +47,7 @@ public class ExhibitEntityListener {
             indexService.indexExhibit(exhibit);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND);
+            throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
         }
     }
 
@@ -60,7 +61,7 @@ public class ExhibitEntityListener {
             indexService.deleteExhibit(exhibit.getExhibitId());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND);
+            throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
         }
     }
 }

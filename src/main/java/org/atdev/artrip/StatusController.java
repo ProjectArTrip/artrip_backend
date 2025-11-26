@@ -1,9 +1,8 @@
 package org.atdev.artrip;
 
-import org.atdev.artrip.global.apipayload.ApiResponse;
+import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -25,8 +24,8 @@ public class StatusController {
     }
 
     @GetMapping("/a")
-    public ResponseEntity<ApiResponse<List<String>>> getAllUsers() {
+    public ResponseEntity<CommonResponse<List<String>>> getAllUsers() {
         List<String> allUsers = new ArrayList<>(users.values());
-        return ResponseEntity.ok(ApiResponse.onSuccess(allUsers));
+        return ResponseEntity.ok(CommonResponse.onSuccess(allUsers));
     }
 }

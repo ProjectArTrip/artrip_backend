@@ -1,8 +1,30 @@
 package org.atdev.artrip.global.apipayload.code;
 
+import org.springframework.http.HttpStatus;
+
 public interface BaseCode {
 
-    ReasonDTO getReason();
+    HttpStatus getHttpStatus();
+    String getCode();
+    String getMessage();
 
-    ReasonDTO getReasonHttpStatus();
+    default ReasonDTO getReason() {
+        return ReasonDTO.builder()
+                .message(getMessage())
+                .code(getCode())
+                .isSuccess(true)
+                .build();
+    }
+
+    default ReasonDTO getReasonHttpStatus() {
+        return ReasonDTO.builder()
+                .message(getMessage())
+                .code(getCode())
+                .isSuccess(true)
+                .httpStatus(getHttpStatus())
+                .build();
+    }
+
+
+
 }

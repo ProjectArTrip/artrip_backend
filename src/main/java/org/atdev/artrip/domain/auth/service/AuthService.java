@@ -20,7 +20,8 @@ import org.atdev.artrip.domain.auth.jwt.JwtToken;
 import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.auth.web.dto.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -50,7 +51,7 @@ public class AuthService {
     @Transactional
     public String reissueToken(String refreshToken, HttpServletResponse response) {
         if (refreshToken == null) {
-            throw new GeneralException(ErrorStatus._INVALID_REFRESH_TOKEN);
+            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
 
         jwtProvider.validateRefreshToken(refreshToken);
@@ -58,11 +59,11 @@ public class AuthService {
         String userId = redisTemplate.opsForValue().get(refreshToken);
 
         if (userId == null) {
-            throw new GeneralException(ErrorStatus._INVALID_REFRESH_TOKEN);
+            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
 
         User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
 
         String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
 
@@ -155,11 +156,17 @@ public class AuthService {
 
     private SocialUserInfo verifyKakao(String idToken) {
         try {
+            log.info("Kakao ID Token 검증 시작");
+            log.info("Kakao Client ID: {}", kakaoClientId);
+            
             String jwksUrl = "https://kauth.kakao.com/.well-known/jwks.json";
             UrlJwkProvider provider = new UrlJwkProvider(new URL(jwksUrl));
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
+            log.info("Token Kid: {}", kid);
+            log.info("Token Issuer: {}", decodedJWT.getIssuer());
+            log.info("Token Audience: {}", decodedJWT.getAudience());
 
             Jwk jwk = provider.get(kid);
 
@@ -175,22 +182,29 @@ public class AuthService {
             String email = verified.getClaim("email").asString();
             String nickname = verified.getClaim("nickname").asString();
             String sub = verified.getSubject();
-            log.info("email:{}, nickname:{}, sub:{}",email,nickname,sub);
+            log.info("Kakao 토큰 검증 성공 - email:{}, nickname:{}, sub:{}",email,nickname,sub);
             return new SocialUserInfo(email, nickname, sub);
 
         } catch (Exception e) {
-            throw new GeneralException(ErrorStatus._SOCIAL_VERIFICATION_FAILED);
+            log.error("Kakao ID Token 검증 실패: {}", e.getMessage(), e);
+            throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
         }
     }
 
 
     private SocialUserInfo verifyGoogle(String idToken) {
         try {
+            log.info("Google ID Token 검증 시작");
+            log.info("Google Client ID: {}", googleClientId);
+            
             String jwksUrl = "https://www.googleapis.com/oauth2/v3/certs";
             UrlJwkProvider provider = new UrlJwkProvider(new URL(jwksUrl));
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
+            log.info("Token Kid: {}", kid);
+            log.info("Token Issuer: {}", decodedJWT.getIssuer());
+            log.info("Token Audience: {}", decodedJWT.getAudience());
 
             Jwk jwk = provider.get(kid);
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
@@ -205,11 +219,14 @@ public class AuthService {
             String email = verified.getClaim("email").asString();
             String name = verified.getClaim("name").asString();
             String sub = verified.getSubject();
+            
+            log.info("Google 토큰 검증 성공 - email: {}, name: {}", email, name);
 
             return new SocialUserInfo(email, name, sub);
 
         } catch (Exception e) {
-            throw new GeneralException(ErrorStatus._SOCIAL_VERIFICATION_FAILED);
+            log.error("Google ID Token 검증 실패: {}", e.getMessage(), e);
+            throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
         }
     }
 
