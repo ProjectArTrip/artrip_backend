@@ -18,5 +18,7 @@ public @interface ApiErrorResponses {
     UserError[] user() default {};
     ReviewError[] review() default {};
     S3Error[] s3() default {};
-
+    SearchError[] search() default {};
+    KeywordError[] keyword() default {};
+    HomeError[] home() default {};
 }

@@ -5,7 +5,7 @@ services:
     container_name: backend-stage
     image: artrip-backend:latest
     build:
-        target: develop
+        target: production
     ports:
       - 881:8080
     environment:

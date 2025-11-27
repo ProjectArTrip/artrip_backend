@@ -26,7 +26,6 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
     public Operation customize(Operation operation, HandlerMethod handlerMethod) {
         ApiResponses responses = operation.getResponses();
 
-        addCommonErrorResponses(responses);
 
         ApiErrorResponses annotation = handlerMethod.getMethodAnnotation(ApiErrorResponses.class);
         if (annotation != null) {
@@ -36,20 +35,10 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
     }
 
     /*
-    * 모든 API에 공통으로 발생할 수 있는 에러 자동 추가
-    * - 400 Bad Request
-    * - 500 Internal Server Error
-    * */
-    private void addCommonErrorResponses(ApiResponses responses) {
-        addErrorReseponseFromStatusIfNotExists(responses, CommonError._BAD_REQUEST);
-        addErrorReseponseFromStatusIfNotExists(responses, CommonError._INTERNAL_SERVER_ERROR);
-    }
-
-    /*
      * ArtripError를 기반으로 에러 응답 추가 (중복체크)
      * 이미 같은 HTTP 상태 코드가 있으면 추가 하지 않습니다.
      */
-    private void addErrorReseponseFromStatusIfNotExists(ApiResponses responses, BaseErrorCode error) {
+    private void addErrorResponseFromStatusIfNotExists(ApiResponses responses, BaseErrorCode error) {
         String statusCode = String.valueOf(error.getHttpStatus().value());
         if (!responses.containsKey(statusCode)) {
             addErrorResponseFromStatus(responses, error);
@@ -113,6 +102,14 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
         return example;
     }
 
+    /*
+     * @ApiErrorResponses 어노테이션에서 정의된 모든 에러를 처리
+     * 
+     * 동작 방식:
+     * 1. 어노테이션의 모든 속성(common, user, exhibit, review, file)을 순회
+     * 2. 각 속성에서 정의된 BaseErrorCode[] 배열을 추출
+     * 3. 중복 체크 후 에러 응답 추가 (이미 있는 상태 코드는 건너뜀)
+     */
     private void processAllErrorAttributes(ApiResponses responses, ApiErrorResponses annotation) {
         for (Method method : ApiErrorResponses.class.getDeclaredMethods()) {
             try {
@@ -121,7 +118,7 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
                 if (value instanceof BaseErrorCode[]) {
                     BaseErrorCode[] errorCodes = (BaseErrorCode[]) value;
                     for (BaseErrorCode error : errorCodes) {
-                        addErrorResponseFromStatus(responses, error);
+                        addErrorResponseFromStatusIfNotExists(responses, error);
                     }
                 }
             } catch (Exception e) {
