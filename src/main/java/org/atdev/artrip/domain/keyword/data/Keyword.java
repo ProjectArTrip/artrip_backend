@@ -22,7 +22,7 @@ public class Keyword {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private KeywordType type;
+    private KeywordType type;// 장르, 스타일
 
     @Column(nullable = false, unique = true)
     private String name;

@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
@@ -11,6 +12,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 
 @RestController
@@ -215,23 +216,20 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(random));
     }
 
-
-    @Operation(summary = "해외 전시 조건별 조회", description = "국가, 기간, 장르, 스타일로 전시 데이터를 조회")
+    @Operation(summary = "전시 조건 필터",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
-    @GetMapping("overseas/filter")
-    public ResponseEntity<CommonResponse<List<FilterResponse>>> getFilteredExhibits(
-            @RequestParam String country,
-            @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) Set<String> genres,
-            @RequestParam(required = false) Set<String> styles) {
+    @PostMapping("/filter")
+    public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterDto dto,
+                                                                         @RequestParam(required = false) Long cursor,
+                                                                         @PageableDefault(size = 20) Pageable pageable){
 
-        List<FilterResponse> response = homeService.getFilteredExhibits(country, startDate, endDate, genres, styles, Pageable.ofSize(20));
+        FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(exhibits);
+
     }
 
 }
