@@ -43,7 +43,7 @@ public class HomeService {
     public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
         return exhibitRepository.findRandomExhibits(3,isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -59,7 +59,7 @@ public class HomeService {
 
         return exhibitRepository.findThemeExhibits(genre, 2, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -71,7 +71,7 @@ public class HomeService {
 
         return exhibitRepository.findAllByGenreAndDomestic(genre, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -79,7 +79,7 @@ public class HomeService {
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
                 .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
 
-        return toHomeExhibitResponse(exhibit);
+        return homeConverter.toHomeExhibitResponse(exhibit);
     }
 
     public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
@@ -105,7 +105,7 @@ public class HomeService {
 
         return exhibitRepository.findRandomByKeywords(genres,styles,3, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -132,7 +132,7 @@ public class HomeService {
 
         return exhibitRepository.findAllByKeywords(genres,styles,isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -140,7 +140,7 @@ public class HomeService {
 
         return exhibitRepository.findRandomExhibitsByDate(isDomestic,date,2)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -148,7 +148,7 @@ public class HomeService {
 
         return exhibitRepository.findAllByDate(isDomestic,date)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -164,7 +164,7 @@ public class HomeService {
 
         return exhibitRepository.findRandomByCountry(country,limit)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -172,38 +172,9 @@ public class HomeService {
 
         return exhibitRepository.findAllByRegion(region, pageable)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
-
-
-    private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
-        var hall = exhibit.getExhibitHall();
-        return HomeExhibitResponse.builder()
-                .exhibit_id(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
-                .country(hall != null ? hall.getCountry() : null)
-                .region(hall != null ? hall.getRegion() : null)
-                .startDate(exhibit.getStartDate().format(formatter))
-                .endDate(exhibit.getEndDate().format(formatter))
-                .build();
-    }
-
-    private HomeListResponse toHomeExhibitListResponse(Exhibit exhibit){
-
-        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
-
-        return HomeListResponse.builder()
-                .exhibit_id(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
-                .exhibitPeriod(period)
-                .build();
-    }
-
 
     public FilterResponse getFilterExhibit(ExhibitFilterDto dto, Pageable pageable, Long cursorId) {
 

@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.home.converter;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.home.response.FilterResponse;
+import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
@@ -39,6 +40,22 @@ public class HomeConverter {
                 .posterUrl(exhibit.getPosterUrl())
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
+                .build();
+    }
+
+    public HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
+
+        var hall = exhibit.getExhibitHall();
+
+        return HomeExhibitResponse.builder()
+                .exhibit_id(exhibit.getExhibitId())
+                .title(exhibit.getTitle())
+                .posterUrl(exhibit.getPosterUrl())
+                .status(exhibit.getStatus())
+                .country(hall != null ? hall.getCountry() : null)
+                .region(hall != null ? hall.getRegion() : null)
+                .startDate(exhibit.getStartDate().format(formatter))
+                .endDate(exhibit.getEndDate().format(formatter))
                 .build();
     }
 }
