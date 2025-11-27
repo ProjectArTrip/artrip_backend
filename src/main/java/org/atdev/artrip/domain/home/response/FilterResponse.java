@@ -3,23 +3,16 @@ package org.atdev.artrip.domain.home.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-import org.atdev.artrip.domain.Enum.KeywordType;
-import org.atdev.artrip.domain.Enum.Status;
+
+import java.util.List;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 public class FilterResponse {
 
-    private Long exhibit_id;
-    private String title;
-    private String posterUrl;
-    private Status status;
-    private String genre;
-    private String style;
+    private List<HomeListResponse> exhibits;
+    private boolean hasNext;
+    private Long nextCursor;
 
-
-    private String exhibitPeriod;
 }

@@ -5,14 +5,14 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
+import org.atdev.artrip.domain.Enum.SortType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
 import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
+import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
 import org.atdev.artrip.domain.keyword.data.QKeyword;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -24,65 +24,98 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterDto dto, Pageable pageable) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterDto dto, Pageable pageable, Long cursorId) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
+        QFavoriteExhibit f = QFavoriteExhibit.favoriteExhibit;
+
+        Exhibit cursor = null;
+
+        long cursorFavoriteCount = 0;
+        if (cursorId != null) {
+            cursor = queryFactory.selectFrom(e)
+                    .where(e.exhibitId.eq(cursorId))
+                    .fetchOne();
+
+            if (cursor != null && dto.getSortType() == SortType.POPULAR) {
+                Long count = queryFactory
+                        .select(f.favoriteId.count())
+                        .from(f)
+                        .where(f.exhibit.eq(cursor))
+                        .fetchOne();
+
+                cursorFavoriteCount = count != null ? count : 0L;
+            }
+        }
 
         List<Exhibit> content = queryFactory
-                .selectDistinct(e)
+                .select(e)
                 .from(e)
                 .join(e.exhibitHall, h)
                 .leftJoin(e.keywords, k)
+                .leftJoin(f).on(f.exhibit.eq(e))
                 .where(
                         typeFilter(dto, h),
                         dateFilter(dto, e),
                         countryFilter(dto, h),
                         regionFilter(dto, h),
                         genreFilter(dto, k),
-                        styleFilter(dto, k)
+                        styleFilter(dto, k),
+                        cursorCondition(cursor, cursorFavoriteCount, dto.getSortType(), e, f)
                 )
-                .orderBy(sortFilter(dto,e))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .orderBy(sortFilter(dto, e, f))
+                .limit(pageable.getPageSize() + 1)
+                .groupBy(e.exhibitId)
                 .fetch();
 
-        Long total = queryFactory
-                .select(e.exhibitId.countDistinct())
-                .from(e)
-                .join(e.exhibitHall, h)
-                .leftJoin(e.keywords, k)
-                .where(
-                        typeFilter(dto, h),
-                        dateFilter(dto, e),
-                        countryFilter(dto, h),
-                        regionFilter(dto, h),
-                        genreFilter(dto, k),
-                        styleFilter(dto, k)
-                )
-                .fetchOne();
 
-        return new PageImpl<>(content, pageable, total);
+        boolean hasNext = content.size() > pageable.getPageSize();
+        if (hasNext) content.remove(pageable.getPageSize());
+
+        return new SliceImpl<>(content, pageable, hasNext);
     }
 
-    private OrderSpecifier<?> sortFilter(ExhibitFilterDto dto, QExhibit e) {
+    private BooleanExpression cursorCondition(Exhibit cursor,  long cursorFavoriteCount, SortType sortType, QExhibit e, QFavoriteExhibit f) {
+        if (cursor == null) return null;
+
+        return switch (sortType) {
+
+            case POPULAR -> f.favoriteId.count().loe(cursorFavoriteCount)
+                    .or(f.favoriteId.count().eq(cursorFavoriteCount)
+                            .and(e.exhibitId.lt(cursor.getExhibitId())));
+
+            case LATEST -> e.createdAt.lt(cursor.getCreatedAt())
+                    .or(e.createdAt.eq(cursor.getCreatedAt())
+                            .and(e.exhibitId.lt(cursor.getExhibitId())));
+
+            case ENDING_SOON -> e.endDate.gt(cursor.getEndDate())
+                    .or(e.endDate.eq(cursor.getEndDate())
+                            .and(e.exhibitId.lt(cursor.getExhibitId())));
+        };
+    }
+
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterDto dto, QExhibit e, QFavoriteExhibit f) {
+
         if (dto.getSortType() == null) {
-            return e.createdAt.desc(); // 기본 정렬(최신순)
+            return new OrderSpecifier[]{e.createdAt.desc()};
         }
 
         switch (dto.getSortType()) {
-//            case POPULAR:
-//                return e.likeCount.desc();
+            case POPULAR:
+                return new OrderSpecifier[]{
+                        f.favoriteId.count().desc().nullsLast(), // 인기순
+                        e.createdAt.desc()                       // 동률일 때 최신순
+                };
 
-            case LATEST:
-                return e.createdAt.desc();
-
+//            case LATEST:
+//                return new OrderSpecifier[]{e.createdAt.desc()};
             case ENDING_SOON:
-                return e.endDate.asc();
+                return new OrderSpecifier[]{e.endDate.asc()};
 
             default:
-                return e.createdAt.desc();
+                return new OrderSpecifier[]{e.createdAt.desc()};
         }
     }
 

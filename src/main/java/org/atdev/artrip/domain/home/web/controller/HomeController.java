@@ -2,12 +2,14 @@ package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.ApiResponse;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 
 @RestController
@@ -162,28 +163,15 @@ public class HomeController {
         return ResponseEntity.ok(ApiResponse.onSuccess(random));
     }
 
+    @Operation(summary = "전시 조건 필터",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
+    @PostMapping("/filter")
+    public ResponseEntity<ApiResponse<FilterResponse>> getDomesticFilter(@RequestBody ExhibitFilterDto dto,
+                                                                         @RequestParam(required = false) Long cursor,
+                                                                         @PageableDefault(size = 20) Pageable pageable){
 
-    @Operation(summary = "해외 전시 조건별 조회", description = "국가, 기간, 장르, 스타일로 전시 데이터를 조회")
-    @GetMapping("overseas/filter")
-    public ResponseEntity<ApiResponse<List<FilterResponse>>> getFilteredExhibits(
-            @RequestParam String country,
-            @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) Set<String> genres,
-            @RequestParam(required = false) Set<String> styles) {
+        FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor);
 
-        List<FilterResponse> response = homeService.getFilteredExhibits(country, startDate, endDate, genres, styles, Pageable.ofSize(20));
-
-        return ResponseEntity.ok(ApiResponse.onSuccess(response));
-    }
-
-    @Operation(summary = "국내 전시 조건 필터",description = "기간, 지역, 장르, 전시 스타일 필터 조회")
-    @GetMapping("domestic/filter")
-    public ResponseEntity<ApiResponse<List<String>>> getDomesticFilter(){
-
-
-
-        return ResponseEntity.ok(ApiResponse.onSuccess(null));
+        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
     }
 
 }
