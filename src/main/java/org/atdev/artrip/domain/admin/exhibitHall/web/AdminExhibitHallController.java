@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admin/exhibit-halls")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "AdminExhibitHall", description = "관리자 전시관 관리 API")
+@Tag(name = "Admin - ExhibitHall", description = "관리자 전시관 관리 API")
 public class AdminExhibitHallController {
 
     private final AdminExhibitHallService adminExhibitHallService;

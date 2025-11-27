@@ -7,6 +7,9 @@ import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.HomeError;
+import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,10 @@ public class HomeController {
     private final HomeService homeService;
 
     @Operation(summary = "오늘의 전시 추천", description = "전시데이터 3개 랜덤 조회, true=국내, false=국외")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
             @RequestParam Boolean isDomestic) {
@@ -35,6 +42,10 @@ public class HomeController {
     }
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_GENRE_NOT_FOUND}
+    )
     @GetMapping("/genre")
     public ResponseEntity<CommonResponse<List<String>>> getGenres(){
         List<String> genres = homeService.getAllGenres();
@@ -42,6 +53,10 @@ public class HomeController {
     }
 
     @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_GENRE_NOT_FOUND}
+    )
     @GetMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
             @RequestParam String genre,
@@ -52,6 +67,10 @@ public class HomeController {
     }
 
     @Operation(summary = "장르별 전체 조회", description = "true=국내, false=국외")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_GENRE_NOT_FOUND}
+    )
     @GetMapping("/genre/all")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllExhibits(
             @RequestParam String genre,
@@ -62,6 +81,10 @@ public class HomeController {
     }
 
     @Operation(summary = "장르 상세 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("/genre/{id}")
     public ResponseEntity<CommonResponse<HomeExhibitResponse>> getExhibit(
             @PathVariable Long id){
@@ -72,6 +95,10 @@ public class HomeController {
     }
 
     @Operation(summary = "사용자 맞춤 전시 추천")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("/personalized")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -85,6 +112,10 @@ public class HomeController {
     }
 
     @Operation(summary = "사용자 맞춤 전시 전체 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("/personalized/all")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -98,6 +129,10 @@ public class HomeController {
     }
 
     @Operation(summary = "이번주 전시 일정 랜덤 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getSchedule(
             @RequestParam Boolean isDomestic,
@@ -109,6 +144,10 @@ public class HomeController {
     }
 
     @Operation(summary = "이번주 전시 일정 전체 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("/schedule/all")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllSchedule(
             @RequestParam(name = "isDomestic", required = false) Boolean isDomestic,
@@ -127,6 +166,9 @@ public class HomeController {
 //    }
 
     @Operation(summary = "해외 국가 목록 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
+    )
     @GetMapping("/overseas")
     public ResponseEntity<CommonResponse<List<String>>> getOverseas(){
 
@@ -136,6 +178,9 @@ public class HomeController {
     }
 
     @Operation(summary = "국내 지역 목록 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
+    )
     @GetMapping("/domestic")
     public ResponseEntity<CommonResponse<List<String>>> getDomestic(){
 
@@ -145,6 +190,10 @@ public class HomeController {
     }
 
     @Operation(summary = "해외 특정 국가 랜덤 조회",description = "특정 해외 국가 전시데이터 3개 랜덤조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("/overseas/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomOverseas(@RequestParam String country){
 
@@ -154,6 +203,10 @@ public class HomeController {
     }
 
     @Operation(summary = "국내 지역 전체 조회",description = "국내 지역 전시 전체 조회 1p 당 20개씩 조회.")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("/domestic/all")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomDomestic(@RequestParam String region){
 
@@ -164,6 +217,10 @@ public class HomeController {
 
 
     @Operation(summary = "해외 전시 조건별 조회", description = "국가, 기간, 장르, 스타일로 전시 데이터를 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
     @GetMapping("overseas/filter")
     public ResponseEntity<CommonResponse<List<FilterResponse>>> getFilteredExhibits(
             @RequestParam String country,

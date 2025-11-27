@@ -9,10 +9,11 @@ services:
     image: artrip-backend:latest
     ports:
       - ${HTTP_PORT:-880}:8080
+      - "35729:35729"
     volumes:
       - ./src:/app/src
-      - ./build/classes:/app/build/classes
-      - ./build/resources:/app/build/resources
+      - ./build:/app/build
+      - gradle-cache:/home/gradle/.gradle
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -22,6 +23,8 @@ services:
         condition: service_started
     environment:
       - SPRING_PROFILES_ACTIVE=local
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
     env_file:
       - .env
 
@@ -71,3 +74,4 @@ services:
 
 volumes:
   redis-data:
+  gradle-cache:

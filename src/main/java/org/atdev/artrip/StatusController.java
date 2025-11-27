@@ -20,7 +20,7 @@ public class StatusController {
     }
     @GetMapping("/")
     public StatusResponse getStatus() {
-        return new StatusResponse("200", "greeting");
+        return new StatusResponse("201", "greeting");
     }
 
     @GetMapping("/a")
