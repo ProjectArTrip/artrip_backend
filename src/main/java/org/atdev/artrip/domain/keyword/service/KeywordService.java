@@ -1,7 +1,6 @@
 package org.atdev.artrip.domain.keyword.service;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.keyword.data.Keyword;
@@ -9,7 +8,8 @@ import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
 import org.atdev.artrip.domain.keyword.web.dto.KeywordResponse;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ public class KeywordService {
     public void saveUserKeywords(Long userId, List<Long> keywordIds) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._USER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
 
         userKeywordRepository.deleteByUser(user);
 

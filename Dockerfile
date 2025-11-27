@@ -9,15 +9,28 @@ FROM bellsoft/liberica-openjdk-alpine:17 AS develop
 
 WORKDIR /app
 
-RUN apk add --no-cache curl netcat-openbsd
+RUN apk add --no-cache curl netcat-openbsd bash
 
-COPY --from=builder /app/build/libs/*.jar /app/artrip.jar
+COPY --from=builder /app/gradlew .
+COPY --from=builder /app/gradle ./gradle
+COPY --from=builder /app/build.gradle .
+COPY --from=builder /app/settings.gradle .
+
+RUN chmod +x gradlew
+
+RUN ./gradlew dependencies --no-daemon || true
 
 ENV SPRING_PROFILES_ACTIVE=local
 
-ENTRYPOINT ["sh", "-c", "java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -jar /app/artrip.jar"]
+ENTRYPOINT ["sh", "-c", "./gradlew bootRun --no-daemon"]
 
-FROM develop as production
+FROM bellsoft/liberica-openjdk-alpine:17 AS production
+
+WORKDIR /app
+
+RUN apk add --no-cache curl netcat-openbsd
+
+COPY --from=builder /app/build/libs/*.jar /app/artrip.jar
 
 ENV SPRING_PROFILES_ACTIVE=prod
 

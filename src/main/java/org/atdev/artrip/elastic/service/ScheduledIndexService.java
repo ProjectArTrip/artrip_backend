@@ -3,7 +3,8 @@ package org.atdev.artrip.elastic.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class ScheduledIndexService {
 
     } catch (Exception e) {
         log.error("Error during reindexing: {}", e.getMessage(), e);
-        throw new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND);
+        throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
     }
     }
 
@@ -43,7 +44,7 @@ public class ScheduledIndexService {
 //            recentExhibits.forEach(indexService::indexExhibit);
         } catch (Exception e) {
             log.error("Error during reindexing: {}", e.getMessage(), e);
-            throw new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND);
+            throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
         }
     }
 }

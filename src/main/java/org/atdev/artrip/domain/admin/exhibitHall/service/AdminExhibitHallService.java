@@ -11,7 +11,8 @@ import org.atdev.artrip.domain.admin.exhibitHall.dto.UpdateExhibitHallRequest;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +52,7 @@ public class AdminExhibitHallService {
     public ExhibitHallResponse getExhibitHall(Long exhibitHallId) {
         log.info("Admin getting exhibit hall : {}", exhibitHallId);
 
-        ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_HALL_NOT_FOUND));
+        ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
 
         return convertToResponse(hall);
     }
@@ -85,7 +86,7 @@ public class AdminExhibitHallService {
     public Long updateExhibitHall(Long exhibitHallId, UpdateExhibitHallRequest request) {
         log.info("Admin updating exhibit hall: {}, {}", exhibitHallId, request);
 
-        ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
+        ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
         if (request.getName() != null) {hall.setName(request.getName());}
         if (request.getAddress() != null) {hall.setAddress(request.getAddress());}
@@ -110,12 +111,12 @@ public class AdminExhibitHallService {
         log.info("Admin deleting exhibit hall: {}", exhibitHallId);
 
         if (!exhibitHallRepository.existsById(exhibitHallId)) {
-            throw  new GeneralException(ErrorStatus._EXHIBIT_HALL_NOT_FOUND);
+            throw  new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND);
         }
 
         long exhibitCount = exhibitRepository.countByExhibitHall_ExhibitHallId(exhibitHallId);
         if (exhibitCount > 0) {
-            throw new GeneralException(ErrorStatus._EXHIBIT_HALL_IN_USE);
+            throw new GeneralException(ExhibitError._EXHIBIT_HALL_IN_USE);
         }
 
         exhibitHallRepository.deleteById(exhibitHallId);

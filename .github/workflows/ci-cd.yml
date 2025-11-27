@@ -106,6 +106,8 @@ jobs:
             
             docker pull $IMAGE_TAG
             docker-compose down
+            git fetch origin developer
+            git pull origin developer
             docker-compose -f docker-compose.yml -f docker-compose.stage.yml pull
             docker-compose -f docker-compose.yml -f docker-compose.stage.yml up -d
 

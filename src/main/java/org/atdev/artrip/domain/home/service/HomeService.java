@@ -15,8 +15,10 @@ import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
-import org.atdev.artrip.global.apipayload.code.status.ErrorStatus;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,6 @@ public class HomeService {
 
     private final ExhibitRepository exhibitRepository;
     private final UserKeywordRepository userkeywordRepository;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
     private final HomeConverter homeConverter;
@@ -77,7 +78,7 @@ public class HomeService {
 
     public HomeExhibitResponse getExhibitDetail(Long exhibitId) {
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ErrorStatus._EXHIBIT_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
         return homeConverter.toHomeExhibitResponse(exhibit);
     }
@@ -85,7 +86,7 @@ public class HomeService {
     public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(ErrorStatus._USER_NOT_FOUND);
+            throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
         List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
@@ -112,7 +113,7 @@ public class HomeService {
     public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(ErrorStatus._USER_NOT_FOUND);
+            throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
         List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)

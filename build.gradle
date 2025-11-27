@@ -73,11 +73,15 @@ clean {
 }
 
 
-// // Flyway configuration
-// flyway {
-//     url = 'jdbc:mysql://localhost:33069/artrip'
-//     user = 'artrip'
-//     password = 'tofhdnstlwkr1!'
-//     locations = ['filesystem:src/main/resources/db/migration']
-//     cleanDisabled = true  // 안전을 위해 clean 비활성화
-// }
+// bootRun 자동 컴파일 설정 (핫 리로딩)
+tasks.named('bootRun') {
+    // 소스 변경 시 자동 컴파일
+    dependsOn 'classes'
+    
+    // 지속적인 빌드 모드 (소스 감시)
+    doFirst {
+        println "starting bootRun with auto-compile..."
+    }
+}
+
+
