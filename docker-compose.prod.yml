@@ -17,6 +17,8 @@ services:
         condition: service_healthy
     restart: always
     volumes: !reset []
+    env_file:
+      - .env
 
 
   db: !reset {}

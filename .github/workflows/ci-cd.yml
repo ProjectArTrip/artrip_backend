@@ -105,11 +105,12 @@ jobs:
             IMAGE_TAG=ghcr.io/${{ steps.lowercase_owner.outputs.OWNER }}/${{ github.event.repository.name }}/${{ env.DOCKER_IMAGE }}:${{ steps.env.outputs.TAG }}
             
             docker pull $IMAGE_TAG
-            docker-compose down
+            docker-compose down -v 
             git fetch origin developer
             git pull origin developer
+            ./gradlew clean build -x test
             docker-compose -f docker-compose.yml -f docker-compose.stage.yml pull
-            docker-compose -f docker-compose.yml -f docker-compose.stage.yml up -d
+            docker-compose -f docker-compose.yml -f docker-compose.stage.yml up -d --build
 
 #      - name: Deploy to Production Server (Main)
 #        if: github.ref == 'refs/heads/main'
