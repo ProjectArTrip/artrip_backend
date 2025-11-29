@@ -118,7 +118,7 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
                 if (value instanceof BaseErrorCode[]) {
                     BaseErrorCode[] errorCodes = (BaseErrorCode[]) value;
                     for (BaseErrorCode error : errorCodes) {
-                        addErrorResponseFromStatusIfNotExists(responses, error);
+                        addErrorResponseFromStatus(responses, error);
                     }
                 }
             } catch (Exception e) {

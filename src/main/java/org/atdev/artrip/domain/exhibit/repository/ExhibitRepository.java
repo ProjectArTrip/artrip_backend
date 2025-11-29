@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
-public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
+public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitRepositoryCustom{
 
 
     @Query(value = """
@@ -181,25 +181,5 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>{
     Page<Exhibit> findAllByRegion(@Param("region") String region, Pageable pageable);
 
 
-
-    @Query(value = """
-    SELECT DISTINCT e
-    FROM Exhibit e
-    JOIN e.exhibitHall h
-    LEFT JOIN e.keywords k
-    WHERE (:country IS NULL OR h.country = :country)
-      AND (:startDate IS NULL OR FUNCTION('DATE', e.startDate) <= :endDate)
-      AND (:endDate IS NULL OR FUNCTION('DATE', e.endDate) >= :startDate)
-      AND ((:genres IS NULL OR (k.type = 'GENRE' AND k.name IN (:genres)))
-      AND (:styles IS NULL OR (k.type = 'STYLE' AND k.name IN (:styles))))
-""")
-    Page<Exhibit> findExhibitsByDynamicFilters(
-            @Param("country") String country,
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("genres") Set<String> genres,
-            @Param("styles") Set<String> styles,
-            Pageable pageable
-    );
 
 }

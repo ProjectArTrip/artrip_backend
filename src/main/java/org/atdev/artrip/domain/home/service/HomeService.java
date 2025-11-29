@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
+import org.atdev.artrip.domain.home.converter.HomeConverter;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 
@@ -13,12 +15,12 @@ import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.springframework.data.domain.Page;
+
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -33,16 +35,16 @@ public class HomeService {
 
     private final ExhibitRepository exhibitRepository;
     private final UserKeywordRepository userkeywordRepository;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
+    private final HomeConverter homeConverter;
 
 
     // 오늘 추천 전시
     public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
         return exhibitRepository.findRandomExhibits(3,isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -58,7 +60,7 @@ public class HomeService {
 
         return exhibitRepository.findThemeExhibits(genre, 2, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -70,7 +72,7 @@ public class HomeService {
 
         return exhibitRepository.findAllByGenreAndDomestic(genre, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -78,7 +80,7 @@ public class HomeService {
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
-        return toHomeExhibitResponse(exhibit);
+        return homeConverter.toHomeExhibitResponse(exhibit);
     }
 
     public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
@@ -104,7 +106,7 @@ public class HomeService {
 
         return exhibitRepository.findRandomByKeywords(genres,styles,3, isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -131,7 +133,7 @@ public class HomeService {
 
         return exhibitRepository.findAllByKeywords(genres,styles,isDomestic)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -139,7 +141,7 @@ public class HomeService {
 
         return exhibitRepository.findRandomExhibitsByDate(isDomestic,date,2)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -147,7 +149,7 @@ public class HomeService {
 
         return exhibitRepository.findAllByDate(isDomestic,date)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -163,7 +165,7 @@ public class HomeService {
 
         return exhibitRepository.findRandomByCountry(country,limit)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
@@ -171,82 +173,15 @@ public class HomeService {
 
         return exhibitRepository.findAllByRegion(region, pageable)
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
 
+    public FilterResponse getFilterExhibit(ExhibitFilterDto dto, Pageable pageable, Long cursorId) {
 
-    public List<FilterResponse> getFilteredExhibits(String country, LocalDate startDate, LocalDate endDate, Set<String> genres, Set<String> styles, Pageable pageable) {
+        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, pageable, cursorId);
 
-
-        Page<Exhibit> exhibits = exhibitRepository.findExhibitsByDynamicFilters(
-                country,
-                startDate,
-                endDate,
-                genres != null && !genres.isEmpty() ? genres : null,
-                styles != null && !styles.isEmpty() ? styles : null,
-                pageable
-        );
-
-        return exhibits.stream()
-                .map(this::toFilterListResponse)
-                .toList();
-    }
-
-
-
-    private HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
-        var hall = exhibit.getExhibitHall();
-        return HomeExhibitResponse.builder()
-                .exhibit_id(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
-                .country(hall != null ? hall.getCountry() : null)
-                .region(hall != null ? hall.getRegion() : null)
-                .startDate(exhibit.getStartDate().format(formatter))
-                .endDate(exhibit.getEndDate().format(formatter))
-                .build();
-    }
-
-    private HomeListResponse toHomeExhibitListResponse(Exhibit exhibit){
-
-        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
-
-        return HomeListResponse.builder()
-                .exhibit_id(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
-                .exhibitPeriod(period)
-                .build();
-    }
-
-    private FilterResponse toFilterListResponse(Exhibit exhibit){
-
-        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
-
-        String genre = exhibit.getKeywords().stream()
-                .filter(k -> k.getType() == KeywordType.GENRE)
-                .map(Keyword::getName)
-                .findFirst()        // 하나만 가져오기, 여러개면 List로 변경 가능
-                .orElse(null);
-
-        String style = exhibit.getKeywords().stream()
-                .filter(k -> k.getType() == KeywordType.STYLE)
-                .map(Keyword::getName)
-                .findFirst()
-                .orElse(null);
-
-        return FilterResponse.builder()
-                .exhibit_id(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
-                .exhibitPeriod(period)
-                .genre(genre)
-                .style(style)
-                .build();
+        return homeConverter.toFilterResponse(slice);
     }
 
 
