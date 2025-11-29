@@ -48,6 +48,8 @@ public class User {
     @Column(name = "push_token")
     private String pushToken;
 
+
+
     @Email
     @Column(name = "email",nullable = true)
     private String email;

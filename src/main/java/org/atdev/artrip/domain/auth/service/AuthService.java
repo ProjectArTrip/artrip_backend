@@ -19,6 +19,7 @@ import org.atdev.artrip.domain.auth.jwt.JwtProvider;
 import org.atdev.artrip.domain.auth.jwt.JwtToken;
 import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
+import org.atdev.artrip.domain.auth.web.dto.SocialLoginResponse;
 import org.atdev.artrip.domain.auth.web.dto.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -99,7 +101,7 @@ public class AuthService {
     }
 
     @Transactional
-    public JwtToken loginWithSocial(String provider, String idToken) {
+    public SocialLoginResponse loginWithSocial(String provider, String idToken) {
 
         SocialUserInfo socialUser = switch (provider.toUpperCase()) {
             case "KAKAO" -> verifyKakao(idToken);
@@ -113,15 +115,30 @@ public class AuthService {
         String email = socialUser.getEmail() != null
                 ? socialUser.getEmail()
                 : "kakao_" + socialUser.getProviderId() + "@example.com";
+//
+//        User user = userRepository.findByEmail(email)
+//                .orElseGet(() -> createNewUser(socialUser,email));
 
-        User user = userRepository.findByEmail(email)
-                .orElseGet(() -> createNewUser(socialUser,email));
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User user;
+        boolean isFirstLogin;
 
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+            isFirstLogin = false; // 기존 사용자
+        } else {
+            user = createNewUser(socialUser, email);
+            isFirstLogin = true;  // 신규 생성
+        }
         log.info("user:{}",user);
 
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
 
-        return jwt;
+        return new SocialLoginResponse(
+                jwt.getAccessToken(),
+                jwt.getRefreshToken(),
+                isFirstLogin
+        );
     }
 
     private User createNewUser(SocialUserInfo info, String email) {
@@ -133,22 +150,16 @@ public class AuthService {
                 .role(Role.USER)
                 .build();
 
-        log.info("email: {}",email);
-        log.info("name: {}",info.getNickname());
-
         SocialAccounts social = SocialAccounts.builder()
                 .user(user)
                 .provider(Provider.KAKAO)
                 .providerId(info.getProviderId())
                 .build();
 
-        log.info("Creating new user: {}", user);
-        log.info("Social account info: {}", social);
 
         user.getSocialAccounts().add(social);
 
         User savedUser = userRepository.save(user);
-        log.info("Saved user: {}", savedUser);
 
         return savedUser;
     }

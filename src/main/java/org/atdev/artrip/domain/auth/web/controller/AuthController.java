@@ -57,7 +57,7 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분")
+    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분 ,isFirstLogin true:회원가입 false:로그인")
     @ApiErrorResponses(
             user = {UserError._SOCIAL_ID_TOKEN_INVALID, UserError._USER_NOT_FOUND},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
@@ -65,13 +65,9 @@ public class AuthController {
     @PostMapping("/social")
     public ResponseEntity<CommonResponse<SocialLoginResponse>> socialLogin(@RequestBody SocialLoginRequest request) {
 
-        JwtToken jwt = authService.loginWithSocial(request.getProvider(), request.getIdToken());
+        SocialLoginResponse jwt = authService.loginWithSocial(request.getProvider(), request.getIdToken());
 
-        SocialLoginResponse response = new SocialLoginResponse(
-                jwt.getAccessToken(),
-                jwt.getRefreshToken()
-        );
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
     }
 
 }
