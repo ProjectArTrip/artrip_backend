@@ -48,7 +48,7 @@ public class AuthController {
             user = {UserError._USER_NOT_FOUND, UserError._INVALID_REFRESH_TOKEN, UserError._INVALID_USER_REFRESH_TOKEN},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
-    @PostMapping("/App/reissue")
+    @PostMapping("/app/reissue")
     public ResponseEntity<CommonResponse<SocialLoginResponse>> appReissue(
             @RequestBody (required = false) ReissueRequest refreshToken) {
 
