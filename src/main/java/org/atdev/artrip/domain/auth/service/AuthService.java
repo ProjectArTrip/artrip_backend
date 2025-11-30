@@ -19,6 +19,7 @@ import org.atdev.artrip.domain.auth.jwt.JwtProvider;
 import org.atdev.artrip.domain.auth.jwt.JwtToken;
 import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
+import org.atdev.artrip.domain.auth.web.dto.ReissueRequest;
 import org.atdev.artrip.domain.auth.web.dto.SocialLoginResponse;
 import org.atdev.artrip.domain.auth.web.dto.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
@@ -50,21 +51,9 @@ public class AuthService {
     private String googleClientId;
 
     @Transactional
-    public String reissueToken(String refreshToken, HttpServletResponse response) {
-        if (refreshToken == null) {
-            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
-        }
+    public String reissueToken(ReissueRequest request, HttpServletResponse response) {
 
-        jwtProvider.validateRefreshToken(refreshToken);
-
-        String userId = redisTemplate.opsForValue().get(refreshToken);
-
-        if (userId == null) {
-            throw new GeneralException(UserError._INVALID_USER_REFRESH_TOKEN);
-        }
-
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
+        User user = getUserFromRefreshToken(request);
 
         String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
 
@@ -80,11 +69,26 @@ public class AuthService {
     }
 
     @Transactional
-    public SocialLoginResponse reissueAppToken(String refreshToken, HttpServletResponse response) {
+    public SocialLoginResponse reissueAppToken(ReissueRequest request) {
 
-        if (refreshToken == null) {
+        User user = getUserFromRefreshToken(request);
+
+        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
+
+        return new SocialLoginResponse(
+                newAccessToken,
+                request.getRefreshToken(),
+                false
+        );
+    }
+
+    private User getUserFromRefreshToken(ReissueRequest request) {// SRP책임 분리 - 유저와 토큰 검증 + 레디스 적재
+
+        if (request == null || request.getRefreshToken() == null) {
             throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
+
+        String refreshToken = request.getRefreshToken();
 
         jwtProvider.validateRefreshToken(refreshToken);
 
@@ -94,17 +98,11 @@ public class AuthService {
             throw new GeneralException(UserError._INVALID_USER_REFRESH_TOKEN);
         }
 
-        User user = userRepository.findById(Long.valueOf(userId))
+        return userRepository.findById(Long.valueOf(userId))
                 .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
-
-        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
-
-        return new SocialLoginResponse(
-                newAccessToken,
-                refreshToken,
-                false
-        );
     }
+
+
     @Transactional
     public void logout(String refreshToken, HttpServletResponse response) {
 
@@ -268,5 +266,6 @@ public class AuthService {
             throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
         }
     }
+
 
 }

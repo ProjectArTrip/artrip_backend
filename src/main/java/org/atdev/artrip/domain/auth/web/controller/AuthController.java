@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.jwt.JwtToken;
 import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.auth.service.AuthService;
+import org.atdev.artrip.domain.auth.web.dto.ReissueRequest;
 import org.atdev.artrip.domain.auth.web.dto.SocialLoginRequest;
 import org.atdev.artrip.domain.auth.web.dto.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
@@ -27,14 +28,14 @@ public class AuthController {
     private final AuthService authService;
 
 
-    @Operation(summary = "토큰 재발행", description = "refresh토큰으로 access토큰을 재발행합니다")
+    @Operation(summary = "토큰 재발행 (웹 전용)", description = "refresh토큰으로 access토큰을 재발행합니다")
     @ApiErrorResponses(
             user = {UserError._USER_NOT_FOUND, UserError._INVALID_REFRESH_TOKEN},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/reissue")
     public ResponseEntity<CommonResponse<String>> reissue(
-            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            @CookieValue(value = "refreshToken", required = false) ReissueRequest refreshToken,
             HttpServletResponse response) {
 
         String newAccessToken = authService.reissueToken(refreshToken, response);
@@ -42,12 +43,16 @@ public class AuthController {
         return ResponseEntity.ok(CommonResponse.onSuccess(newAccessToken));
     }
 
+    @Operation(summary = "토큰 재발행 (앱 전용)", description = "refresh토큰으로 access토큰을 재발행합니다")
+    @ApiErrorResponses(
+            user = {UserError._USER_NOT_FOUND, UserError._INVALID_REFRESH_TOKEN, UserError._INVALID_USER_REFRESH_TOKEN},
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
+    )
     @PostMapping("/App/reissue")
     public ResponseEntity<CommonResponse<SocialLoginResponse>> appReissue(
-            @CookieValue(value = "refreshToken", required = false) String refreshToken,
-            HttpServletResponse response) {
+            @RequestBody (required = false) ReissueRequest refreshToken) {
 
-        SocialLoginResponse jwt = authService.reissueAppToken(refreshToken, response);
+        SocialLoginResponse jwt = authService.reissueAppToken(refreshToken);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
     }
