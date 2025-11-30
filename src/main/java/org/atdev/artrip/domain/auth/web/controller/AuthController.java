@@ -42,18 +42,28 @@ public class AuthController {
         return ResponseEntity.ok(CommonResponse.onSuccess(newAccessToken));
     }
 
+    @PostMapping("/App/reissue")
+    public ResponseEntity<CommonResponse<SocialLoginResponse>> appReissue(
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        SocialLoginResponse jwt = authService.reissueAppToken(refreshToken, response);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
+    }
+
     @Operation(summary = "로그아웃", description = "refresh, access 토큰을 제거합니다.")
     @ApiErrorResponses(
             user = {UserError._INVALID_REFRESH_TOKEN},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+    public ResponseEntity<String> logout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                        HttpServletResponse response) {
 
         authService.logout(refreshToken, response);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("로그아웃 완료");
     }
 
     @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분 ,isFirstLogin true:회원가입 false:로그인")

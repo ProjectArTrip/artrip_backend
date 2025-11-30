@@ -21,7 +21,6 @@ import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.auth.web.dto.SocialLoginResponse;
 import org.atdev.artrip.domain.auth.web.dto.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,6 +79,32 @@ public class AuthService {
         return newAccessToken;
     }
 
+    @Transactional
+    public SocialLoginResponse reissueAppToken(String refreshToken, HttpServletResponse response) {
+
+        if (refreshToken == null) {
+            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
+        }
+
+        jwtProvider.validateRefreshToken(refreshToken);
+
+        String userId = redisTemplate.opsForValue().get(refreshToken);
+
+        if (userId == null) {
+            throw new GeneralException(UserError._INVALID_USER_REFRESH_TOKEN);
+        }
+
+        User user = userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
+
+        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
+
+        return new SocialLoginResponse(
+                newAccessToken,
+                refreshToken,
+                false
+        );
+    }
     @Transactional
     public void logout(String refreshToken, HttpServletResponse response) {
 
