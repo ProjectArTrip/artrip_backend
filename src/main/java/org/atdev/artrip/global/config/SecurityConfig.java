@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/","/a","/login/**", "/oauth2/**", "/error",
-                                "/swagger-ui/**", "/v3/api-docs/**","/auth/reissue","/auth/App/reissue","/s3/**","/auth/social").permitAll()
+                                "/swagger-ui/**", "/v3/api-docs/**","/auth/web/reissue","/auth/app/reissue","/s3/**","/auth/social").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()//스웨거 에러
                         .anyRequest().authenticated()
                 )

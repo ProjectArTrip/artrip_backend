@@ -33,12 +33,12 @@ public class AuthController {
             user = {UserError._USER_NOT_FOUND, UserError._INVALID_REFRESH_TOKEN, UserError._INVALID_USER_REFRESH_TOKEN},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
-    @PostMapping("/reissue")
-    public ResponseEntity<CommonResponse<String>> reissue(
+    @PostMapping("/web/reissue")
+    public ResponseEntity<CommonResponse<String>> webReissue(
             @CookieValue(value = "refreshToken", required = false) ReissueRequest refreshToken,
             HttpServletResponse response) {
 
-        String newAccessToken = authService.reissueToken(refreshToken, response);
+        String newAccessToken = authService.webReissueToken(refreshToken, response);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(newAccessToken));
     }
@@ -49,24 +49,36 @@ public class AuthController {
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/app/reissue")
-    public ResponseEntity<CommonResponse<SocialLoginResponse>> appReissue(
-            @RequestBody (required = false) ReissueRequest refreshToken) {
+    public ResponseEntity<CommonResponse<SocialLoginResponse>> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
 
-        SocialLoginResponse jwt = authService.reissueAppToken(refreshToken);
+        SocialLoginResponse jwt = authService.appReissueToken(refreshToken);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
     }
 
-    @Operation(summary = "로그아웃", description = "refresh, access 토큰을 제거합니다.")
+    @Operation(summary = "로그아웃 (웹 전용)", description = "refresh, access 토큰을 제거합니다.")
     @ApiErrorResponses(
             user = {UserError._INVALID_REFRESH_TOKEN},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+    @PostMapping("/web/logout")
+    public ResponseEntity<String> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                        HttpServletResponse response) {
 
-        authService.logout(refreshToken, response);
+        authService.webLogout(refreshToken, response);
+
+        return ResponseEntity.ok("로그아웃 완료");
+    }
+
+    @Operation(summary = "로그아웃 (앱 전용)", description = "refresh, access 토큰을 제거합니다.")
+    @ApiErrorResponses(
+            user = {UserError._INVALID_REFRESH_TOKEN},
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
+    )
+    @PostMapping("/app/logout")
+    public ResponseEntity<String> appLogout(@RequestBody(required = false) ReissueRequest refreshToken) {
+
+        authService.appLogout(refreshToken);
 
         return ResponseEntity.ok("로그아웃 완료");
     }

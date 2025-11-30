@@ -51,7 +51,7 @@ public class AuthService {
     private String googleClientId;
 
     @Transactional
-    public String reissueToken(ReissueRequest request, HttpServletResponse response) {
+    public String webReissueToken(ReissueRequest request, HttpServletResponse response) {
 
         User user = getUserFromRefreshToken(request);
 
@@ -69,7 +69,7 @@ public class AuthService {
     }
 
     @Transactional
-    public SocialLoginResponse reissueAppToken(ReissueRequest request) {
+    public SocialLoginResponse appReissueToken(ReissueRequest request) {
 
         User user = getUserFromRefreshToken(request);
 
@@ -104,14 +104,24 @@ public class AuthService {
 
 
     @Transactional
-    public void logout(String refreshToken, HttpServletResponse response) {
+    public void webLogout(String refreshToken, HttpServletResponse response) {
 
-        if(refreshToken != null) {
-            refreshTokenRedisRepository.delete(refreshToken);
-        }
+        if(refreshToken == null) return;
+
+        refreshTokenRedisRepository.delete(refreshToken);
 
         expireCookie("accessToken", response);
         expireCookie("refreshToken", response);
+    }
+
+    @Transactional
+    public void appLogout(ReissueRequest request) {
+
+        if (request == null || request.getRefreshToken() == null) return;
+
+        String refreshToken = request.getRefreshToken();
+
+        refreshTokenRedisRepository.delete(refreshToken);
     }
 
     private void expireCookie(String name, HttpServletResponse response) {
