@@ -30,7 +30,7 @@ public class AuthController {
 
     @Operation(summary = "토큰 재발행 (웹 전용)", description = "refresh토큰으로 access토큰을 재발행합니다")
     @ApiErrorResponses(
-            user = {UserError._USER_NOT_FOUND, UserError._INVALID_REFRESH_TOKEN},
+            user = {UserError._USER_NOT_FOUND, UserError._INVALID_REFRESH_TOKEN, UserError._INVALID_USER_REFRESH_TOKEN},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/reissue")
