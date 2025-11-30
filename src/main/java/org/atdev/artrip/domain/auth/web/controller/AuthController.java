@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
     private final AuthService authService;
 
 

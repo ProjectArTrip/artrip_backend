@@ -40,8 +40,8 @@ public class AuthService {
 
     private final JwtProvider jwtProvider;
     private final JwtGenerator jwtGenerator;
-    private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
+    private final RedisTemplate<String, String> redisTemplate;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -61,7 +61,7 @@ public class AuthService {
         String userId = redisTemplate.opsForValue().get(refreshToken);
 
         if (userId == null) {
-            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
+            throw new GeneralException(UserError._INVALID_USER_REFRESH_TOKEN);
         }
 
         User user = userRepository.findById(Long.valueOf(userId))
@@ -115,9 +115,6 @@ public class AuthService {
         String email = socialUser.getEmail() != null
                 ? socialUser.getEmail()
                 : "kakao_" + socialUser.getProviderId() + "@example.com";
-//
-//        User user = userRepository.findByEmail(email)
-//                .orElseGet(() -> createNewUser(socialUser,email));
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
         User user;
@@ -133,6 +130,12 @@ public class AuthService {
         log.info("user:{}",user);
 
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
+
+        refreshTokenRedisRepository.save(
+                jwt.getRefreshToken(),
+                String.valueOf(user.getUserId()),
+                1000L * 60 * 60 * 24 * 7
+        );
 
         return new SocialLoginResponse(
                 jwt.getAccessToken(),
