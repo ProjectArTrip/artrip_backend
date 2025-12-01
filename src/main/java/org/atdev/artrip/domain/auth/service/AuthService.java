@@ -19,9 +19,9 @@ import org.atdev.artrip.domain.auth.jwt.JwtProvider;
 import org.atdev.artrip.domain.auth.jwt.JwtToken;
 import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
+import org.atdev.artrip.domain.auth.web.dto.ReissueRequest;
 import org.atdev.artrip.domain.auth.web.dto.SocialLoginResponse;
 import org.atdev.artrip.domain.auth.web.dto.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,8 +40,8 @@ public class AuthService {
 
     private final JwtProvider jwtProvider;
     private final JwtGenerator jwtGenerator;
-    private final RedisTemplate<String, String> redisTemplate;
     private final UserRepository userRepository;
+    private final RedisTemplate<String, String> redisTemplate;
     private final RefreshTokenRedisRepository refreshTokenRedisRepository;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -51,21 +51,9 @@ public class AuthService {
     private String googleClientId;
 
     @Transactional
-    public String reissueToken(String refreshToken, HttpServletResponse response) {
-        if (refreshToken == null) {
-            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
-        }
+    public String webReissueToken(ReissueRequest request, HttpServletResponse response) {
 
-        jwtProvider.validateRefreshToken(refreshToken);
-
-        String userId = redisTemplate.opsForValue().get(refreshToken);
-
-        if (userId == null) {
-            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
-        }
-
-        User user = userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
+        User user = getUserFromRefreshToken(request);
 
         String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
 
@@ -81,14 +69,59 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String refreshToken, HttpServletResponse response) {
+    public SocialLoginResponse appReissueToken(ReissueRequest request) {
 
-        if(refreshToken != null) {
-            refreshTokenRedisRepository.delete(refreshToken);
+        User user = getUserFromRefreshToken(request);
+
+        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
+
+        return new SocialLoginResponse(
+                newAccessToken,
+                request.getRefreshToken(),
+                false
+        );
+    }
+
+    private User getUserFromRefreshToken(ReissueRequest request) {// SRP책임 분리 - 유저와 토큰 검증 + 레디스 적재
+
+        if (request == null || request.getRefreshToken() == null) {
+            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
+
+        String refreshToken = request.getRefreshToken();
+
+        jwtProvider.validateRefreshToken(refreshToken);
+
+        String userId = redisTemplate.opsForValue().get(refreshToken);
+
+        if (userId == null) {
+            throw new GeneralException(UserError._INVALID_USER_REFRESH_TOKEN);
+        }
+
+        return userRepository.findById(Long.valueOf(userId))
+                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
+    }
+
+
+    @Transactional
+    public void webLogout(String refreshToken, HttpServletResponse response) {
+
+        if(refreshToken == null) return;
+
+        refreshTokenRedisRepository.delete(refreshToken);
 
         expireCookie("accessToken", response);
         expireCookie("refreshToken", response);
+    }
+
+    @Transactional
+    public void appLogout(ReissueRequest request) {
+
+        if (request == null || request.getRefreshToken() == null) return;
+
+        String refreshToken = request.getRefreshToken();
+
+        refreshTokenRedisRepository.delete(refreshToken);
     }
 
     private void expireCookie(String name, HttpServletResponse response) {
@@ -115,9 +148,6 @@ public class AuthService {
         String email = socialUser.getEmail() != null
                 ? socialUser.getEmail()
                 : "kakao_" + socialUser.getProviderId() + "@example.com";
-//
-//        User user = userRepository.findByEmail(email)
-//                .orElseGet(() -> createNewUser(socialUser,email));
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
         User user;
@@ -133,6 +163,12 @@ public class AuthService {
         log.info("user:{}",user);
 
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
+
+        refreshTokenRedisRepository.save(
+                jwt.getRefreshToken(),
+                String.valueOf(user.getUserId()),
+                1000L * 60 * 60 * 24 * 7
+        );
 
         return new SocialLoginResponse(
                 jwt.getAccessToken(),
@@ -240,5 +276,6 @@ public class AuthService {
             throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
         }
     }
+
 
 }
