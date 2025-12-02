@@ -67,7 +67,7 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-    @Operation(summary = "장르별 전체 조회", description = "true=국내, false=국외")
+    @Operation(summary = "장르별 전시 조회", description = "true=국내, false=국외")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_GENRE_NOT_FOUND}
@@ -81,12 +81,12 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-    @Operation(summary = "장르 상세 조회")
+    @Operation(summary = "전시 상세 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
-    @GetMapping("/genre/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<HomeExhibitResponse>> getExhibit(
             @PathVariable Long id){
 
