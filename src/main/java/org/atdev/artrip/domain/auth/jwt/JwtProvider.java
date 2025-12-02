@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.auth.jwt.exception.JwtAuthenticationException;
 import org.atdev.artrip.domain.auth.web.dto.ReissueRequest;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -58,16 +59,16 @@ public class JwtProvider {
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.warn("Invalid JWT Token", e);
-            throw new JwtAuthenticationException("잘못된 JWT 서명입니다.");
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_SIGNATURE);
         } catch (ExpiredJwtException e) {
             log.warn("Expired JWT Token", e);
-            throw new JwtAuthenticationException("만료된 JWT 토큰입니다.");
+            throw new JwtAuthenticationException(UserError._JWT_EXPIRED_ACCESS_TOKEN);
         } catch (UnsupportedJwtException e) {
             log.warn("Unsupported JWT Token", e);
-            throw new JwtAuthenticationException("지원하지 않는 JWT 토큰입니다.");
+            throw new JwtAuthenticationException(UserError._JWT_UNSUPPORTED_TOKEN);
         } catch (IllegalArgumentException e) {
             log.warn("JWT claims string is empty.", e);
-            throw new JwtAuthenticationException("JWT 토큰이 잘못되었습니다.");
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_TOKEN);
         }
         // return false;
     }
@@ -79,10 +80,10 @@ public class JwtProvider {
                     .parseClaimsJws(refreshToken);
         } catch (ExpiredJwtException e) {
             log.warn("Expired Refresh Token", e);
-            throw new JwtAuthenticationException("만료된 리프레시 토큰입니다.");
+            throw new JwtAuthenticationException(UserError._JWT_EXPIRED_REFRESH_TOKEN);
         } catch (JwtException e) {
             log.warn("Invalid Refresh Token", e);
-            throw new JwtAuthenticationException("유효하지 않은 리프레시 토큰입니다.");
+            throw new JwtAuthenticationException(UserError._INVALID_REFRESH_TOKEN);
         }
     }
     private Claims parseClaims(String accessToken) {
