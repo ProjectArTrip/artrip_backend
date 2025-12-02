@@ -44,7 +44,6 @@ public class ReviewService {
     @Transactional
     public ReviewResponse createReview(Long exhibitId, ReviewCreateRequest request, List<MultipartFile> images, Long userId){
 
-
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
 
