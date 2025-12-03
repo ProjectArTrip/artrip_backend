@@ -50,6 +50,13 @@ public class AuthService {
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
+    @Value("${spring.security.oauth2.client.registration.kakao.native-client-id}")
+    private String kakaoNativeClientId;
+
+    @Value("${spring.security.oauth2.client.registration.google.aod-client-id}")
+    private String googleAodClientId;
+
+
     @Transactional
     public String webReissueToken(ReissueRequest request, HttpServletResponse response) {
 
@@ -147,7 +154,7 @@ public class AuthService {
 
         String email = socialUser.getEmail() != null
                 ? socialUser.getEmail()
-                : "kakao_" + socialUser.getProviderId() + "@example.com";
+                : provider.toLowerCase() + socialUser.getProviderId() + "@example.com";
 
         Optional<User> optionalUser = userRepository.findByEmail(email);
         User user;
@@ -157,7 +164,7 @@ public class AuthService {
             user = optionalUser.get();
             isFirstLogin = false; // 기존 사용자
         } else {
-            user = createNewUser(socialUser, email);
+            user = createNewUser(socialUser, email, provider);
             isFirstLogin = true;  // 신규 생성
         }
         log.info("user:{}",user);
@@ -177,8 +184,13 @@ public class AuthService {
         );
     }
 
-    private User createNewUser(SocialUserInfo info, String email) {
+    private User createNewUser(SocialUserInfo info, String email, String providerStr) {
 
+        Provider provider = switch (providerStr.toUpperCase()) {
+            case "KAKAO" -> Provider.KAKAO;
+            case "GOOGLE" -> Provider.GOOGLE;
+            default -> throw new IllegalArgumentException("지원하지 않는 provider: " + providerStr);
+        };
 
         User user = User.builder()
                 .email(email)
@@ -188,7 +200,7 @@ public class AuthService {
 
         SocialAccounts social = SocialAccounts.builder()
                 .user(user)
-                .provider(Provider.KAKAO)
+                .provider(provider)
                 .providerId(info.getProviderId())
                 .build();
 
@@ -204,7 +216,8 @@ public class AuthService {
     private SocialUserInfo verifyKakao(String idToken) {
         try {
             log.info("Kakao ID Token 검증 시작");
-            log.info("Kakao Client ID: {}", kakaoClientId);
+            log.info("Kakao REST API Client ID: {}", kakaoClientId);
+            log.info("kakao Native Client ID: {}", kakaoNativeClientId);
             
             String jwksUrl = "https://kauth.kakao.com/.well-known/jwks.json";
             UrlJwkProvider provider = new UrlJwkProvider(new URL(jwksUrl));
@@ -221,7 +234,7 @@ public class AuthService {
 
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("https://kauth.kakao.com")
-                    .withAudience(kakaoClientId)
+                    .withAudience(kakaoClientId, kakaoNativeClientId)
                     .build();
 
             DecodedJWT verified = verifier.verify(idToken);
@@ -258,7 +271,7 @@ public class AuthService {
 
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("https://accounts.google.com")
-                    .withAudience(googleClientId)
+                    .withAudience(googleClientId, googleAodClientId)
                     .build();
 
             DecodedJWT verified = verifier.verify(idToken);
