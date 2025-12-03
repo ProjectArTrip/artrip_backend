@@ -31,8 +31,8 @@ services:
     environment: 
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
       - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]

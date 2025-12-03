@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Profile;
 @Slf4j
 public class ElasticsearchIndexConfig {
 
-    private final ExhibitIndexService indexService;
+    private final ExhibitIndexService exhibitIndexService;
 
     @Bean
     @Profile("!test")
@@ -22,8 +22,8 @@ public class ElasticsearchIndexConfig {
             log.info("Initializing Elasticsearch index");
 
             try {
-                int indexedCount = indexService.indexAllExhibits();
-
+                exhibitIndexService.createAndApplyIndex();
+                int indexedCount = exhibitIndexService.indexAllExhibits();
                 log.info("Indexed {} exhibits into Elasticsearch", indexedCount);
 
             } catch (Exception e) {
