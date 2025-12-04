@@ -3,6 +3,8 @@ package org.atdev.artrip.domain.auth.service;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -229,6 +231,10 @@ public class AuthService {
             log.info("Token Issuer: {}", decodedJWT.getIssuer());
             log.info("Token Audience: {}", decodedJWT.getAudience());
 
+            if (audiences == null || audiences.isEmpty()) {
+                throw new GeneralException(UserError._SOCIAL_ID_TOKEN_INVALID);
+            }
+
             String aud = audiences.get(0);
             String expectedAud;
             if (aud.equals(kakaoNativeClientId)) {
@@ -238,7 +244,7 @@ public class AuthService {
                 expectedAud = kakaoClientId;
                 log.info("➡ 서버용 REST API 토큰으로 판단");
             } else {
-                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_AUDIENCE);
             }
 
             Jwk jwk = provider.get(kid);
@@ -249,7 +255,18 @@ public class AuthService {
                     .withAudience(expectedAud)
                     .build();
 
-            DecodedJWT verified = verifier.verify(idToken);
+            DecodedJWT verified;
+
+            try {
+                verified = verifier.verify(idToken);
+            } catch (TokenExpiredException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_EXPIRED);
+            } catch (SignatureVerificationException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_SIGNATURE);
+            } catch (Exception e) {
+                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            }
+
 
             String email = verified.getClaim("email").asString();
             String nickname = verified.getClaim("nickname").asString();
@@ -276,6 +293,9 @@ public class AuthService {
             String kid = decodedJWT.getKeyId();
             List<String> audiences = decodedJWT.getAudience();
 
+            if (audiences == null || audiences.isEmpty()) {
+                throw new GeneralException(UserError._SOCIAL_ID_TOKEN_INVALID);
+            }
             log.info("Token Kid: {}", kid);
             log.info("Token Issuer: {}", decodedJWT.getIssuer());
             log.info("Token Audience: {}", decodedJWT.getAudience());
@@ -289,7 +309,7 @@ public class AuthService {
                 expectedAud = googleClientId;
                 log.info("➡ 서버용 REST API 토큰으로 판단");
             } else {
-                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_AUDIENCE);
             }
 
             Jwk jwk = provider.get(kid);
@@ -300,7 +320,16 @@ public class AuthService {
                     .withAudience(expectedAud)
                     .build();
 
-            DecodedJWT verified = verifier.verify(idToken);
+            DecodedJWT verified;
+            try {
+                verified = verifier.verify(idToken);
+            } catch (TokenExpiredException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_EXPIRED);
+            } catch (SignatureVerificationException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_SIGNATURE);
+            } catch (Exception e) {
+                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            }
 
             String email = verified.getClaim("email").asString();
             String name = verified.getClaim("name").asString();
