@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  app:
+  java:
     container_name: backend-prod
     image: artrip-backend:latest
     build:
@@ -25,18 +25,18 @@ services:
   redis: !reset {}
 
   elasticsearch:
-    container_name: elasticsearch-prod
-    environment: 
-      - ES_JAVA_OPTS=-Xms4g -Xmx4g
+    build:
+      context: ./docker/elasticsearch
+    container_name: elasticsearch-stage
+    ports:
+      - "${ELASTICSEARCH_PORT:-9201}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT:-9301}:9300"
+    environment:
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g
       - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
 
-    ports: !reset
-      - "9202:9200"
-      - "9302:9300"
-    volumes:
-      - elasticsearch-prod-data:/usr/share/elasticsearch/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
       interval: 10s

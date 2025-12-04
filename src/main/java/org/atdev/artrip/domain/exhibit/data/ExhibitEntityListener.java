@@ -5,7 +5,6 @@ import jakarta.persistence.PostRemove;
 import jakarta.persistence.PostUpdate;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.elastic.service.ExhibitIndexService;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Autowired;

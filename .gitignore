@@ -50,3 +50,4 @@ elasticsearch/
 application-stage.yml
 application-prod.yml
 application-local.yml
+!/docker/elasticsearch
