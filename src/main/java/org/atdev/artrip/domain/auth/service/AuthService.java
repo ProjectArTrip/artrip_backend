@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -204,7 +205,6 @@ public class AuthService {
                 .providerId(info.getProviderId())
                 .build();
 
-
         user.getSocialAccounts().add(social);
 
         User savedUser = userRepository.save(user);
@@ -224,17 +224,29 @@ public class AuthService {
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
+            List<String> audiences = decodedJWT.getAudience();
             log.info("Token Kid: {}", kid);
             log.info("Token Issuer: {}", decodedJWT.getIssuer());
             log.info("Token Audience: {}", decodedJWT.getAudience());
 
-            Jwk jwk = provider.get(kid);
+            String aud = audiences.get(0);
+            String expectedAud;
+            if (aud.equals(kakaoNativeClientId)) {
+                expectedAud = kakaoNativeClientId;
+                log.info("➡ Android Native SDK 토큰으로 판단");
+            } else if (aud.equals(kakaoClientId)) {
+                expectedAud = kakaoClientId;
+                log.info("➡ 서버용 REST API 토큰으로 판단");
+            } else {
+                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            }
 
+            Jwk jwk = provider.get(kid);
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("https://kauth.kakao.com")
-                    .withAudience(kakaoClientId, kakaoNativeClientId)
+                    .withAudience(expectedAud)
                     .build();
 
             DecodedJWT verified = verifier.verify(idToken);
