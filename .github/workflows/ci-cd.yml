@@ -79,7 +79,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: .Dcoker/Dockerfile
+          file: .dcoker/Dockerfile
           target: ${{ steps.env.outputs.ENV == 'prod' && 'production' || 'develop'}}
           push: true
           tags: |
