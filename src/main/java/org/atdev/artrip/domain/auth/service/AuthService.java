@@ -274,16 +274,30 @@ public class AuthService {
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
+            List<String> audiences = decodedJWT.getAudience();
+
             log.info("Token Kid: {}", kid);
             log.info("Token Issuer: {}", decodedJWT.getIssuer());
             log.info("Token Audience: {}", decodedJWT.getAudience());
+
+            String aud = audiences.get(0);
+            String expectedAud;
+            if (aud.equals(googleAodClientId)) {
+                expectedAud = googleAodClientId;
+                log.info("➡ google aod SDK 토큰으로 판단");
+            } else if (aud.equals(googleClientId)) {
+                expectedAud = googleClientId;
+                log.info("➡ 서버용 REST API 토큰으로 판단");
+            } else {
+                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            }
 
             Jwk jwk = provider.get(kid);
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("https://accounts.google.com")
-                    .withAudience(googleClientId, googleAodClientId)
+                    .withAudience(expectedAud)
                     .build();
 
             DecodedJWT verified = verifier.verify(idToken);
