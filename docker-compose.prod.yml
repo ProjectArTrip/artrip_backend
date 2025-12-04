@@ -5,7 +5,9 @@ services:
     container_name: backend-prod
     image: artrip-backend:latest
     build:
-        target: production
+      context: .
+      dockerfile: docker/Dockerfile
+      target: production
     ports:
       - 882:8080
     environment:
@@ -34,8 +36,8 @@ services:
     environment:
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
       - discovery.type=single-node
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
