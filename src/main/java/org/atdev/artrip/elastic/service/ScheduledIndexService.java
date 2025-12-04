@@ -3,7 +3,6 @@ package org.atdev.artrip.elastic.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.scheduling.annotation.Scheduled;

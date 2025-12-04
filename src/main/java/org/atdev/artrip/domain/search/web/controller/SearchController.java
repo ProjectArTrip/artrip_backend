@@ -10,6 +10,7 @@ import org.atdev.artrip.domain.search.response.ExhibitSearchResponse;
 import org.atdev.artrip.domain.search.service.ExhibitSearchService;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.SearchError;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,10 +34,12 @@ public class SearchController {
             search = {SearchError._SEARCH_EXHIBIT_NOT_FOUND, SearchError._SEARCH_KEYWORD_INVALID}
     )
     @GetMapping("/exhibits")
-    public CommonResponse<List<ExhibitSearchResponse>> searchExhibits(@RequestParam String keyword
-    , @AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<List<ExhibitSearchResponse>> searchExhibits(
+        @RequestParam String keyword,
+        @AuthenticationPrincipal UserDetails userDetails) {
+
         Long userId = extractUserId(userDetails);
-        List<ExhibitSearchResponse> results = exhibitSearchService.keywordSearch(keyword, userId);
+        List<ExhibitSearchResponse> results = exhibitSearchService.searchExhibits(keyword, userId);
         return CommonResponse.onSuccess(results);
     }
 
@@ -46,7 +49,9 @@ public class SearchController {
             search = {SearchError._SEARCH_HISTORY_NOT_FOUND}
     )
     @GetMapping("/history")
-    public CommonResponse<List<String>> getRecentKeywords(@AuthenticationPrincipal UserDetails userDetails) {
+    public CommonResponse<List<String>> getRecentKeywords(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
         Long userId = extractUserId(userDetails);
         List<String> keywords = searchHistoryService.findRecent(userId);
         return CommonResponse.onSuccess(keywords);
@@ -84,6 +89,22 @@ public class SearchController {
 
     private Long extractUserId(UserDetails userDetails) {
         return userDetails != null ? Long.parseLong(userDetails.getUsername()) : null;
+    }
+
+    @Operation(summary = "추천 검색어", description = "전체 사용자가 많이 검색한 인기 키워드를 조회합니다.")
+    @ApiErrorResponses(
+            common = {CommonError._UNAUTHORIZED, CommonError._BAD_REQUEST},
+            search = {SearchError._SEARCH_RECOMMENDATION_NOT_FOUND}
+    )
+    @GetMapping("/recommendations")
+    public CommonResponse<List<String>> getRecommendations(
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails == null ) {
+            throw new GeneralException(CommonError._UNAUTHORIZED);
+        }
+        List<String> keywords = searchHistoryService.findPopularKeywords();
+        return CommonResponse.onSuccess(keywords);
     }
 
 }

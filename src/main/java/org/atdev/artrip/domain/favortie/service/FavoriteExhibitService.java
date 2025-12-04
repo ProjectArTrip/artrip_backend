@@ -32,7 +32,7 @@ public class FavoriteExhibitService {
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final UserRepository userRepository;
     private final ExhibitRepository exhibitRepository;
-    private final DateTimeFormatter ftt = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+    private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     @Transactional
     public FavoriteResponse addFavorite(Long userId, Long exhibitId) {
@@ -154,7 +154,7 @@ public class FavoriteExhibitService {
         Exhibit exhibit = favorite.getExhibit();
         var hall = exhibit.getExhibitHall();
 
-        String period = exhibit.getStartDate().format(ftt) + " ~ " + exhibit.getEndDate().format(ftt);
+        String period = exhibit.getStartDate().format(fmt) + " ~ " + exhibit.getEndDate().format(fmt);
 
         return FavoriteResponse.builder()
                 .favoriteId(favorite.getFavoriteId())

@@ -1,10 +1,12 @@
 package org.atdev.artrip.global.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.Oauth.CustomOAuth2UserService;
 import org.atdev.artrip.domain.auth.Oauth.OAuth2LoginSuccessHandler;
 import org.atdev.artrip.domain.auth.jwt.JwtAuthenticationFilter;
 import org.atdev.artrip.domain.auth.jwt.JwtProvider;
+import org.atdev.artrip.domain.auth.jwt.exception.JwtExceptionFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,6 +30,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final JwtProvider jwtProvider;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -53,8 +56,8 @@ public class SecurityConfig {
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider),
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                        UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(objectMapper), JwtAuthenticationFilter.class);
 
         return http.build();
     }
