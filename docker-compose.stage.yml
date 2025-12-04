@@ -1,11 +1,13 @@
 version: "3.8"
 
 services:
-  app:
+  java:
     container_name: backend-stage
     image: artrip-backend:latest
     build:
-        target: production
+      context: .
+      dockerfile: docker/Dockerfile
+      target: production
     ports:
       - 881:8080
     environment:
@@ -23,13 +25,13 @@ services:
   redis: !reset {}
 
   elasticsearch:
-    image: elasticsearch:8.11.0
+    build:
+      context: ./docker/elasticsearch
     container_name: elasticsearch-stage
     ports: 
-      - 9201:9200
-      - 9301:9300
+      - "${ELASTICSEARCH_PORT:-9201}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT:-9301}:9300"
     environment: 
-      - ES_JAVA_OPTS=-Xms2g -Xmx2g
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false

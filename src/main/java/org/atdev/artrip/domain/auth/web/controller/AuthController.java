@@ -85,7 +85,7 @@ public class AuthController {
 
     @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분 ,isFirstLogin true:회원가입 false:로그인")
     @ApiErrorResponses(
-            user = {UserError._SOCIAL_ID_TOKEN_INVALID, UserError._USER_NOT_FOUND},
+            user = {UserError._SOCIAL_ID_TOKEN_INVALID, UserError._USER_NOT_FOUND, UserError._SOCIAL_VERIFICATION_FAILED, UserError._SOCIAL_TOKEN_EXPIRED,UserError._SOCIAL_TOKEN_INVALID_SIGNATURE,UserError._SOCIAL_TOKEN_INVALID_AUDIENCE},
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/social")
