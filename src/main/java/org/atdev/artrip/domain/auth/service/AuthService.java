@@ -3,6 +3,8 @@ package org.atdev.artrip.domain.auth.service;
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.UrlJwkProvider;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -31,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -204,7 +207,6 @@ public class AuthService {
                 .providerId(info.getProviderId())
                 .build();
 
-
         user.getSocialAccounts().add(social);
 
         User savedUser = userRepository.save(user);
@@ -224,20 +226,47 @@ public class AuthService {
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
+            List<String> audiences = decodedJWT.getAudience();
             log.info("Token Kid: {}", kid);
             log.info("Token Issuer: {}", decodedJWT.getIssuer());
             log.info("Token Audience: {}", decodedJWT.getAudience());
 
-            Jwk jwk = provider.get(kid);
+            if (audiences == null || audiences.isEmpty()) {
+                throw new GeneralException(UserError._SOCIAL_ID_TOKEN_INVALID);
+            }
 
+            String aud = audiences.get(0);
+            String expectedAud;
+            if (aud.equals(kakaoNativeClientId)) {
+                expectedAud = kakaoNativeClientId;
+                log.info("➡ Android Native SDK 토큰으로 판단");
+            } else if (aud.equals(kakaoClientId)) {
+                expectedAud = kakaoClientId;
+                log.info("➡ 서버용 REST API 토큰으로 판단");
+            } else {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_AUDIENCE);
+            }
+
+            Jwk jwk = provider.get(kid);
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("https://kauth.kakao.com")
-                    .withAudience(kakaoClientId, kakaoNativeClientId)
+                    .withAudience(expectedAud)
                     .build();
 
-            DecodedJWT verified = verifier.verify(idToken);
+            DecodedJWT verified;
+
+            try {
+                verified = verifier.verify(idToken);
+            } catch (TokenExpiredException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_EXPIRED);
+            } catch (SignatureVerificationException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_SIGNATURE);
+            } catch (Exception e) {
+                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            }
+
 
             String email = verified.getClaim("email").asString();
             String nickname = verified.getClaim("nickname").asString();
@@ -262,19 +291,45 @@ public class AuthService {
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
+            List<String> audiences = decodedJWT.getAudience();
+
+            if (audiences == null || audiences.isEmpty()) {
+                throw new GeneralException(UserError._SOCIAL_ID_TOKEN_INVALID);
+            }
             log.info("Token Kid: {}", kid);
             log.info("Token Issuer: {}", decodedJWT.getIssuer());
             log.info("Token Audience: {}", decodedJWT.getAudience());
+
+            String aud = audiences.get(0);
+            String expectedAud;
+            if (aud.equals(googleAodClientId)) {
+                expectedAud = googleAodClientId;
+                log.info("➡ google aod SDK 토큰으로 판단");
+            } else if (aud.equals(googleClientId)) {
+                expectedAud = googleClientId;
+                log.info("➡ 서버용 REST API 토큰으로 판단");
+            } else {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_AUDIENCE);
+            }
 
             Jwk jwk = provider.get(kid);
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer("https://accounts.google.com")
-                    .withAudience(googleClientId, googleAodClientId)
+                    .withAudience(expectedAud)
                     .build();
 
-            DecodedJWT verified = verifier.verify(idToken);
+            DecodedJWT verified;
+            try {
+                verified = verifier.verify(idToken);
+            } catch (TokenExpiredException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_EXPIRED);
+            } catch (SignatureVerificationException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_SIGNATURE);
+            } catch (Exception e) {
+                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            }
 
             String email = verified.getClaim("email").asString();
             String name = verified.getClaim("name").asString();
