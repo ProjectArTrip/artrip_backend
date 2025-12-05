@@ -5,10 +5,7 @@ import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.review.data.Review;
 import org.atdev.artrip.domain.review.web.dto.request.ReviewCreateRequest;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewImageResponse;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewSliceResponse;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewListResponse;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewResponse;
+import org.atdev.artrip.domain.review.web.dto.response.*;
 import org.atdev.artrip.domain.review.web.dto.request.ReviewUpdateRequest;
 import org.springframework.stereotype.Component;
 
@@ -108,22 +105,33 @@ public class ReviewConverter {
                 .build();
     }
 
-    public static List<ReviewListResponse> toSummaryList(List<Review> reviews) {
-        return reviews.stream()
-                .map(ReviewConverter::toSummary)
-                .toList();
-    }
 
-    public static ReviewSliceResponse toReviewListResponse(
-            List<Review> reviews,
-            Long nextCursor,
-            boolean hasNext
-    ) {
-        return ReviewSliceResponse.builder()
-                .reviews(toSummaryList(reviews))  // 여기서 리스트 변환
-                .nextCursor(nextCursor)
-                .hasNext(hasNext)
+    public static ReviewExhibitResponse toExhibitReviewSummary(Review review){
+
+        return ReviewExhibitResponse.builder()
+                .reviewId(review.getReviewId())
+                .content(createSummary(review,20))
+                .thumbnailUrl(createThumbnail(review))
+                .visitDate(review.getVisitDate())
                 .build();
     }
+
+//    public static List<ReviewListResponse> toSummaryList(List<Review> reviews) {
+//        return reviews.stream()
+//                .map(ReviewConverter::toSummary)
+//                .toList();
+//    }
+//
+//    public static ReviewSliceResponse toReviewListResponse(
+//            List<Review> reviews,
+//            Long nextCursor,
+//            boolean hasNext
+//    ) {
+//        return ReviewSliceResponse.builder()
+//                .reviews(toSummaryList(reviews))  // 여기서 리스트 변환
+//                .nextCursor(nextCursor)
+//                .hasNext(hasNext)
+//                .build();
+//    }
 
 }

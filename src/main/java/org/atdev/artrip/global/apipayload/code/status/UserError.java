@@ -30,7 +30,6 @@ public enum UserError implements BaseErrorCode {
     _SOCIAL_TOKEN_INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED, "SOCIAL401-INVALID_SIGNATURE", "소셜 토큰 서명이 유효하지 않습니다."),
     _SOCIAL_TOKEN_INVALID_AUDIENCE(HttpStatus.UNAUTHORIZED, "SOCIAL401-INVALID_AUDIENCE", "소셜 토큰의 aud 값이 일치하지 않습니다.");
 
-
     private final HttpStatus httpStatus;
     private final String code;
     private final String message;

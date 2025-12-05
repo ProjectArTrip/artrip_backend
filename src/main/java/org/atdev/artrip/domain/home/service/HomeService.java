@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.converter.HomeConverter;
@@ -76,7 +77,8 @@ public class HomeService {
                 .toList();
     }
 
-    public HomeExhibitResponse getExhibitDetail(Long exhibitId) {
+    public ExhibitDetailResponse getExhibitDetail(Long exhibitId) {
+
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
