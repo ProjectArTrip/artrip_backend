@@ -12,10 +12,8 @@ import org.atdev.artrip.domain.review.data.Review;
 import org.atdev.artrip.domain.review.repository.ReviewImageRepository;
 import org.atdev.artrip.domain.review.repository.ReviewRepository;
 import org.atdev.artrip.domain.review.web.dto.request.ReviewCreateRequest;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewListResponse;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewResponse;
+import org.atdev.artrip.domain.review.web.dto.response.*;
 import org.atdev.artrip.domain.review.web.dto.request.ReviewUpdateRequest;
-import org.atdev.artrip.domain.review.web.dto.response.ReviewSliceResponse;
 import org.atdev.artrip.global.apipayload.code.status.ReviewError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.S3Service;
@@ -164,5 +162,28 @@ public class ReviewService {
                 .toList();
 
         return new ReviewSliceResponse(summaries, nextCursor, slice.hasNext());
+    }
+
+    @Transactional
+    public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size){
+
+        Slice<Review> slice;
+
+        if (cursor == null) {
+            slice = reviewRepository.findTopByExhibitId(exhibitId, PageRequest.ofSize(size));
+        } else {
+            slice = reviewRepository.findByExhibitIdAndIdLessThan(exhibitId, cursor, PageRequest.ofSize(size));
+        }
+
+        Long nextCursor = slice.hasNext()
+                ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
+                : null;
+
+        List<ReviewExhibitResponse> summaries = slice.getContent()
+                .stream()
+                .map(ReviewConverter::toExhibitReviewSummary)
+                .toList();
+
+        return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext());
     }
 }

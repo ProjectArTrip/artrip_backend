@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.review.service.ReviewService;
 import org.atdev.artrip.domain.review.web.dto.request.ReviewCreateRequest;
+import org.atdev.artrip.domain.review.web.dto.response.ExhibitReviewSliceResponse;
 import org.atdev.artrip.domain.review.web.dto.response.ReviewResponse;
 import org.atdev.artrip.domain.review.web.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.domain.review.web.dto.response.ReviewSliceResponse;
@@ -96,5 +97,19 @@ public class ReviewController {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
+    @Operation(summary = "전시 상세페이지 리뷰 조회 (무한스크롤)")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            review = {ReviewError._REVIEW_NOT_FOUND}
+    )
+    @GetMapping("/{exhibitId}/detail")
+    public ResponseEntity<CommonResponse<ExhibitReviewSliceResponse>> getExhibitReview(
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "10") int size,
+            @PathVariable Long exhibitId) {
 
+        ExhibitReviewSliceResponse response = reviewService.getExhibitReview(exhibitId, cursor, size);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
 }

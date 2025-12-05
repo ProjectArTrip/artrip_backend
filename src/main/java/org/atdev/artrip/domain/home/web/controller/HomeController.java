@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
@@ -87,10 +88,10 @@ public class HomeController {
             home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<HomeExhibitResponse>> getExhibit(
+    public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
             @PathVariable Long id){
 
-        HomeExhibitResponse exhibit= homeService.getExhibitDetail(id);
+        ExhibitDetailResponse exhibit= homeService.getExhibitDetail(id);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
