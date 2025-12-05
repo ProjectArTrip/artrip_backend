@@ -59,10 +59,6 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
     private void addErrorResponseWithMultipleExamples(ApiResponses responses, String statusCode, List<BaseErrorCode> errors) {
         ApiResponse apiResponse = new ApiResponse();
 
-//        String description = errors.size() == 1
-//                ? String.format("%s (%s)", errors.get(0).getMessage(), errors.get(0).getCode())
-//                : String.format("%d개의 에러 유형이 있습니다.", errors.size());
-
         String description = errors.get(0).getHttpStatus().getReasonPhrase();
         apiResponse.setDescription(description);
 
