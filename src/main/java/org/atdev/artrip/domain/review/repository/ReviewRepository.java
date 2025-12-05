@@ -23,4 +23,11 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
                                                         @Param("cursor") Long cursor,
                                                         Pageable pageable);
 
+    @Query("select r from Review r where r.exhibit.exhibitId = :exhibitId order by r.reviewId desc")
+    Slice<Review> findTopByExhibitId(@Param("exhibitId") Long exhibitId, Pageable pageable);
+
+    @Query("select r from Review r where r.exhibit.exhibitId = :exhibitId and r.reviewId < :cursor order by r.reviewId desc")
+    Slice<Review> findByExhibitIdAndIdLessThan(@Param("exhibitId") Long exhibitId,
+                                            @Param("cursor") Long cursor,
+                                            Pageable pageable);
 }
