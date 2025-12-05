@@ -1,8 +1,8 @@
 package org.atdev.artrip.domain.home.converter;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.home.response.FilterResponse;
-import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
@@ -43,19 +43,40 @@ public class HomeConverter {
                 .build();
     }
 
-    public HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
+    public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit) {
 
         var hall = exhibit.getExhibitHall();
+        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
 
-        return HomeExhibitResponse.builder()
-                .exhibit_id(exhibit.getExhibitId())
+        return ExhibitDetailResponse.builder()
+                .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
+                .description(exhibit.getDescription())
                 .posterUrl(exhibit.getPosterUrl())
+                .ticketUrl(exhibit.getTicketUrl())
                 .status(exhibit.getStatus())
-                .country(hall != null ? hall.getCountry() : null)
-                .region(hall != null ? hall.getRegion() : null)
-                .startDate(exhibit.getStartDate().format(formatter))
-                .endDate(exhibit.getEndDate().format(formatter))
+                .exhibitPeriod(period)
+
+                .hallName(hall != null ? hall.getName() : null)
+                .address(hall != null ? hall.getAddress() : null)
+                .openingHours(hall != null ? hall.getOpeningHours() : null)
+                .phone(hall != null ? hall.getPhone() : null)
+                .homepageUrl(hall != null ? hall.getHomepageUrl() : null)
                 .build();
     }
+//    public HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
+//
+//        var hall = exhibit.getExhibitHall();
+//
+//        return HomeExhibitResponse.builder()
+//                .exhibit_id(exhibit.getExhibitId())
+//                .title(exhibit.getTitle())
+//                .posterUrl(exhibit.getPosterUrl())
+//                .status(exhibit.getStatus())
+//                .country(hall != null ? hall.getCountry() : null)
+//                .region(hall != null ? hall.getRegion() : null)
+//                .startDate(exhibit.getStartDate().format(formatter))
+//                .endDate(exhibit.getEndDate().format(formatter))
+//                .build();
+//    }
 }
