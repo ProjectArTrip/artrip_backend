@@ -63,19 +63,5 @@ public class HomeConverter {
                 .hallPhone(hall != null ? hall.getPhone() : null)
                 .build();
     }
-//    public HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {
-//
-//        var hall = exhibit.getExhibitHall();
-//
-//        return HomeExhibitResponse.builder()
-//                .exhibit_id(exhibit.getExhibitId())
-//                .title(exhibit.getTitle())
-//                .posterUrl(exhibit.getPosterUrl())
-//                .status(exhibit.getStatus())
-//                .country(hall != null ? hall.getCountry() : null)
-//                .region(hall != null ? hall.getRegion() : null)
-//                .startDate(exhibit.getStartDate().format(formatter))
-//                .endDate(exhibit.getEndDate().format(formatter))
-//                .build();
-//    }
+
 }
