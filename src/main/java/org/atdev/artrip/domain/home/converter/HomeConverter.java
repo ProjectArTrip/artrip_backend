@@ -58,10 +58,9 @@ public class HomeConverter {
                 .exhibitPeriod(period)
 
                 .hallName(hall != null ? hall.getName() : null)
-                .address(hall != null ? hall.getAddress() : null)
-                .openingHours(hall != null ? hall.getOpeningHours() : null)
-                .phone(hall != null ? hall.getPhone() : null)
-                .homepageUrl(hall != null ? hall.getHomepageUrl() : null)
+                .hallAddress(hall != null ? hall.getAddress() : null)
+                .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
+                .hallPhone(hall != null ? hall.getPhone() : null)
                 .build();
     }
 //    public HomeExhibitResponse toHomeExhibitResponse(Exhibit exhibit) {

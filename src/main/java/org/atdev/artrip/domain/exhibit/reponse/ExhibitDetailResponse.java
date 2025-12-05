@@ -18,8 +18,7 @@ public class ExhibitDetailResponse {
     private Status status;
 
     private String hallName;
-    private String address;
-    private String openingHours;
-    private String phone;
-    private String homepageUrl;
+    private String hallAddress;
+    private String hallOpeningHours;
+    private String hallPhone;
 }
