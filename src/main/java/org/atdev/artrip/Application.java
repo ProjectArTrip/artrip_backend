@@ -36,14 +36,14 @@ public class Application {
     }
 
     @Bean
-    public CommandLineRunner testRedis(StringRedisTemplate redisTemplate) {
+    public CommandLineRunner testRedis(StringRedisTemplate jwtRedisTemplate) {
     return args -> {
         System.out.println("Redis 연결 체크");
 
         try {
-            redisTemplate.opsForValue().set("testKey", "greeting");
+            jwtRedisTemplate.opsForValue().set("testKey", "greeting");
 
-            String value = redisTemplate.opsForValue().get("testKey");
+            String value = jwtRedisTemplate.opsForValue().get("testKey");
             System.out.println("Redis 연결 성공 : " + value);
         } catch (Exception e) {
             System.err.println("Redis 연결 실패");

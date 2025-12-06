@@ -10,10 +10,10 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class RefreshTokenRedisRepository {
 
-    private final StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate jwtRedisTemplate;
 
     public void save(String key, String userid, long expirationMillis) {
-        redisTemplate.opsForValue().set(
+        jwtRedisTemplate.opsForValue().set(
                 key,
                 userid,
                 Duration.ofMillis(expirationMillis)
@@ -21,10 +21,10 @@ public class RefreshTokenRedisRepository {
     }
 
     public String findByUsername(String key) {
-        return redisTemplate.opsForValue().get(key);
+        return jwtRedisTemplate.opsForValue().get(key);
     }
 
     public void delete(String key) {
-        redisTemplate.delete(key);
+        jwtRedisTemplate.delete(key);
     }
 }
