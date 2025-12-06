@@ -26,7 +26,7 @@ public class SearchHistoryService {
 
     private final SearchHistoryRepository searchHistoryRepository;
     private final UserRepository userRepository;
-    private final StringRedisTemplate redisTemplate;
+    private final StringRedisTemplate recommendRedisTemplate;
 
     private static final String POPULAR_KEYWORDS_KEY = "search:popular_keywords";
 
@@ -37,7 +37,7 @@ public class SearchHistoryService {
             List<String> keywords = searchHistoryRepository.findPopularKeywords();
 
             if (!keywords.isEmpty()) {
-                redisTemplate.delete(POPULAR_KEYWORDS_KEY);
+                recommendRedisTemplate.delete(POPULAR_KEYWORDS_KEY);
                 syncToRedis(keywords);
             }
         } catch (Exception e) {
@@ -51,7 +51,7 @@ public class SearchHistoryService {
             List<String> keywords = searchHistoryRepository.findPopularKeywords();
 
             if (!keywords.isEmpty()) {
-                redisTemplate.delete(POPULAR_KEYWORDS_KEY);
+                recommendRedisTemplate.delete(POPULAR_KEYWORDS_KEY);
                 syncToRedis(keywords);
             }
         } catch (Exception e) {
@@ -74,7 +74,7 @@ public class SearchHistoryService {
                     .build();
             searchHistoryRepository.save(history);
 
-        redisTemplate.opsForZSet().incrementScore(POPULAR_KEYWORDS_KEY, keyword, 1);
+        recommendRedisTemplate.opsForZSet().incrementScore(POPULAR_KEYWORDS_KEY, keyword, 1);
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -116,7 +116,7 @@ public class SearchHistoryService {
 
     public List<String> findPopularKeywords() {
         try {
-            Set<String> redisResult = redisTemplate.opsForZSet()
+            Set<String> redisResult = recommendRedisTemplate.opsForZSet()
                     .reverseRange(POPULAR_KEYWORDS_KEY, 0, 4);
 
             if (redisResult != null && !redisResult.isEmpty()) {
@@ -141,7 +141,7 @@ public class SearchHistoryService {
         try {
             for (int i = 0; i < keywords.size(); i++) {
                 double score = keywords.size() - i;
-                redisTemplate.opsForZSet().add(POPULAR_KEYWORDS_KEY, keywords.get(i), score);
+                recommendRedisTemplate.opsForZSet().add(POPULAR_KEYWORDS_KEY, keywords.get(i), score);
             }
             log.debug("Synced {} keywords to Redis", keywords.size());
         } catch (Exception e) {
