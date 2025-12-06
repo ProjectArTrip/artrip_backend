@@ -7,7 +7,9 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import jakarta.annotation.security.PermitAll;
 import org.atdev.artrip.global.apipayload.code.BaseErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -19,14 +21,46 @@ import java.util.stream.Collectors;
 @Component
 public class GlobalOperationCustomizer implements OperationCustomizer {
 
+//    @Override
+//    public Operation customize(Operation operation, HandlerMethod handlerMethod) {
+//        ApiResponses responses = operation.getResponses();
+//
+//        ApiErrorResponses annotation = handlerMethod.getMethodAnnotation(ApiErrorResponses.class);
+//        if (annotation != null) {
+//            processAllErrorAttributes(responses, annotation);
+//        }
+//        return operation;
+//    }
+
+    private boolean isSecuredApi(HandlerMethod handlerMethod) {
+        return !(
+                handlerMethod.hasMethodAnnotation(PermitAll.class)
+                        || handlerMethod.getBeanType().isAnnotationPresent(PermitAll.class)
+        );
+    }
+
     @Override
     public Operation customize(Operation operation, HandlerMethod handlerMethod) {
         ApiResponses responses = operation.getResponses();
+
+        // 1️⃣ 인증 필요 API면 공통 JWT 에러 추가
+        if (isSecuredApi(handlerMethod)) {
+            addErrorResponseWithMultipleExamples(
+                    responses,
+                    "401",
+                    List.of(
+                            UserError._JWT_EXPIRED_ACCESS_TOKEN,
+                            UserError._SOCIAL_TOKEN_INVALID_SIGNATURE,
+                            UserError._JWT_UNSUPPORTED_TOKEN
+                    )
+            );
+        }
 
         ApiErrorResponses annotation = handlerMethod.getMethodAnnotation(ApiErrorResponses.class);
         if (annotation != null) {
             processAllErrorAttributes(responses, annotation);
         }
+
         return operation;
     }
 
