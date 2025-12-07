@@ -1,7 +1,6 @@
 package org.atdev.artrip.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.Oauth.CustomOAuth2UserService;
 import org.atdev.artrip.domain.auth.Oauth.OAuth2LoginSuccessHandler;
@@ -49,6 +48,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/","/a","/login/**", "/oauth2/**", "/error",
                                 "/swagger-ui/**", "/v3/api-docs/**","/auth/web/reissue","/auth/app/reissue","/s3/**","/auth/social").permitAll()
