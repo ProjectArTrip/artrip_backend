@@ -33,7 +33,7 @@ public class JwtGenerator {
 
         long now = (new Date()).getTime();
 
-        String authorities = roles.name();
+        String authorities = "ROLE_" + roles.name();
 
         String accessToken = Jwts.builder()
                 .setIssuer(jwtIssuer)
@@ -59,6 +59,8 @@ public class JwtGenerator {
 
     public String createAccessToken(String subject, String roles) {// refresh 재발행때 사용
         long now = System.currentTimeMillis();
+
+//        String authorities = "Role_" + roles;
 
         return Jwts.builder()
                 .setIssuer(jwtIssuer)
