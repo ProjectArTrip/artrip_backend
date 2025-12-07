@@ -38,7 +38,7 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
                     responses,
                     "401",
                     List.of(
-                            CommonError._UNAUTHORIZED,
+                            UserError._JWT_INVALID_TOKEN,
                             UserError._JWT_EXPIRED_ACCESS_TOKEN,
                             UserError._SOCIAL_TOKEN_INVALID_SIGNATURE,
                             UserError._JWT_UNSUPPORTED_TOKEN
