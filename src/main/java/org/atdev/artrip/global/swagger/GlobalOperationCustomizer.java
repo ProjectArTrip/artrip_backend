@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import jakarta.annotation.security.PermitAll;
 import org.atdev.artrip.global.apipayload.code.BaseErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.stereotype.Component;
@@ -21,17 +22,6 @@ import java.util.stream.Collectors;
 @Component
 public class GlobalOperationCustomizer implements OperationCustomizer {
 
-//    @Override
-//    public Operation customize(Operation operation, HandlerMethod handlerMethod) {
-//        ApiResponses responses = operation.getResponses();
-//
-//        ApiErrorResponses annotation = handlerMethod.getMethodAnnotation(ApiErrorResponses.class);
-//        if (annotation != null) {
-//            processAllErrorAttributes(responses, annotation);
-//        }
-//        return operation;
-//    }
-
     private boolean isSecuredApi(HandlerMethod handlerMethod) {
         return !(
                 handlerMethod.hasMethodAnnotation(PermitAll.class)
@@ -43,12 +33,12 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
     public Operation customize(Operation operation, HandlerMethod handlerMethod) {
         ApiResponses responses = operation.getResponses();
 
-        // 1️⃣ 인증 필요 API면 공통 JWT 에러 추가
         if (isSecuredApi(handlerMethod)) {
-            addErrorResponseWithMultipleExamples(
+            addOrMergeErrorResponseWithExamples(
                     responses,
                     "401",
                     List.of(
+                            CommonError._UNAUTHORIZED,
                             UserError._JWT_EXPIRED_ACCESS_TOKEN,
                             UserError._SOCIAL_TOKEN_INVALID_SIGNATURE,
                             UserError._JWT_UNSUPPORTED_TOKEN
@@ -63,6 +53,7 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
 
         return operation;
     }
+
 
     private void processAllErrorAttributes(ApiResponses responses, ApiErrorResponses annotation) {
 
@@ -86,39 +77,44 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
                 ));
 
         errorsByStatusCode.forEach((statusCode, errors) -> {
-            addErrorResponseWithMultipleExamples(responses, statusCode, errors);
+            addOrMergeErrorResponseWithExamples(responses, statusCode, errors);
         });
     }
 
-    private void addErrorResponseWithMultipleExamples(ApiResponses responses, String statusCode, List<BaseErrorCode> errors) {
-        ApiResponse apiResponse = new ApiResponse();
+    private void addOrMergeErrorResponseWithExamples(
+            ApiResponses responses,
+            String statusCode,
+            List<BaseErrorCode> errorsToAdd
+    ) {
+        ApiResponse apiResponse = responses.get(statusCode);
+        if (apiResponse == null) {
+            apiResponse = new ApiResponse();
+            apiResponse.setDescription(errorsToAdd.get(0).getHttpStatus().getReasonPhrase());
+            apiResponse.setContent(new Content());
+            responses.addApiResponse(statusCode, apiResponse);
+        }
 
-        String description = errors.get(0).getHttpStatus().getReasonPhrase();
-        apiResponse.setDescription(description);
+        MediaType mediaType = apiResponse.getContent().get("application/json");
+        if (mediaType == null) {
+            mediaType = new MediaType();
+            mediaType.setSchema(new Schema<>().$ref("#/components/schemas/CommonResponse"));
+            apiResponse.getContent().addMediaType("application/json", mediaType);
+        }
 
-        Content content = new Content();
-        MediaType mediaType = new MediaType();
+        Map<String, Example> exampleMap = mediaType.getExamples();
+        if (exampleMap == null) {
+            exampleMap = new LinkedHashMap<>();
+        }
 
-        Schema<?> schema = new Schema<>();
-        schema.set$ref("#/components/schemas/CommonResponse");
-        mediaType.setSchema(schema);
-
-        Map<String, Example> exampleMap = new LinkedHashMap<>();
-        for (BaseErrorCode error :errors) {
-            Example example = new Example();
-            example.setValue(createErrorExample(error));
-            example.setDescription(error.getMessage());
-
-            exampleMap.put(error.getCode(), example);
+        for (BaseErrorCode error : errorsToAdd) {
+            exampleMap.putIfAbsent(error.getCode(), new Example()
+                    .value(createErrorExample(error))
+                    .description(error.getMessage()));
         }
 
         mediaType.setExamples(exampleMap);
-        content.addMediaType("application/json", mediaType);
-        apiResponse.setContent(content);
-
-        responses.addApiResponse(statusCode, apiResponse);
-
     }
+
 
     private Map<String, Object> createErrorExample(BaseErrorCode error) {
         Map<String, Object> example = new LinkedHashMap<>();
