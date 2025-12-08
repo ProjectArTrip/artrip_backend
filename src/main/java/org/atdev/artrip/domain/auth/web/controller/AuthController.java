@@ -115,7 +115,7 @@ public class AuthController {
         return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
     }
 
-    @Operation(summary = "isFirstLogin값 true값으로 세팅")
+    @Operation(summary = "isFirstLogin값 반전 api")
     @PostMapping("/complete")
     public ResponseEntity<String> completeOnboarding(
             @AuthenticationPrincipal UserDetails userDetails) {

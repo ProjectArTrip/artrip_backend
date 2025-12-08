@@ -196,7 +196,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow();
 
-        user.setOnboardingCompleted(true);
+        user.setOnboardingCompleted(!user.isOnboardingCompleted());
     }
 
     private User createNewUser(SocialUserInfo info, String email, String providerStr) {
