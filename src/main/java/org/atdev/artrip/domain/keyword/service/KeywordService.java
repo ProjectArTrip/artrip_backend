@@ -12,6 +12,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,7 @@ public class KeywordService {
     private final UserKeywordRepository userKeywordRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public void saveUserKeywords(Long userId, List<Long> keywordIds) {
 
         User user = userRepository.findById(userId)
@@ -45,6 +47,7 @@ public class KeywordService {
         userKeywordRepository.saveAll(userKeywords);
     }
 
+    @Transactional
     public List<KeywordResponse> getAllKeywords() {
         return keywordRepository.findAll()
                 .stream()
@@ -52,6 +55,7 @@ public class KeywordService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<KeywordResponse> getUserKeywords(Long userId) {
         return userKeywordRepository.findAllByUserUserId(userId) // UserKeyword 테이블에서 조회
                 .stream()
