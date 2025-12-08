@@ -19,6 +19,8 @@ import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -112,5 +114,17 @@ public class AuthController {
 
         return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
     }
+
+    @PostMapping("/complete")
+    public ResponseEntity<String> completeOnboarding(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        long userId = Long.parseLong(userDetails.getUsername());
+
+        authService.completeOnboarding(userId);
+
+        return ResponseEntity.noContent().build();
+    }
+
 
 }

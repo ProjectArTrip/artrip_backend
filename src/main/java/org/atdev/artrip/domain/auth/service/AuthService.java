@@ -164,6 +164,7 @@ public class AuthService {
         User user = userRepository.findByEmail(email).
                 orElseGet(()->createNewUser(socialUser, email, provider));
 
+
         boolean isFirstLogin= !user.isOnboardingCompleted();
 
 //        if (optionalUser.isPresent()) {
@@ -190,6 +191,14 @@ public class AuthService {
         );
     }
 
+    @Transactional
+    public void completeOnboarding(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+
+        user.setOnboardingCompleted(true);
+    }
+
     private User createNewUser(SocialUserInfo info, String email, String providerStr) {
 
         Provider provider = switch (providerStr.toUpperCase()) {
@@ -202,6 +211,7 @@ public class AuthService {
                 .email(email)
                 .name(info.getNickname())
                 .role(Role.USER)
+                .onboardingCompleted(false)
                 .build();
 
         SocialAccounts social = SocialAccounts.builder()
