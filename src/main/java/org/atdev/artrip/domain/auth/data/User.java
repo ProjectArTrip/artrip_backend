@@ -48,7 +48,8 @@ public class User {
     @Column(name = "push_token")
     private String pushToken;
 
-
+    @Column(nullable = false)
+    private boolean onboardingCompleted=false;
 
     @Email
     @Column(name = "email",nullable = true)
