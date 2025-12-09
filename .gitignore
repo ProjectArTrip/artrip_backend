@@ -54,4 +54,6 @@ application-local.yml
 /src/main/resources/firebase/
 
 ## FCM
-src/main/resources/firebase/*.json
+secret/
+secrets/
+**/firebase*.json
