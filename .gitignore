@@ -51,3 +51,7 @@ application-stage.yml
 application-prod.yml
 application-local.yml
 !/docker/elasticsearch
+/src/main/resources/firebase/
+
+## FCM
+src/main/resources/firebase/*.json
