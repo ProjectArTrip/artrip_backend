@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.exhibit.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
@@ -9,13 +10,16 @@ import org.atdev.artrip.domain.Enum.SortType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
 import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
+import org.atdev.artrip.domain.exhibit.web.dto.RandomExhibitFilter;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
 import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
 import org.atdev.artrip.domain.keyword.data.QKeyword;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -165,4 +169,59 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .and(k.name.in(dto.getStyles()));
     }
 
+
+    @Override
+    public List<Exhibit> findRandomExhibits(RandomExhibitFilter c) {
+
+        QExhibit e = QExhibit.exhibit;
+        QExhibitHall h = QExhibitHall.exhibitHall;
+        QKeyword k = QKeyword.keyword;
+
+        var query = queryFactory.selectDistinct(e)
+                .from(e)
+                .join(e.exhibitHall, h)
+                .leftJoin(e.keywords, k)
+                .where(
+                        isDomesticEq(c.getIsDomestic()),
+                        countryEq(c.getCountry()),
+                        regionEq(c.getRegion()),
+                        genreIn(c.getGenres()),
+                        styleIn(c.getStyles()),
+                        betweenDate(c.getBetweenDate())
+                )
+                .orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc())
+                .limit(c.getLimit());
+
+        return query.fetch();
+    }
+
+    private BooleanExpression isDomesticEq(Boolean isDomestic) {
+        return isDomestic == null ? null : QExhibitHall.exhibitHall.isDomestic.eq(isDomestic);
+    }
+
+    private BooleanExpression countryEq(String country) {
+        return country == null ? null : QExhibitHall.exhibitHall.country.eq(country);
+    }
+
+    private BooleanExpression regionEq(String region) {
+        return region == null ? null : QExhibitHall.exhibitHall.region.eq(region);
+    }
+
+    private BooleanExpression genreIn(Set<String> genres) {
+        if (genres == null || genres.isEmpty()) return null;
+        return QKeyword.keyword.type.eq(KeywordType.GENRE)
+                .and(QKeyword.keyword.name.in(genres));
+    }
+
+    private BooleanExpression styleIn(Set<String> styles) {
+        if (styles == null || styles.isEmpty()) return null;
+        return QKeyword.keyword.type.eq(KeywordType.STYLE)
+                .and(QKeyword.keyword.name.in(styles));
+    }
+
+    private BooleanExpression betweenDate(LocalDateTime date) {
+        if (date == null) return null;
+        return QExhibit.exhibit.startDate.loe(date)
+                .and(QExhibit.exhibit.endDate.goe(date));
+    }
 }
