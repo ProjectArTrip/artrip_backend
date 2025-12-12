@@ -1,6 +1,6 @@
-package org.atdev.artrip.domain.Enum;
+    package org.atdev.artrip.domain.Enum;
 
-public enum KeywordType {
-    GENRE,
-    STYLE
-}
+    public enum KeywordType {
+        GENRE,
+        STYLE
+    }
