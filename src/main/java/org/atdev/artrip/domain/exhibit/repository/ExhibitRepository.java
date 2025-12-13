@@ -28,7 +28,7 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     ORDER BY RAND()
     LIMIT :limit
     """, nativeQuery = true)
-    List<Exhibit> findRandomExhibits(@Param("limit") int limit, @Param("isDomestic") Boolean isDomestic);
+    List<Exhibit> findRandomExhibits1(@Param("limit") int limit, @Param("isDomestic") Boolean isDomestic);
 
 
     @Query(value = """

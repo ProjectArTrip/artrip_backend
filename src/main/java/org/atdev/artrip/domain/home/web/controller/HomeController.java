@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
@@ -231,6 +232,23 @@ public class HomeController {
 
         return ResponseEntity.ok(exhibits);
 
+    }
+
+    @Operation(summary = "사용자 맞춤 전시 전체 조회V2")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
+    @GetMapping("/personalized/all/V2")
+    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllPersonalizedV2(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam Boolean isDomestic){
+
+        long userId = Long.parseLong(userDetails.getUsername());
+
+        List<HomeListResponse> exhibits= homeService.getPersonalized2(userId,isDomestic,3);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
 }

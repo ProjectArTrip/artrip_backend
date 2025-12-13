@@ -6,6 +6,7 @@ import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
+import org.atdev.artrip.domain.exhibit.web.dto.RandomExhibitFilter;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.converter.HomeConverter;
 import org.atdev.artrip.domain.home.response.FilterResponse;
@@ -23,6 +24,7 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -43,7 +45,7 @@ public class HomeService {
 
     // 오늘 추천 전시
     public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
-        return exhibitRepository.findRandomExhibits(3,isDomestic)
+        return exhibitRepository.findRandomExhibits1(3,isDomestic)
                 .stream()
                 .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
@@ -187,5 +189,36 @@ public class HomeService {
     }
 
 
+    @Transactional
+    public List<HomeListResponse> getPersonalized2(Long userId,Boolean isDomestic, int limit){
+
+        if (!userRepository.existsById(userId)) {
+            throw new GeneralException(UserError._USER_NOT_FOUND);
+        }
+
+        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
+                .stream()
+                .map(UserKeyword::getKeyword)
+                .toList();
+
+        Set<String> genres = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        Set<String> styles = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        RandomExhibitFilter filter = RandomExhibitFilter.builder()
+                .isDomestic(isDomestic)
+                .genres(genres.isEmpty() ? null : genres)
+                .styles(styles.isEmpty() ? null : styles)
+                .limit(limit)
+                .build();
+
+        return exhibitRepository.findRandomExhibits(filter);
+    }
 
 }
