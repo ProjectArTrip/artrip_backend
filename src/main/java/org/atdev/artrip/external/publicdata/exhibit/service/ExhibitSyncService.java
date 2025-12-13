@@ -1,5 +1,6 @@
 package org.atdev.artrip.external.publicdata.exhibit.service;
 
+import jakarta.persistence.EntityManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,7 @@ public class ExhibitSyncService {
     private final ExhibitMapper exhibitMapper;
     private final ExhibitRepository exhibitRepository;
     private final ExhibitHallRepository exhibitHallRepository;
+    private final EntityManager  entityManager;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final int MAX_PAGES = 100;
@@ -53,12 +55,10 @@ public class ExhibitSyncService {
                 result.getInserted(), result.getUpdated(), result.getFailed());
     }
 
-    @Transactional
     public SyncResult syncAll() {
         return executeSync(pageNo -> exhibitApiClient.fetchExhibits(pageNo));
     }
 
-    @Transactional
     public SyncResult syncByPeriod(String from, String to) {
         return executeSync(pageNo -> exhibitApiClient.fetchByPeriod(from, to, pageNo));
     }
@@ -109,9 +109,11 @@ public class ExhibitSyncService {
         for (ExhibitItem item : items) {
             try {
                 processItem(item, hallCache, result);
+                entityManager.flush();
             } catch (Exception e) {
                 log.warn("처리 실패 - title: {}, error: {}", item.getTitle(), e.getMessage());
                 result.incrementFailed();
+                entityManager.clear();
             }
         }
         return result;

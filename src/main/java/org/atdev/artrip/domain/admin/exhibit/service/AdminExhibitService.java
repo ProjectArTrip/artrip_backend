@@ -71,17 +71,10 @@ public class AdminExhibitService {
     public Long createExhibit(CreateExhibitRequest request) {
         log.info("Admin Creating exhibit : title={}", request);
 
-        ExhibitHall exhibitHall = getOrCreateExhibitHall(
-                request.getExhibitHallId(),
-                request.getExhibitHallName(),
-                request.getAddress(),
-                request.getCountry(),
-                request.getRegion(),
-                request.getPhone(),
-                request.getOpeningHours());
+        ExhibitHall exhibitHall = exhibitHallRepository.findById(request.getExhibitHallId())
+                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
 
         List<Keyword> keywords = List.of();
-
         if (request.getKeywordIds() != null && !request.getKeywordIds().isEmpty()) {
             keywords = keywordRepository.findAllById(request.getKeywordIds());
             if (keywords.size() != request.getKeywordIds().size()) {
