@@ -234,19 +234,21 @@ public class HomeController {
 
     }
 
-    @Operation(summary = "사용자 맞춤 전시 전체 조회V2")
+    @Operation(summary = "사용자 맞춤 전시 랜덤 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
-    @GetMapping("/personalized/all/V2")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllPersonalizedV2(
+    @GetMapping("/personalized/random")
+    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam Boolean isDomestic){
+            @RequestParam Boolean isDomestic,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String region){
 
         long userId = Long.parseLong(userDetails.getUsername());
 
-        List<HomeListResponse> exhibits= homeService.getPersonalized2(userId,isDomestic,3);
+        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId,isDomestic,country,region,3);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }

@@ -190,7 +190,7 @@ public class HomeService {
 
 
     @Transactional
-    public List<HomeListResponse> getPersonalized2(Long userId,Boolean isDomestic, int limit){
+    public List<HomeListResponse> getRandomPersonalized(Long userId, Boolean isDomestic, String country, String region, int limit){
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
@@ -213,6 +213,8 @@ public class HomeService {
 
         RandomExhibitFilter filter = RandomExhibitFilter.builder()
                 .isDomestic(isDomestic)
+                .country(country)
+                .region(region)
                 .genres(genres.isEmpty() ? null : genres)
                 .styles(styles.isEmpty() ? null : styles)
                 .limit(limit)
