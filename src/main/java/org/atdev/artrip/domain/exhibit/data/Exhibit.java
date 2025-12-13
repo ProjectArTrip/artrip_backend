@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "exhibit", schema = "art_dev")
+@Table(name = "exhibit")
 @EntityListeners(ExhibitEntityListener.class)
 @Getter
 @Setter
@@ -58,14 +58,6 @@ public class Exhibit {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @Column(name = "latitude")
-    private BigDecimal latitude;
-
-    @Column(name = "longitude")
-    private BigDecimal longitude;
-
-    //enum 생성 정렬 등등
 
     @ManyToMany
     @Builder.Default

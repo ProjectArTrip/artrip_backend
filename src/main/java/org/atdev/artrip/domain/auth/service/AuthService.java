@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.Enum.Provider;
 import org.atdev.artrip.domain.Enum.Role;
-import org.atdev.artrip.domain.SocialAccounts;
+import org.atdev.artrip.domain.auth.data.SocialAccounts;
 import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.auth.jwt.JwtGenerator;
 import org.atdev.artrip.domain.auth.jwt.JwtProvider;
@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
