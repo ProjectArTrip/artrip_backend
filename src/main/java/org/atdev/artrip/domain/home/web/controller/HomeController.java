@@ -97,22 +97,22 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
 
-    @Operation(summary = "사용자 맞춤 전시 추천")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping("/personalized")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getPersonalized(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam Boolean isDomestic){//문자열 형태로 userid뽑아올수있음
-
-        long userId = Long.parseLong(userDetails.getUsername());
-
-        List<HomeListResponse> exhibits= homeService.getPersonalized(userId,isDomestic);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-    }
+//    @Operation(summary = "사용자 맞춤 전시 추천")
+//    @ApiErrorResponses(
+//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+//            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+//    )
+//    @GetMapping("/personalized")
+//    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getPersonalized(
+//            @AuthenticationPrincipal UserDetails userDetails,
+//            @RequestParam Boolean isDomestic){//문자열 형태로 userid뽑아올수있음
+//
+//        long userId = Long.parseLong(userDetails.getUsername());
+//
+//        List<HomeListResponse> exhibits= homeService.getPersonalized(userId,isDomestic);
+//
+//        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+//    }
 
     @Operation(summary = "사용자 맞춤 전시 전체 조회")
     @ApiErrorResponses(
@@ -236,8 +236,7 @@ public class HomeController {
 
     @Operation(summary = "사용자 맞춤 전시 랜덤 조회")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
     )
     @GetMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(

@@ -87,32 +87,32 @@ public class HomeService {
         return homeConverter.toHomeExhibitResponse(exhibit);
     }
 
-    public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
-
-        if (!userRepository.existsById(userId)) {
-            throw new GeneralException(UserError._USER_NOT_FOUND);
-        }
-
-        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
-                .stream()
-                .map(UserKeyword::getKeyword)
-                .toList();
-
-        Set<String> genres = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.GENRE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
-        Set<String> styles = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.STYLE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
-        return exhibitRepository.findRandomByKeywords(genres,styles,3, isDomestic)
-                .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
-                .toList();
-    }
+//    public List<HomeListResponse> getPersonalized(Long userId,Boolean isDomestic){
+//
+//        if (!userRepository.existsById(userId)) {
+//            throw new GeneralException(UserError._USER_NOT_FOUND);
+//        }
+//
+//        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
+//                .stream()
+//                .map(UserKeyword::getKeyword)
+//                .toList();
+//
+//        Set<String> genres = userKeywords.stream()
+//                .filter(k -> k.getType() == KeywordType.GENRE)
+//                .map(Keyword::getName)
+//                .collect(Collectors.toSet());
+//
+//        Set<String> styles = userKeywords.stream()
+//                .filter(k -> k.getType() == KeywordType.STYLE)
+//                .map(Keyword::getName)
+//                .collect(Collectors.toSet());
+//
+//        return exhibitRepository.findRandomByKeywords(genres,styles,3, isDomestic)
+//                .stream()
+//                .map(homeConverter::toHomeExhibitListResponse)
+//                .toList();
+//    }
 
     public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
 
