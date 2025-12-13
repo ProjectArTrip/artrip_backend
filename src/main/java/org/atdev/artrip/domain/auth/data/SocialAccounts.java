@@ -1,15 +1,14 @@
-package org.atdev.artrip.domain;
+package org.atdev.artrip.domain.auth.data;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.domain.Enum.Provider;
-import org.atdev.artrip.domain.auth.data.User;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "social_accounts", schema = "art_dev")
+@Table(name = "social_accounts")
 @Getter
 @Setter
 @NoArgsConstructor

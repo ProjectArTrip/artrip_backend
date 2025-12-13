@@ -3,7 +3,7 @@ package org.atdev.artrip.domain.auth.Oauth;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.Provider;
 import org.atdev.artrip.domain.Enum.Role;
-import org.atdev.artrip.domain.SocialAccounts;
+import org.atdev.artrip.domain.auth.data.SocialAccounts;
 import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

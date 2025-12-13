@@ -71,17 +71,10 @@ public class AdminExhibitService {
     public Long createExhibit(CreateExhibitRequest request) {
         log.info("Admin Creating exhibit : title={}", request);
 
-        ExhibitHall exhibitHall = getOrCreateExhibitHall(
-                request.getExhibitHallId(),
-                request.getExhibitHallName(),
-                request.getAddress(),
-                request.getCountry(),
-                request.getRegion(),
-                request.getPhone(),
-                request.getOpeningHours());
+        ExhibitHall exhibitHall = exhibitHallRepository.findById(request.getExhibitHallId())
+                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
 
         List<Keyword> keywords = List.of();
-
         if (request.getKeywordIds() != null && !request.getKeywordIds().isEmpty()) {
             keywords = keywordRepository.findAllById(request.getKeywordIds());
             if (keywords.size() != request.getKeywordIds().size()) {
@@ -98,8 +91,6 @@ public class AdminExhibitService {
                 .status(request.getStatus())
                 .ticketUrl(request.getTicketUrl())
                 .posterUrl(request.getPosterUrl())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -242,8 +233,6 @@ public class AdminExhibitService {
                 .status(exhibit.getStatus())
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
-                .latitude(exhibit.getLatitude())
-                .longitude(exhibit.getLongitude())
                 .keywords(exhibit.getKeywords().stream()
                         .map(this::convertToKeywordInfo)
                         .collect(Collectors.toList()))

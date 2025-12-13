@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExhibitHallRepository extends JpaRepository<ExhibitHall, Long> {
 
@@ -20,4 +21,5 @@ public interface ExhibitHallRepository extends JpaRepository<ExhibitHall, Long> 
     List<String> findAllDomesticRegions();
 
 
+    Optional<ExhibitHall> findByName(String placeName);
 }

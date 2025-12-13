@@ -10,28 +10,16 @@ import java.util.List;
 @Data
 public class CreateExhibitRequest {
 
+    private Long exhibitHallId;
     private String title;
     private String description;
-
-    private Long exhibitHallId;
-    private String exhibitHallName;
-    private String address;
-    private String country;
-    private String region;
-    private String phone;
+    private String ticketUrl;
+    private String posterUrl;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    private String openingHours;
-
     private Status status;
-
-    private String posterUrl; // 이미지 URL
-    private String ticketUrl;
-
-    private BigDecimal latitude;
-    private BigDecimal longitude;
 
     private List<Long> keywordIds;
 

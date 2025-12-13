@@ -181,5 +181,5 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     Page<Exhibit> findAllByRegion(@Param("region") String region, Pageable pageable);
 
 
-
+    Optional<Exhibit> findByTitleAndStartDate(String title, LocalDateTime startDate);
 }

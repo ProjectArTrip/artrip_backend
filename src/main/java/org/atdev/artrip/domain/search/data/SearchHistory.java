@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "search_history", schema = "art_dev")
+@Table(name = "search_history")
 @Getter
 @Setter
 @NoArgsConstructor
