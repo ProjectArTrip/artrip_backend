@@ -8,7 +8,7 @@ import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "favorite_exhibit", schema = "art_dev")
+@Table(name = "favorite_exhibit")
 @Getter
 @Setter
 @NoArgsConstructor

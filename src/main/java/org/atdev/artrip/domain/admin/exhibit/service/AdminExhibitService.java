@@ -98,8 +98,6 @@ public class AdminExhibitService {
                 .status(request.getStatus())
                 .ticketUrl(request.getTicketUrl())
                 .posterUrl(request.getPosterUrl())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -242,8 +240,6 @@ public class AdminExhibitService {
                 .status(exhibit.getStatus())
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
-                .latitude(exhibit.getLatitude())
-                .longitude(exhibit.getLongitude())
                 .keywords(exhibit.getKeywords().stream()
                         .map(this::convertToKeywordInfo)
                         .collect(Collectors.toList()))

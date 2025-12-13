@@ -47,8 +47,6 @@ public class ExhibitIndexService {
                 .status(exhibit.getStatus())
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
-                .latitude(exhibit.getLatitude())
-                .longitude(exhibit.getLongitude())
                 .keywords(keywordInfos);
 
         return builder.build();
@@ -113,8 +111,6 @@ public class ExhibitIndexService {
                                     .properties("status", p -> p.keyword(k -> k))
                                     .properties("posterUrl", p -> p.keyword(k -> k))
                                     .properties("ticketUrl", p -> p.keyword(k -> k))
-                                    .properties("latitude", p -> p.float_(f -> f))
-                                    .properties("longitude", p -> p.float_(f -> f))
                                     .properties("keywords", p -> p
                                             .nested(n -> n
                                                     .properties("name", np -> np

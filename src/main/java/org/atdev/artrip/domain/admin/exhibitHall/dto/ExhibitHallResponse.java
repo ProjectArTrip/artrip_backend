@@ -3,6 +3,8 @@ package org.atdev.artrip.domain.admin.exhibitHall.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @Builder
 public class ExhibitHallResponse {
@@ -18,5 +20,7 @@ public class ExhibitHallResponse {
     private Boolean isDomestic;
     private Long exhibitCount;
     private String closedDays;
+    private BigDecimal longitude;
+    private BigDecimal latitude;
 
 }

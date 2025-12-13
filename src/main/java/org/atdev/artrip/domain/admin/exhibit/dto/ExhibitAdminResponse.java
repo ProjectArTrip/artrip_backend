@@ -30,9 +30,6 @@ public class ExhibitAdminResponse {
     private String posterUrl;
     private String ticketUrl;
 
-    private BigDecimal latitude;
-    private BigDecimal longitude;
-
     private List<keywordInfo> keywords;
 
     private LocalDateTime createdAt;

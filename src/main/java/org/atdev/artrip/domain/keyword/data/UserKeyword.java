@@ -7,7 +7,7 @@ import org.atdev.artrip.domain.auth.data.User;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "user_keyword", schema = "art_dev")
+@Table(name = "user_keyword")
 @Getter
 @Setter
 @NoArgsConstructor

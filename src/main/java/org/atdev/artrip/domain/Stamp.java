@@ -7,7 +7,7 @@ import org.atdev.artrip.domain.review.data.Review;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "stamp", schema = "art_dev")
+@Table(name = "stamp")
 @Getter
 @Setter
 @NoArgsConstructor
