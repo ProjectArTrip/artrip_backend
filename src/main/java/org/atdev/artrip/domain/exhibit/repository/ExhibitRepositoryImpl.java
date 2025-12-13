@@ -112,7 +112,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         countryEq(c.getCountry()),
                         regionEq(c.getRegion()),
                         genreIn(c.getGenres()),
-                        styleIn(c.getStyles())
+                        styleIn(c.getStyles()),
+                        dateFilter(c.getStartDate(),c.getEndDate(),e)
                 )
                 .orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc())
                 .limit(c.getLimit())

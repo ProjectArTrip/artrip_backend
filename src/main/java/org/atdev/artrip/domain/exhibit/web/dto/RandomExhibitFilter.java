@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.exhibit.web.dto;
 
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -19,7 +20,8 @@ public class RandomExhibitFilter {
     private Set<String> genres;
     private Set<String> styles;
 
-    private LocalDateTime betweenDate; // start <= date <= end 조건
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-    private Integer limit; // random limit
+    private Integer limit;
 }

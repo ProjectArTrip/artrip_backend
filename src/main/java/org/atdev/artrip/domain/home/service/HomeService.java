@@ -26,6 +26,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -218,6 +219,26 @@ public class HomeService {
                 .genres(genres.isEmpty() ? null : genres)
                 .styles(styles.isEmpty() ? null : styles)
                 .limit(limit)
+                .build();
+
+        return exhibitRepository.findRandomExhibits(filter);
+    }
+
+    public List<HomeListResponse> getRandomSchedule(Boolean isDomestic, String country, String region, int limit){
+
+
+        LocalDate today = LocalDate.now();
+
+        LocalDate weekStart = today.with(DayOfWeek.MONDAY);
+        LocalDate weekEnd = today.with(DayOfWeek.SUNDAY);
+
+        RandomExhibitFilter filter = RandomExhibitFilter.builder()
+                .isDomestic(isDomestic)
+                .country(country)
+                .region(region)
+                .limit(limit)
+                .startDate(weekStart)
+                .endDate(weekEnd)
                 .build();
 
         return exhibitRepository.findRandomExhibits(filter);

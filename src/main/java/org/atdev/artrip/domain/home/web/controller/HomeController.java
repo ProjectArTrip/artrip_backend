@@ -131,20 +131,20 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-    @Operation(summary = "이번주 전시 일정 랜덤 조회")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping("/schedule")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getSchedule(
-            @RequestParam Boolean isDomestic,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
-
-        List<HomeListResponse> exhibits= homeService.getSchedule(isDomestic,date);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-    }
+//    @Operation(summary = "이번주 전시 일정 랜덤 조회")
+//    @ApiErrorResponses(
+//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+//            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+//    )
+//    @GetMapping("/schedule")
+//    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getSchedule(
+//            @RequestParam Boolean isDomestic,
+//            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+//
+//        List<HomeListResponse> exhibits= homeService.getSchedule(isDomestic,date);
+//
+//        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+//    }
 
     @Operation(summary = "이번주 전시 일정 전체 조회")
     @ApiErrorResponses(
@@ -248,6 +248,22 @@ public class HomeController {
         long userId = Long.parseLong(userDetails.getUsername());
 
         List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId,isDomestic,country,region,3);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+    }
+
+    @Operation(summary = "이번주 전시 일정 랜덤 조회")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
+    @GetMapping("/schedule")
+    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
+            @RequestParam Boolean isDomestic,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String region){
+
+        List<HomeListResponse> exhibits= homeService.getRandomSchedule(isDomestic,country,region,3);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
