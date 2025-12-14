@@ -45,6 +45,7 @@ public class User {
     @Column(name = "push_token")
     private String pushToken;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean onboardingCompleted=false;
 
