@@ -20,8 +20,7 @@ public class RandomExhibitFilter {
     private Set<String> genres;
     private Set<String> styles;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate date;
 
     private Integer limit;
 }

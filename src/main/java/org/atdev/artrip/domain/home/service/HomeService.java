@@ -224,21 +224,14 @@ public class HomeService {
         return exhibitRepository.findRandomExhibits(filter);
     }
 
-    public List<HomeListResponse> getRandomSchedule(Boolean isDomestic, String country, String region, int limit){
-
-
-        LocalDate today = LocalDate.now();
-
-        LocalDate weekStart = today.with(DayOfWeek.MONDAY);
-        LocalDate weekEnd = today.with(DayOfWeek.SUNDAY);
+    public List<HomeListResponse> getRandomSchedule(Boolean isDomestic, String country, String region, LocalDate date, int limit){
 
         RandomExhibitFilter filter = RandomExhibitFilter.builder()
                 .isDomestic(isDomestic)
                 .country(country)
                 .region(region)
                 .limit(limit)
-                .startDate(weekStart)
-                .endDate(weekEnd)
+                .date(date)
                 .build();
 
         return exhibitRepository.findRandomExhibits(filter);

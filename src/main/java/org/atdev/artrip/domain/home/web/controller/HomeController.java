@@ -261,9 +261,10 @@ public class HomeController {
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
             @RequestParam Boolean isDomestic,
             @RequestParam(required = false) String country,
-            @RequestParam(required = false) String region){
+            @RequestParam(required = false) String region,
+            @RequestParam LocalDate date){
 
-        List<HomeListResponse> exhibits= homeService.getRandomSchedule(isDomestic,country,region,3);
+        List<HomeListResponse> exhibits= homeService.getRandomSchedule(isDomestic,country,region, date, 3);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }

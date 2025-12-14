@@ -113,7 +113,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         regionEq(c.getRegion()),
                         genreIn(c.getGenres()),
                         styleIn(c.getStyles()),
-                        dateFilter(c.getStartDate(),c.getEndDate(),e)
+                        findDate(c.getDate())
                 )
                 .orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc())
                 .limit(c.getLimit())
@@ -213,6 +213,16 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         if (styles == null || styles.isEmpty()) return null;
         return QKeyword.keyword.type.eq(KeywordType.STYLE)
                 .and(QKeyword.keyword.name.in(styles));
+    }
+
+    private BooleanExpression findDate(LocalDate date){
+        if (date == null) return null;
+
+        LocalDateTime dayStart = date.atStartOfDay();
+        LocalDateTime dayEnd = date.atTime(23, 59, 59);
+
+        return QExhibit.exhibit.startDate.loe(dayEnd)//<=
+                .and(QExhibit.exhibit.endDate.goe(dayStart));//>=
     }
 
 
