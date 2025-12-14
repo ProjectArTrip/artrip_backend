@@ -211,4 +211,16 @@ public class HomeService {
         return exhibitRepository.findRandomExhibits(filter);
     }
 
+    public List<HomeListResponse> getToday(Boolean isDomestic, String country, String region,int limit){
+
+        RandomExhibitFilter filter = RandomExhibitFilter.builder()
+                .isDomestic(isDomestic)
+                .country(country)
+                .region(region)
+                .limit(limit)
+                .build();
+
+        return exhibitRepository.findRandomExhibits(filter);
+    }
+
 }

@@ -115,13 +115,6 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-
-    //    @GetMapping("/curation")
-//    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getCuratedExhibits() {
-//        List<HomeExhibitResponse> exhibits = exhibitService.getCuratedExhibits();
-//        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
-//    }
-
     @Operation(summary = "해외 국가 목록 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
@@ -179,15 +172,15 @@ public class HomeController {
     )
     @PostMapping("/filter")
     public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterDto dto,
-                                                                         @RequestParam(required = false) Long cursor,
-                                                                         @PageableDefault(size = 20) Pageable pageable){
+                                                            @RequestParam(required = false) Long cursor,
+                                                            @PageableDefault(size = 20) Pageable pageable){
 
         FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor);
 
         return ResponseEntity.ok(exhibits);
 
     }
-
+//-------------------------------------------------------------------------------------
     @Operation(summary = "사용자 맞춤 전시 랜덤 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
@@ -238,4 +231,26 @@ public class HomeController {
         List<HomeListResponse> exhibits = homeService.getRandomGenre(isDomestic,country,region,genre,3);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
+
+    @Operation(summary = "오늘의(국가별) 전시 추천", description = "전시데이터 3개 랜덤 조회, true=국내, false=국외")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+    )
+    @GetMapping("recommend/today")
+    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
+            @RequestParam Boolean isDomestic,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String region) {
+
+        List<HomeListResponse> exhibits = homeService.getToday(isDomestic,country,region,3);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+    }
+
+    //    @GetMapping("/curation")
+//    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getCuratedExhibits() {
+//        List<HomeExhibitResponse> exhibits = exhibitService.getCuratedExhibits();
+//        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
+//    }
 }

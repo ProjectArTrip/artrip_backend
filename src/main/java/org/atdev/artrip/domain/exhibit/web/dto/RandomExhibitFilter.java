@@ -17,8 +17,6 @@ public class RandomExhibitFilter {
     private String country;
     private String region;
 
-    private String genre;
-
     private Set<String> genres;
     private Set<String> styles;
 
