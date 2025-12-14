@@ -1,16 +1,15 @@
-package org.atdev.artrip.domain.exhibit.web.dto;
+package org.atdev.artrip.domain.exhibit.web.dto.request;
 
 import lombok.Builder;
 import lombok.Data;
 import org.atdev.artrip.domain.Enum.SortType;
-import org.atdev.artrip.domain.keyword.data.Keyword;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 @Builder
 @Data
-public class ExhibitFilterDto {
+public class ExhibitFilterRequestDto {
 
     private LocalDate startDate;
     private LocalDate endDate;

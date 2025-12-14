@@ -2,6 +2,7 @@ package org.atdev.artrip.domain.home.converter;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.springframework.data.domain.Slice;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class HomeConverter {
@@ -62,6 +64,22 @@ public class HomeConverter {
                 .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
                 .hallPhone(hall != null ? hall.getPhone() : null)
                 .build();
+    }
+
+
+    public RandomExhibitFilterRequestDto from(RandomExhibitFilterRequestDto request) {
+        return RandomExhibitFilterRequestDto.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(request.getCountry())
+                .region(request.getRegion())
+                .date(request.getDate())
+                .genres(isEmpty(request.getGenres()))
+                .styles(isEmpty(request.getStyles()))
+                .limit(3)
+                .build();
+    }
+    private <T> Set<T> isEmpty(Set<T> set) {
+        return (set == null || set.isEmpty()) ? null : set;
     }
 
 }

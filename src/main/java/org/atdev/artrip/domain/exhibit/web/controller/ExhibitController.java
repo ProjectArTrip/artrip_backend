@@ -3,7 +3,7 @@ package org.atdev.artrip.domain.exhibit.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
@@ -157,7 +157,7 @@ public class ExhibitController {
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
     @PostMapping("/filter")
-    public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterDto dto,
+    public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterRequestDto dto,
                                                             @RequestParam(required = false) Long cursor,
                                                             @PageableDefault(size = 20) Pageable pageable){
 

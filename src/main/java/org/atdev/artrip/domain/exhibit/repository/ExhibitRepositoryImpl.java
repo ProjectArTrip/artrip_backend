@@ -10,8 +10,8 @@ import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.Enum.SortType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
-import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
-import org.atdev.artrip.domain.exhibit.web.dto.RandomExhibitFilter;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
 import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
@@ -31,7 +31,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterDto dto, Pageable pageable, Long cursorId) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -85,7 +85,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     }
 
     @Override
-    public List<HomeListResponse> findRandomExhibits(RandomExhibitFilter c) {
+    public List<HomeListResponse> findRandomExhibits(RandomExhibitFilterRequestDto c) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -139,7 +139,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterDto dto, QExhibit e, QFavoriteExhibit f) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequestDto dto, QExhibit e, QFavoriteExhibit f) {
 
         if (dto.getSortType() == null) {
             return new OrderSpecifier[]{e.createdAt.desc()};
@@ -162,7 +162,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         }
     }
 
-    private BooleanExpression typeFilter(ExhibitFilterDto dto, QExhibitHall h) {
+    private BooleanExpression typeFilter(ExhibitFilterRequestDto dto, QExhibitHall h) {
         if (dto.getType() == null) return null;
 
         if ("DOMESTIC".equalsIgnoreCase(dto.getType())) {

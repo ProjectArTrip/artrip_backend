@@ -1,9 +1,8 @@
-package org.atdev.artrip.domain.exhibit.web.dto;
+package org.atdev.artrip.domain.home.web.dto;
 
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -11,16 +10,13 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RandomExhibitFilter {
+public class RandomExhibitRequest {
 
     private Boolean isDomestic;
     private String country;
     private String region;
-
+    private LocalDate date;
     private Set<String> genres;
     private Set<String> styles;
-
-    private LocalDate date;
-
-    private Integer limit;
+    private int limit;
 }

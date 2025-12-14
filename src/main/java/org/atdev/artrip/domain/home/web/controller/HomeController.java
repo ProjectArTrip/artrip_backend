@@ -2,26 +2,21 @@ package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.exhibit.data.Exhibit;
-import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
-import org.atdev.artrip.domain.home.response.FilterResponse;
-import org.atdev.artrip.domain.home.response.HomeExhibitResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
+import org.atdev.artrip.domain.home.web.validationgroup.ScheduleRandomGroup;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 
@@ -53,17 +48,14 @@ public class HomeController {
 
     @Operation(summary = "이번주 전시 일정 랜덤 조회")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
     )
-    @GetMapping("/schedule")
+    @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
-            @RequestParam Boolean isDomestic,
-            @RequestParam(required = false) String country,
-            @RequestParam(required = false) String region,
-            @RequestParam LocalDate date){
+            @Validated(ScheduleRandomGroup.class)
+            @RequestBody RandomExhibitFilterRequestDto request){
 
-        List<HomeListResponse> exhibits= homeService.getRandomSchedule(isDomestic,country,region, date, 3);
+        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
