@@ -55,19 +55,19 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(genres));
     }
 
-    @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_GENRE_NOT_FOUND}
-    )
-    @GetMapping("/genre/random")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @RequestParam String genre,
-            @RequestParam Boolean isDomestic){
-
-        List<HomeListResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-    }
+//    @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
+//    @ApiErrorResponses(
+//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+//            home = {HomeError._HOME_GENRE_NOT_FOUND}
+//    )
+//    @GetMapping("/genre/random")
+//    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
+//            @RequestParam String genre,
+//            @RequestParam Boolean isDomestic){
+//
+//        List<HomeListResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
+//        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+//    }
 
     @Operation(summary = "장르별 전시 조회", description = "true=국내, false=국외")
     @ApiErrorResponses(
@@ -269,4 +269,19 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
+    @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
+    @ApiErrorResponses(
+            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
+            home = {HomeError._HOME_GENRE_NOT_FOUND}
+    )
+    @GetMapping("/genre/random")
+    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
+            @RequestParam String genre,
+            @RequestParam(required = false) String country,
+            @RequestParam(required = false) String region,
+            @RequestParam Boolean isDomestic){
+
+        List<HomeListResponse> exhibits = homeService.getRandomGenre(isDomestic,country,region,genre,3);
+        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+    }
 }

@@ -237,4 +237,19 @@ public class HomeService {
         return exhibitRepository.findRandomExhibits(filter);
     }
 
+    public List<HomeListResponse> getRandomGenre(Boolean isDomestic, String country, String region, String genre, int limit){
+
+        Set<String> genreSet = genre != null ? Set.of(genre) : null;
+
+        RandomExhibitFilter filter = RandomExhibitFilter.builder()
+                .isDomestic(isDomestic)
+                .country(country)
+                .region(region)
+                .limit(limit)
+                .genres(genreSet)
+                .build();
+
+        return exhibitRepository.findRandomExhibits(filter);
+    }
+
 }
