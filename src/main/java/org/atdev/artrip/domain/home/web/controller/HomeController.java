@@ -55,20 +55,6 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(genres));
     }
 
-//    @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
-//    @ApiErrorResponses(
-//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-//            home = {HomeError._HOME_GENRE_NOT_FOUND}
-//    )
-//    @GetMapping("/genre/random")
-//    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-//            @RequestParam String genre,
-//            @RequestParam Boolean isDomestic){
-//
-//        List<HomeListResponse> exhibits = homeService.getThemeExhibits(genre,isDomestic);
-//        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-//    }
-
     @Operation(summary = "장르별 전시 조회", description = "true=국내, false=국외")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
@@ -97,23 +83,6 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
 
-//    @Operation(summary = "사용자 맞춤 전시 추천")
-//    @ApiErrorResponses(
-//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-//            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
-//    )
-//    @GetMapping("/personalized")
-//    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getPersonalized(
-//            @AuthenticationPrincipal UserDetails userDetails,
-//            @RequestParam Boolean isDomestic){//문자열 형태로 userid뽑아올수있음
-//
-//        long userId = Long.parseLong(userDetails.getUsername());
-//
-//        List<HomeListResponse> exhibits= homeService.getPersonalized(userId,isDomestic);
-//
-//        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-//    }
-
     @Operation(summary = "사용자 맞춤 전시 전체 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
@@ -130,21 +99,6 @@ public class HomeController {
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
-
-//    @Operation(summary = "이번주 전시 일정 랜덤 조회")
-//    @ApiErrorResponses(
-//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-//            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
-//    )
-//    @GetMapping("/schedule")
-//    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getSchedule(
-//            @RequestParam Boolean isDomestic,
-//            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
-//
-//        List<HomeListResponse> exhibits= homeService.getSchedule(isDomestic,date);
-//
-//        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-//    }
 
     @Operation(summary = "이번주 전시 일정 전체 조회")
     @ApiErrorResponses(
