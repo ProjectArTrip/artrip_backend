@@ -32,17 +32,6 @@ public class HomeController {
 
     private final HomeService homeService;
 
-    @Operation(summary = "오늘의 전시 추천", description = "전시데이터 3개 랜덤 조회, true=국내, false=국외")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping("recommend/today")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @RequestParam Boolean isDomestic) {
-        List<HomeListResponse> exhibits = homeService.getTodayRecommendedExhibits(isDomestic);
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-    }
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @ApiErrorResponses(

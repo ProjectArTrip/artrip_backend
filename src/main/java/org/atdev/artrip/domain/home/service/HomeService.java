@@ -44,13 +44,6 @@ public class HomeService {
     private final HomeConverter homeConverter;
 
 
-    // 오늘 추천 전시
-    public List<HomeListResponse> getTodayRecommendedExhibits(Boolean isDomestic) {
-        return exhibitRepository.findRandomExhibits1(3,isDomestic)
-                .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
-                .toList();
-    }
 
 //   //  큐레이션 전시
 //    public List<HomeExhibitResponse> getCuratedExhibits() {
