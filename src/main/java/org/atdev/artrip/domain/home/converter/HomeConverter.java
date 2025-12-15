@@ -51,6 +51,9 @@ public class HomeConverter {
         var hall = exhibit.getExhibitHall();
         String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
 
+        Double lat = hall.getLatitude() != null ? hall.getLatitude().doubleValue() : null;
+        Double lng = hall.getLongitude() != null ? hall.getLongitude().doubleValue() : null;
+
         return ExhibitDetailResponse.builder()
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
@@ -60,12 +63,12 @@ public class HomeConverter {
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
 
-                .hall_Name(hall != null ? hall.getName() : null)
-                .hall_Address(hall != null ? hall.getAddress() : null)
-                .hall_OpeningHours(hall != null ? hall.getOpeningHours() : null)
-                .hall_Phone(hall != null ? hall.getPhone() : null)
-                .hall_latitude(hall != null ? hall.getLatitude() : null)
-                .hall_longitude(hall != null ? hall.getLongitude() : null)
+                .hallName(hall != null ? hall.getName() : null)// exhibit과 exhibithall이 연결되어있지않아도 체크 가능
+                .hallAddress(hall != null ? hall.getAddress() : null)
+                .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
+                .hallPhone(hall != null ? hall.getPhone() : null)
+                .hallLatitude(lat)
+                .hallLongitude(lng)
                 .build();
     }
 
