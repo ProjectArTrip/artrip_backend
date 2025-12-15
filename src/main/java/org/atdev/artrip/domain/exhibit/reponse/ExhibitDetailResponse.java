@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import org.atdev.artrip.domain.Enum.Status;
 
+import java.math.BigDecimal;
+
 @Getter
 @Builder
 public class ExhibitDetailResponse {
@@ -17,8 +19,10 @@ public class ExhibitDetailResponse {
     private String exhibitPeriod;
     private Status status;
 
-    private String hallName;
-    private String hallAddress;
-    private String hallOpeningHours;
-    private String hallPhone;
+    private String hall_Name;
+    private String hall_Address;
+    private String hall_OpeningHours;
+    private String hall_Phone;
+    private BigDecimal hall_latitude;
+    private BigDecimal hall_longitude;
 }

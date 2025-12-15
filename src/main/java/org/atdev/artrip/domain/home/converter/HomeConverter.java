@@ -60,10 +60,12 @@ public class HomeConverter {
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
 
-                .hallName(hall != null ? hall.getName() : null)
-                .hallAddress(hall != null ? hall.getAddress() : null)
-                .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
-                .hallPhone(hall != null ? hall.getPhone() : null)
+                .hall_Name(hall != null ? hall.getName() : null)
+                .hall_Address(hall != null ? hall.getAddress() : null)
+                .hall_OpeningHours(hall != null ? hall.getOpeningHours() : null)
+                .hall_Phone(hall != null ? hall.getPhone() : null)
+                .hall_latitude(hall != null ? hall.getLatitude() : null)
+                .hall_longitude(hall != null ? hall.getLongitude() : null)
                 .build();
     }
 
