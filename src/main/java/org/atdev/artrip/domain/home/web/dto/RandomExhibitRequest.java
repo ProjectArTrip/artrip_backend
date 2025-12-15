@@ -16,6 +16,7 @@ public class RandomExhibitRequest {
     private String country;
     private String region;
     private LocalDate date;
+    private String singleGenre;
     private Set<String> genres;
     private Set<String> styles;
     private int limit;

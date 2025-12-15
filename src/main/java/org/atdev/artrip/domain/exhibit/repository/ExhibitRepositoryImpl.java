@@ -15,6 +15,7 @@ import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
 import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.data.QKeyword;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
@@ -85,7 +86,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     }
 
     @Override
-    public List<HomeListResponse> findRandomExhibits(RandomExhibitFilterRequestDto c) {
+    public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;

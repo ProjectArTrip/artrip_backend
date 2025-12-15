@@ -5,6 +5,7 @@ import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
@@ -67,19 +68,35 @@ public class HomeConverter {
     }
 
 
-    public RandomExhibitFilterRequestDto from(RandomExhibitFilterRequestDto request) {
-        return RandomExhibitFilterRequestDto.builder()
+    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request, Set<String> genres, Set<String> styles) {
+
+        return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
                 .country(request.getCountry())
                 .region(request.getRegion())
                 .date(request.getDate())
-                .genres(isEmpty(request.getGenres()))
-                .styles(isEmpty(request.getStyles()))
-                .limit(3)
+                .genres(isEmpty(genres))
+                .styles(isEmpty(styles))
+                .limit(request.getLimit() != null ? request.getLimit() : 3)
                 .build();
     }
-    private <T> Set<T> isEmpty(Set<T> set) {
-        return (set == null || set.isEmpty()) ? null : set;
+
+    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request) {
+        return from(request, request.getGenres(), request.getStyles());
     }
 
+    private <T> Set<T> isEmpty(Set<T> value) {
+        return (value == null || value.isEmpty()) ? null : value;
+    }
+
+    public RandomExhibitRequest fromGenre(RandomExhibitFilterRequestDto request) {
+
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(request.getCountry())
+                .region(request.getRegion())
+                .singleGenre(request.getSingleGenre() != null ? request.getSingleGenre() : null)
+                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .build();
+    }
 }

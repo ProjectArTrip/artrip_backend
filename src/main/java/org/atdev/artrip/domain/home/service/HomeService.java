@@ -13,6 +13,7 @@ import org.atdev.artrip.domain.home.response.FilterResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
@@ -140,7 +141,7 @@ public class HomeService {
 
 
     @Transactional
-    public List<HomeListResponse> getRandomPersonalized(Long userId, Boolean isDomestic, String country, String region, int limit){
+    public List<HomeListResponse> getRandomPersonalized(Long userId, RandomExhibitFilterRequestDto requestDto){
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
@@ -161,49 +162,39 @@ public class HomeService {
                 .map(Keyword::getName)
                 .collect(Collectors.toSet());
 
-        RandomExhibitFilterRequestDto filter = RandomExhibitFilterRequestDto.builder()
-                .isDomestic(isDomestic)
-                .country(country)
-                .region(region)
-                .genres(genres.isEmpty() ? null : genres)
-                .styles(styles.isEmpty() ? null : styles)
-                .limit(limit)
-                .build();
+        RandomExhibitRequest filter = homeConverter.from(
+                        requestDto,
+                        genres.isEmpty() ? null : genres,
+                        styles.isEmpty() ? null : styles
+                );
+
 
         return exhibitRepository.findRandomExhibits(filter);
     }
 
     public List<HomeListResponse> getRandomSchedule(RandomExhibitFilterRequestDto request){
 
-
-        RandomExhibitFilterRequestDto filter = homeConverter.from(request);
-
-        return exhibitRepository.findRandomExhibits(filter);
-    }
-
-    public List<HomeListResponse> getRandomGenre(Boolean isDomestic, String country, String region, String genre, int limit){
-
-        Set<String> genreSet = genre != null ? Set.of(genre) : null;
-
-        RandomExhibitFilterRequestDto filter = RandomExhibitFilterRequestDto.builder()
-                .isDomestic(isDomestic)
-                .country(country)
-                .region(region)
-                .limit(limit)
-                .genres(genreSet)
-                .build();
+        RandomExhibitRequest filter = homeConverter.from(request);
 
         return exhibitRepository.findRandomExhibits(filter);
     }
 
-    public List<HomeListResponse> getToday(Boolean isDomestic, String country, String region,int limit){
+    public List<HomeListResponse> getRandomGenre(RandomExhibitFilterRequestDto request){
 
-        RandomExhibitFilterRequestDto filter = RandomExhibitFilterRequestDto.builder()
-                .isDomestic(isDomestic)
-                .country(country)
-                .region(region)
-                .limit(limit)
-                .build();
+        RandomExhibitRequest filter = homeConverter.fromGenre(request);
+
+        return exhibitRepository.findRandomExhibits(filter);
+    }
+
+    public List<HomeListResponse> getToday(RandomExhibitFilterRequestDto request){
+
+        RandomExhibitRequest filter = homeConverter.from(request);
+//        RandomExhibitFilterRequestDto filter = RandomExhibitFilterRequestDto.builder()
+//                .isDomestic(isDomestic)
+//                .country(country)
+//                .region(region)
+//                .limit(limit)
+//                .build();
 
         return exhibitRepository.findRandomExhibits(filter);
     }

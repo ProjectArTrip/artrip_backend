@@ -3,10 +3,12 @@ package org.atdev.artrip.domain.home.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
+import org.atdev.artrip.domain.home.web.validationgroup.GenreRandomGroup;
 import org.atdev.artrip.domain.home.web.validationgroup.ScheduleRandomGroup;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
+import org.atdev.artrip.domain.home.web.validationgroup.TodayRandomGroup;
+import org.atdev.artrip.domain.home.web.validationgroup.UserCustomGroup;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
@@ -27,21 +29,19 @@ public class HomeController {
 
     private final HomeService homeService;
 
-//-------------------------------------------------------------------------------------
     @Operation(summary = "사용자 맞춤 전시 랜덤 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
     )
-    @GetMapping("/personalized/random")
+    @PostMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam Boolean isDomestic,
-            @RequestParam(required = false) String country,
-            @RequestParam(required = false) String region){
+            @Validated(UserCustomGroup.class)
+            @RequestBody RandomExhibitFilterRequestDto requestDto){
 
         long userId = Long.parseLong(userDetails.getUsername());
 
-        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId,isDomestic,country,region,3);
+        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId, requestDto);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -65,14 +65,12 @@ public class HomeController {
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_GENRE_NOT_FOUND}
     )
-    @GetMapping("/genre/random")
+    @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @RequestParam String genre,
-            @RequestParam(required = false) String country,
-            @RequestParam(required = false) String region,
-            @RequestParam Boolean isDomestic){
+            @Validated(GenreRandomGroup.class)
+            @RequestBody RandomExhibitFilterRequestDto request){
 
-        List<HomeListResponse> exhibits = homeService.getRandomGenre(isDomestic,country,region,genre,3);
+        List<HomeListResponse> exhibits = homeService.getRandomGenre(request);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
@@ -81,13 +79,12 @@ public class HomeController {
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
-    @GetMapping("recommend/today")
+    @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @RequestParam Boolean isDomestic,
-            @RequestParam(required = false) String country,
-            @RequestParam(required = false) String region) {
+            @Validated(TodayRandomGroup.class)
+            @RequestBody RandomExhibitFilterRequestDto request){
 
-        List<HomeListResponse> exhibits = homeService.getToday(isDomestic,country,region,3);
+        List<HomeListResponse> exhibits = homeService.getToday(request);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
