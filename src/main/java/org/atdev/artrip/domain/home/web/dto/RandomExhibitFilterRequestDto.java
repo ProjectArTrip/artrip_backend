@@ -32,10 +32,7 @@ public class RandomExhibitFilterRequestDto {
     @NotEmpty(groups = GenreRandomGroup.class) // 장르별 랜덤 조회
     private String singleGenre;
 
-    @NotEmpty(groups = UserCustomGroup.class) // 사용자 맞춤 조회
     private Set<String> genres;
-
-    @NotEmpty(groups = UserCustomGroup.class)
     private Set<String> styles;
 
     @NotNull(groups = ScheduleRandomGroup.class) // 이번주 전시 조회
