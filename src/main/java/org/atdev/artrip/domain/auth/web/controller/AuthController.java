@@ -1,19 +1,13 @@
 package org.atdev.artrip.domain.auth.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.auth.jwt.JwtToken;
-import org.atdev.artrip.domain.auth.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.domain.auth.service.AuthService;
-import org.atdev.artrip.domain.auth.web.dto.ReissueRequest;
-import org.atdev.artrip.domain.auth.web.dto.SocialLoginRequest;
-import org.atdev.artrip.domain.auth.web.dto.SocialLoginResponse;
+import org.atdev.artrip.domain.auth.web.dto.request.ReissueRequest;
+import org.atdev.artrip.domain.auth.web.dto.request.SocialLoginRequest;
+import org.atdev.artrip.domain.auth.web.dto.response.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;

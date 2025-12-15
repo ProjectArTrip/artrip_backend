@@ -2,13 +2,16 @@ package org.atdev.artrip.domain.home.converter;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class HomeConverter {
@@ -48,6 +51,9 @@ public class HomeConverter {
         var hall = exhibit.getExhibitHall();
         String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
 
+        Double lat = hall.getLatitude() != null ? hall.getLatitude().doubleValue() : null;
+        Double lng = hall.getLongitude() != null ? hall.getLongitude().doubleValue() : null;
+
         return ExhibitDetailResponse.builder()
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
@@ -57,11 +63,45 @@ public class HomeConverter {
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
 
-                .hallName(hall != null ? hall.getName() : null)
+                .hallName(hall != null ? hall.getName() : null)// exhibit과 exhibithall이 연결되어있지않아도 체크 가능
                 .hallAddress(hall != null ? hall.getAddress() : null)
                 .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
                 .hallPhone(hall != null ? hall.getPhone() : null)
+                .hallLatitude(lat)
+                .hallLongitude(lng)
                 .build();
     }
 
+
+    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request, Set<String> genres, Set<String> styles) {
+
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(request.getCountry())
+                .region(request.getRegion())
+                .date(request.getDate())
+                .genres(isEmpty(genres))
+                .styles(isEmpty(styles))
+                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .build();
+    }
+
+    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request) {
+        return from(request, request.getGenres(), request.getStyles());
+    }
+
+    private <T> Set<T> isEmpty(Set<T> value) {
+        return (value == null || value.isEmpty()) ? null : value;
+    }
+
+    public RandomExhibitRequest fromGenre(RandomExhibitFilterRequestDto request) {
+
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(request.getCountry())
+                .region(request.getRegion())
+                .singleGenre(request.getSingleGenre() != null ? request.getSingleGenre() : null)
+                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .build();
+    }
 }
