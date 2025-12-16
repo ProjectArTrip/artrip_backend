@@ -29,7 +29,22 @@ public class HomeController {
 
     private final HomeService homeService;
 
-    @Operation(summary = "사용자 맞춤 전시 랜덤 조회")
+    @Operation(summary = "사용자 맞춤 전시 랜덤 조회",
+            description = """
+    [요청 규칙]
+    - isDomestic = true (국내)
+      - region: 필수
+      - country: 사용하지 않음
+    - isDomestic = false (국외)
+      - country: 필수
+      - region: 사용하지 않음
+      
+       예시 요청:
+    {
+      "isDomestic": true,
+      "region": "전체"
+    }
+    """)
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
     )
@@ -46,9 +61,25 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-    @Operation(summary = "이번주 전시 일정 랜덤 조회")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
+    @Operation(
+            summary = "이번주 전시 일정 랜덤 조회",
+            description = """
+    [요청 규칙]
+    - isDomestic = true (국내)
+      - region: 필수
+      - country: 사용하지 않음
+    - isDomestic = false (국외)
+      - country: 필수
+      - region: 사용하지 않음
+    - date: 필수
+    
+      예시 요청:
+      {
+        "isDomestic": true,
+        "region": "전체",
+        "date": "2025-12-16"
+      }
+    """
     )
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
@@ -60,7 +91,24 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-    @Operation(summary = "장르별 랜덤 조회", description = "true=국내, false=국외")
+    @Operation(summary = "장르별 랜덤 조회",
+            description = """
+    [요청 규칙]
+    - isDomestic = true (국내)
+      - region: 필수
+      - country: 사용하지 않음
+    - isDomestic = false (국외)
+      - country: 필수
+      - region: 사용하지 않음
+    - singleGenre: 필수
+    
+      예시 요청:
+    {
+      "isDomestic": true,
+      "region": "전체",
+      "singleGenre": "현대 미술"
+    }
+    """)
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_GENRE_NOT_FOUND}
@@ -74,7 +122,22 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-    @Operation(summary = "오늘의(국가별) 전시 추천", description = "전시데이터 3개 랜덤 조회, true=국내, false=국외")
+    @Operation(summary = "오늘의(국가/지역별) 전시 랜덤 추천",
+            description = """
+    [요청 규칙]
+    - isDomestic = true (국내)
+      - region: 필수
+      - country: 사용하지 않음
+    - isDomestic = false (국외)
+      - country: 필수
+      - region: 사용하지 않음
+    
+      예시 요청:
+    {
+      "isDomestic": true,
+      "region": "전체"
+    }
+    """)
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
