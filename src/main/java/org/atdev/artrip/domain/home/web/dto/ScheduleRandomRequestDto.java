@@ -20,6 +20,4 @@ public class ScheduleRandomRequestDto {
 
     @NotNull
     private LocalDate date;
-
-    private Integer limit;
 }

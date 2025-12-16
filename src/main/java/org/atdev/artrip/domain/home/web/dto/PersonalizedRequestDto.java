@@ -15,6 +15,4 @@ public class PersonalizedRequestDto {
 
     private String region;
     private String country;
-
-    private Integer limit;
 }

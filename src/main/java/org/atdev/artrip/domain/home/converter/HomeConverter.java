@@ -80,7 +80,7 @@ public class HomeConverter {
                 .region(normalize(request.getRegion()))
                 .genres(isEmpty(genres))
                 .styles(isEmpty(styles))
-                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .limit(3)
                 .build();
     }
 
@@ -97,7 +97,7 @@ public class HomeConverter {
                 .country(normalize(request.getCountry()))
                 .region(normalize(request.getRegion()))
                 .date(request.getDate())
-                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .limit(3)
                 .build();
     }
 
@@ -106,7 +106,7 @@ public class HomeConverter {
                 .isDomestic(request.getIsDomestic())
                 .country(request.getCountry())
                 .region(request.getRegion())
-                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .limit(3)
                 .build();
     }
 
@@ -120,7 +120,7 @@ public class HomeConverter {
                 .country(request.getCountry())
                 .region(request.getRegion())
                 .singleGenre(request.getSingleGenre())
-                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .limit(3)
                 .build();
     }
 

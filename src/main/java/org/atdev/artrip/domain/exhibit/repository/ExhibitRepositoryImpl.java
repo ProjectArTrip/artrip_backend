@@ -163,7 +163,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     }
 
     private BooleanExpression typeFilter(ExhibitFilterRequestDto dto, QExhibitHall h) {
-
         if (dto.getType() == null) return null;
 
         if ("DOMESTIC".equalsIgnoreCase(dto.getType())) {

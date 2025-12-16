@@ -18,6 +18,4 @@ public class GenreRandomRequestDto {
 
     @NotNull
     private String singleGenre;
-
-    private Integer limit;
 }
