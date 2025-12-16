@@ -1,13 +1,12 @@
-package org.atdev.artrip.external.publicdata.exhibit.client;
+package org.atdev.artrip.external.culturalapi.cultureinfo.client;
 
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.external.publicdata.exhibit.dto.request.BasePublicDataRequest;
-import org.atdev.artrip.external.publicdata.exhibit.dto.response.BasePublicDataItem;
-import org.atdev.artrip.external.publicdata.exhibit.dto.response.BasePublicDataResponse;
-import org.atdev.artrip.external.publicdata.exhibit.dto.response.PublicDataResponse;
-import org.atdev.artrip.external.publicdata.properties.PublicDataProperties;
+import org.atdev.artrip.external.culturalapi.cultureinfo.dto.request.BasePublicDataRequest;
+import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.BasePublicDataItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.PublicDataResponse;
+import org.atdev.artrip.external.culturalapi.properties.PublicDataProperties;
 import org.atdev.artrip.global.apipayload.exception.ExternalApiException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatusCode;
@@ -80,14 +79,19 @@ public abstract class BasePublicDataClient <
         UriComponentsBuilder builder = UriComponentsBuilder
                 .fromHttpUrl(properties.getBaseUrl())
                 .path(getApiPath())
-                .queryParam("serviceKey", properties.getServiceKey())
-                .queryParam("pageNo", request.getPageNo())
-                .queryParam("numOfRows", request.getNumOfRows())
+//                .queryParam("serviceKey", properties.getServiceKey())
+                .queryParam("PageNo", request.getPageNo())
+                .queryParam("numOfrows", request.getNumOfRows())
                 .queryParam("sortStdr",  request.getSortStdr());
 
         addRequestParams(builder, request);
 
-        return builder.build(true).toUri();
+        String queryString = builder.build().getQuery();
+
+        String finalUrl = properties.getBaseUrl() + getApiPath() +
+                "?serviceKey=" +properties.getServiceKey() + "&" + queryString;
+
+        return URI.create(finalUrl);
     }
 
     protected void logResponse(S response) {

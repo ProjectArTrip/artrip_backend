@@ -7,8 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
+    List<Keyword> findByNameIn(Set<String> matchedKeyword);
 }
