@@ -46,7 +46,19 @@ public class HomeController {
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
-    @Operation(summary = "이번주 전시 일정 랜덤 조회")
+    @Operation(
+            summary = "이번주 전시 일정 랜덤 조회",
+            description = """
+    [요청 규칙]
+    - isDomestic = true (국내)
+      - region: 필수
+      - country: 사용하지 않음
+    - isDomestic = false (국외)
+      - country: 필수
+      - region: 사용하지 않음
+    - date: 필수
+    """
+    )
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
     )

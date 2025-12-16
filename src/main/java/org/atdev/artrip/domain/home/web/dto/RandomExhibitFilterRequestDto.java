@@ -1,5 +1,7 @@
 package org.atdev.artrip.domain.home.web.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -39,4 +41,23 @@ public class RandomExhibitFilterRequestDto {
     private LocalDate date;
 
     private Integer limit;
+
+    @Schema(hidden = true)
+    @AssertTrue(message = "국내 전시는 region 필수, 국외 전시는 country 필수입니다.",
+    groups = {TodayRandomGroup.class,
+            ScheduleRandomGroup.class,
+            GenreRandomGroup.class,
+            UserCustomGroup.class})
+    public boolean isDomesticRegionCountryValid() {
+        if (isDomestic == null) return true;
+
+        if (isDomestic) {
+            return region != null && !region.isBlank()
+                    && (country == null || country.isBlank());
+        } else {
+            return country != null && !country.isBlank()
+                    && (region == null || region.isBlank());
+        }
+    }
+
 }
