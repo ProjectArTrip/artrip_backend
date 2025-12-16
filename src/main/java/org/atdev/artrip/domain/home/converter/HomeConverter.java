@@ -2,10 +2,9 @@ package org.atdev.artrip.domain.home.converter;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
+import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
@@ -73,40 +72,56 @@ public class HomeConverter {
     }
 
 
-    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request, Set<String> genres, Set<String> styles) {
+    public RandomExhibitRequest from(PersonalizedRequestDto request, Set<String> genres, Set<String> styles) {
 
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
                 .country(normalize(request.getCountry()))
                 .region(normalize(request.getRegion()))
-                .date(request.getDate())
                 .genres(isEmpty(genres))
                 .styles(isEmpty(styles))
                 .limit(request.getLimit() != null ? request.getLimit() : 3)
                 .build();
     }
+
     private String normalize(String value) {
         if (value == null) return null;
         if ("전체".equals(value)) return null;
         return value;
     }
 
-    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request) {
-        return from(request, request.getGenres(), request.getStyles());
+    public RandomExhibitRequest from(ScheduleRandomRequestDto request) {
+
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(normalize(request.getCountry()))
+                .region(normalize(request.getRegion()))
+                .date(request.getDate())
+                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .build();
+    }
+
+    public RandomExhibitRequest fromToday(TodayRandomRequestDto request) {
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(request.getCountry())
+                .region(request.getRegion())
+                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .build();
     }
 
     private <T> Set<T> isEmpty(Set<T> value) {
         return (value == null || value.isEmpty()) ? null : value;
     }
 
-    public RandomExhibitRequest fromGenre(RandomExhibitFilterRequestDto request) {
-
+    public RandomExhibitRequest fromGenre(GenreRandomRequestDto request) {
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
                 .country(request.getCountry())
                 .region(request.getRegion())
-                .singleGenre(request.getSingleGenre() != null ? request.getSingleGenre() : null)
+                .singleGenre(request.getSingleGenre())
                 .limit(request.getLimit() != null ? request.getLimit() : 3)
                 .build();
     }
+
 }

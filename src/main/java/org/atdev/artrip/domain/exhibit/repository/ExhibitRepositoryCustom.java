@@ -2,7 +2,6 @@ package org.atdev.artrip.domain.exhibit.repository;
 
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.springframework.data.domain.Pageable;
