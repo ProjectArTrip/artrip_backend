@@ -77,13 +77,18 @@ public class HomeConverter {
 
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
-                .country(request.getCountry())
-                .region(request.getRegion())
+                .country(normalize(request.getCountry()))
+                .region(normalize(request.getRegion()))
                 .date(request.getDate())
                 .genres(isEmpty(genres))
                 .styles(isEmpty(styles))
                 .limit(request.getLimit() != null ? request.getLimit() : 3)
                 .build();
+    }
+    private String normalize(String value) {
+        if (value == null) return null;
+        if ("전체".equals(value)) return null;
+        return value;
     }
 
     public RandomExhibitRequest from(RandomExhibitFilterRequestDto request) {
