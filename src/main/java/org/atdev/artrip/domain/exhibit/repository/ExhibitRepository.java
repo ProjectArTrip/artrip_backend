@@ -23,17 +23,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     @Query(value = """
     SELECT e.*
     FROM exhibit e
-    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-    WHERE (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
-    ORDER BY RAND()
-    LIMIT :limit
-    """, nativeQuery = true)
-    List<Exhibit> findRandomExhibits(@Param("limit") int limit, @Param("isDomestic") Boolean isDomestic);
-
-
-    @Query(value = """
-    SELECT e.*
-    FROM exhibit e
     JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
     JOIN keyword k ON ek.keyword_id = k.keyword_id
     JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
@@ -81,26 +70,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
       AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
       AND ((k.type = 'GENRE' AND k.name IN (:genres))
            OR (k.type = 'STYLE' AND k.name IN (:styles)))
-    ORDER BY RAND()
-    LIMIT :limit
-    """, nativeQuery = true)
-    List<Exhibit> findRandomByKeywords(
-            @Param("genres") Set<String> genres,
-            @Param("styles") Set<String> styles,
-            @Param("limit") int limit,
-            @Param("isDomestic") Boolean isDomestic
-    );
-
-    @Query(value = """
-    SELECT e.* 
-    FROM exhibit e
-    JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
-    JOIN keyword k ON ek.keyword_id = k.keyword_id
-    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-    WHERE e.end_date >= NOW()
-      AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
-      AND ((k.type = 'GENRE' AND k.name IN (:genres))
-           OR (k.type = 'STYLE' AND k.name IN (:styles)))
     """, nativeQuery = true)
     List<Exhibit> findAllByKeywords(
             @Param("genres") Set<String> genres,
@@ -128,18 +97,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     int updateFinishedStatus();
 
 
-    @Query(value = """
-        SELECT e.* 
-        FROM exhibit e
-        JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-        WHERE :date BETWEEN e.start_date AND e.end_date
-        AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
-        ORDER BY RAND()
-        LIMIT :limit
-        """, nativeQuery = true)
-    List<Exhibit> findRandomExhibitsByDate(@Param("isDomestic") Boolean isDomestic,
-                                           @Param("date") LocalDate date,
-                                           @Param("limit") int limit);
 
     @Query(value = """
         SELECT e.* 
@@ -181,5 +138,5 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     Page<Exhibit> findAllByRegion(@Param("region") String region, Pageable pageable);
 
 
-
+    Optional<Exhibit> findByTitleAndStartDate(String title, LocalDateTime startDate);
 }

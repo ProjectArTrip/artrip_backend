@@ -4,12 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.atdev.artrip.domain.Enum.Role;
-import org.atdev.artrip.domain.SocialAccounts;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +45,7 @@ public class User {
     @Column(name = "push_token")
     private String pushToken;
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean onboardingCompleted=false;
 

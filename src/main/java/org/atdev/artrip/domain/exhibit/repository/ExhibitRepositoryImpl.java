@@ -1,21 +1,28 @@
 package org.atdev.artrip.domain.exhibit.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.Enum.SortType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
-import org.atdev.artrip.domain.exhibit.web.dto.ExhibitFilterDto;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
 import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
+import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.data.QKeyword;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -24,7 +31,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterDto dto, Pageable pageable, Long cursorId) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -58,12 +65,12 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .leftJoin(f).on(f.exhibit.eq(e))
                 .where(
                         typeFilter(dto, h),
-                        dateFilter(dto, e),
-                        countryFilter(dto, h),
-                        regionFilter(dto, h),
-                        genreFilter(dto, k),
-                        styleFilter(dto, k),
-                        cursorCondition(cursor, cursorFavoriteCount, dto.getSortType(), e, f)
+                        dateFilter(dto.getStartDate(), dto.getEndDate(),e),
+                        cursorCondition(cursor, cursorFavoriteCount, dto.getSortType(), e, f),
+                        countryEq(dto.getCountry()),
+                        regionEq(dto.getRegion()),
+                        genreIn(dto.getGenres()),
+                        styleIn(dto.getStyles())
                 )
                 .orderBy(sortFilter(dto, e, f))
                 .limit(pageable.getPageSize() + 1)
@@ -75,6 +82,42 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         if (hasNext) content.remove(pageable.getPageSize());
 
         return new SliceImpl<>(content, pageable, hasNext);
+    }
+
+    @Override
+    public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
+
+        QExhibit e = QExhibit.exhibit;
+        QExhibitHall h = QExhibitHall.exhibitHall;
+        QKeyword k = QKeyword.keyword;
+
+        return queryFactory
+                .selectDistinct(Projections.constructor(
+                        HomeListResponse.class,
+                        e.exhibitId,
+                        e.title,
+                        e.posterUrl,
+                        e.status,
+                        Expressions.stringTemplate(
+                                "concat({0}, ' ~ ', {1})",
+                                e.startDate.stringValue(),
+                                e.endDate.stringValue()
+                        )
+                ))
+                .from(e)
+                .join(e.exhibitHall, h)
+                .leftJoin(e.keywords, k)
+                .where(
+                        isDomesticEq(c.getIsDomestic()),
+                        countryEq(c.getCountry()),
+                        regionEq(c.getRegion()),
+                        genreIn(c.getGenres()),
+                        styleIn(c.getStyles()),
+                        findDate(c.getDate())
+                )
+                .orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc())
+                .limit(c.getLimit())
+                .fetch();
     }
 
     private BooleanExpression cursorCondition(Exhibit cursor,  long cursorFavoriteCount, SortType sortType, QExhibit e, QFavoriteExhibit f) {
@@ -96,7 +139,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterDto dto, QExhibit e, QFavoriteExhibit f) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequestDto dto, QExhibit e, QFavoriteExhibit f) {
 
         if (dto.getSortType() == null) {
             return new OrderSpecifier[]{e.createdAt.desc()};
@@ -119,7 +162,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         }
     }
 
-    private BooleanExpression typeFilter(ExhibitFilterDto dto, QExhibitHall h) {
+    private BooleanExpression typeFilter(ExhibitFilterRequestDto dto, QExhibitHall h) {
         if (dto.getType() == null) return null;
 
         if ("DOMESTIC".equalsIgnoreCase(dto.getType())) {
@@ -130,39 +173,57 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         return null;
     }
 
-    private BooleanExpression dateFilter(ExhibitFilterDto dto, QExhibit e) {
+    private BooleanExpression dateFilter(LocalDate startDate, LocalDate endDate, QExhibit e) {
+
         BooleanExpression condition = null;
 
-        if (dto.getEndDate() != null) {
-            condition = e.startDate.loe(dto.getEndDate().atTime(23, 59, 59));
+        if (startDate == null && endDate == null) return null;
+
+        if (endDate != null) {
+            condition = e.startDate.loe(endDate.atTime(23, 59, 59));
         }
 
-        if (dto.getStartDate() != null) {
-            BooleanExpression endCond = e.endDate.goe(dto.getStartDate().atStartOfDay());
-            condition = (condition == null) ? endCond : condition.and(endCond);
+        if (startDate != null) {
+            BooleanExpression startCond = e.endDate.goe(startDate.atStartOfDay());
+            condition = (condition == null) ? startCond : condition.and(startCond);
         }
 
         return condition;
     }
 
-    private BooleanExpression countryFilter(ExhibitFilterDto dto, QExhibitHall h) {
-        return dto.getCountry() != null ? h.country.eq(dto.getCountry()) : null;
+    private BooleanExpression isDomesticEq(Boolean isDomestic) {
+        return isDomestic == null ? null : QExhibitHall.exhibitHall.isDomestic.eq(isDomestic);
     }
 
-    private BooleanExpression regionFilter(ExhibitFilterDto dto, QExhibitHall h) {
-        return dto.getRegion() != null ? h.region.eq(dto.getRegion()) : null;
+    private BooleanExpression countryEq(String country) {
+        return country == null ? null : QExhibitHall.exhibitHall.country.eq(country);
     }
 
-    private BooleanExpression genreFilter(ExhibitFilterDto dto, QKeyword k) {
-        if (dto.getGenres() == null || dto.getGenres().isEmpty()) return null;
-        return k.type.eq(KeywordType.GENRE)
-                .and(k.name.in(dto.getGenres()));
+    private BooleanExpression regionEq(String region) {
+        return region == null ? null : QExhibitHall.exhibitHall.region.eq(region);
     }
 
-    private BooleanExpression styleFilter(ExhibitFilterDto dto, QKeyword k) {
-        if (dto.getStyles() == null || dto.getStyles().isEmpty()) return null;
-        return k.type.eq(KeywordType.STYLE)
-                .and(k.name.in(dto.getStyles()));
+    private BooleanExpression genreIn(Set<String> genres) {
+        if (genres == null || genres.isEmpty()) return null;
+        return QKeyword.keyword.type.eq(KeywordType.GENRE)
+                .and(QKeyword.keyword.name.in(genres));
     }
+
+    private BooleanExpression styleIn(Set<String> styles) {
+        if (styles == null || styles.isEmpty()) return null;
+        return QKeyword.keyword.type.eq(KeywordType.STYLE)
+                .and(QKeyword.keyword.name.in(styles));
+    }
+
+    private BooleanExpression findDate(LocalDate date){
+        if (date == null) return null;
+
+        LocalDateTime dayStart = date.atStartOfDay();
+        LocalDateTime dayEnd = date.atTime(23, 59, 59);
+
+        return QExhibit.exhibit.startDate.loe(dayEnd)//<=
+                .and(QExhibit.exhibit.endDate.goe(dayStart));//>=
+    }
+
 
 }

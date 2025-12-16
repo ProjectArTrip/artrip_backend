@@ -7,7 +7,7 @@ import org.atdev.artrip.domain.Enum.KeywordType;
 import java.util.List;
 
 @Entity
-@Table(name = "keyword", schema = "art_dev")
+@Table(name = "keyword")
 @Getter
 @Setter
 @NoArgsConstructor

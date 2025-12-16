@@ -71,6 +71,8 @@ public class AdminExhibitHallService {
                 .openingHours(request.getOpeningHours())
                 .closedDays(request.getClosedDays())
                 .isDomestic(request.getIsDomestic())
+                .longitude(request.getLongitude())
+                .latitude(request.getLatitude())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
@@ -153,6 +155,8 @@ public class AdminExhibitHallService {
                 .isDomestic(hall.getIsDomestic())
                 .exhibitCount(exhibitCount)
                 .closedDays(hall.getClosedDays())
+                .latitude(hall.getLatitude())
+                .longitude(hall.getLongitude())
                 .build();
     }
 }

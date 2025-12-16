@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.auth.web.dto;
+package org.atdev.artrip.domain.auth.web.dto.request;
 
 import lombok.Data;
 

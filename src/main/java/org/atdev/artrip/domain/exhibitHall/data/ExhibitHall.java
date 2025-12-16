@@ -2,11 +2,13 @@ package org.atdev.artrip.domain.exhibitHall.data;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "exhibit_hall", schema = "art_dev")
+@Table(name = "exhibit_hall")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,6 +48,12 @@ public class ExhibitHall {
     @Column(name = "is_domestic")
     private Boolean isDomestic;  // Byte → Boolean으로 변경, JPA에서 매핑 가능
     // true = 국내, false = 해외
+
+    @Column(name = "latitude")
+    private BigDecimal latitude;
+
+    @Column(name = "longitude")
+    private BigDecimal longitude;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
