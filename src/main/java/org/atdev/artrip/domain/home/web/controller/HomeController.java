@@ -73,7 +73,7 @@ public class HomeController {
       - region: 사용하지 않음
     - date: 필수
     
-    ex)
+      예시 요청:
       {
         "isDomestic": true,
         "region": "전체",
