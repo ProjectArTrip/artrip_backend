@@ -102,7 +102,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                                 "concat({0}, ' ~ ', {1})",
                                 e.startDate.stringValue(),
                                 e.endDate.stringValue()
-                        )
+                        ),
+                        h.name
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)
