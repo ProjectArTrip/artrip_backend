@@ -47,6 +47,8 @@ public class ExhibitIndexService {
                 .status(exhibit.getStatus())
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
+                .latitude(exhibit.getExhibitHall().getLatitude())
+                .longitude(exhibit.getExhibitHall().getLongitude())
                 .keywords(keywordInfos);
 
         return builder.build();

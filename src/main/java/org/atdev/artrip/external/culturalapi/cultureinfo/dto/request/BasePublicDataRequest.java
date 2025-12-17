@@ -1,4 +1,4 @@
-package org.atdev.artrip.external.publicdata.exhibit.dto.request;
+package org.atdev.artrip.external.culturalapi.cultureinfo.dto.request;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -15,7 +15,7 @@ public class BasePublicDataRequest {
     protected int pageNo = 1;
 
     @Builder.Default
-    protected int numOfRows = 100;
+    protected int numOfRows = 50;
 
     @Builder.Default
     protected String sortStdr = "1";

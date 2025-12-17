@@ -1,4 +1,4 @@
-package org.atdev.artrip.external.publicdata.exhibit.dto.response;
+package org.atdev.artrip.external.culturalapi.cultureinfo.dto.response;
 
 public interface BasePublicDataItem {
 

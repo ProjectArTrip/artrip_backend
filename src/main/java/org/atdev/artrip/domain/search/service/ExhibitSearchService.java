@@ -127,6 +127,8 @@ public class ExhibitSearchService {
                 .posterUrl(doc.getPosterUrl())
                 .ticketUrl(doc.getTicketUrl())
                 .keywords(doc.getKeywords())
+                .latitude(doc.getLatitude())
+                .longitude(doc.getLongitude())
                 .build();
     }
 

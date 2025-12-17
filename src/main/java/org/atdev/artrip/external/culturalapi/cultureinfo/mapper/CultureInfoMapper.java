@@ -1,11 +1,12 @@
-package org.atdev.artrip.external.publicdata.exhibit.mapper;
+package org.atdev.artrip.external.culturalapi.cultureinfo.mapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.Enum.Status;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
-import org.atdev.artrip.external.publicdata.exhibit.dto.response.ExhibitItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoDetailItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoItem;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -17,17 +18,25 @@ import java.time.format.DateTimeParseException;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class ExhibitMapper {
+public class CultureInfoMapper {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final DateTimeFormatter DATE_FORMATTER_DASH = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public Exhibit toExhibit(ExhibitItem item) {
+    public Exhibit toExhibit(CultureInfoItem item) {
+        if  (item == null) return null;
+
         try {
-            LocalDateTime startDate = parseEventPeriod(item.getEventPeriod(), true);
-            LocalDateTime endDate = parseEventPeriod(item.getEventPeriod(), false);
+            LocalDateTime startDate = parseDate(item.getStartDate());
+            LocalDateTime endDate = parseDate(item.getEndDate());
+
+            if (endDate != null && endDate.isBefore(LocalDateTime.now())) {
+                return null;
+            }
+
             Status status = calculateStatus(startDate, endDate);
+            if (status == Status.FINISHED) {
+                return null;
+            }
 
             return Exhibit.builder()
                     .title(truncate(item.getTitle(), 255))
@@ -36,7 +45,7 @@ public class ExhibitMapper {
                     .endDate(endDate)
                     .status(status)
                     .posterUrl(item.getThumbnail())
-                    .ticketUrl(item.getUrl())
+                    .ticketUrl(null)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .build();
@@ -46,7 +55,23 @@ public class ExhibitMapper {
         }
     }
 
-    public ExhibitHall toExhibitHall(ExhibitItem item) {
+    public void mergeDetailToExhibit(Exhibit exhibit, CultureInfoDetailItem detail) {
+        if (exhibit == null || detail == null ) return;
+
+        if (StringUtils.hasText(detail.getUrl())) {
+            exhibit.setTicketUrl(truncate(detail.getUrl(), 500));
+        }
+
+        if (StringUtils.hasText(detail.getContents1())) {
+            String existingDesc = exhibit.getDescription();
+            String enhancedDesc = existingDesc +"\n\n" + detail.getContents1();
+            exhibit.setDescription(truncate(enhancedDesc, 2000));
+        }
+
+        exhibit.setUpdatedAt(LocalDateTime.now());
+    }
+
+    public ExhibitHall toExhibitHall(CultureInfoItem item) {
         if (item == null || !StringUtils.hasText(item.getPlace())) {
             return null;
         }
@@ -55,8 +80,9 @@ public class ExhibitMapper {
                 .name(truncate(item.getPlace(), 255))
                 .country("대한민국")
                 .region(parseRegion(item.getArea()))
-                .address(item.getPlaceAddr())
-                .phone(item.getPhone())
+                .address(item.getFullAddress())
+                .phone(null)
+                .homepageUrl(null)
                 .isDomestic(true)
                 .latitude(parseCoordinate(item.getGpsX()))
                 .longitude(parseCoordinate(item.getGpsY()))
@@ -65,44 +91,43 @@ public class ExhibitMapper {
                 .build();
     }
 
-    private LocalDateTime parseEventPeriod(String eventPeriod, boolean isStart) {
-        if (!StringUtils.hasText(eventPeriod)) {
-            return null;
+    public void mergeDetailToHall(ExhibitHall hall, CultureInfoDetailItem detail) {
+        if (hall == null || detail == null) return;
+
+        boolean updated = false;
+
+        if (StringUtils.hasText(detail.getPhone()) && !StringUtils.hasText(hall.getPhone())) {
+            String cleanPhone = detail.getPhone().replaceAll("[^0-9-]", "");
+
+            if (StringUtils.hasText(cleanPhone)) {
+                hall.setPhone(truncate(cleanPhone, 20));
+                updated = true;
+            }
         }
 
-        try {
-            // "2020-12-17 ~ 2021-04-11" 형식
-            if (eventPeriod.contains("~")) {
-                String[] dates = eventPeriod.split("~");
-                if (dates.length != 2) {
-                    return null;
-                }
-                String dateStr = isStart ? dates[0].trim() : dates[1].trim();
-                return LocalDate.parse(dateStr, DATE_FORMATTER_DASH).atStartOfDay();
-            }
+        if (StringUtils.hasText(detail.getPlaceUrl()) && !StringUtils.hasText(hall.getHomepageUrl())) {
+            hall.setHomepageUrl(truncate(detail.getPlaceUrl(), 500));
+            updated = true;
+        }
 
-            return parseDate(eventPeriod);
-        } catch (Exception e) {
-            log.warn("eventPeriod 파싱 실패: {}", eventPeriod);
-            return null;
+        if (StringUtils.hasText(detail.getPlaceAddr()) && (!StringUtils.hasText(hall.getAddress()) || hall.getAddress().length() < detail.getPlaceAddr().length())) {
+            hall.setAddress(truncate(detail.getPlaceAddr(), 500));
+        }
+
+        if (updated) {
+            hall.setUpdatedAt(LocalDateTime.now());
         }
     }
 
-    private LocalDateTime parseDate(String date) {
-        if (!StringUtils.hasText(date)) {
+    private LocalDateTime parseDate(String dateStr) {
+        if (!StringUtils.hasText(dateStr)) {
             return null;
         }
 
         try {
-            if (date.length() == 8) {
-                return LocalDate.parse(date, DATE_FORMATTER).atStartOfDay();
-            }
-            if (date.contains("-")) {
-                return LocalDate.parse(date, DATE_FORMATTER_DASH).atStartOfDay();
-            }
-            return null;
+            return LocalDate.parse(dateStr, DATE_FORMATTER).atStartOfDay();
         } catch (DateTimeParseException e) {
-            log.warn("날짜 파싱 실패: {}", date);
+            log.warn("날짜 파싱 실패 : {}", dateStr);
             return null;
         }
     }
@@ -139,32 +164,21 @@ public class ExhibitMapper {
         }
     }
 
-    private String buildDescription(ExhibitItem item) {
+    private String buildDescription(CultureInfoItem item) {
         StringBuilder sb = new StringBuilder();
 
-        // 작가 정보
-        if (StringUtils.hasText(item.getPerson())) {
-            sb.append("작가: ").append(item.getPerson());
+        if (StringUtils.hasText(item.getRealmName())) {
+            sb.append("분류: ").append(item.getRealmName());
         }
 
-        // 전시 장소
-        if (StringUtils.hasText(item.getVenue())) {
-            if (sb.length() > 0) sb.append("\n");
-            sb.append("장소: ").append(item.getVenue());
+        if (StringUtils.hasText(item.getArea())) {
+            if (sb.length() > 0) {
+                sb.append("지역 :").append(item.getArea());
+            }
+            if (StringUtils.hasText(item.getPlace())) {
+                sb.append("장소:").append(item.getPlace());
+            }
         }
-
-        // 설명
-        if (StringUtils.hasText(item.getSubDescription())) {
-            if (sb.length() > 0) sb.append("\n\n");
-            sb.append(item.getSubDescription());
-        }
-
-        // 요금
-        if (StringUtils.hasText(item.getCharge())) {
-            if (sb.length() > 0) sb.append("\n\n");
-            sb.append("관람료: ").append(item.getCharge());
-        }
-
         return truncate(sb.toString(), 2000);
     }
 

@@ -1,4 +1,4 @@
-package org.atdev.artrip.external.publicdata.properties;
+package org.atdev.artrip.external.culturalapi.properties;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@ConfigurationProperties(prefix = "external.publicdata")
+@ConfigurationProperties(prefix = "external.culturalapi")
 public class PublicDataProperties {
 
     private String baseUrl;
