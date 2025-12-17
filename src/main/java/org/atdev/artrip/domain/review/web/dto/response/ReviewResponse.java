@@ -19,6 +19,5 @@ public class ReviewResponse {
     private String content;
     private List<ReviewImageResponse> images;
     private LocalDateTime createdAt;
-    private String nickName;
 
 }
