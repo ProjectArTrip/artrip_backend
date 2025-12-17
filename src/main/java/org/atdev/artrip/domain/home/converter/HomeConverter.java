@@ -15,7 +15,7 @@ import java.util.Set;
 @Component
 public class HomeConverter {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     public FilterResponse toFilterResponse(Slice<Exhibit> slice) {
 
