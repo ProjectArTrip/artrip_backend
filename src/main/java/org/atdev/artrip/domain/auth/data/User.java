@@ -42,8 +42,8 @@ public class User {
     @Column(name = "stamp_num")
     private Byte stampNum;
 
-    @Column(name = "push_token")
-    private String pushToken;
+    @Column(name = "nick_name")
+    private String nickName;
 
     @Builder.Default
     @Column(nullable = false)

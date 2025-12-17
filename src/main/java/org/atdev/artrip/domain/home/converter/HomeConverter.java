@@ -15,7 +15,7 @@ import java.util.Set;
 @Component
 public class HomeConverter {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     public FilterResponse toFilterResponse(Slice<Exhibit> slice) {
 
@@ -34,7 +34,7 @@ public class HomeConverter {
 
     public HomeListResponse toHomeExhibitListResponse(Exhibit exhibit){
 
-        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
+        String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
 
         return HomeListResponse.builder()
                 .exhibit_id(exhibit.getExhibitId())
@@ -48,7 +48,7 @@ public class HomeConverter {
     public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit) {
 
         var hall = exhibit.getExhibitHall();
-        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
+        String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
 
         Double lat = hall.getLatitude() != null ? hall.getLatitude().doubleValue() : null;
         Double lng = hall.getLongitude() != null ? hall.getLongitude().doubleValue() : null;
