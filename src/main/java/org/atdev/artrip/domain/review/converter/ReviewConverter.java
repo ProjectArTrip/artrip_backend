@@ -67,6 +67,7 @@ public class ReviewConverter {
 
     public ReviewResponse toReviewResponse(Review review) {
 
+        User user = review.getUser();
         List<ReviewImageResponse> imageList = review.getImages() != null ?
                 review.getImages().stream()
                         .map(img->new ReviewImageResponse(img.getImageId(),img.getImageUrl()))
@@ -79,6 +80,7 @@ public class ReviewConverter {
                 .visitDate(review.getVisitDate())
                 .images(imageList)
                 .createdAt(review.getCreatedAt())
+                .nickName(user.getNickName())
                 .build();
     }
 
@@ -108,11 +110,14 @@ public class ReviewConverter {
 
     public static ReviewExhibitResponse toExhibitReviewSummary(Review review){
 
+        User user = review.getUser();
+
         return ReviewExhibitResponse.builder()
                 .reviewId(review.getReviewId())
                 .content(createSummary(review,20))
                 .thumbnailUrl(createThumbnail(review))
                 .visitDate(review.getVisitDate())
+                .Nickname(user.getNickName())
                 .build();
     }
 
