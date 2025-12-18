@@ -91,8 +91,8 @@ public class HomeConverter {
                 .isDomestic(request.getIsDomestic())
                 .country(normalize(request.getCountry()))
                 .region(normalize(request.getRegion()))
-                .genres(isEmpty(genres))
-                .styles(isEmpty(styles))
+                .genres(toNullable(genres))
+                .styles(toNullable(styles))
                 .limit(3)
                 .build();
     }
@@ -126,7 +126,7 @@ public class HomeConverter {
                 .build();
     }
 
-    private <T> Set<T> isEmpty(Set<T> value) {
+    private <T> Set<T> toNullable(Set<T> value) {
         return (value == null || value.isEmpty()) ? null : value;
     }
 
