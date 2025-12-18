@@ -10,29 +10,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class GenreRandomRequestDto {
-
-    @NotNull
-    private Boolean isDomestic;
-
-    private String region;
-    private String country;
+public class GenreRandomRequestDto extends BaseRandomRequestDto{
 
     @NotNull
     private String singleGenre;
-
-    @Schema(hidden = true)
-    @AssertTrue(message = "국내 전시는 region 필수(전체 가능), 국외 전시는 country 필수(전체 가능)이며 둘을 동시에 보낼 수 없습니다.")
-    public boolean isDomesticRegionCountryValid() {
-        if (isDomestic == null) return true;
-
-        boolean hasRegion = region != null && !region.isBlank();
-        boolean hasCountry = country != null && !country.isBlank();
-
-        if (isDomestic) {
-            return hasRegion && !hasCountry;
-        } else {
-            return hasCountry && !hasRegion;
-        }
-    }
 }
