@@ -1,6 +1,7 @@
 package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
@@ -46,7 +47,7 @@ public class HomeController {
     @PostMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody PersonalizedRequestDto requestDto){
+            @Valid @RequestBody PersonalizedRequestDto requestDto){
 
         long userId = Long.parseLong(userDetails.getUsername());
 
@@ -77,7 +78,7 @@ public class HomeController {
     )
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
-            @RequestBody ScheduleRandomRequestDto request){
+            @Valid @RequestBody ScheduleRandomRequestDto request){
 
         List<HomeListResponse> exhibits= homeService.getRandomSchedule(request);
 
@@ -108,7 +109,7 @@ public class HomeController {
     )
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @RequestBody GenreRandomRequestDto request){
+            @Valid @RequestBody GenreRandomRequestDto request){
 
         List<HomeListResponse> exhibits = homeService.getRandomGenre(request);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
@@ -136,7 +137,7 @@ public class HomeController {
     )
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @RequestBody TodayRandomRequestDto request){
+            @Valid @RequestBody TodayRandomRequestDto request){
 
         List<HomeListResponse> exhibits = homeService.getToday(request);
 
