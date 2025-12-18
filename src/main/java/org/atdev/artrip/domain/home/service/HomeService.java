@@ -149,21 +149,10 @@ public class HomeService {
                 .map(UserKeyword::getKeyword)
                 .toList();
 
-        Set<String> genres = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.GENRE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
-        Set<String> styles = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.STYLE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
         RandomExhibitRequest filter = homeConverter.from(
-                        requestDto,
-                        genres.isEmpty() ? null : genres,
-                        styles.isEmpty() ? null : styles
-                );
+                requestDto,
+                userKeywords
+        );
 
         return exhibitRepository.findRandomExhibits(filter);
     }
