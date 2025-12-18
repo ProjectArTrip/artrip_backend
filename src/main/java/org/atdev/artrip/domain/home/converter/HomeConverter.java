@@ -97,13 +97,6 @@ public class HomeConverter {
                 .build();
     }
 
-
-    private String normalize(String value) {
-        if (value == null) return null;
-        if ("전체".equals(value)) return null;
-        return value;
-    }
-
     public RandomExhibitRequest from(ScheduleRandomRequestDto request) {
 
         return RandomExhibitRequest.builder()
@@ -118,8 +111,17 @@ public class HomeConverter {
     public RandomExhibitRequest fromToday(TodayRandomRequestDto request) {
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
-                .country(request.getCountry())
-                .region(request.getRegion())
+                .country(normalize(request.getCountry()))
+                .region(normalize(request.getRegion()))
+                .limit(3)
+                .build();
+    }
+    public RandomExhibitRequest fromGenre(GenreRandomRequestDto request) {
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(normalize(request.getCountry()))
+                .region(normalize(request.getRegion()))
+                .singleGenre(request.getSingleGenre())
                 .limit(3)
                 .build();
     }
@@ -128,14 +130,10 @@ public class HomeConverter {
         return (value == null || value.isEmpty()) ? null : value;
     }
 
-    public RandomExhibitRequest fromGenre(GenreRandomRequestDto request) {
-        return RandomExhibitRequest.builder()
-                .isDomestic(request.getIsDomestic())
-                .country(request.getCountry())
-                .region(request.getRegion())
-                .singleGenre(request.getSingleGenre())
-                .limit(3)
-                .build();
+    private String normalize(String value) {
+        if (value == null) return null;
+        if ("전체".equals(value)) return null;
+        return value;
     }
 
 }
