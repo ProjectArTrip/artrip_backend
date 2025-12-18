@@ -1,16 +1,19 @@
 package org.atdev.artrip.domain.home.converter;
 
+import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class HomeConverter {
@@ -72,7 +75,17 @@ public class HomeConverter {
     }
 
 
-    public RandomExhibitRequest from(PersonalizedRequestDto request, Set<String> genres, Set<String> styles) {
+    public RandomExhibitRequest from(PersonalizedRequestDto request, List<Keyword> keywords) {
+
+        Set<String> genres = keywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        Set<String> styles = keywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
 
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
@@ -83,6 +96,7 @@ public class HomeConverter {
                 .limit(3)
                 .build();
     }
+
 
     private String normalize(String value) {
         if (value == null) return null;
@@ -97,7 +111,7 @@ public class HomeConverter {
                 .country(normalize(request.getCountry()))
                 .region(normalize(request.getRegion()))
                 .date(request.getDate())
-                .limit(3)
+                .limit(2)
                 .build();
     }
 
