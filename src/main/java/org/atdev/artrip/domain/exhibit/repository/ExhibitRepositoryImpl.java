@@ -92,7 +92,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         QKeyword k = QKeyword.keyword;
 
         return queryFactory
-                .selectDistinct(Projections.constructor(
+                .selectDistinct(Projections.constructor(// select 순서와 DTO 생성자 파라미터 순서를 1:1 매핑함!
                         HomeListResponse.class,
                         e.exhibitId,
                         e.title,
@@ -103,7 +103,9 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                                 e.startDate.stringValue(),
                                 e.endDate.stringValue()
                         ),
-                        h.name
+                        h.name,
+                        h.country,
+                        h.region
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)

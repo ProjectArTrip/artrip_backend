@@ -138,7 +138,7 @@ public class HomeService {
     }
 
     @Transactional
-    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequestDto requestDto){
+    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequestDto request){
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
@@ -150,31 +150,86 @@ public class HomeService {
                 .toList();
 
         RandomExhibitRequest filter = homeConverter.from(
-                requestDto,
+                request,
                 userKeywords
         );
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
 
     public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.from(request);
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
 
     public List<HomeListResponse> getRandomGenre(GenreRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.fromGenre(request);
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
 
     public List<HomeListResponse> getToday(TodayRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.fromToday(request);
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
+    private void adjustLocationFields(List<HomeListResponse> results, boolean isDomestic, String region, String country) {
+
+        boolean isWhole = ("전체".equals(region) || region == null) && ("전체".equals(country) || country == null);
+
+        if (!isWhole) {
+            results.forEach(r -> {
+                r.setRegionName(null);
+                r.setCountryName(null);
+            });
+            return;
+        }
+
+        if (isDomestic) {
+            results.forEach(r -> r.setCountryName(null));
+        } else {
+            results.forEach(r -> r.setRegionName(null));
+        }
+    }
+
 }
