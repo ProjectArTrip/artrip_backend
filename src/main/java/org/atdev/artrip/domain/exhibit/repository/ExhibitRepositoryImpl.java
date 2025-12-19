@@ -8,6 +8,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.Enum.SortType;
+import org.atdev.artrip.domain.Enum.Status;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
@@ -64,6 +65,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .leftJoin(e.keywords, k)
                 .leftJoin(f).on(f.exhibit.eq(e))
                 .where(
+                        e.status.ne(Status.FINISHED),
                         typeFilter(dto, h),
                         dateFilter(dto.getStartDate(), dto.getEndDate(),e),
                         cursorCondition(cursor, cursorFavoriteCount, dto.getSortType(), e, f),
@@ -111,6 +113,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .join(e.exhibitHall, h)
                 .leftJoin(e.keywords, k)
                 .where(
+                        e.status.ne(Status.FINISHED),
                         isDomesticEq(c.getIsDomestic()),
                         countryEq(c.getCountry()),
                         regionEq(c.getRegion()),
