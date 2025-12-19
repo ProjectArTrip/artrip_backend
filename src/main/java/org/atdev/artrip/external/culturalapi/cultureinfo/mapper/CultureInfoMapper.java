@@ -27,10 +27,10 @@ public class CultureInfoMapper {
         if  (item == null) return null;
 
         try {
-            LocalDateTime startDate = parseDate(item.getStartDate());
-            LocalDateTime endDate = parseDate(item.getEndDate());
+            LocalDate startDate = parseDate(item.getStartDate());
+            LocalDate endDate = parseDate(item.getEndDate());
 
-            if (endDate != null && endDate.isBefore(LocalDateTime.now())) {
+            if (endDate != null && endDate.isBefore(LocalDate.now())) {
                 return null;
             }
 
@@ -141,7 +141,7 @@ public class CultureInfoMapper {
 
             return null;
         } catch (DateTimeParseException e) {
-            log.warn("날짜 파싱 실패 : {}", dateStr);
+            log.warn("날짜 파싱 실패 : {}", date);
             return null;
         }
     }
