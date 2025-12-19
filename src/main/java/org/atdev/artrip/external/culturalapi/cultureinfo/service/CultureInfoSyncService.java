@@ -156,7 +156,7 @@ public class CultureInfoSyncService {
             return;
         }
 
-        if (exhibit.getEndDate() != null && exhibit.getEndDate().isBefore(LocalDateTime.now())) {
+        if (exhibit.getEndDate() != null && exhibit.getEndDate().isBefore(LocalDate.now())) {
             result.incrementSkipped();
             return;
         }
