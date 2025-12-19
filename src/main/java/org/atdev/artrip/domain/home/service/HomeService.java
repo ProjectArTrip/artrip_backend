@@ -6,14 +6,13 @@ import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
+import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.converter.HomeConverter;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
@@ -71,7 +70,6 @@ public class HomeService {
 
         return homeConverter.toHomeExhibitResponse(exhibit);
     }
-
 
     public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
 
@@ -139,9 +137,8 @@ public class HomeService {
         return homeConverter.toFilterResponse(slice);
     }
 
-
     @Transactional
-    public List<HomeListResponse> getRandomPersonalized(Long userId, RandomExhibitFilterRequestDto requestDto){
+    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequestDto requestDto){
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
@@ -152,51 +149,32 @@ public class HomeService {
                 .map(UserKeyword::getKeyword)
                 .toList();
 
-        Set<String> genres = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.GENRE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
-        Set<String> styles = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.STYLE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
         RandomExhibitRequest filter = homeConverter.from(
-                        requestDto,
-                        genres.isEmpty() ? null : genres,
-                        styles.isEmpty() ? null : styles
-                );
-
+                requestDto,
+                userKeywords
+        );
 
         return exhibitRepository.findRandomExhibits(filter);
     }
 
-    public List<HomeListResponse> getRandomSchedule(RandomExhibitFilterRequestDto request){
+    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.from(request);
 
         return exhibitRepository.findRandomExhibits(filter);
     }
 
-    public List<HomeListResponse> getRandomGenre(RandomExhibitFilterRequestDto request){
+    public List<HomeListResponse> getRandomGenre(GenreRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.fromGenre(request);
 
         return exhibitRepository.findRandomExhibits(filter);
     }
 
-    public List<HomeListResponse> getToday(RandomExhibitFilterRequestDto request){
+    public List<HomeListResponse> getToday(TodayRandomRequestDto request){
 
-        RandomExhibitRequest filter = homeConverter.from(request);
-//        RandomExhibitFilterRequestDto filter = RandomExhibitFilterRequestDto.builder()
-//                .isDomestic(isDomestic)
-//                .country(country)
-//                .region(region)
-//                .limit(limit)
-//                .build();
+        RandomExhibitRequest filter = homeConverter.fromToday(request);
 
         return exhibitRepository.findRandomExhibits(filter);
     }
-
 }

@@ -8,7 +8,7 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.domain.search.response.ExhibitSearchResponse;
+import org.atdev.artrip.domain.search.web.dto.response.ExhibitSearchResponse;
 import org.atdev.artrip.elastic.document.ExhibitDocument;
 import org.atdev.artrip.global.apipayload.code.status.SearchError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,7 +114,7 @@ public class ExhibitSearchService {
     }
 
     private ExhibitSearchResponse convertToExhibitResponse(ExhibitDocument doc) {
-        DateTimeFormatter ftt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        DateTimeFormatter ftt = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
         return ExhibitSearchResponse.builder()
                 .id(doc.getId())
@@ -127,6 +126,8 @@ public class ExhibitSearchService {
                 .posterUrl(doc.getPosterUrl())
                 .ticketUrl(doc.getTicketUrl())
                 .keywords(doc.getKeywords())
+                .latitude(doc.getLatitude())
+                .longitude(doc.getLongitude())
                 .build();
     }
 

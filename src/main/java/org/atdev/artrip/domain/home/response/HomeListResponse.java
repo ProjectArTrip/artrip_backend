@@ -17,7 +17,8 @@ public class HomeListResponse {
     private String title;
     private String posterUrl;
     private Status status;
-
     private String exhibitPeriod;
+
+    private String hallName;
 }
 

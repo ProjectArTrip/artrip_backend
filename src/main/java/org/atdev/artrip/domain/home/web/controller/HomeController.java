@@ -1,14 +1,11 @@
 package org.atdev.artrip.domain.home.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
-import org.atdev.artrip.domain.home.web.validationgroup.GenreRandomGroup;
-import org.atdev.artrip.domain.home.web.validationgroup.ScheduleRandomGroup;
+import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
-import org.atdev.artrip.domain.home.web.validationgroup.TodayRandomGroup;
-import org.atdev.artrip.domain.home.web.validationgroup.UserCustomGroup;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
@@ -16,7 +13,6 @@ import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,7 +34,7 @@ public class HomeController {
     - isDomestic = false (국외)
       - country: 필수
       - region: 사용하지 않음
-      
+    
        예시 요청:
     {
       "isDomestic": true,
@@ -51,8 +47,7 @@ public class HomeController {
     @PostMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Validated(UserCustomGroup.class)
-            @RequestBody RandomExhibitFilterRequestDto requestDto){
+            @Valid @RequestBody PersonalizedRequestDto requestDto){
 
         long userId = Long.parseLong(userDetails.getUsername());
 
@@ -83,8 +78,7 @@ public class HomeController {
     )
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
-            @Validated(ScheduleRandomGroup.class)
-            @RequestBody RandomExhibitFilterRequestDto request){
+            @Valid @RequestBody ScheduleRandomRequestDto request){
 
         List<HomeListResponse> exhibits= homeService.getRandomSchedule(request);
 
@@ -115,8 +109,7 @@ public class HomeController {
     )
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @Validated(GenreRandomGroup.class)
-            @RequestBody RandomExhibitFilterRequestDto request){
+            @Valid @RequestBody GenreRandomRequestDto request){
 
         List<HomeListResponse> exhibits = homeService.getRandomGenre(request);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
@@ -144,8 +137,7 @@ public class HomeController {
     )
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @Validated(TodayRandomGroup.class)
-            @RequestBody RandomExhibitFilterRequestDto request){
+            @Valid @RequestBody TodayRandomRequestDto request){
 
         List<HomeListResponse> exhibits = homeService.getToday(request);
 
@@ -157,4 +149,5 @@ public class HomeController {
 //        List<HomeExhibitResponse> exhibits = exhibitService.getCuratedExhibits();
 //        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
 //    }
+
 }

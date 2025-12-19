@@ -1,22 +1,24 @@
 package org.atdev.artrip.domain.home.converter;
 
+import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitFilterRequestDto;
+import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
+import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class HomeConverter {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     public FilterResponse toFilterResponse(Slice<Exhibit> slice) {
 
@@ -35,7 +37,7 @@ public class HomeConverter {
 
     public HomeListResponse toHomeExhibitListResponse(Exhibit exhibit){
 
-        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
+        String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
 
         return HomeListResponse.builder()
                 .exhibit_id(exhibit.getExhibitId())
@@ -49,7 +51,7 @@ public class HomeConverter {
     public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit) {
 
         var hall = exhibit.getExhibitHall();
-        String period = exhibit.getStartDate().format(formatter) + " ~ " + exhibit.getEndDate().format(formatter);
+        String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
 
         Double lat = hall.getLatitude() != null ? hall.getLatitude().doubleValue() : null;
         Double lng = hall.getLongitude() != null ? hall.getLongitude().doubleValue() : null;
@@ -73,40 +75,65 @@ public class HomeConverter {
     }
 
 
-    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request, Set<String> genres, Set<String> styles) {
+    public RandomExhibitRequest from(PersonalizedRequestDto request, List<Keyword> keywords) {
+
+        Set<String> genres = keywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        Set<String> styles = keywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(normalize(request.getCountry()))
+                .region(normalize(request.getRegion()))
+                .genres(toNullable(genres))
+                .styles(toNullable(styles))
+                .limit(3)
+                .build();
+    }
+
+    public RandomExhibitRequest from(ScheduleRandomRequestDto request) {
 
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
                 .country(normalize(request.getCountry()))
                 .region(normalize(request.getRegion()))
                 .date(request.getDate())
-                .genres(isEmpty(genres))
-                .styles(isEmpty(styles))
-                .limit(request.getLimit() != null ? request.getLimit() : 3)
+                .limit(2)
                 .build();
     }
+
+    public RandomExhibitRequest fromToday(TodayRandomRequestDto request) {
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(normalize(request.getCountry()))
+                .region(normalize(request.getRegion()))
+                .limit(3)
+                .build();
+    }
+    public RandomExhibitRequest fromGenre(GenreRandomRequestDto request) {
+        return RandomExhibitRequest.builder()
+                .isDomestic(request.getIsDomestic())
+                .country(normalize(request.getCountry()))
+                .region(normalize(request.getRegion()))
+                .singleGenre(request.getSingleGenre())
+                .limit(3)
+                .build();
+    }
+
+    private <T> Set<T> toNullable(Set<T> value) {
+        return (value == null || value.isEmpty()) ? null : value;
+    }
+
     private String normalize(String value) {
         if (value == null) return null;
         if ("전체".equals(value)) return null;
         return value;
     }
 
-    public RandomExhibitRequest from(RandomExhibitFilterRequestDto request) {
-        return from(request, request.getGenres(), request.getStyles());
-    }
-
-    private <T> Set<T> isEmpty(Set<T> value) {
-        return (value == null || value.isEmpty()) ? null : value;
-    }
-
-    public RandomExhibitRequest fromGenre(RandomExhibitFilterRequestDto request) {
-
-        return RandomExhibitRequest.builder()
-                .isDomestic(request.getIsDomestic())
-                .country(request.getCountry())
-                .region(request.getRegion())
-                .singleGenre(request.getSingleGenre() != null ? request.getSingleGenre() : null)
-                .limit(request.getLimit() != null ? request.getLimit() : 3)
-                .build();
-    }
 }

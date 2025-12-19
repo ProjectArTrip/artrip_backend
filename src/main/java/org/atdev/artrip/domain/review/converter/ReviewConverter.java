@@ -108,11 +108,14 @@ public class ReviewConverter {
 
     public static ReviewExhibitResponse toExhibitReviewSummary(Review review){
 
+        User user = review.getUser();
+
         return ReviewExhibitResponse.builder()
                 .reviewId(review.getReviewId())
                 .content(createSummary(review,20))
                 .thumbnailUrl(createThumbnail(review))
                 .visitDate(review.getVisitDate())
+                .Nickname(user.getNickName())
                 .build();
     }
 
