@@ -161,7 +161,41 @@ public class HomeService {
 
         RandomExhibitRequest filter = homeConverter.from(request);
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        boolean isDomestic = request.getIsDomestic();
+        boolean isRegionAll = "전체".equals(request.getRegion());
+        boolean isCountryAll = "전체".equals(request.getCountry());
+
+        if (isDomestic) {
+            // 국내 요청
+
+            if (isRegionAll) {
+                // 국내 + 전체 → region만 표시, country 숨김
+                results.forEach(r -> r.setCountryName(null));
+            } else {
+                // 국내 + 특정 지역 → 모두 숨김
+                results.forEach(r -> {
+                    r.setCountryName(null);
+                    r.setRegionName(null);
+                });
+            }
+
+        } else {
+            // 해외 요청
+
+            if (isCountryAll) {
+                // 해외 + 전체 → country만 표시, region 숨김
+                results.forEach(r -> r.setRegionName(null));
+            } else {
+                // 해외 + 특정 국가 → 모두 숨김
+                results.forEach(r -> {
+                    r.setCountryName(null);
+                    r.setRegionName(null);
+                });
+            }
+        }
+        return results;
     }
 
     public List<HomeListResponse> getRandomGenre(GenreRandomRequestDto request){
@@ -177,4 +211,5 @@ public class HomeService {
 
         return exhibitRepository.findRandomExhibits(filter);
     }
+
 }

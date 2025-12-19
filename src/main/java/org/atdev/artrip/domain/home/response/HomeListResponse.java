@@ -20,5 +20,7 @@ public class HomeListResponse {
     private String exhibitPeriod;
 
     private String hallName;
+    private String regionName;
+    private String countryName;
 }
 

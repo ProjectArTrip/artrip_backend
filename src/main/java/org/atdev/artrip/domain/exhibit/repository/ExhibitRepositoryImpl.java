@@ -103,7 +103,9 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                                 e.startDate.stringValue(),
                                 e.endDate.stringValue()
                         ),
-                        h.name
+                        h.name,
+                        h.country,
+                        h.region
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)
