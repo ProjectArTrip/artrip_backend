@@ -159,43 +159,20 @@ public class HomeService {
 
     public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequestDto request){
 
+//        RandomExhibitRequest filter = homeConverter.from(request);
         RandomExhibitRequest filter = homeConverter.from(request);
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        boolean isDomestic = request.getIsDomestic();
-        boolean isRegionAll = "전체".equals(request.getRegion());
-        boolean isCountryAll = "전체".equals(request.getCountry());
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
 
-        if (isDomestic) {
-            // 국내 요청
-
-            if (isRegionAll) {
-                // 국내 + 전체 → region만 표시, country 숨김
-                results.forEach(r -> r.setCountryName(null));
-            } else {
-                // 국내 + 특정 지역 → 모두 숨김
-                results.forEach(r -> {
-                    r.setCountryName(null);
-                    r.setRegionName(null);
-                });
-            }
-
-        } else {
-            // 해외 요청
-
-            if (isCountryAll) {
-                // 해외 + 전체 → country만 표시, region 숨김
-                results.forEach(r -> r.setRegionName(null));
-            } else {
-                // 해외 + 특정 국가 → 모두 숨김
-                results.forEach(r -> {
-                    r.setCountryName(null);
-                    r.setRegionName(null);
-                });
-            }
-        }
         return results;
+//        return exhibitRepository.findRandomExhibits(filter);
     }
 
     public List<HomeListResponse> getRandomGenre(GenreRandomRequestDto request){
@@ -210,6 +187,24 @@ public class HomeService {
         RandomExhibitRequest filter = homeConverter.fromToday(request);
 
         return exhibitRepository.findRandomExhibits(filter);
+    }
+    private void adjustLocationFields(List<HomeListResponse> results, boolean isDomestic, String region, String country) {
+
+        boolean isWhole = ("전체".equals(region) || region == null) && ("전체".equals(country) || country == null);
+
+        if (!isWhole) {
+            results.forEach(r -> {
+                r.setRegionName(null);
+                r.setCountryName(null);
+            });
+            return;
+        }
+
+        if (isDomestic) {
+            results.forEach(r -> r.setCountryName(null));
+        } else {
+            results.forEach(r -> r.setRegionName(null));
+        }
     }
 
 }
