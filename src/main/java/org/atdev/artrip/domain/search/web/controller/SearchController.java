@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.search.service.SearchHistoryService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.domain.search.response.ExhibitSearchResponse;
+import org.atdev.artrip.domain.search.web.dto.response.ExhibitSearchResponse;
 import org.atdev.artrip.domain.search.service.ExhibitSearchService;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.SearchError;

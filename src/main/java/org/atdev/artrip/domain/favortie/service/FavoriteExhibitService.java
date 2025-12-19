@@ -7,8 +7,8 @@ import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.favortie.data.FavoriteExhibit;
-import org.atdev.artrip.domain.favortie.dto.CalenderResponse;
-import org.atdev.artrip.domain.favortie.dto.FavoriteResponse;
+import org.atdev.artrip.domain.favortie.web.dto.response.CalenderResponse;
+import org.atdev.artrip.domain.favortie.web.dto.response.FavoriteResponse;
 import org.atdev.artrip.domain.favortie.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
@@ -154,7 +154,7 @@ public class FavoriteExhibitService {
         Exhibit exhibit = favorite.getExhibit();
         var hall = exhibit.getExhibitHall();
 
-        String period = exhibit.getStartDate().format(fmt) + " ~ " + exhibit.getEndDate().format(fmt);
+        String period = exhibit.getStartDate().format(fmt) + " - " + exhibit.getEndDate().format(fmt);
 
         return FavoriteResponse.builder()
                 .favoriteId(favorite.getFavoriteId())

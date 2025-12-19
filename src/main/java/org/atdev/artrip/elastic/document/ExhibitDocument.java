@@ -1,5 +1,6 @@
 package org.atdev.artrip.elastic.document;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,11 +31,13 @@ public class ExhibitDocument {
     private String title;
     private String description;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
-    private LocalDateTime startDate;
+    @Field(type = FieldType.Date, format = DateFormat.date)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
+    private LocalDate startDate;
 
-    @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second)
-    private LocalDateTime endDate;
+    @Field(type = FieldType.Date, format = DateFormat.date)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
+    private LocalDate endDate;
 
     private Status status;
     private String posterUrl;

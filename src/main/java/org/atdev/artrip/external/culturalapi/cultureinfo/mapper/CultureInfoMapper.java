@@ -20,7 +20,8 @@ import java.time.format.DateTimeParseException;
 @Component
 public class CultureInfoMapper {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter DATE_FORMATTER_DOT = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+    private static final DateTimeFormatter DATE_FORMATTER_DASH = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public Exhibit toExhibit(CultureInfoItem item) {
         if  (item == null) return null;
@@ -119,13 +120,26 @@ public class CultureInfoMapper {
         }
     }
 
-    private LocalDateTime parseDate(String dateStr) {
-        if (!StringUtils.hasText(dateStr)) {
+    private LocalDate parseDate(String date) {
+        if (!StringUtils.hasText(date)) {
             return null;
         }
 
         try {
-            return LocalDate.parse(dateStr, DATE_FORMATTER).atStartOfDay();
+
+            if (date.contains("-")) {
+                return LocalDate.parse(date, DATE_FORMATTER_DASH);
+            }
+
+            if (date.contains(".")) {
+                return LocalDate.parse(date, DATE_FORMATTER_DOT);
+            }
+
+            if (date.length() == 8) {
+                return LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE);
+            }
+
+            return null;
         } catch (DateTimeParseException e) {
             log.warn("날짜 파싱 실패 : {}", dateStr);
             return null;
@@ -145,13 +159,13 @@ public class CultureInfoMapper {
         }
     }
 
-    private Status calculateStatus(LocalDateTime startDate, LocalDateTime endDate) {
+    private Status calculateStatus(LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
             return Status.ONGOING;
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime threeDaysLater = now.plusDays(3);
+        LocalDate now = LocalDate.now();
+        LocalDate threeDaysLater = now.plusDays(3);
 
         if (now.isBefore(startDate)) {
             return Status.UPCOMING;
@@ -175,10 +189,13 @@ public class CultureInfoMapper {
             if (sb.length() > 0) {
                 sb.append("지역 :").append(item.getArea());
             }
-            if (StringUtils.hasText(item.getPlace())) {
-                sb.append("장소:").append(item.getPlace());
-            }
         }
+
+        if (StringUtils.hasText(item.getPlace())) {
+            if (sb.length() > 0) sb.append("\n");
+            sb.append("장소: ").append(item.getPlace());
+        }
+        
         return truncate(sb.toString(), 2000);
     }
 

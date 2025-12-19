@@ -8,6 +8,7 @@ import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,10 +39,10 @@ public class Exhibit {
     private String description;
 
     @Column(name = "start_date")
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     @Enumerated(EnumType.STRING) // DB가 CHAR/VARCHAR이면 STRING
     @Column(name = "status", nullable = false)

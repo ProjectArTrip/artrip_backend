@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.admin.exhibitHall.dto;
+package org.atdev.artrip.domain.admin.exhibitHall.dto.response;
 
 import lombok.Builder;
 import lombok.Data;
