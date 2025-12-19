@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.favortie.dto;
+package org.atdev.artrip.domain.favortie.web.dto.response;
 
 import lombok.*;
 import org.atdev.artrip.domain.Enum.Status;

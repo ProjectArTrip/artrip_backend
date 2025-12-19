@@ -181,11 +181,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         if (startDate == null && endDate == null) return null;
 
         if (endDate != null) {
-            condition = e.startDate.loe(endDate.atTime(23, 59, 59));
+            condition = e.startDate.loe(endDate);
         }
 
         if (startDate != null) {
-            BooleanExpression startCond = e.endDate.goe(startDate.atStartOfDay());
+            BooleanExpression startCond = e.endDate.goe(startDate);
             condition = (condition == null) ? startCond : condition.and(startCond);
         }
 
@@ -219,12 +219,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private BooleanExpression findDate(LocalDate date){
         if (date == null) return null;
 
-        LocalDateTime dayStart = date.atStartOfDay();
-        LocalDateTime dayEnd = date.atTime(23, 59, 59);
-
-        return QExhibit.exhibit.startDate.loe(dayEnd)//<=
-                .and(QExhibit.exhibit.endDate.goe(dayStart));//>=
+        return QExhibit.exhibit.startDate.loe(date)//<=
+                .and(QExhibit.exhibit.endDate.goe(date));//>=
     }
-
 
 }

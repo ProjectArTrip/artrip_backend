@@ -4,14 +4,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.admin.common.dto.Criteria;
 import org.atdev.artrip.domain.admin.common.dto.PagingResponseDTO;
-import org.atdev.artrip.domain.admin.exhibitHall.dto.CreateExhibitHallRequest;
-import org.atdev.artrip.domain.admin.exhibitHall.dto.ExhibitHallListResponse;
-import org.atdev.artrip.domain.admin.exhibitHall.dto.ExhibitHallResponse;
-import org.atdev.artrip.domain.admin.exhibitHall.dto.UpdateExhibitHallRequest;
+import org.atdev.artrip.domain.admin.exhibitHall.converter.AdminExhibitHallConverter;
+import org.atdev.artrip.domain.admin.exhibitHall.dto.request.CreateExhibitHallRequest;
+import org.atdev.artrip.domain.admin.exhibitHall.dto.response.ExhibitHallListResponse;
+import org.atdev.artrip.domain.admin.exhibitHall.dto.response.ExhibitHallResponse;
+import org.atdev.artrip.domain.admin.exhibitHall.dto.request.UpdateExhibitHallRequest;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.domain.Page;
@@ -28,8 +28,9 @@ public class AdminExhibitHallService {
 
     private final ExhibitHallRepository exhibitHallRepository;
     private final ExhibitRepository exhibitRepository;
+    private final AdminExhibitHallConverter exhibitHallConverter;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public PagingResponseDTO<ExhibitHallListResponse> getExhibitHallList(Criteria cri) {
         log.info("Admin getting exhibit hall list: {}", cri);
 
@@ -42,19 +43,24 @@ public class AdminExhibitHallService {
             hallPage = exhibitHallRepository.findAll(pageable);
         }
 
-        Page<ExhibitHallListResponse> responsePage = hallPage.map(this::convertToListResponse);
+        Page<ExhibitHallListResponse> responsePage = hallPage.map(hall ->{
+            long exhibitCount = exhibitRepository.countByExhibitHall_ExhibitHallId(hall.getExhibitHallId());
+                return exhibitHallConverter.toListResponse(hall, exhibitCount);
+                });
 
         return PagingResponseDTO.from(responsePage);
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ExhibitHallResponse getExhibitHall(Long exhibitHallId) {
         log.info("Admin getting exhibit hall : {}", exhibitHallId);
 
         ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
 
-        return convertToResponse(hall);
+        long exhibitCount = exhibitRepository.countByExhibitHall_ExhibitHallId(exhibitHallId);
+
+        return exhibitHallConverter.toResponse(hall, exhibitCount);
     }
 
     @Transactional
@@ -126,37 +132,5 @@ public class AdminExhibitHallService {
         log.info("Exhibit hall deleted: {}", exhibitHallId);
     }
 
-    private ExhibitHallListResponse convertToListResponse(ExhibitHall hall) {
-        long exhibitCount = exhibitRepository.countByExhibitHall_ExhibitHallId(hall.getExhibitHallId());
 
-        return ExhibitHallListResponse.builder()
-                .exhibitHallId(hall.getExhibitHallId())
-                .name(hall.getName())
-                .country(hall.getCountry())
-                .region(hall.getRegion())
-                .phone(hall.getPhone())
-                .isDomestic(hall.getIsDomestic())
-                .exhibitCount(exhibitCount)
-                .build();
-    }
-
-    private ExhibitHallResponse convertToResponse(ExhibitHall hall) {
-        long exhibitCount = exhibitRepository.countByExhibitHall_ExhibitHallId(hall.getExhibitHallId());
-
-        return ExhibitHallResponse.builder()
-                .exhibitHallId(hall.getExhibitHallId())
-                .name(hall.getName())
-                .address(hall.getAddress())
-                .country(hall.getCountry())
-                .region(hall.getRegion())
-                .phone(hall.getPhone())
-                .homepageUrl(hall.getHomepageUrl())
-                .openingHours(hall.getOpeningHours())
-                .isDomestic(hall.getIsDomestic())
-                .exhibitCount(exhibitCount)
-                .closedDays(hall.getClosedDays())
-                .latitude(hall.getLatitude())
-                .longitude(hall.getLongitude())
-                .build();
-    }
 }

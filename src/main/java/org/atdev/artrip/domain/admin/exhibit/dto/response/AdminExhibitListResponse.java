@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.admin.exhibit.dto;
+package org.atdev.artrip.domain.admin.exhibit.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,21 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.atdev.artrip.domain.Enum.Status;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExhibitListResponse {
+public class AdminExhibitListResponse {
 
     private Long exhibitId;
     private String title;
     private String posterUrl; // 이미지 URL
     private Status status;
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     private String exhibitHallName;
     private String country;

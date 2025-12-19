@@ -1,15 +1,10 @@
-package org.atdev.artrip.domain.admin.exhibitHall.dto;
+package org.atdev.artrip.domain.admin.exhibitHall.dto.request;
 
-import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
-@Builder
-public class ExhibitHallResponse {
+public class UpdateExhibitHallRequest {
 
-    private Long exhibitHallId;
     private String name;
     private String address;
     private String country;
@@ -18,9 +13,6 @@ public class ExhibitHallResponse {
     private String homepageUrl;
     private String openingHours;
     private Boolean isDomestic;
-    private Long exhibitCount;
     private String closedDays;
-    private BigDecimal longitude;
-    private BigDecimal latitude;
 
 }

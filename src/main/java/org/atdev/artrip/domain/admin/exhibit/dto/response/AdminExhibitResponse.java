@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.admin.exhibit.dto;
+package org.atdev.artrip.domain.admin.exhibit.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,14 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.atdev.artrip.domain.Enum.Status;
 
-import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
-public class ExhibitAdminResponse {
+public class AdminExhibitResponse {
 
     private Long exhibitId;
     private String title;
@@ -21,8 +21,8 @@ public class ExhibitAdminResponse {
 
     private ExhibitHallInfo exhibitHall;
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private String openingHours;
 
     private Status status;
@@ -30,12 +30,11 @@ public class ExhibitAdminResponse {
     private String posterUrl;
     private String ticketUrl;
 
-    private List<keywordInfo> keywords;
+    private List<KeywordInfo> keywords;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // 내부 클래스: 전시장 정보
     @Data
     @Builder
     @NoArgsConstructor
@@ -50,12 +49,11 @@ public class ExhibitAdminResponse {
         private String homepageUrl;
     }
 
-    // 내부 클래스: 키워드 정보
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class keywordInfo {
+    public static class KeywordInfo {
         private Long keywordId;
         private String name;
         private String type;  // GENRE, STYLE
