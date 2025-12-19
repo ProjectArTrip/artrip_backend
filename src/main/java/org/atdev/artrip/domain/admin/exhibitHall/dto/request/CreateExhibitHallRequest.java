@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.admin.exhibitHall.dto;
+package org.atdev.artrip.domain.admin.exhibitHall.dto.request;
 
 import lombok.Data;
 

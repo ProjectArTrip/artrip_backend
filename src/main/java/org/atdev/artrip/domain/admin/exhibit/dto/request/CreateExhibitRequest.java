@@ -1,10 +1,9 @@
-package org.atdev.artrip.domain.admin.exhibit.dto;
+package org.atdev.artrip.domain.admin.exhibit.dto.request;
 
 import lombok.Data;
 import org.atdev.artrip.domain.Enum.Status;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -16,8 +15,8 @@ public class CreateExhibitRequest {
     private String ticketUrl;
     private String posterUrl;
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     private Status status;
 

@@ -106,8 +106,8 @@ public class ExhibitIndexService {
                                             .analyzer("edge_ngram_analyzer")
                                             .searchAnalyzer("standard")
                                             .fields("nori", f -> f.text(t2 -> t2.analyzer("ngram_nori_analyzer")))))
-                                    .properties("startDate", p -> p.date(d -> d.format("strict_date_hour_minute_second")))
-                                    .properties("endDate", p -> p.date(d -> d.format("strict_date_hour_minute_second")))
+                                    .properties("startDate", p -> p.date(d -> d.format("yyyy.MM.dd")))
+                                    .properties("endDate", p -> p.date(d -> d.format("yyyy.MM.dd")))
                                     .properties("status", p -> p.keyword(k -> k))
                                     .properties("posterUrl", p -> p.keyword(k -> k))
                                     .properties("ticketUrl", p -> p.keyword(k -> k))
@@ -179,6 +179,7 @@ public class ExhibitIndexService {
             throw new GeneralException(ElasticError._ES_BULK_INDEX_FAILED);
         }
     }
+
     @Transactional
     public void indexExhibit(Exhibit exhibit) {
         try {

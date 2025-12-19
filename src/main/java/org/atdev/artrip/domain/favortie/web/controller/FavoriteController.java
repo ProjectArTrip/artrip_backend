@@ -1,11 +1,11 @@
-package org.atdev.artrip.domain.favortie.web;
+package org.atdev.artrip.domain.favortie.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.domain.favortie.dto.CalenderResponse;
-import org.atdev.artrip.domain.favortie.dto.FavoriteResponse;
+import org.atdev.artrip.domain.favortie.web.dto.response.CalenderResponse;
+import org.atdev.artrip.domain.favortie.web.dto.response.FavoriteResponse;
 import org.atdev.artrip.domain.favortie.service.FavoriteExhibitService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;

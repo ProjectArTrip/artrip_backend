@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.search.response;
+package org.atdev.artrip.domain.search.web.dto.response;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

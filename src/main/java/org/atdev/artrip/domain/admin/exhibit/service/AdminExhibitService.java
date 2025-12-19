@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.admin.common.dto.Criteria;
 import org.atdev.artrip.domain.admin.common.dto.PagingResponseDTO;
-import org.atdev.artrip.domain.admin.exhibit.dto.CreateExhibitRequest;
-import org.atdev.artrip.domain.admin.exhibit.dto.ExhibitAdminResponse;
-import org.atdev.artrip.domain.admin.exhibit.dto.ExhibitListResponse;
-import org.atdev.artrip.domain.admin.exhibit.dto.UpdateExhibitRequest;
+import org.atdev.artrip.domain.admin.exhibit.converter.AdminExhibitConverter;
+import org.atdev.artrip.domain.admin.exhibit.dto.request.CreateExhibitRequest;
+import org.atdev.artrip.domain.admin.exhibit.dto.response.AdminExhibitResponse;
+import org.atdev.artrip.domain.admin.exhibit.dto.response.AdminExhibitListResponse;
+import org.atdev.artrip.domain.admin.exhibit.dto.request.UpdateExhibitRequest;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
@@ -25,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +36,10 @@ public class AdminExhibitService {
     private final ExhibitHallRepository exhibitHallRepository;
     private final KeywordRepository keywordRepository;
     private final ExhibitIndexService exhibitIndexService;
+    private final AdminExhibitConverter adminExhibitConverter;
 
-    @Transactional
-    public PagingResponseDTO<ExhibitListResponse> getExhibitList(Criteria cri) {
+    @Transactional(readOnly = true)
+    public PagingResponseDTO<AdminExhibitListResponse> getExhibitList(Criteria cri) {
         log.info("Admin Getting Exhibit List : {}", cri);
 
         Pageable pageable = cri.toPageable();
@@ -51,21 +52,20 @@ public class AdminExhibitService {
             exhibitPage = exhibitRepository.findAll(pageable);
         }
 
-        Page<ExhibitListResponse> responsePage = exhibitPage.map(this::convertToListResponse);
+        Page<AdminExhibitListResponse> responsePage = exhibitPage.map(adminExhibitConverter::toListResponse);
 
         return PagingResponseDTO.from(responsePage);
     }
 
-    @Transactional
-    public ExhibitAdminResponse getExhibit (Long exhibitId) {
+    @Transactional(readOnly = true)
+    public AdminExhibitResponse getExhibit (Long exhibitId) {
         log.info("Admin Getting Exhibit : {}", exhibitId);
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
-        return convertToAdminResponse(exhibit);
+        return adminExhibitConverter.toAdminResponse(exhibit);
     }
-
 
     @Transactional
     public Long createExhibit(CreateExhibitRequest request) {
@@ -104,7 +104,7 @@ public class AdminExhibitService {
 
         try {
             exhibitIndexService.indexExhibit(savedExhibit);
-            log.info("Exhibit indexing failed : id={}, error={}",savedExhibit.getExhibitId());
+            log.info("Exhibit indexing successfully : id={} ",savedExhibit.getExhibitId());
         } catch (Exception e) {
             log.error("Exhibit indexing failed", e);
         }
@@ -189,7 +189,7 @@ public class AdminExhibitService {
 
         if (exhibitHallId != null) {
             return exhibitHallRepository.findById(exhibitHallId)
-                    .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
+                    .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
         } else if (exhibitHallName != null) {
             ExhibitHall hall = ExhibitHall.builder()
                     .name(exhibitHallName)
@@ -198,6 +198,8 @@ public class AdminExhibitService {
                     .region(region)
                     .phone(phone)
                     .openingHours(openingHours)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
                     .build();
             return exhibitHallRepository.save(hall);
         } else {
@@ -205,61 +207,5 @@ public class AdminExhibitService {
         }
     }
 
-    private ExhibitListResponse convertToListResponse(Exhibit exhibit) {
-        return ExhibitListResponse.builder()
-                .exhibitId(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
-                .startDate(exhibit.getStartDate())
-                .endDate(exhibit.getEndDate())
-                .exhibitHallName(exhibit.getExhibitHall() != null ? exhibit.getExhibitHall().getName() : null)
-                .country(exhibit.getExhibitHall() != null ? exhibit.getExhibitHall().getCountry() : null)
-                .keywordCount(exhibit.getKeywords().size())
-                .createdAt(exhibit.getCreatedAt())
-                .updatedAt(exhibit.getUpdatedAt())
-                .build();
-    }
 
-    public ExhibitAdminResponse convertToAdminResponse(Exhibit exhibit) {
-        return ExhibitAdminResponse.builder()
-                .exhibitId(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .description(exhibit.getDescription())
-                .startDate(exhibit.getStartDate())
-                .endDate(exhibit.getEndDate())
-                .exhibitHall(convertToExhibitHallInfo(exhibit.getExhibitHall()))
-                .openingHours(exhibit.getExhibitHall() != null ? exhibit.getExhibitHall().getOpeningHours() : null)
-                .status(exhibit.getStatus())
-                .posterUrl(exhibit.getPosterUrl())
-                .ticketUrl(exhibit.getTicketUrl())
-                .keywords(exhibit.getKeywords().stream()
-                        .map(this::convertToKeywordInfo)
-                        .collect(Collectors.toList()))
-                .createdAt(exhibit.getCreatedAt())
-                .updatedAt(exhibit.getUpdatedAt())
-                .build();
-    }
-
-    private ExhibitAdminResponse.ExhibitHallInfo convertToExhibitHallInfo(ExhibitHall hall) {
-        if (hall == null) return null;
-
-        return ExhibitAdminResponse.ExhibitHallInfo.builder()
-                .exhibitHallId(hall.getExhibitHallId())
-                .name(hall.getName())
-                .address(hall.getAddress())
-                .country(hall.getCountry())
-                .region(hall.getRegion())
-                .phone(hall.getPhone())
-                .homepageUrl(hall.getHomepageUrl())
-                .build();
-    }
-
-    private ExhibitAdminResponse.keywordInfo convertToKeywordInfo(Keyword keyword) {
-        return ExhibitAdminResponse.keywordInfo.builder()
-                .keywordId(keyword.getKeywordId())
-                .name(keyword.getName())
-                .type(keyword.getType().name())
-                .build();
-    }
 }

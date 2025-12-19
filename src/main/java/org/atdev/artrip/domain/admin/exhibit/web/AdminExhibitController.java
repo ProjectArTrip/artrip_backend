@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.admin.common.dto.Criteria;
 import org.atdev.artrip.domain.admin.common.dto.PagingResponseDTO;
-import org.atdev.artrip.domain.admin.exhibit.dto.CreateExhibitRequest;
-import org.atdev.artrip.domain.admin.exhibit.dto.ExhibitAdminResponse;
-import org.atdev.artrip.domain.admin.exhibit.dto.ExhibitListResponse;
-import org.atdev.artrip.domain.admin.exhibit.dto.UpdateExhibitRequest;
+import org.atdev.artrip.domain.admin.exhibit.dto.request.CreateExhibitRequest;
+import org.atdev.artrip.domain.admin.exhibit.dto.response.AdminExhibitResponse;
+import org.atdev.artrip.domain.admin.exhibit.dto.response.AdminExhibitListResponse;
+import org.atdev.artrip.domain.admin.exhibit.dto.request.UpdateExhibitRequest;
 import org.atdev.artrip.domain.admin.exhibit.service.AdminExhibitService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.springframework.web.bind.annotation.*;
@@ -36,20 +36,20 @@ public class AdminExhibitController {
             """
     )
     @GetMapping
-    public CommonResponse<PagingResponseDTO<ExhibitListResponse>> getExhibitList(Criteria cri) {
+    public CommonResponse<PagingResponseDTO<AdminExhibitListResponse>> getExhibitList(Criteria cri) {
         log.info("Admin getting exhibit list: {}", cri);
 
-        PagingResponseDTO<ExhibitListResponse> result = adminExhibitService.getExhibitList(cri);
+        PagingResponseDTO<AdminExhibitListResponse> result = adminExhibitService.getExhibitList(cri);
 
         return CommonResponse.onSuccess(result);
     }
 
     @Operation(summary = "전시 상세 조회", description = "특정 전시의 상세 정보를 조회합니다.")
     @GetMapping("/{exhibitId}")
-    public CommonResponse<ExhibitAdminResponse> getExhibit(@PathVariable Long exhibitId) {
+    public CommonResponse<AdminExhibitResponse> getExhibit(@PathVariable Long exhibitId) {
         log.info("Admin getting exhibit : {}", exhibitId);
 
-        ExhibitAdminResponse result = adminExhibitService.getExhibit(exhibitId);
+        AdminExhibitResponse result = adminExhibitService.getExhibit(exhibitId);
 
         return CommonResponse.onSuccess(result);
     }

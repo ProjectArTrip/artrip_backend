@@ -20,13 +20,13 @@ import java.time.format.DateTimeParseException;
 @RequiredArgsConstructor
 public class ExhibitMapper {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter DATE_FORMATTER_DOT = DateTimeFormatter.ofPattern("yyyy.MM.dd");
     private static final DateTimeFormatter DATE_FORMATTER_DASH = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public Exhibit toExhibit(ExhibitItem item) {
         try {
-            LocalDateTime startDate = parseEventPeriod(item.getEventPeriod(), true);
-            LocalDateTime endDate = parseEventPeriod(item.getEventPeriod(), false);
+            LocalDate startDate = parseEventPeriod(item.getEventPeriod(), true);
+            LocalDate endDate = parseEventPeriod(item.getEventPeriod(), false);
             Status status = calculateStatus(startDate, endDate);
 
             return Exhibit.builder()
@@ -65,7 +65,7 @@ public class ExhibitMapper {
                 .build();
     }
 
-    private LocalDateTime parseEventPeriod(String eventPeriod, boolean isStart) {
+    private LocalDate parseEventPeriod(String eventPeriod, boolean isStart) {
         if (!StringUtils.hasText(eventPeriod)) {
             return null;
         }
@@ -78,7 +78,7 @@ public class ExhibitMapper {
                     return null;
                 }
                 String dateStr = isStart ? dates[0].trim() : dates[1].trim();
-                return LocalDate.parse(dateStr, DATE_FORMATTER_DASH).atStartOfDay();
+                return LocalDate.parse(dateStr, DATE_FORMATTER_DASH);
             }
 
             return parseDate(eventPeriod);
@@ -88,18 +88,25 @@ public class ExhibitMapper {
         }
     }
 
-    private LocalDateTime parseDate(String date) {
+    private LocalDate parseDate(String date) {
         if (!StringUtils.hasText(date)) {
             return null;
         }
 
         try {
-            if (date.length() == 8) {
-                return LocalDate.parse(date, DATE_FORMATTER).atStartOfDay();
-            }
+
             if (date.contains("-")) {
-                return LocalDate.parse(date, DATE_FORMATTER_DASH).atStartOfDay();
+                return LocalDate.parse(date, DATE_FORMATTER_DASH);
             }
+
+            if (date.contains(".")) {
+                return LocalDate.parse(date, DATE_FORMATTER_DOT);
+            }
+
+            if (date.length() == 8) {
+                return LocalDate.parse(date, DateTimeFormatter.BASIC_ISO_DATE);
+            }
+
             return null;
         } catch (DateTimeParseException e) {
             log.warn("날짜 파싱 실패: {}", date);
@@ -120,13 +127,13 @@ public class ExhibitMapper {
         }
     }
 
-    private Status calculateStatus(LocalDateTime startDate, LocalDateTime endDate) {
+    private Status calculateStatus(LocalDate startDate, LocalDate endDate) {
         if (startDate == null || endDate == null) {
             return Status.ONGOING;
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime threeDaysLater = now.plusDays(3);
+        LocalDate now = LocalDate.now();
+        LocalDate threeDaysLater = now.plusDays(3);
 
         if (now.isBefore(startDate)) {
             return Status.UPCOMING;
@@ -142,24 +149,20 @@ public class ExhibitMapper {
     private String buildDescription(ExhibitItem item) {
         StringBuilder sb = new StringBuilder();
 
-        // 작가 정보
         if (StringUtils.hasText(item.getPerson())) {
             sb.append("작가: ").append(item.getPerson());
         }
 
-        // 전시 장소
         if (StringUtils.hasText(item.getVenue())) {
             if (sb.length() > 0) sb.append("\n");
             sb.append("장소: ").append(item.getVenue());
         }
 
-        // 설명
         if (StringUtils.hasText(item.getSubDescription())) {
             if (sb.length() > 0) sb.append("\n\n");
             sb.append(item.getSubDescription());
         }
 
-        // 요금
         if (StringUtils.hasText(item.getCharge())) {
             if (sb.length() > 0) sb.append("\n\n");
             sb.append("관람료: ").append(item.getCharge());
