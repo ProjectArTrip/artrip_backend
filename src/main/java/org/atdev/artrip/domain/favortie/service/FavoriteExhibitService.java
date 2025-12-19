@@ -10,11 +10,9 @@ import org.atdev.artrip.domain.favortie.data.FavoriteExhibit;
 import org.atdev.artrip.domain.favortie.web.dto.response.CalenderResponse;
 import org.atdev.artrip.domain.favortie.web.dto.response.FavoriteResponse;
 import org.atdev.artrip.domain.favortie.repository.FavoriteExhibitRepository;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.global.apipayload.exception.handler.ErrorHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,22 +41,35 @@ public class FavoriteExhibitService {
 
         Exhibit exhibit = exhibitRepository.findById(exhibitId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
-        if (favoriteExhibitRepository.existsByUser_UserIdAndExhibit_ExhibitId(userId, exhibitId)) {
-            log.info("Exhibit with id {} already exists", exhibitId);
-            throw new ErrorHandler(CommonError._BAD_REQUEST);
+        Optional<FavoriteExhibit> existing = favoriteExhibitRepository.findByUserAndExhibit(userId, exhibitId);
+
+        FavoriteExhibit favorite;
+
+        if (existing.isPresent()) {
+            favorite = existing.get();
+            if (favorite.isStatus()) {
+                log.warn("Exhibit Already in favorites: userId: {}, exhibitId: {}", userId, exhibitId);
+                return toFavoriteResponse(favorite);
+            }
+            favorite.setStatus(true);
+            log.info("Reactivating favorite exhibit: {}", favorite.getFavoriteId());
+        } else {
+            favorite = FavoriteExhibit.builder()
+                    .user(user)
+                    .exhibit(exhibit)
+                    .status(true)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            log.info("Creating new favorite");
         }
 
-        FavoriteExhibit favorite = FavoriteExhibit.builder()
-                .user(user)
-                .exhibit(exhibit)
-                .createdAt(LocalDateTime.now())
-                .build();
         FavoriteExhibit saved = favoriteExhibitRepository.save(favorite);
         log.info("Favorite exhibit added successfully. favoriteId: {}", saved.getFavoriteId());
 
         return toFavoriteResponse(saved);
     }
 
+    @Transactional(readOnly = true)
     public List<FavoriteResponse> getAllFavorites(Long userId) {
         log.info("Getting favorites for exhibit. userId: {}", userId);
 
@@ -65,7 +77,7 @@ public class FavoriteExhibitService {
             throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
-        List<FavoriteExhibit> favorites = favoriteExhibitRepository.findAllByUserIdWithExhibit(userId);
+        List<FavoriteExhibit> favorites = favoriteExhibitRepository.findAllActive(userId);
         log.info("Favorites found: {}", favorites);
 
         return favorites.stream()
@@ -73,6 +85,7 @@ public class FavoriteExhibitService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<FavoriteResponse> getFavoritesByDate(Long userId, LocalDate date) {
         log.info("Getting favorites for exhibit by date. userID: {}, date: {}", userId, date);
 
@@ -80,7 +93,7 @@ public class FavoriteExhibitService {
             throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
-        List<FavoriteExhibit> favorites = favoriteExhibitRepository.findByUserIdAndDate(userId, date);
+        List<FavoriteExhibit> favorites = favoriteExhibitRepository.findActiveByDate(userId, date);
         log.info("Favorites found: {}", favorites.size());
 
         return favorites.stream()
@@ -88,6 +101,7 @@ public class FavoriteExhibitService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<FavoriteResponse> getFavoritesByCountry(Long userId, String country) {
         log.info("Getting favorites for exhibit by country. userId: {}, country: {}", userId, country);
 
@@ -95,7 +109,7 @@ public class FavoriteExhibitService {
             throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
-        List<FavoriteExhibit> favorites = favoriteExhibitRepository.findByUserIdAndCountry(userId, country);
+        List<FavoriteExhibit> favorites = favoriteExhibitRepository.findActiveByCountry(userId, country);
         log.info("Favorites found: {}", favorites.size());
 
         return favorites.stream()
@@ -103,6 +117,7 @@ public class FavoriteExhibitService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public CalenderResponse getCalenderDates(Long userId, int year, int month) {
         log.info("Getting calendar dates for userId: {}, year: {}, month: {}", userId, year, month);
 
@@ -110,7 +125,7 @@ public class FavoriteExhibitService {
             throw new GeneralException(UserError._USER_NOT_FOUND);
         }
 
-        List<String> dateStrings = favoriteExhibitRepository.findExhibitDatesByUserIdAndYearMonth(userId, year, month);
+        List<String> dateStrings = favoriteExhibitRepository.findDatesByYearMonth(userId, year, month);
 
         List<LocalDate> exhibitDates = dateStrings.stream()
                         .map(LocalDate::parse)
@@ -124,29 +139,34 @@ public class FavoriteExhibitService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<String> getFavoriteCountries(Long userId) {
         log.info("Getting favorite countries for exhibit. userId: {}", userId);
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
         }
-        List<String> countries = favoriteExhibitRepository.findDistinctCountriesByUserId(userId);
+        List<String> countries = favoriteExhibitRepository.findDistinctCountries(userId);
         log.info("Favorite countries found: {}", countries);
 
         return countries;
     }
 
+    @Transactional(readOnly = true)
     public boolean isFavorite(Long userId, Long exhibitId) {
-        return favoriteExhibitRepository.existsByUser_UserIdAndExhibit_ExhibitId(userId, exhibitId);
+        return favoriteExhibitRepository.existsActive(userId, exhibitId);
     }
 
+    @Transactional
     public void removeFavorite(Long userId, Long exhibitId) {
         log.info("Removing favorite exhibit. userId: {}, exhibitId: {}", userId, exhibitId);
 
-        FavoriteExhibit favorite = favoriteExhibitRepository.findByUserIdAndExhibitId(userId, exhibitId)
+        FavoriteExhibit favorite = favoriteExhibitRepository.findActive(userId, exhibitId)
                 .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
 
-        favoriteExhibitRepository.delete(favorite);
+        favorite.setStatus(false);
+
+        favoriteExhibitRepository.save(favorite);
         log.info("Favorite exhibit removed successfully. favoriteId: {}", favorite.getFavoriteId());
     }
 
@@ -161,7 +181,8 @@ public class FavoriteExhibitService {
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
                 .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
+                .exhibitStatus(exhibit.getStatus())
+                .favoriteStatus(favorite.isStatus())
                 .exhibitPeriod(period)
                 .exhibitHallName(hall != null ? hall.getName() : null )
                 .country(hall != null ? hall.getCountry() : null)
