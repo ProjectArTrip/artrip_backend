@@ -197,7 +197,7 @@ public class HomeService {
         return results;
     }
 
-    public List<HomeListResponse> getToday(TodayRandomRequestDto request){
+    public List<HomeListResponse> getRandomToday(TodayRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.fromToday(request);
 
