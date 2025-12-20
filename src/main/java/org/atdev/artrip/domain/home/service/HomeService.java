@@ -51,85 +51,23 @@ public class HomeService {
 //    }
 
 
+    // 장르 전체 조회
     public List<String> getAllGenres() {
         return exhibitRepository.findAllGenres();
     }
 
-    public List<HomeListResponse> getAllgenreExhibits(String genre,Boolean isDomestic){
-
-        return exhibitRepository.findAllByGenreAndDomestic(genre, isDomestic)
-                .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
-                .toList();
-    }
-
-    public ExhibitDetailResponse getExhibitDetail(Long exhibitId) {
-
-        Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
-
-        return homeConverter.toHomeExhibitResponse(exhibit);
-    }
-
-    public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
-
-        if (!userRepository.existsById(userId)) {
-            throw new GeneralException(UserError._USER_NOT_FOUND);
-        }
-
-        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
-                .stream()
-                .map(UserKeyword::getKeyword)
-                .toList();
-
-        Set<String> genres = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.GENRE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
-        Set<String> styles = userKeywords.stream()
-                .filter(k -> k.getType() == KeywordType.STYLE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
-        return exhibitRepository.findAllByKeywords(genres,styles,isDomestic)
-                .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
-                .toList();
-    }
-
-    public List<HomeListResponse> getAllSchedule(Boolean isDomestic,LocalDate date){
-
-        return exhibitRepository.findAllByDate(isDomestic,date)
-                .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
-                .toList();
-    }
-
+    // 해외 국가 목록 조회
     public List<String> getOverseas(){
         return exhibitHallRepository.findAllOverseasCountries();
     }
 
+    // 국내 지역 목록 조회
     public List<String> getDomestic(){
         return exhibitHallRepository.findAllDomesticRegions();
     }
 
-    public List<HomeListResponse> getRandomOverseas(String country, int limit){
 
-        return exhibitRepository.findRandomByCountry(country,limit)
-                .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
-                .toList();
-    }
-
-    public List<HomeListResponse> getRandomDomestic(String region, Pageable pageable){
-
-        return exhibitRepository.findAllByRegion(region, pageable)
-                .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
-                .toList();
-    }
-
+    //필터 전체 조회
     public FilterResponse getFilterExhibit(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, pageable, cursorId);
@@ -137,6 +75,7 @@ public class HomeService {
         return homeConverter.toFilterResponse(slice);
     }
 
+    // 사용자 맞춤 전시 랜덤 추천
     @Transactional
     public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequestDto request){
 
@@ -166,10 +105,10 @@ public class HomeService {
         return results;
     }
 
+    // 이번주 랜덤 전시 추천
     public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.from(request);
-
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
         adjustLocationFields(
@@ -182,6 +121,7 @@ public class HomeService {
         return results;
     }
 
+    // 장르별 전시 랜덤 추천
     public List<HomeListResponse> getRandomGenre(GenreRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.fromGenre(request);
@@ -198,7 +138,8 @@ public class HomeService {
         return results;
     }
 
-    public List<HomeListResponse> getToday(TodayRandomRequestDto request){
+    // 오늘날 전시 랜덤 추천
+    public List<HomeListResponse> getRandomToday(TodayRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.fromToday(request);
 

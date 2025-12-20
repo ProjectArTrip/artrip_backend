@@ -139,7 +139,7 @@ public class HomeController {
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
             @Valid @RequestBody TodayRandomRequestDto request){
 
-        List<HomeListResponse> exhibits = homeService.getToday(request);
+        List<HomeListResponse> exhibits = homeService.getRandomToday(request);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
