@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.exhibit.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.exhibit.service.ExhibitService;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
@@ -28,6 +29,7 @@ import java.util.List;
 public class ExhibitController {
 
     private final HomeService homeService;
+    private final ExhibitService exhibitService;
 
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
@@ -41,20 +43,6 @@ public class ExhibitController {
         return ResponseEntity.ok(CommonResponse.onSuccess(genres));
     }
 
-    @Operation(summary = "장르별 전시 조회", description = "true=국내, false=국외")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_GENRE_NOT_FOUND}
-    )
-    @GetMapping("/genre/all")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllExhibits(
-            @RequestParam String genre,
-            @RequestParam Boolean isDomestic){
-
-        List<HomeListResponse> exhibits = homeService.getAllgenreExhibits(genre,isDomestic);
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-    }
-
     @Operation(summary = "전시 상세 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
@@ -64,42 +52,11 @@ public class ExhibitController {
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
             @PathVariable Long id){
 
-        ExhibitDetailResponse exhibit= homeService.getExhibitDetail(id);
+        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
 
-    @Operation(summary = "사용자 맞춤 전시 전체 조회")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping("/personalized/all")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllPersonalized(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestParam Boolean isDomestic){
-
-        long userId = Long.parseLong(userDetails.getUsername());
-
-        List<HomeListResponse> exhibits= homeService.getAllPersonalized(userId,isDomestic);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-    }
-
-    @Operation(summary = "이번주 전시 일정 전체 조회")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping("/schedule/all")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllSchedule(
-            @RequestParam(name = "isDomestic", required = false) Boolean isDomestic,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
-
-        List<HomeListResponse> exhibits= homeService.getAllSchedule(isDomestic,date);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
-    }
 
     @Operation(summary = "해외 국가 목록 조회")
     @ApiErrorResponses(
@@ -125,33 +82,8 @@ public class ExhibitController {
         return ResponseEntity.ok(CommonResponse.onSuccess(domesticList));
     }
 
-    @Operation(summary = "해외 특정 국가 랜덤 조회",description = "특정 해외 국가 전시데이터 3개 랜덤조회")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping("/overseas/random")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomOverseas(@RequestParam String country){
 
-        List<HomeListResponse> random = homeService.getRandomOverseas(country, 3);
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(random));
-    }
-
-    @Operation(summary = "국내 지역 전체 조회",description = "국내 지역 전시 전체 조회 1p 당 20개씩 조회.")
-    @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping("/domestic/all")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomDomestic(@RequestParam String region){
-
-        List<HomeListResponse> random = homeService.getRandomDomestic(region, Pageable.ofSize(20));
-
-        return ResponseEntity.ok(CommonResponse.onSuccess(random));
-    }
-
-    @Operation(summary = "전시 조건 필터",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
+    @Operation(summary = "전시 조건 필터 전체 조회",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
