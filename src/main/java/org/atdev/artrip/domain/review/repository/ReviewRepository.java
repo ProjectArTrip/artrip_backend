@@ -30,4 +30,6 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     Slice<Review> findByExhibitIdAndIdLessThan(@Param("exhibitId") Long exhibitId,
                                             @Param("cursor") Long cursor,
                                             Pageable pageable);
+
+    long countByExhibit_ExhibitId(Long exhibitId);
 }

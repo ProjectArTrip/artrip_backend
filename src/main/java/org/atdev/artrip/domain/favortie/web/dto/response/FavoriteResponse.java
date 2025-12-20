@@ -14,7 +14,8 @@ public class FavoriteResponse {
     private Long exhibitId;
     private String title;
     private String posterUrl;
-    private Status status;
+    private Status exhibitStatus;
+    private boolean favoriteStatus;
     private String exhibitPeriod;
     private String exhibitHallName;
     private String country;

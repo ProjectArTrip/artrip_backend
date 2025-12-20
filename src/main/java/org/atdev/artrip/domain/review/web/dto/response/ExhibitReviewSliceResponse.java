@@ -13,4 +13,5 @@ public class ExhibitReviewSliceResponse {
     private List<ReviewExhibitResponse> reviews;
     private Long nextCursor;
     private boolean hasNext;
+    private long reviewTotalCount;
 }

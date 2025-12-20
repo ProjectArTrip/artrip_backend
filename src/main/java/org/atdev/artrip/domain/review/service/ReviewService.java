@@ -167,6 +167,8 @@ public class ReviewService {
     @Transactional
     public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size){
 
+        long totalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
+
         Slice<Review> slice;
 
         if (cursor == null) {
@@ -184,6 +186,6 @@ public class ReviewService {
                 .map(ReviewConverter::toExhibitReviewSummary)
                 .toList();
 
-        return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext());
+        return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext(),totalCount);
     }
 }

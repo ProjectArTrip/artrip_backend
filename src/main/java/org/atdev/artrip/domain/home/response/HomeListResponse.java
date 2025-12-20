@@ -1,5 +1,6 @@
 package org.atdev.artrip.domain.home.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import org.atdev.artrip.domain.Enum.Status;
 @Setter
 @Builder
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class HomeListResponse {
 
     private Long exhibit_id;
@@ -20,5 +22,8 @@ public class HomeListResponse {
     private String exhibitPeriod;
 
     private String hallName;
+    private String countryName;
+    private String regionName;
+
 }
 
