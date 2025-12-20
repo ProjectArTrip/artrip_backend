@@ -66,7 +66,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .leftJoin(f).on(f.exhibit.eq(e))
                 .where(
                         e.status.ne(Status.FINISHED),
-                        typeFilter(dto, h),
+                        isDomesticEq(dto.getIsDomestic()),
                         dateFilter(dto.getStartDate(), dto.getEndDate(),e),
                         cursorCondition(cursor, cursorFavoriteCount, dto.getSortType(), e, f),
                         countryEq(dto.getCountry()),
@@ -168,16 +168,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         }
     }
 
-    private BooleanExpression typeFilter(ExhibitFilterRequestDto dto, QExhibitHall h) {
-        if (dto.getType() == null) return null;
-
-        if ("DOMESTIC".equalsIgnoreCase(dto.getType())) {
-            return h.isDomestic.isTrue();
-        } else if ("OVERSEAS".equalsIgnoreCase(dto.getType())) {
-            return h.isDomestic.isFalse();
-        }
-        return null;
-    }
 
     private BooleanExpression dateFilter(LocalDate startDate, LocalDate endDate, QExhibit e) {
 

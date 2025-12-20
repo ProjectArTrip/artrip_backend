@@ -14,7 +14,8 @@ public class ExhibitFilterRequestDto {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private String type;    // 국내,해외
+    private Boolean isDomestic;
+
     private String country;
     private String region;
 

@@ -169,7 +169,6 @@ public class HomeService {
     public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequestDto request){
 
         RandomExhibitRequest filter = homeConverter.from(request);
-
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
         adjustLocationFields(
