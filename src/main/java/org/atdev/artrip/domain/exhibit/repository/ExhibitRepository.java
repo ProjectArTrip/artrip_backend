@@ -21,37 +21,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
 
 
     @Query(value = """
-    SELECT e.*
-    FROM exhibit e
-    JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
-    JOIN keyword k ON ek.keyword_id = k.keyword_id
-    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-    WHERE k.type = 'GENRE'
-      AND k.name = :genre
-      AND e.end_date >= NOW()
-      AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
-    ORDER BY RAND()
-    LIMIT :limit
-    """, nativeQuery = true)
-    List<Exhibit> findThemeExhibits(@Param("genre") String genre, @Param("limit") int limit, @Param("isDomestic") Boolean isDomestic);
-
-    @Query(value = """
-    SELECT e.*
-    FROM exhibit e
-    JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
-    JOIN keyword k ON ek.keyword_id = k.keyword_id
-    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-    WHERE k.type = 'GENRE'
-      AND k.name = :genre
-      AND e.end_date >= NOW()
-      AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
-    """, nativeQuery = true)
-    List<Exhibit> findAllByGenreAndDomestic(
-            @Param("genre") String genre,
-            @Param("isDomestic") Boolean isDomestic
-    );
-
-    @Query(value = """
         SELECT DISTINCT k.name
         FROM keyword k
         WHERE k.type = 'GENRE'
@@ -59,23 +28,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
         """, nativeQuery = true)
     List<String> findAllGenres();
 
-
-    @Query(value = """
-    SELECT e.* 
-    FROM exhibit e
-    JOIN exhibit_keyword ek ON e.exhibit_id = ek.exhibit_id
-    JOIN keyword k ON ek.keyword_id = k.keyword_id
-    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-    WHERE e.end_date >= NOW()
-      AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
-      AND ((k.type = 'GENRE' AND k.name IN (:genres))
-           OR (k.type = 'STYLE' AND k.name IN (:styles)))
-    """, nativeQuery = true)
-    List<Exhibit> findAllByKeywords(
-            @Param("genres") Set<String> genres,
-            @Param("styles") Set<String> styles,
-            @Param("isDomestic") Boolean isDomestic
-    );
 
     @Modifying
     @Query(value = """
@@ -98,16 +50,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
 
 
 
-    @Query(value = """
-        SELECT e.* 
-        FROM exhibit e
-        JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-        WHERE :date BETWEEN e.start_date AND e.end_date
-        AND (:isDomestic IS NULL OR h.is_domestic = :isDomestic)
-        """, nativeQuery = true)
-    List<Exhibit> findAllByDate(@Param("isDomestic") Boolean isDomestic,
-                                @Param("date") LocalDate date);
-
     @Query("SELECT DISTINCT e FROM Exhibit e LEFT JOIN FETCH e.keywords WHERE e.exhibitId = :id")
     Optional<Exhibit> findByIdWithKeywords(@Param("id") Long id);
 
@@ -117,26 +59,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     Page<Exhibit> findByDescriptionContaining(String description, Pageable pageable);
 
     long countByExhibitHall_ExhibitHallId(Long exhibitHallId);
-
-
-    @Query(value = """
-    SELECT e.*
-    FROM exhibit e
-    JOIN exhibit_hall h ON e.exhibit_hall_id = h.exhibit_hall_id
-    WHERE h.country = :country
-    ORDER BY RAND()
-    LIMIT :limit
-""", nativeQuery = true)
-    List<Exhibit> findRandomByCountry(@Param("country") String country, @Param("limit") int limit);
-
-    @Query("""
-    SELECT e
-    FROM Exhibit e
-    JOIN e.exhibitHall h
-    WHERE h.region = :region
-""")
-    Page<Exhibit> findAllByRegion(@Param("region") String region, Pageable pageable);
-
 
     Optional<Exhibit> findByTitleAndStartDate(String title, LocalDate startDate);
 }
