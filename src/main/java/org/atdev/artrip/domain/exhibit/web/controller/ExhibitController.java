@@ -83,7 +83,7 @@ public class ExhibitController {
     }
 
 
-    @Operation(summary = "전시 조건 필터",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
+    @Operation(summary = "전시 조건 필터 전체 조회",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
