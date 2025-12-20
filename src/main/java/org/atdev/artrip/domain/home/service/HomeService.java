@@ -63,13 +63,6 @@ public class HomeService {
                 .toList();
     }
 
-    public ExhibitDetailResponse getExhibitDetail(Long exhibitId) {
-
-        Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
-
-        return homeConverter.toHomeExhibitResponse(exhibit);
-    }
 
     public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
 
@@ -106,13 +99,6 @@ public class HomeService {
                 .toList();
     }
 
-    public List<String> getOverseas(){
-        return exhibitHallRepository.findAllOverseasCountries();
-    }
-
-    public List<String> getDomestic(){
-        return exhibitHallRepository.findAllDomesticRegions();
-    }
 
     public List<HomeListResponse> getRandomOverseas(String country, int limit){
 
@@ -129,6 +115,16 @@ public class HomeService {
                 .map(homeConverter::toHomeExhibitListResponse)
                 .toList();
     }
+    //------------------------------------------------------------------------------------------------------------
+
+    public List<String> getOverseas(){
+        return exhibitHallRepository.findAllOverseasCountries();
+    }
+
+    public List<String> getDomestic(){
+        return exhibitHallRepository.findAllDomesticRegions();
+    }
+
 
     public FilterResponse getFilterExhibit(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
 

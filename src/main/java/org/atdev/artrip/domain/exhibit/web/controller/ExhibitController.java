@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.exhibit.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.exhibit.service.ExhibitService;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
@@ -28,6 +29,7 @@ import java.util.List;
 public class ExhibitController {
 
     private final HomeService homeService;
+    private final ExhibitService exhibitService;
 
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
@@ -64,7 +66,7 @@ public class ExhibitController {
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
             @PathVariable Long id){
 
-        ExhibitDetailResponse exhibit= homeService.getExhibitDetail(id);
+        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
