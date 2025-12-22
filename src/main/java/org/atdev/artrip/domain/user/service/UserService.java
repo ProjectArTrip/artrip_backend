@@ -84,7 +84,7 @@ public class UserService {
             throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
         }
 
-        String nickname = dto.getNickName().trim();
+        String nickname = dto.getNickName();
 
         if (nickname.isBlank() || nickname.contains(" ")) {
             throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
