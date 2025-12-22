@@ -9,6 +9,7 @@ import org.atdev.artrip.domain.user.web.dto.responseDto.NicknameResponseDto;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.KeywordError;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -40,6 +41,10 @@ public class UserController {
     }
 
     @PostMapping("/profile")
+    @ApiErrorResponses(
+            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
+            user = {UserError._PROFILE_IMAGE_NOT_EXIST,UserError._USER_NOT_FOUND}
+    )
     public ResponseEntity<CommonResponse<String>> getUpdateImage(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestPart("image") MultipartFile image){
@@ -52,6 +57,10 @@ public class UserController {
     }
 
     @DeleteMapping("/profile")
+    @ApiErrorResponses(
+            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
+            user = {UserError._PROFILE_IMAGE_NOT_EXIST,UserError._USER_NOT_FOUND}
+    )
     public ResponseEntity<CommonResponse<String>> getDeleteImage(
             @AuthenticationPrincipal UserDetails userDetails){
 
@@ -63,6 +72,10 @@ public class UserController {
     }
 
     @PatchMapping("/nickname")
+    @ApiErrorResponses(
+            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
+            user = {UserError._DUPLICATE_NICKNAME,UserError._USER_NOT_FOUND,UserError._NICKNAME_EMPTY}
+    )
     public ResponseEntity<CommonResponse<NicknameResponseDto>> updateNickname(
             @AuthenticationPrincipal UserDetails user,
             @RequestBody NicknameRequestDto dto) {

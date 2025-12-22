@@ -56,7 +56,7 @@ public class UserService {
     public NicknameResponseDto updateNickName(Long userId, NicknameRequestDto dto){
 
         //1. 유저 검사
-        //2. 닉네임 유효성 검사
+        //2. 닉네임 유효성 검사 + 공백 금지
         //3. 기존과 동일한지 체크
         //4. 중복 검사
         //5. 업뎃 후 반환
@@ -68,6 +68,10 @@ public class UserService {
             throw new GeneralException(UserError._NICKNAME_EMPTY);
         }
         newNick = newNick.trim();
+
+        if (newNick.contains(" ")) {
+            throw new GeneralException(UserError._NICKNAME_EMPTY);
+        }
 
         if (newNick.equals(user.getNickName())){
             return new NicknameResponseDto(user.getNickName());
