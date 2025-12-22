@@ -7,7 +7,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MypageRequestDto {
+public class NicknameRequestDto {
 
     private String NickName;
 

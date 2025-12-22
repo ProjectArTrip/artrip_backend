@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.keyword.web.dto.KeywordRequest;
 import org.atdev.artrip.domain.user.service.UserService;
-import org.atdev.artrip.domain.user.web.dto.requestDto.MypageRequestDto;
-import org.atdev.artrip.domain.user.web.dto.responseDto.MypageResponseDto;
+import org.atdev.artrip.domain.user.web.dto.requestDto.NicknameRequestDto;
+import org.atdev.artrip.domain.user.web.dto.responseDto.NicknameResponseDto;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.KeywordError;
@@ -15,8 +15,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping("/profile")
-    public ResponseEntity<String> getUpdateMe(
+    public ResponseEntity<CommonResponse<String>> getUpdateImage(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestPart("images") MultipartFile images){
 
@@ -50,18 +48,31 @@ public class UserController {
 
         userService.updateProfileImg(userId,images);
 
-        return null;
+        return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 생성"));
     }
-    @PostMapping("/nickname")
-    public ResponseEntity<MypageResponseDto> updateNickName(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @RequestBody MypageRequestDto dto){
+
+    @DeleteMapping("/profile")
+    public ResponseEntity<CommonResponse<String>> getDeleteImage(
+            @AuthenticationPrincipal UserDetails userDetails){
 
         Long userId = Long.parseLong(userDetails.getUsername());
 
-        userService.updateNickName(userId,dto);
+        userService.deleteProfileImg(userId);
 
-        return null;
+        return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 삭제"));
     }
+
+    @PatchMapping("/nickname")
+    public ResponseEntity<CommonResponse<NicknameResponseDto>> updateNickname(
+            @AuthenticationPrincipal UserDetails user,
+            @RequestBody NicknameRequestDto dto) {
+
+        Long userId = Long.valueOf(user.getUsername());
+
+        NicknameResponseDto response = userService.updateNickName(userId, dto);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
 
 }
