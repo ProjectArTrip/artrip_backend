@@ -42,6 +42,9 @@ public class User {
     @Column(name = "stamp_num")
     private Byte stampNum;
 
+    @Column(name = "profile_image_Url")
+    private String profileImageUrl;
+
     @Column(name = "nick_name")
     private String nickName;
 
@@ -71,5 +74,13 @@ public class User {
         }
 
         return changed;
+    }
+
+    public void updateNickname(String nickName) {
+        this.nickName=nickName.trim();
+    }
+
+    public void updateProfileImage(String url){
+        this.profileImageUrl=url;
     }
 }

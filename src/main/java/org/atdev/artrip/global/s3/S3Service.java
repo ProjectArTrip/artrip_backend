@@ -122,6 +122,22 @@ public class S3Service {
         }
     }
 
+//단일 delete
+    public void delete(String imageUrl) {
+        try {
+            String key = getKeyFromImageUrls(imageUrl);
+
+            s3Client.deleteObject(builder -> builder
+                    .bucket(bucketName)
+                    .key(key)
+            );
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage(), exception);
+            throw new GeneralException(S3Error._IO_EXCEPTION_DELETE_FILE);
+        }
+    }
+
     // 삭제에 필요한 key 반환
     private String getKeyFromImageUrls(String imageUrl) {
         try {

@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Query("SELECT u FROM User u JOIN FETCH u.socialAccounts sa WHERE sa.provider = :provider AND sa.providerId = :providerId")
     Optional<User> findBySocialAccountsProviderAndProviderId(@Param("provider") Provider provider, @Param("providerId") String providerId);
+
+    boolean existsByNickname(String nickname);
 }
