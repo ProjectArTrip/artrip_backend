@@ -61,20 +61,12 @@ public class UserService {
         //4. 중복 검사
         //5. 업뎃 후 반환
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(UserError._USER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
 
-        String newNick = dto.getNickName();
-        if (newNick == null || newNick.trim().isBlank()) {
-            throw new GeneralException(UserError._NICKNAME_EMPTY);
-        }
-        newNick = newNick.trim();
+        String newNick = validateNickname(dto);
 
-        if (newNick.contains(" ")) {
-            throw new GeneralException(UserError._NICKNAME_EMPTY);
-        }
-
-        if (newNick.equals(user.getNickName())){
-            return new NicknameResponseDto(user.getNickName());
+        if (newNick.equals(user.getNickName())) {
+            return new NicknameResponseDto(newNick);
         }
 
         if (userRepository.existsByNickName(newNick)) {
@@ -84,6 +76,21 @@ public class UserService {
         user.updateNickname(newNick);
 
         return new NicknameResponseDto(newNick);
+    }
+
+    private String validateNickname(NicknameRequestDto dto) {
+
+        if (dto == null || dto.getNickName() == null) {
+            throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
+        }
+
+        String nickname = dto.getNickName().trim();
+
+        if (nickname.isBlank() || nickname.contains(" ")) {
+            throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
+        }
+
+        return nickname;
     }
 
     @Transactional

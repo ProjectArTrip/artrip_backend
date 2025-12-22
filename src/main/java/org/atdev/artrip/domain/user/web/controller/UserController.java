@@ -74,7 +74,7 @@ public class UserController {
     @PatchMapping("/nickname")
     @ApiErrorResponses(
             common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
-            user = {UserError._DUPLICATE_NICKNAME,UserError._USER_NOT_FOUND,UserError._NICKNAME_EMPTY}
+            user = {UserError._DUPLICATE_NICKNAME,UserError._USER_NOT_FOUND,UserError._NICKNAME_BAD_REQUEST}
     )
     public ResponseEntity<CommonResponse<NicknameResponseDto>> updateNickname(
             @AuthenticationPrincipal UserDetails user,
