@@ -42,11 +42,11 @@ public class UserController {
     @PostMapping("/profile")
     public ResponseEntity<CommonResponse<String>> getUpdateImage(
             @AuthenticationPrincipal UserDetails userDetails,
-            @RequestPart("images") MultipartFile images){
+            @RequestPart("image") MultipartFile image){
 
         Long userId = Long.parseLong(userDetails.getUsername());
 
-        userService.updateProfileImg(userId,images);
+        userService.updateProfileImg(userId,image);
 
         return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 생성"));
     }

@@ -73,7 +73,7 @@ public class UserService {
             return new NicknameResponseDto(user.getNickName());
         }
 
-        if (userRepository.existsByNickname(newNick)) {
+        if (userRepository.existsByNickName(newNick)) {
             throw new GeneralException(UserError._DUPLICATE_NICKNAME);
         }
 
