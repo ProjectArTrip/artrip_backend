@@ -11,6 +11,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.KeywordError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,7 +41,8 @@ public class UserController {
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 
-    @PostMapping("/profile")
+    @Operation(summary = "프로필 이미지 추가", description = "프로필 이미지를 추가합니다")
+    @PostMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiErrorResponses(
             common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
             user = {UserError._PROFILE_IMAGE_NOT_EXIST,UserError._USER_NOT_FOUND}
@@ -56,6 +58,7 @@ public class UserController {
         return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 생성"));
     }
 
+    @Operation(summary = "프로필 이미지 삭제", description = "기본 프로필 이미지로 변경됩니다")
     @DeleteMapping("/profile")
     @ApiErrorResponses(
             common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
@@ -71,6 +74,7 @@ public class UserController {
         return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 삭제"));
     }
 
+    @Operation(summary = "닉네임 설정", description = "공백 입력 불가")
     @PatchMapping("/nickname")
     @ApiErrorResponses(
             common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
