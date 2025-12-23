@@ -81,9 +81,11 @@ public class HomeController {
     )
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
-            @Valid @RequestBody ScheduleRandomRequest request){
+            @Valid @RequestBody ScheduleRandomRequest request,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request);
+        Long userId = Long.parseLong(userDetails.getUsername());
+        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -112,9 +114,11 @@ public class HomeController {
     )
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @Valid @RequestBody GenreRandomRequest request){
+            @Valid @RequestBody GenreRandomRequest request,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        List<HomeListResponse> exhibits = homeService.getRandomGenre(request);
+        Long userId = Long.parseLong(userDetails.getUsername());
+        List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
@@ -140,9 +144,11 @@ public class HomeController {
     )
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @Valid @RequestBody TodayRandomRequest request){
+            @Valid @RequestBody TodayRandomRequest request,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        List<HomeListResponse> exhibits = homeService.getRandomToday(request);
+        Long userId = Long.parseLong(userDetails.getUsername());
+        List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }

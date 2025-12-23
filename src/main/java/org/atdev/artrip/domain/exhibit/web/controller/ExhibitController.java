@@ -14,6 +14,8 @@ import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,7 +28,9 @@ public class ExhibitController {
     private final HomeService homeService;
     private final ExhibitService exhibitService;
 
-
+    private Long getUserId(UserDetails userDetails) {
+        return userDetails != null ? Long.parseLong(userDetails.getUsername()) : null;
+    }
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
@@ -45,9 +49,11 @@ public class ExhibitController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
-            @PathVariable Long id){
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id);
+        Long userId = getUserId(userDetails);
+        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id, userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
@@ -86,9 +92,10 @@ public class ExhibitController {
     @PostMapping("/filter")
     public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
-                                                            @PageableDefault(size = 20) Pageable pageable){
-
-        FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor);
+                                                            @PageableDefault(size = 20) Pageable pageable,
+                                                            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = getUserId(userDetails);
+        FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor,userId);
 
         return ResponseEntity.ok(exhibits);
 
