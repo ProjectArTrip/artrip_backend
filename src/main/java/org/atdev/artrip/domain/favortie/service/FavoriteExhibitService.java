@@ -8,6 +8,7 @@ import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.favortie.data.FavoriteExhibit;
 import org.atdev.artrip.domain.favortie.web.dto.response.CalenderResponse;
+import org.atdev.artrip.domain.favortie.web.dto.response.CountryFavoriteResponse;
 import org.atdev.artrip.domain.favortie.web.dto.response.FavoriteResponse;
 import org.atdev.artrip.domain.favortie.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
@@ -50,6 +51,7 @@ public class FavoriteExhibitService {
         FavoriteExhibit favorite = FavoriteExhibit.builder()
                 .user(user)
                 .exhibit(exhibit)
+                .status(true)
                 .createdAt(LocalDateTime.now())
                 .build();
         FavoriteExhibit saved = favoriteExhibitRepository.save(favorite);
@@ -124,16 +126,21 @@ public class FavoriteExhibitService {
                 .build();
     }
 
-    public List<String> getFavoriteCountries(Long userId) {
+    public List<CountryFavoriteResponse> getFavoriteCountries(Long userId) {
         log.info("Getting favorite countries for exhibit. userId: {}", userId);
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
         }
-        List<String> countries = favoriteExhibitRepository.findDistinctCountriesByUserId(userId);
-        log.info("Favorite countries found: {}", countries);
+        List<Object[]> results = favoriteExhibitRepository.findCountriesWithCountByUserId(userId);
+        log.info("Favorite countries found: {}", results.size());
 
-        return countries;
+        return results.stream()
+                .map(row -> CountryFavoriteResponse.builder()
+                        .country((String) row[0])
+                        .favoriteCount((Long) row[1])
+                        .build())
+                .collect(Collectors.toList());
     }
 
     public boolean isFavorite(Long userId, Long exhibitId) {
@@ -161,7 +168,8 @@ public class FavoriteExhibitService {
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
                 .posterUrl(exhibit.getPosterUrl())
-                .status(exhibit.getStatus())
+                .exhibitStatus(exhibit.getStatus())
+                .hasActive(favorite.isStatus())
                 .exhibitPeriod(period)
                 .exhibitHallName(hall != null ? hall.getName() : null )
                 .country(hall != null ? hall.getCountry() : null)

@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
-import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.exhibit.web.dto.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
+import org.atdev.artrip.domain.favortie.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.converter.HomeConverter;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +41,14 @@ public class HomeService {
     private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
     private final HomeConverter homeConverter;
+    private final FavoriteExhibitRepository favoriteExhibitRepository;
+
+    private Set<Long> getFavoriteIds(Long userId) {
+        if (userId == null) {
+            return Collections.emptySet();
+        }
+        return favoriteExhibitRepository.findExhibitIdsByUserId(userId);
+    }
 
 
 
@@ -55,20 +65,26 @@ public class HomeService {
         return exhibitRepository.findAllGenres();
     }
 
-    public List<HomeListResponse> getAllgenreExhibits(String genre,Boolean isDomestic){
+    public List<HomeListResponse> getAllgenreExhibits(String genre,Boolean isDomestic, Long userId){
+        Set<Long> favoritesIds = getFavoriteIds(userId);
 
         return exhibitRepository.findAllByGenreAndDomestic(genre, isDomestic)
                 .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
+                .map(exhibit -> homeConverter.toHomeExhibitListResponse(exhibit, favoritesIds.contains(exhibit.getExhibitId())))
                 .toList();
     }
 
-    public ExhibitDetailResponse getExhibitDetail(Long exhibitId) {
+    public ExhibitDetailResponse getExhibitDetail(Long exhibitId, Long userId) {
 
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
-        return homeConverter.toHomeExhibitResponse(exhibit);
+        boolean isFavorite = false;
+        if (userId != null) {
+            isFavorite = favoriteExhibitRepository.existsByUser_UserIdAndExhibit_ExhibitId(userId, exhibitId);
+        }
+
+        return homeConverter.toHomeExhibitResponse(exhibit, isFavorite);
     }
 
     public List<HomeListResponse> getAllPersonalized(Long userId,Boolean isDomestic){
@@ -92,17 +108,19 @@ public class HomeService {
                 .map(Keyword::getName)
                 .collect(Collectors.toSet());
 
+        Set<Long> favoritesIds = getFavoriteIds(userId);
         return exhibitRepository.findAllByKeywords(genres,styles,isDomestic)
                 .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
+                .map(exhibit -> homeConverter.toHomeExhibitListResponse(exhibit, favoritesIds.contains(exhibit.getExhibitId())))
                 .toList();
     }
 
-    public List<HomeListResponse> getAllSchedule(Boolean isDomestic,LocalDate date){
+    public List<HomeListResponse> getAllSchedule(Boolean isDomestic,LocalDate date, Long userId) {
+        Set<Long> favoritesIds = getFavoriteIds(userId);
 
         return exhibitRepository.findAllByDate(isDomestic,date)
                 .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
+                .map(exhibit -> homeConverter.toHomeExhibitListResponse(exhibit, favoritesIds.contains(exhibit.getExhibitId())))
                 .toList();
     }
 
@@ -114,27 +132,29 @@ public class HomeService {
         return exhibitHallRepository.findAllDomesticRegions();
     }
 
-    public List<HomeListResponse> getRandomOverseas(String country, int limit){
-
+    public List<HomeListResponse> getRandomOverseas(String country, int limit, Long userId) {
+        Set<Long> favoritesIds = getFavoriteIds(userId);
         return exhibitRepository.findRandomByCountry(country,limit)
                 .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
+                .map(exhibit -> homeConverter.toHomeExhibitListResponse(exhibit, favoritesIds.contains(exhibit.getExhibitId())))
                 .toList();
     }
 
-    public List<HomeListResponse> getRandomDomestic(String region, Pageable pageable){
+    public List<HomeListResponse> getRandomDomestic(String region, Pageable pageable, Long userId) {
+        Set<Long> favoritesIds = getFavoriteIds(userId);
 
         return exhibitRepository.findAllByRegion(region, pageable)
                 .stream()
-                .map(homeConverter::toHomeExhibitListResponse)
+                .map(exhibit -> homeConverter.toHomeExhibitListResponse(exhibit, favoritesIds.contains(exhibit.getExhibitId())))
                 .toList();
     }
 
-    public FilterResponse getFilterExhibit(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
+    public FilterResponse getFilterExhibit(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId, Long userId) {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, pageable, cursorId);
+        Set<Long> favoritesIds = getFavoriteIds(userId);
 
-        return homeConverter.toFilterResponse(slice);
+        return homeConverter.toFilterResponse(slice, favoritesIds);
     }
 
     @Transactional

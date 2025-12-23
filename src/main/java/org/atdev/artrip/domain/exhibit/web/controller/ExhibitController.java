@@ -2,7 +2,7 @@ package org.atdev.artrip.domain.exhibit.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.exhibit.web.dto.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
@@ -30,6 +30,10 @@ public class ExhibitController {
     private final HomeService homeService;
 
 
+    private Long getUserId(UserDetails userDetails) {
+        return userDetails != null ? Long.parseLong(userDetails.getUsername()) : null;
+    }
+
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
@@ -49,9 +53,11 @@ public class ExhibitController {
     @GetMapping("/genre/all")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllExhibits(
             @RequestParam String genre,
-            @RequestParam Boolean isDomestic){
+            @RequestParam Boolean isDomestic,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        List<HomeListResponse> exhibits = homeService.getAllgenreExhibits(genre,isDomestic);
+        Long userId = getUserId(userDetails);
+        List<HomeListResponse> exhibits = homeService.getAllgenreExhibits(genre,isDomestic, userId);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
@@ -62,9 +68,11 @@ public class ExhibitController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
-            @PathVariable Long id){
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        ExhibitDetailResponse exhibit= homeService.getExhibitDetail(id);
+        Long userId = getUserId(userDetails);
+        ExhibitDetailResponse exhibit= homeService.getExhibitDetail(id, userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
@@ -94,9 +102,11 @@ public class ExhibitController {
     @GetMapping("/schedule/all")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getAllSchedule(
             @RequestParam(name = "isDomestic", required = false) Boolean isDomestic,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date){
+            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        List<HomeListResponse> exhibits= homeService.getAllSchedule(isDomestic,date);
+        Long userId = Long.parseLong(userDetails.getUsername());
+        List<HomeListResponse> exhibits= homeService.getAllSchedule(isDomestic,date,userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -131,9 +141,12 @@ public class ExhibitController {
             home = {HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
     @GetMapping("/overseas/random")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomOverseas(@RequestParam String country){
+    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomOverseas(
+            @RequestParam String country,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        List<HomeListResponse> random = homeService.getRandomOverseas(country, 3);
+        Long  userId = getUserId(userDetails);
+        List<HomeListResponse> random = homeService.getRandomOverseas(country, 3, userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(random));
     }
@@ -144,9 +157,12 @@ public class ExhibitController {
             home = {HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
     @GetMapping("/domestic/all")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomDomestic(@RequestParam String region){
+    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomDomestic(
+            @RequestParam String region,
+            @AuthenticationPrincipal UserDetails userDetails){
 
-        List<HomeListResponse> random = homeService.getRandomDomestic(region, Pageable.ofSize(20));
+        Long  userId = getUserId(userDetails);
+        List<HomeListResponse> random = homeService.getRandomDomestic(region, Pageable.ofSize(20),  userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(random));
     }
@@ -159,9 +175,11 @@ public class ExhibitController {
     @PostMapping("/filter")
     public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterRequestDto dto,
                                                             @RequestParam(required = false) Long cursor,
-                                                            @PageableDefault(size = 20) Pageable pageable){
+                                                            @PageableDefault(size = 20) Pageable pageable,
+                                                            @AuthenticationPrincipal UserDetails userDetails){
 
-        FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor);
+        Long userId = getUserId(userDetails);
+        FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor, userId);
 
         return ResponseEntity.ok(exhibits);
 

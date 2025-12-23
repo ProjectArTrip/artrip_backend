@@ -17,7 +17,7 @@ public interface ExhibitHallRepository extends JpaRepository<ExhibitHall, Long> 
     @Query("SELECT DISTINCT e.country FROM ExhibitHall e WHERE e.country <> '한국'")
     List<String> findAllOverseasCountries();
 
-    @Query("SELECT DISTINCT e.region FROM ExhibitHall e WHERE e.country = '한국'")
+    @Query("SELECT DISTINCT e.region FROM ExhibitHall e WHERE e.country IN ('한국', '대한민국')")
     List<String> findAllDomesticRegions();
 
 

@@ -29,6 +29,9 @@ public class FavoriteExhibit {
     @JoinColumn(name = "exhibit_id", nullable = false)
     private Exhibit exhibit;
 
+    @Column(name = "status")
+    private boolean status;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 }

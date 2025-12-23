@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.favortie.web.dto.response.CalenderResponse;
+import org.atdev.artrip.domain.favortie.web.dto.response.CountryFavoriteResponse;
 import org.atdev.artrip.domain.favortie.web.dto.response.FavoriteResponse;
 import org.atdev.artrip.domain.favortie.service.FavoriteExhibitService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
@@ -147,13 +148,13 @@ public class FavoriteController {
             favorite = {FavoriteError._FAVORITE_NOT_FOUND}
     )
     @GetMapping("/countries")
-    public CommonResponse<List<String>> getFavoriteCountries(
+    public CommonResponse<List<CountryFavoriteResponse>> getFavoriteCountries(
             @AuthenticationPrincipal UserDetails userDetails) {
 
         Long userId = Long.parseLong(userDetails.getUsername());
         log.info("Getting favorite countries for userId: {}", userId);
 
-        List<String> countries = favoriteExhibitService.getFavoriteCountries(userId);
+        List<CountryFavoriteResponse> countries = favoriteExhibitService.getFavoriteCountries(userId);
         return CommonResponse.onSuccess(countries);
     }
 

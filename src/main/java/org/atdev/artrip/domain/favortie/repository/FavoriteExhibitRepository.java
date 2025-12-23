@@ -1,5 +1,6 @@
 package org.atdev.artrip.domain.favortie.repository;
 
+import org.atdev.artrip.domain.auth.data.User;
 import org.springframework.data.repository.query.Param;
 import org.atdev.artrip.domain.favortie.data.FavoriteExhibit;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface FavoriteExhibitRepository extends JpaRepository<FavoriteExhibit, Long> {
     boolean existsByUser_UserIdAndExhibit_ExhibitId(Long userId, Long exhibitId);
@@ -60,4 +62,25 @@ public interface FavoriteExhibitRepository extends JpaRepository<FavoriteExhibit
             "WHERE f.user.userId = :userId " +
             "AND f.exhibit.exhibitId = :exhibitId")
     Optional<FavoriteExhibit> findByUserIdAndExhibitId(@Param("userId") Long userId, @Param("exhibitId") Long exhibitId);
+
+    @Query("""
+    SELECT eh.country as country, COUNT(f) as count 
+    FROM FavoriteExhibit f
+    INNER JOIN f.exhibit e
+    INNER JOIN e.exhibitHall eh
+    WHERE f.user.userId = :userId
+    AND eh.country IS NOT NULL 
+    GROUP BY eh.country
+    ORDER BY eh.country ASC 
+    """)
+    List<Object[]> findCountriesWithCountByUserId(@Param("userId") Long userId);
+
+    List<FavoriteExhibit> user(User user);
+
+    @Query("""
+        SELECT f.exhibit.exhibitId
+        FROM FavoriteExhibit f
+        WHERE f.user.userId = :userId
+        """)
+    Set<Long> findExhibitIdsByUserId(@Param("userId") Long userId);
 }

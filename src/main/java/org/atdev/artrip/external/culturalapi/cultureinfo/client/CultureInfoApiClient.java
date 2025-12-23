@@ -2,7 +2,6 @@ package org.atdev.artrip.external.culturalapi.cultureinfo.client;
 
 import io.github.resilience4j.retry.RetryRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.external.culturalapi.cultureinfo.dto.request.CultureInfoRequest;
 import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoDetailResponse;
 import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoItem;

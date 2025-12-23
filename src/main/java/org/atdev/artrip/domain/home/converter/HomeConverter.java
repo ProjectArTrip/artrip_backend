@@ -2,7 +2,7 @@ package org.atdev.artrip.domain.home.converter;
 
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
-import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.exhibit.web.dto.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
@@ -20,11 +20,11 @@ public class HomeConverter {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
-    public FilterResponse toFilterResponse(Slice<Exhibit> slice) {
+    public FilterResponse toFilterResponse(Slice<Exhibit> slice, Set<Long> favorite) {
 
         List<HomeListResponse> postDtos = slice.getContent()
                 .stream()
-                .map(this::toHomeExhibitListResponse)
+                .map(exhibit -> toHomeExhibitListResponse(exhibit, favorite.contains(exhibit.getExhibitId())))
                 .toList();
 
         Long nextCursor = slice.hasNext()
@@ -34,8 +34,7 @@ public class HomeConverter {
         return new FilterResponse(postDtos, slice.hasNext(), nextCursor);
     }
 
-
-    public HomeListResponse toHomeExhibitListResponse(Exhibit exhibit){
+    public HomeListResponse toHomeExhibitListResponse(Exhibit exhibit, boolean isFavorite){
 
         String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
 
@@ -45,10 +44,11 @@ public class HomeConverter {
                 .posterUrl(exhibit.getPosterUrl())
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
+                .isFavorite(isFavorite)
                 .build();
     }
 
-    public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit) {
+    public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit, boolean favorite) {
 
         var hall = exhibit.getExhibitHall();
         String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
@@ -64,13 +64,13 @@ public class HomeConverter {
                 .ticketUrl(exhibit.getTicketUrl())
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
-
                 .hallName(hall != null ? hall.getName() : null)// exhibit과 exhibithall이 연결되어있지않아도 체크 가능
                 .hallAddress(hall != null ? hall.getAddress() : null)
                 .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
                 .hallPhone(hall != null ? hall.getPhone() : null)
                 .hallLatitude(lat)
                 .hallLongitude(lng)
+                .isFavorite(favorite)
                 .build();
     }
 

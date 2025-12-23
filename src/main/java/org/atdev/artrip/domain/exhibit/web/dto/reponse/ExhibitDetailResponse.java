@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.exhibit.reponse;
+package org.atdev.artrip.domain.exhibit.web.dto.reponse;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -25,5 +25,7 @@ public class ExhibitDetailResponse {
     private String hallPhone;
     private Double hallLatitude;
     private Double hallLongitude;
+
+    private boolean isFavorite;
 
 }
