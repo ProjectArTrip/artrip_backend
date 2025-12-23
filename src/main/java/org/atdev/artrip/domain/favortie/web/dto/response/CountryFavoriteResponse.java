@@ -10,5 +10,5 @@ public class CountryFavoriteResponse {
 
     private String country;
     private long favoriteCount;
-    private boolean hasActive;
+    private boolean active;
 }
