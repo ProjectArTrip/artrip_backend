@@ -31,6 +31,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
 
+    private static final String NICKNAME_REGEX = "^[a-zA-Z0-9가-힣]+$";
+
+
     @Transactional
     public void saveUserKeywords(Long userId, List<Long> keywordIds) {
 
@@ -87,6 +90,10 @@ public class UserService {
         String nickname = dto.getNickName();
 
         if (nickname.isBlank() || nickname.contains(" ")) {
+            throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
+        }
+
+        if (!nickname.matches(NICKNAME_REGEX)) {
             throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
         }
 
