@@ -12,6 +12,9 @@ public enum UserError implements BaseErrorCode {
     // User Errors
     _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404-NOT_FOUND", "존재하지 않는 회원입니다."),
     _USER_FORBIDDEN(HttpStatus.FORBIDDEN, "USER403-FORBIDDEN", "접근 권한이 없습니다."),
+    _DUPLICATE_NICKNAME(HttpStatus.CONFLICT,"USER409-CONFLICT","닉네임이 중복되었습니다."),
+    _PROFILE_IMAGE_NOT_EXIST(HttpStatus.NOT_FOUND,"USER404-NOT_FOUND","프로필 이미지가 존재하지 않습니다."),
+    _NICKNAME_BAD_REQUEST(HttpStatus.BAD_REQUEST,"USER400-BAD_REQUEST","닉네임 형식이 올바르지 않습니다."),
 
     // JWT Errors
     _JWT_EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-EXPIRED_ACCESS", "만료된 엑세스 토큰입니다."),

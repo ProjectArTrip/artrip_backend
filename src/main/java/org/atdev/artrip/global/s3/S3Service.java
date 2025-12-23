@@ -41,6 +41,10 @@ public class S3Service {
                 .toList();
     }
 
+    public String upload(MultipartFile file) {
+        return uploadImage(file);
+    }
+
     // validateFile메서드를 호출하여 유효성 검증 후 uploadImageToS3메서드에 데이터를 반환하여 S3에 파일 업로드, public url을 받아 서비스 로직에 반환
     private String uploadImage(MultipartFile file) {
         validateFile(file.getOriginalFilename()); // 파일 유효성 검증
@@ -116,6 +120,22 @@ public class S3Service {
                     ))
                     .build();
             s3Client.deleteObjects(deleteObjectsRequest); // S3에서 객체 삭제
+        } catch (Exception exception) {
+            log.error(exception.getMessage(), exception);
+            throw new GeneralException(S3Error._IO_EXCEPTION_DELETE_FILE);
+        }
+    }
+
+//단일 delete
+    public void delete(String imageUrl) {
+        try {
+            String key = getKeyFromImageUrls(imageUrl);
+
+            s3Client.deleteObject(builder -> builder
+                    .bucket(bucketName)
+                    .key(key)
+            );
+
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
             throw new GeneralException(S3Error._IO_EXCEPTION_DELETE_FILE);

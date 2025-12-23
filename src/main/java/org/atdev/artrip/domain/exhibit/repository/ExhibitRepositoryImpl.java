@@ -8,19 +8,19 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.Enum.SortType;
+import org.atdev.artrip.domain.Enum.Status;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
-import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
 import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
+import org.atdev.artrip.domain.home.web.dto.request.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.data.QKeyword;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +31,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Pageable pageable, Long cursorId) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -64,7 +64,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .leftJoin(e.keywords, k)
                 .leftJoin(f).on(f.exhibit.eq(e))
                 .where(
-                        typeFilter(dto, h),
+                        e.status.ne(Status.FINISHED),
+                        isDomesticEq(dto.getIsDomestic()),
                         dateFilter(dto.getStartDate(), dto.getEndDate(),e),
                         cursorCondition(cursor, cursorFavoriteCount, dto.getSortType(), e, f),
                         countryEq(dto.getCountry()),
@@ -92,7 +93,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         QKeyword k = QKeyword.keyword;
 
         return queryFactory
-                .selectDistinct(Projections.constructor(
+                .selectDistinct(Projections.constructor(// select 순서와 DTO 생성자 파라미터 순서를 1:1 매핑함!
                         HomeListResponse.class,
                         e.exhibitId,
                         e.title,
@@ -103,12 +104,15 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                                 e.startDate.stringValue(),
                                 e.endDate.stringValue()
                         ),
-                        h.name
+                        h.name,
+                        h.country,
+                        h.region
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)
                 .leftJoin(e.keywords, k)
                 .where(
+                        e.status.ne(Status.FINISHED),
                         isDomesticEq(c.getIsDomestic()),
                         countryEq(c.getCountry()),
                         regionEq(c.getRegion()),
@@ -140,7 +144,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequestDto dto, QExhibit e, QFavoriteExhibit f) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequest dto, QExhibit e, QFavoriteExhibit f) {
 
         if (dto.getSortType() == null) {
             return new OrderSpecifier[]{e.createdAt.desc()};
@@ -163,16 +167,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         }
     }
 
-    private BooleanExpression typeFilter(ExhibitFilterRequestDto dto, QExhibitHall h) {
-        if (dto.getType() == null) return null;
-
-        if ("DOMESTIC".equalsIgnoreCase(dto.getType())) {
-            return h.isDomestic.isTrue();
-        } else if ("OVERSEAS".equalsIgnoreCase(dto.getType())) {
-            return h.isDomestic.isFalse();
-        }
-        return null;
-    }
 
     private BooleanExpression dateFilter(LocalDate startDate, LocalDate endDate, QExhibit e) {
 

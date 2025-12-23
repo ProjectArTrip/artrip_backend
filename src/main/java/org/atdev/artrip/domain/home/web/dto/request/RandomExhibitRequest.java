@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.home.web.dto;
+package org.atdev.artrip.domain.home.web.dto.request;
 
 import lombok.*;
 

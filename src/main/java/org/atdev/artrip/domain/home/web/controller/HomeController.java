@@ -3,9 +3,12 @@ package org.atdev.artrip.domain.home.web.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
+import org.atdev.artrip.domain.home.web.dto.request.GenreRandomRequest;
+import org.atdev.artrip.domain.home.web.dto.request.PersonalizedRequest;
+import org.atdev.artrip.domain.home.web.dto.request.ScheduleRandomRequest;
+import org.atdev.artrip.domain.home.web.dto.request.TodayRandomRequest;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
@@ -47,7 +50,7 @@ public class HomeController {
     @PostMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody PersonalizedRequestDto requestDto){
+            @Valid @RequestBody PersonalizedRequest requestDto){
 
         long userId = Long.parseLong(userDetails.getUsername());
 
@@ -78,7 +81,7 @@ public class HomeController {
     )
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
-            @Valid @RequestBody ScheduleRandomRequestDto request){
+            @Valid @RequestBody ScheduleRandomRequest request){
 
         List<HomeListResponse> exhibits= homeService.getRandomSchedule(request);
 
@@ -109,7 +112,7 @@ public class HomeController {
     )
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @Valid @RequestBody GenreRandomRequestDto request){
+            @Valid @RequestBody GenreRandomRequest request){
 
         List<HomeListResponse> exhibits = homeService.getRandomGenre(request);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
@@ -137,9 +140,9 @@ public class HomeController {
     )
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @Valid @RequestBody TodayRandomRequestDto request){
+            @Valid @RequestBody TodayRandomRequest request){
 
-        List<HomeListResponse> exhibits = homeService.getToday(request);
+        List<HomeListResponse> exhibits = homeService.getRandomToday(request);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }

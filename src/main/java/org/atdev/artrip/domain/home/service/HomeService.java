@@ -1,23 +1,22 @@
 package org.atdev.artrip.domain.home.service;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.web.dto.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
 import org.atdev.artrip.domain.favortie.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.domain.home.web.dto.*;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.converter.HomeConverter;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.request.*;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
@@ -29,8 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +58,7 @@ public class HomeService {
 //    }
 
 
+    // 장르 전체 조회
     public List<String> getAllGenres() {
         return exhibitRepository.findAllGenres();
     }
@@ -128,6 +126,7 @@ public class HomeService {
         return exhibitHallRepository.findAllOverseasCountries();
     }
 
+    // 국내 지역 목록 조회
     public List<String> getDomestic(){
         return exhibitHallRepository.findAllDomesticRegions();
     }
@@ -157,8 +156,9 @@ public class HomeService {
         return homeConverter.toFilterResponse(slice, favoritesIds);
     }
 
+    // 사용자 맞춤 전시 랜덤 추천
     @Transactional
-    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequestDto requestDto){
+    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request){
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
@@ -170,31 +170,88 @@ public class HomeService {
                 .toList();
 
         RandomExhibitRequest filter = homeConverter.from(
-                requestDto,
+                request,
                 userKeywords
         );
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
 
-    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequestDto request){
+    // 이번주 랜덤 전시 추천
+    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequest request){
 
         RandomExhibitRequest filter = homeConverter.from(request);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        return exhibitRepository.findRandomExhibits(filter);
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
 
-    public List<HomeListResponse> getRandomGenre(GenreRandomRequestDto request){
+    // 장르별 전시 랜덤 추천
+    public List<HomeListResponse> getRandomGenre(GenreRandomRequest request){
 
         RandomExhibitRequest filter = homeConverter.fromGenre(request);
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
 
-    public List<HomeListResponse> getToday(TodayRandomRequestDto request){
+    // 오늘날 전시 랜덤 추천
+    public List<HomeListResponse> getRandomToday(TodayRandomRequest request){
 
         RandomExhibitRequest filter = homeConverter.fromToday(request);
 
-        return exhibitRepository.findRandomExhibits(filter);
+        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        adjustLocationFields(
+                results,
+                request.getIsDomestic(),
+                request.getRegion(),
+                request.getCountry()
+        );
+
+        return results;
     }
+    private void adjustLocationFields(List<HomeListResponse> results, boolean isDomestic, String region, String country) {
+
+        boolean isWhole = ("전체".equals(region) || region == null) && ("전체".equals(country) || country == null);
+
+        if (!isWhole) {
+            results.forEach(r -> {
+                r.setRegionName(null);
+                r.setCountryName(null);
+            });
+            return;
+        }
+
+        if (isDomestic) {
+            results.forEach(r -> r.setCountryName(null));
+        } else {
+            results.forEach(r -> r.setRegionName(null));
+        }
+    }
+
 }
