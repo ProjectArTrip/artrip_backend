@@ -9,6 +9,7 @@ import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
 import org.atdev.artrip.domain.user.web.dto.request.NicknameRequest;
+import org.atdev.artrip.domain.user.web.dto.response.MypageResponse;
 import org.atdev.artrip.domain.user.web.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.code.status.S3Error;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
@@ -146,4 +147,15 @@ public class UserService {
         }
         user.updateProfileImage(null);
     }
+
+    @Transactional(readOnly = true)
+    public MypageResponse getMypage(Long userId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new GeneralException(UserError._USER_NOT_FOUND));
+
+        return new MypageResponse(user.getNickName(), user.getProfileImageUrl());
+    }
+
+
 }

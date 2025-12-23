@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.keyword.web.dto.KeywordRequest;
 import org.atdev.artrip.domain.user.service.UserService;
 import org.atdev.artrip.domain.user.web.dto.request.NicknameRequest;
+import org.atdev.artrip.domain.user.web.dto.response.MypageResponse;
 import org.atdev.artrip.domain.user.web.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
@@ -91,5 +92,20 @@ public class UserController {
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
+    @Operation(summary = "마이페이지 조회", description = "닉네임, 프로필 이미지 조회")
+    @GetMapping("/mypage")
+    @ApiErrorResponses(
+            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
+            user = {UserError._USER_NOT_FOUND}
+    )
+    public ResponseEntity<CommonResponse<MypageResponse>> getMypage(
+            @AuthenticationPrincipal UserDetails user) {
+
+        Long userId = Long.valueOf(user.getUsername());
+
+        MypageResponse response = userService.getMypage(userId);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
 
 }
