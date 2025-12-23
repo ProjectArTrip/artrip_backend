@@ -26,4 +26,5 @@ public class ExhibitDetailResponse {
     private Double hallLatitude;
     private Double hallLongitude;
 
+    private boolean isFavorite;
 }
