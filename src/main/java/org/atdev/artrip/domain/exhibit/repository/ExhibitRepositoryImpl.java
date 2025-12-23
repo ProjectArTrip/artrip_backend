@@ -11,17 +11,16 @@ import org.atdev.artrip.domain.Enum.SortType;
 import org.atdev.artrip.domain.Enum.Status;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
-import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
 import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
-import org.atdev.artrip.domain.home.web.dto.RandomExhibitRequest;
+import org.atdev.artrip.domain.home.web.dto.request.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.data.QKeyword;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Pageable pageable, Long cursorId) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -145,7 +144,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequestDto dto, QExhibit e, QFavoriteExhibit f) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequest dto, QExhibit e, QFavoriteExhibit f) {
 
         if (dto.getSortType() == null) {
             return new OrderSpecifier[]{e.createdAt.desc()};

@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Builder
 @Data
-public class ExhibitFilterRequestDto {
+public class ExhibitFilterRequest {
 
     private LocalDate startDate;
     private LocalDate endDate;

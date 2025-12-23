@@ -3,9 +3,9 @@ package org.atdev.artrip.domain.home.converter;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.domain.home.web.dto.*;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.request.*;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
@@ -75,7 +75,7 @@ public class HomeConverter {
     }
 
 
-    public RandomExhibitRequest from(PersonalizedRequestDto request, List<Keyword> keywords) {
+    public RandomExhibitRequest from(PersonalizedRequest request, List<Keyword> keywords) {
 
         Set<String> genres = keywords.stream()
                 .filter(k -> k.getType() == KeywordType.GENRE)
@@ -97,7 +97,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public RandomExhibitRequest from(ScheduleRandomRequestDto request) {
+    public RandomExhibitRequest from(ScheduleRandomRequest request) {
 
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
@@ -108,7 +108,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public RandomExhibitRequest fromToday(TodayRandomRequestDto request) {
+    public RandomExhibitRequest fromToday(TodayRandomRequest request) {
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
                 .country(normalize(request.getCountry()))
@@ -116,7 +116,7 @@ public class HomeConverter {
                 .limit(3)
                 .build();
     }
-    public RandomExhibitRequest fromGenre(GenreRandomRequestDto request) {
+    public RandomExhibitRequest fromGenre(GenreRandomRequest request) {
         return RandomExhibitRequest.builder()
                 .isDomestic(request.getIsDomestic())
                 .country(normalize(request.getCountry()))

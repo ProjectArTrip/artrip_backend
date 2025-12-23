@@ -4,9 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.exhibit.service.ExhibitService;
-import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.home.response.FilterResponse;
-import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
@@ -14,13 +13,9 @@ import org.atdev.artrip.global.apipayload.code.status.HomeError;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -89,7 +84,7 @@ public class ExhibitController {
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
     @PostMapping("/filter")
-    public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterRequestDto dto,
+    public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
                                                             @PageableDefault(size = 20) Pageable pageable){
 
