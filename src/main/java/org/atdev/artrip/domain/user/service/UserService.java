@@ -8,8 +8,8 @@ import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
-import org.atdev.artrip.domain.user.web.dto.requestDto.NicknameRequestDto;
-import org.atdev.artrip.domain.user.web.dto.responseDto.NicknameResponseDto;
+import org.atdev.artrip.domain.user.web.dto.request.NicknameRequest;
+import org.atdev.artrip.domain.user.web.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.code.status.S3Error;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -53,7 +53,7 @@ public class UserService {
     }
 
     @Transactional
-    public NicknameResponseDto updateNickName(Long userId, NicknameRequestDto dto){
+    public NicknameResponse updateNickName(Long userId, NicknameRequest dto){
 
         //1. 유저 검사
         //2. 닉네임 유효성 검사 + 공백 금지
@@ -66,7 +66,7 @@ public class UserService {
         String newNick = validateNickname(dto);
 
         if (newNick.equals(user.getNickName())) {
-            return new NicknameResponseDto(newNick);
+            return new NicknameResponse(newNick);
         }
 
         if (userRepository.existsByNickName(newNick)) {
@@ -75,10 +75,10 @@ public class UserService {
 
         user.updateNickname(newNick);
 
-        return new NicknameResponseDto(newNick);
+        return new NicknameResponse(newNick);
     }
 
-    private String validateNickname(NicknameRequestDto dto) {
+    private String validateNickname(NicknameRequest dto) {
 
         if (dto == null || dto.getNickName() == null) {
             throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);

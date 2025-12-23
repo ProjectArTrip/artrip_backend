@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.keyword.web.dto.KeywordRequest;
 import org.atdev.artrip.domain.user.service.UserService;
-import org.atdev.artrip.domain.user.web.dto.requestDto.NicknameRequestDto;
-import org.atdev.artrip.domain.user.web.dto.responseDto.NicknameResponseDto;
+import org.atdev.artrip.domain.user.web.dto.request.NicknameRequest;
+import org.atdev.artrip.domain.user.web.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.KeywordError;
@@ -80,13 +80,13 @@ public class UserController {
             common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
             user = {UserError._DUPLICATE_NICKNAME,UserError._USER_NOT_FOUND,UserError._NICKNAME_BAD_REQUEST}
     )
-    public ResponseEntity<CommonResponse<NicknameResponseDto>> updateNickname(
+    public ResponseEntity<CommonResponse<NicknameResponse>> updateNickname(
             @AuthenticationPrincipal UserDetails user,
-            @RequestBody NicknameRequestDto dto) {
+            @RequestBody NicknameRequest dto) {
 
         Long userId = Long.valueOf(user.getUsername());
 
-        NicknameResponseDto response = userService.updateNickName(userId, dto);
+        NicknameResponse response = userService.updateNickName(userId, dto);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }

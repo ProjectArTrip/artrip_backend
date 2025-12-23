@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.home.web.dto;
+package org.atdev.artrip.domain.home.web.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.AssertTrue;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BaseRandomRequestDto {
+public class BaseRandomRequest {
 
     @NotNull
     protected Boolean isDomestic;

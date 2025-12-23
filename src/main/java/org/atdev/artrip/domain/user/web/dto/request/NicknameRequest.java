@@ -1,4 +1,4 @@
-package org.atdev.artrip.domain.user.web.dto.requestDto;
+package org.atdev.artrip.domain.user.web.dto.request;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NicknameRequestDto {
+public class NicknameRequest {
 
     private String NickName;
 
