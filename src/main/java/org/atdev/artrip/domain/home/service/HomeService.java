@@ -1,22 +1,19 @@
 package org.atdev.artrip.domain.home.service;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
-import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequestDto;
-import org.atdev.artrip.domain.home.web.dto.*;
+import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.home.converter.HomeConverter;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
+import org.atdev.artrip.domain.home.web.dto.request.*;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
@@ -25,10 +22,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +62,7 @@ public class HomeService {
 
 
     //필터 전체 조회
-    public FilterResponse getFilterExhibit(ExhibitFilterRequestDto dto, Pageable pageable, Long cursorId) {
+    public FilterResponse getFilterExhibit(ExhibitFilterRequest dto, Pageable pageable, Long cursorId) {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, pageable, cursorId);
 
@@ -77,7 +71,7 @@ public class HomeService {
 
     // 사용자 맞춤 전시 랜덤 추천
     @Transactional
-    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequestDto request){
+    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request){
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
@@ -106,7 +100,7 @@ public class HomeService {
     }
 
     // 이번주 랜덤 전시 추천
-    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequestDto request){
+    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequest request){
 
         RandomExhibitRequest filter = homeConverter.from(request);
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
@@ -122,7 +116,7 @@ public class HomeService {
     }
 
     // 장르별 전시 랜덤 추천
-    public List<HomeListResponse> getRandomGenre(GenreRandomRequestDto request){
+    public List<HomeListResponse> getRandomGenre(GenreRandomRequest request){
 
         RandomExhibitRequest filter = homeConverter.fromGenre(request);
 
@@ -139,7 +133,7 @@ public class HomeService {
     }
 
     // 오늘날 전시 랜덤 추천
-    public List<HomeListResponse> getRandomToday(TodayRandomRequestDto request){
+    public List<HomeListResponse> getRandomToday(TodayRandomRequest request){
 
         RandomExhibitRequest filter = homeConverter.fromToday(request);
 

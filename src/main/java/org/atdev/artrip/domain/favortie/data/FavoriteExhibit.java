@@ -26,6 +26,7 @@ public class FavoriteExhibit {
     private User user;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean status = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
