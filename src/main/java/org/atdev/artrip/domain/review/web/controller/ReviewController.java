@@ -34,8 +34,8 @@ public class ReviewController {
     )
     @PostMapping("/{exhibitId}")
     public ResponseEntity<CommonResponse<ReviewResponse>> CreateReview(@PathVariable Long exhibitId,
-                                                                       @RequestPart("images") List<MultipartFile> images,
-                                                                       @RequestPart("request") ReviewCreateRequest request,
+                                                                       @RequestPart(value = "images",required = false) List<MultipartFile> images,
+                                                                       @RequestPart(value = "request") ReviewCreateRequest request,
                                                                        @AuthenticationPrincipal UserDetails userDetails){
 
         Long userId = Long.valueOf(userDetails.getUsername());

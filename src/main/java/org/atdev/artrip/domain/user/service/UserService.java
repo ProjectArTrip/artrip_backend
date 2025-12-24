@@ -27,34 +27,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final KeywordRepository keywordRepository;
-    private final UserKeywordRepository userKeywordRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
-
     private static final String NICKNAME_REGEX = "^[a-zA-Z0-9가-힣]+$";
-
-
-    @Transactional
-    public void saveUserKeywords(Long userId, List<Long> keywordIds) {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
-
-        userKeywordRepository.deleteByUser(user);
-
-        List<Keyword> keywords = keywordRepository.findAllById(keywordIds);
-
-        List<UserKeyword> userKeywords = keywords.stream()
-                .map(keyword -> UserKeyword.builder()
-                        .user(user)
-                        .keyword(keyword)
-                        .createdAt(LocalDateTime.now())
-                        .build())
-                .toList();
-
-        userKeywordRepository.saveAll(userKeywords);
-    }
 
     @Transactional
     public NicknameResponse updateNickName(Long userId, NicknameRequest dto){

@@ -12,6 +12,7 @@ import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.web.dto.request.*;
+import org.atdev.artrip.domain.home.web.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
@@ -23,9 +24,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,8 +68,12 @@ public class HomeService {
     }
 
     // 국내 지역 목록 조회
-    public List<String> getDomestic(){
-        return exhibitHallRepository.findAllDomesticRegions();
+//    public List<String> getDomestic(){
+//        return exhibitHallRepository.findAllDomesticRegions();
+//    }
+
+    public List<RegionResponse> getRegions() {
+        return homeConverter.toResponseList();
     }
 
 
