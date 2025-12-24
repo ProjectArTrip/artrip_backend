@@ -7,6 +7,7 @@ import org.atdev.artrip.domain.exhibit.service.ExhibitService;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.service.HomeService;
+import org.atdev.artrip.domain.home.web.dto.response.RegionResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,16 +73,28 @@ public class ExhibitController {
         return ResponseEntity.ok(CommonResponse.onSuccess(OverseasList));
     }
 
-    @Operation(summary = "국내 지역 목록 조회")
+//    @Operation(summary = "국내 지역 목록 조회")
+//    @ApiErrorResponses(
+//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
+//    )
+//    @GetMapping("/domestic")
+//    public ResponseEntity<CommonResponse<List<String>>> getDomestic(){
+//
+//        List<String> domesticList = homeService.getDomestic();
+//
+//        return ResponseEntity.ok(CommonResponse.onSuccess(domesticList));
+//    }
+
+    @Operation(summary = "국내 지역 목록 조회")//하드코딩
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
     )
     @GetMapping("/domestic")
-    public ResponseEntity<CommonResponse<List<String>>> getDomestic(){
+    public ResponseEntity<CommonResponse<List<RegionResponse>>> getDomestic2(){
 
-        List<String> domesticList = homeService.getDomestic();
+        List<RegionResponse> response = homeService.getRegions();
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(domesticList));
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
 

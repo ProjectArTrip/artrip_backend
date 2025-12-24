@@ -1,16 +1,19 @@
 package org.atdev.artrip.domain.home.converter;
 
+import org.atdev.artrip.domain.Enum.DomesticRegion;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.web.dto.request.*;
+import org.atdev.artrip.domain.home.web.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -135,6 +138,15 @@ public class HomeConverter {
         if (value == null) return null;
         if ("전체".equals(value)) return null;
         return value;
+    }
+
+    public List<RegionResponse> toResponseList() {
+        return Arrays.stream(DomesticRegion.values())
+                .map(region -> RegionResponse.builder()
+                        .region(region.getRegion())
+                        .imageUrl(region.getImageUrl())
+                        .build())
+                .collect(Collectors.toList());
     }
 
 
