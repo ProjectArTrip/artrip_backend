@@ -17,6 +17,4 @@ public enum DomesticRegion {
 
     private final String region;
     private final String imageUrl;
-
-
 }
