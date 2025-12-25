@@ -85,9 +85,13 @@ public class HomeController {
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
             @Valid @RequestBody ScheduleRandomRequest request,
+            @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
-        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, resize);
+
+        Long userId = Long.parseLong(userDetails.getUsername());
+      
+        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -117,9 +121,13 @@ public class HomeController {
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
             @Valid @RequestBody GenreRandomRequest request,
+            @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
-        List<HomeListResponse> exhibits = homeService.getRandomGenre(request, resize);
+
+        Long userId = Long.parseLong(userDetails.getUsername());
+      
+        List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId, resize);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
@@ -146,9 +154,12 @@ public class HomeController {
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
             @Valid @RequestBody TodayRandomRequest request,
+            @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
-        List<HomeListResponse> exhibits = homeService.getRandomToday(request, resize);
+        Long userId = Long.parseLong(userDetails.getUsername());
+      
+        List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }

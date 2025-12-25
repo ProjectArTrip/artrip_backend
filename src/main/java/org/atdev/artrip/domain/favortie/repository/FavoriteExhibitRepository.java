@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface FavoriteExhibitRepository extends JpaRepository<FavoriteExhibit, Long> {
     @Query("""
@@ -86,4 +87,11 @@ public interface FavoriteExhibitRepository extends JpaRepository<FavoriteExhibit
     AND f.exhibit.exhibitId = :exhibitId
     """)
     Optional<FavoriteExhibit> findByUserAndExhibit(@Param("userId") Long userId, @Param("exhibitId") Long exhibitId);
+
+    @Query("""
+            SELECT f.exhibit.exhibitId 
+            FROM FavoriteExhibit f
+            WHERE f.user.userId = :userId AND f.status = true
+            """)
+    Set<Long> findActiveExhibitIds(@Param("userId") Long userId);
 }

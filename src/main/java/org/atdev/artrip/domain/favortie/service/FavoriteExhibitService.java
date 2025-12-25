@@ -182,7 +182,7 @@ public class FavoriteExhibitService {
                 .title(exhibit.getTitle())
                 .posterUrl(exhibit.getPosterUrl())
                 .exhibitStatus(exhibit.getStatus())
-                .favoriteStatus(favorite.isStatus())
+                .active(favorite.isStatus())
                 .exhibitPeriod(period)
                 .exhibitHallName(hall != null ? hall.getName() : null )
                 .country(hall != null ? hall.getCountry() : null)
