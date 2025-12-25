@@ -16,7 +16,8 @@ import org.atdev.artrip.domain.review.web.dto.response.*;
 import org.atdev.artrip.domain.review.web.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.global.apipayload.code.status.ReviewError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.global.s3.S3Service;
+import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,7 @@ public class ReviewService {
 
         List<String> s3Urls = (images == null || images.isEmpty())
                 ? new ArrayList<>()
-                : s3Service.upload(images);
+                : s3Service.uploadReviews(images);
 
         List<ReviewImage> reviewImages = reviewConverter.toReviewImage(review,s3Urls);
 
@@ -110,7 +111,7 @@ public class ReviewService {
 
         //이미지 추가
         if (images != null && !images.isEmpty()) {
-            List<String> s3Urls = s3Service.upload(images);
+            List<String> s3Urls = s3Service.uploadPoster(images);
             List<ReviewImage> newReviewImages = reviewConverter.toReviewImage(review, s3Urls);
             reviewImageRepository.saveAll(newReviewImages);
             review.getImages().addAll(newReviewImages);
@@ -142,7 +143,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewSliceResponse getAllReview(Long userId, Long cursor, int size){
+    public ReviewSliceResponse getAllReview(Long userId, Long cursor, int size, ImageResizeRequest resize){
 
         Slice<Review> slice;
 
@@ -161,11 +162,15 @@ public class ReviewService {
                 .map(ReviewConverter::toSummary)
                 .toList();
 
+        summaries.forEach(r -> r.setThumbnailUrl(
+                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.getW(), resize.getH(), resize.getF())
+        ));
+
         return new ReviewSliceResponse(summaries, nextCursor, slice.hasNext());
     }
 
     @Transactional
-    public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size){
+    public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size, ImageResizeRequest resize){
 
         long totalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
 
@@ -185,6 +190,10 @@ public class ReviewService {
                 .stream()
                 .map(ReviewConverter::toExhibitReviewSummary)
                 .toList();
+
+        summaries.forEach(r -> r.setThumbnailUrl(
+                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.getW(), resize.getH(), resize.getF())
+        ));
 
         return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext(),totalCount);
     }

@@ -52,7 +52,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit, boolean isFavorite) {
+    public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit, boolean isFavorite, String resizePosterUrl) {
 
         var hall = exhibit.getExhibitHall();
         String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
@@ -64,7 +64,7 @@ public class HomeConverter {
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
                 .description(exhibit.getDescription())
-                .posterUrl(exhibit.getPosterUrl())
+                .posterUrl(resizePosterUrl)
                 .ticketUrl(exhibit.getTicketUrl())
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)

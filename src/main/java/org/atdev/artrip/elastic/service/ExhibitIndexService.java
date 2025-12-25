@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,8 +48,12 @@ public class ExhibitIndexService {
                 .status(exhibit.getStatus())
                 .posterUrl(exhibit.getPosterUrl())
                 .ticketUrl(exhibit.getTicketUrl())
-                .latitude(exhibit.getExhibitHall().getLatitude())
-                .longitude(exhibit.getExhibitHall().getLongitude())
+                .latitude(Optional.ofNullable(exhibit.getExhibitHall())
+                        .map(hall -> hall.getLatitude())
+                        .orElse(null))
+                .longitude(Optional.ofNullable(exhibit.getExhibitHall())
+                        .map(hall -> hall.getLongitude())
+                        .orElse(null))
                 .keywords(keywordInfos);
 
         return builder.build();
