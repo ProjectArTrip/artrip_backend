@@ -23,6 +23,22 @@ public class UserKeywordController {
 
     private final KeywordService keywordService;
 
+    @Operation(summary = "나의 취향 분석", description = "내가 선택한 키워드 선택 저장")
+    @ApiErrorResponses(
+            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
+            keyword = {KeywordError._KEYWORD_INVALID_REQUEST, KeywordError._KEYWORD_SELECTION_LIMIT_EXCEEDED, KeywordError._KEYWORD_NOT_FOUND}
+    )
+    @PostMapping("/keywords")
+    public ResponseEntity<CommonResponse<Void>> saveUserKeywords(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody KeywordRequest request) {
+
+        Long userId = Long.parseLong(userDetails.getUsername()); // subject → userId형변환
+
+        keywordService.saveUserKeywords(userId, request.getKeywordIds());
+        return ResponseEntity.ok(CommonResponse.onSuccess(null));
+    }
+
     @Operation(summary = "모든 키워드 조회", description = "전체 조회")
     @ApiErrorResponses(
             common = {CommonError._INTERNAL_SERVER_ERROR},
