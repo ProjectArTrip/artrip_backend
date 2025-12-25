@@ -1,9 +1,11 @@
-package org.atdev.artrip.global.s3;
+package org.atdev.artrip.global.s3.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.S3Error;
+import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.global.s3.web.dto.request.ImageDeleteRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +24,7 @@ public class S3Controller {
             s3 = {S3Error._NOT_EXIST_FILE, S3Error._NOT_EXIST_FILE_EXTENSION, S3Error._IO_EXCEPTION_UPLOAD_FILE, S3Error._INVALID_URL_FORMAT}
     )
     public CommonResponse<List<String>> s3Upload(@RequestPart(value = "image") List<MultipartFile> multipartFile) {
-        List<String> upload = s3Service.upload(multipartFile);
+        List<String> upload = s3Service.uploadPoster(multipartFile);
         return CommonResponse.onSuccess(upload);
     }
 

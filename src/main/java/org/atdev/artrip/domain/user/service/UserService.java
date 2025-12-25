@@ -14,7 +14,8 @@ import org.atdev.artrip.domain.user.web.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.code.status.S3Error;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.global.s3.S3Service;
+import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -111,15 +112,16 @@ public class UserService {
             throw new GeneralException(UserError._PROFILE_IMAGE_NOT_EXIST);
         }
 
+        String oldUrl = user.getProfileImageUrl();
+
         String newUrl;
         try {
-            newUrl = s3Service.upload(image);
+            newUrl = s3Service.uploadProfile(image);
         } catch (Exception e) {
             throw new GeneralException(S3Error._IO_EXCEPTION_UPLOAD_FILE);
         }
         user.updateProfileImage(newUrl);
 
-        String oldUrl = user.getProfileImageUrl();
         if (oldUrl != null && !oldUrl.isBlank()) {
             try {
                 s3Service.delete(oldUrl);
@@ -149,12 +151,14 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public MypageResponse getMypage(Long userId){
+    public MypageResponse getMypage(Long userId, ImageResizeRequest resize){
 
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new GeneralException(UserError._USER_NOT_FOUND));
 
-        return new MypageResponse(user.getNickName(), user.getProfileImageUrl());
+        String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.getW(), resize.getH(), resize.getF());
+
+        return new MypageResponse(user.getNickName(), profileImage);
     }
 
 

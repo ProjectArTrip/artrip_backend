@@ -1,6 +1,7 @@
 package org.atdev.artrip.domain.home.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
@@ -17,6 +18,8 @@ import org.atdev.artrip.domain.keyword.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
+import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HomeService {
 
     private final ExhibitRepository exhibitRepository;
@@ -33,6 +37,7 @@ public class HomeService {
     private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
     private final HomeConverter homeConverter;
+    private final S3Service s3Service;
 
 
 
@@ -71,7 +76,7 @@ public class HomeService {
 
     // 사용자 맞춤 전시 랜덤 추천
     @Transactional
-    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request){
+    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request, ImageResizeRequest resize){
 
         if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserError._USER_NOT_FOUND);
@@ -89,6 +94,10 @@ public class HomeService {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
+        results.forEach(r -> r.setPosterUrl(
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+        ));
+
         adjustLocationFields(
                 results,
                 request.getIsDomestic(),
@@ -100,10 +109,14 @@ public class HomeService {
     }
 
     // 이번주 랜덤 전시 추천
-    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequest request){
+    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequest request, ImageResizeRequest resize){
 
         RandomExhibitRequest filter = homeConverter.from(request);
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        results.forEach(r -> r.setPosterUrl(
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+        ));
 
         adjustLocationFields(
                 results,
@@ -116,11 +129,15 @@ public class HomeService {
     }
 
     // 장르별 전시 랜덤 추천
-    public List<HomeListResponse> getRandomGenre(GenreRandomRequest request){
+    public List<HomeListResponse> getRandomGenre(GenreRandomRequest request, ImageResizeRequest resize){
 
         RandomExhibitRequest filter = homeConverter.fromGenre(request);
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        results.forEach(r -> r.setPosterUrl(
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+        ));
 
         adjustLocationFields(
                 results,
@@ -133,11 +150,15 @@ public class HomeService {
     }
 
     // 오늘날 전시 랜덤 추천
-    public List<HomeListResponse> getRandomToday(TodayRandomRequest request){
+    public List<HomeListResponse> getRandomToday(TodayRandomRequest request, ImageResizeRequest resize){
 
         RandomExhibitRequest filter = homeConverter.fromToday(request);
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+
+        results.forEach(r -> r.setPosterUrl(
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+        ));
 
         adjustLocationFields(
                 results,

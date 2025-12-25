@@ -1,4 +1,4 @@
-package org.atdev.artrip.global.s3;
+package org.atdev.artrip.global.s3.web.dto.request;
 
 
 import lombok.AccessLevel;
