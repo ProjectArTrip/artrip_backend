@@ -137,11 +137,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                     .or(f.favoriteId.count().eq(cursorFavoriteCount)
                             .and(e.exhibitId.lt(cursor.getExhibitId())));//<
 
-            case LATEST -> e.startDate.lt(cursor.getStartDate())
+            case LATEST -> e.startDate.lt(cursor.getStartDate())//<
                     .or(e.startDate.eq(cursor.getStartDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            default -> e.endDate.gt(cursor.getEndDate())
+            default -> e.endDate.gt(cursor.getEndDate())//>
                     .or(e.endDate.eq(cursor.getEndDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
         };

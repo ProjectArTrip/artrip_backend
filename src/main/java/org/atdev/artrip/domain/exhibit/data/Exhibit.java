@@ -54,6 +54,19 @@ public class Exhibit {
     @Column(name = "ticket_url")
     private String ticketUrl;
 
+    @Column(name = "favorite_count")
+    private long favorite_count = 0;
+
+    public void increaseFavoriteCount() {
+        this.favorite_count++;
+    }
+
+    public void decreaseFavoriteCount() {
+        if (this.favorite_count > 0) {
+            this.favorite_count--;
+        }
+    }
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
