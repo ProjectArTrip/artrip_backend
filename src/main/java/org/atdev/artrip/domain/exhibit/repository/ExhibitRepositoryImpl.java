@@ -31,7 +31,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Pageable pageable, Long cursorId) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Long size, Long cursorId) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -74,16 +74,18 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         styleIn(dto.getStyles())
                 )
                 .orderBy(sortFilter(dto, e, f))
-                .limit(pageable.getPageSize() + 1)
+                .limit(size+1)
                 .groupBy(e.exhibitId)
                 .fetch();
 
 
-        boolean hasNext = content.size() > pageable.getPageSize();
-        if (hasNext) content.remove(pageable.getPageSize());
+        boolean hasNext = content.size() > size;
 
-        return new SliceImpl<>(content, pageable, hasNext);
-    }
+        if (hasNext)
+            content.remove(size.intValue());
+
+        return new SliceImpl<>(content, PageRequest.of(0, size.intValue()), hasNext);
+    }// 페이지 개념은 사용 x
 
     @Override
     public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
@@ -127,18 +129,19 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
 
     private BooleanExpression cursorCondition(Exhibit cursor,  long cursorFavoriteCount, SortType sortType, QExhibit e, QFavoriteExhibit f) {
         if (cursor == null) return null;
+        if (sortType == null) sortType = SortType.LATEST;
 
         return switch (sortType) {
 
-            case POPULAR -> f.favoriteId.count().loe(cursorFavoriteCount)
+            case POPULAR -> f.favoriteId.count().loe(cursorFavoriteCount)//<=
                     .or(f.favoriteId.count().eq(cursorFavoriteCount)
+                            .and(e.exhibitId.lt(cursor.getExhibitId())));//<
+
+            case LATEST -> e.startDate.lt(cursor.getStartDate())
+                    .or(e.startDate.eq(cursor.getStartDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            case LATEST -> e.createdAt.lt(cursor.getCreatedAt())
-                    .or(e.createdAt.eq(cursor.getCreatedAt())
-                            .and(e.exhibitId.lt(cursor.getExhibitId())));
-
-            case ENDING_SOON -> e.endDate.gt(cursor.getEndDate())
+            default -> e.endDate.gt(cursor.getEndDate())
                     .or(e.endDate.eq(cursor.getEndDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
         };
@@ -147,23 +150,24 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequest dto, QExhibit e, QFavoriteExhibit f) {
 
         if (dto.getSortType() == null) {
-            return new OrderSpecifier[]{e.createdAt.desc()};
+            return new OrderSpecifier[]{e.startDate.desc(), e.exhibitId.desc()};
         }
 
         switch (dto.getSortType()) {
             case POPULAR:
                 return new OrderSpecifier[]{
-                        f.favoriteId.count().desc().nullsLast(), // 인기순
-                        e.createdAt.desc()                       // 동률일 때 최신순
+                        f.favoriteId.count().desc().nullsLast(),
+                        e.exhibitId.desc()
                 };
 
-//            case LATEST:
-//                return new OrderSpecifier[]{e.createdAt.desc()};
             case ENDING_SOON:
-                return new OrderSpecifier[]{e.endDate.asc()};
+                return new OrderSpecifier[]{
+                        e.endDate.asc(),
+                        e.exhibitId.desc()
+                };
 
             default:
-                return new OrderSpecifier[]{e.createdAt.desc()};
+                return new OrderSpecifier[]{e.startDate.desc(),e.exhibitId.desc()};
         }
     }
 

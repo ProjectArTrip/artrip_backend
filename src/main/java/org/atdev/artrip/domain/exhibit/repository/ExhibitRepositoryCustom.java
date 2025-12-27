@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface ExhibitRepositoryCustom {
 
-    Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest filter, Pageable pageable, Long cursorId);
+    Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest filter, Long size, Long cursorId);
 
     List<HomeListResponse> findRandomExhibits(RandomExhibitRequest condition);
 

@@ -30,7 +30,7 @@ public class HomeConverter {
                 .map(exhibit -> toHomeExhibitListResponse(exhibit, favorites.contains(exhibit.getExhibitId())))
                 .toList();
 
-        Long nextCursor = slice.hasNext()
+        Long nextCursor = slice.hasNext() && !slice.isEmpty()
                 ? slice.getContent().get(slice.getContent().size() - 1).getExhibitId()
                 : null;
 
