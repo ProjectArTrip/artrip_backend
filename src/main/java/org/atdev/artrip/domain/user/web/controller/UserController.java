@@ -2,15 +2,12 @@ package org.atdev.artrip.domain.user.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.domain.keyword.service.KeywordService;
-import org.atdev.artrip.domain.keyword.web.dto.KeywordRequest;
 import org.atdev.artrip.domain.user.service.UserService;
 import org.atdev.artrip.domain.user.web.dto.request.NicknameRequest;
 import org.atdev.artrip.domain.user.web.dto.response.MypageResponse;
 import org.atdev.artrip.domain.user.web.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.KeywordError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;

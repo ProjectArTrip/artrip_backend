@@ -28,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,9 +82,9 @@ public class HomeService {
 
 
     //필터 전체 조회
-    public FilterResponse getFilterExhibit(ExhibitFilterRequest dto, Pageable pageable, Long cursorId, Long userId) {
+    public FilterResponse getFilterExhibit(ExhibitFilterRequest dto, Long size, Long cursorId, Long userId) {
 
-        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, pageable, cursorId);
+        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, size, cursorId);
         Set<Long> favoriteIds = getFavoriteIds(userId);
         return homeConverter.toFilterResponse(slice, favoriteIds);
     }
