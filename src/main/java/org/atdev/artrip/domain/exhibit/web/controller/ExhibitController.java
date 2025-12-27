@@ -110,10 +110,10 @@ public class ExhibitController {
     @PostMapping("/filter")
     public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
-                                                            @PageableDefault(size = 20) Pageable pageable,
+                                                            @RequestParam(defaultValue = "20") Long size,
                                                             @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = getUserId(userDetails);
-        FilterResponse exhibits = homeService.getFilterExhibit(dto, pageable, cursor,userId);
+        FilterResponse exhibits = homeService.getFilterExhibit(dto, size, cursor,userId);
 
         return ResponseEntity.ok(exhibits);
 

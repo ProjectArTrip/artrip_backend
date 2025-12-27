@@ -177,7 +177,7 @@ public class ReviewService {
         Slice<Review> slice;
 
         if (cursor == null) {
-            slice = reviewRepository.findTopByExhibitId(exhibitId, PageRequest.ofSize(size));
+            slice = reviewRepository.findByExhibitId(exhibitId, PageRequest.ofSize(size));
         } else {
             slice = reviewRepository.findByExhibitIdAndIdLessThan(exhibitId, cursor, PageRequest.ofSize(size));
         }
