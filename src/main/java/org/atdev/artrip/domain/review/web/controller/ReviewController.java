@@ -11,7 +11,9 @@ import org.atdev.artrip.domain.review.web.dto.response.ReviewSliceResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ReviewError;
+import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -88,11 +90,12 @@ public class ReviewController {
     public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ParameterObject ImageResizeRequest resize) {
 
         Long userId = Long.valueOf(userDetails.getUsername());
 
-        ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size);
+        ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
@@ -106,9 +109,10 @@ public class ReviewController {
     public ResponseEntity<CommonResponse<ExhibitReviewSliceResponse>> getExhibitReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
-            @PathVariable Long exhibitId) {
+            @PathVariable Long exhibitId,
+            @ParameterObject ImageResizeRequest resize) {
 
-        ExhibitReviewSliceResponse response = reviewService.getExhibitReview(exhibitId, cursor, size);
+        ExhibitReviewSliceResponse response = reviewService.getExhibitReview(exhibitId, cursor, size, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }

@@ -12,7 +12,9 @@ import org.atdev.artrip.domain.home.web.dto.request.TodayRandomRequest;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
+import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -50,11 +52,12 @@ public class HomeController {
     @PostMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody PersonalizedRequest requestDto){
+            @Valid @RequestBody PersonalizedRequest requestDto,
+            @ParameterObject ImageResizeRequest resize){
 
         long userId = Long.parseLong(userDetails.getUsername());
 
-        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId, requestDto);
+        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId, requestDto, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -82,10 +85,13 @@ public class HomeController {
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
             @Valid @RequestBody ScheduleRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails){
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ParameterObject ImageResizeRequest resize){
+
 
         Long userId = Long.parseLong(userDetails.getUsername());
-        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, userId);
+      
+        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -115,10 +121,13 @@ public class HomeController {
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
             @Valid @RequestBody GenreRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails){
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ParameterObject ImageResizeRequest resize){
+
 
         Long userId = Long.parseLong(userDetails.getUsername());
-        List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId);
+      
+        List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId, resize);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
@@ -145,10 +154,12 @@ public class HomeController {
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
             @Valid @RequestBody TodayRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails){
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ParameterObject ImageResizeRequest resize){
 
         Long userId = Long.parseLong(userDetails.getUsername());
-        List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId);
+      
+        List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }

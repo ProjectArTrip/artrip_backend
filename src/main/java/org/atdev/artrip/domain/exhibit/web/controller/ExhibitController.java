@@ -11,7 +11,9 @@ import org.atdev.artrip.domain.home.web.dto.response.RegionResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
+import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +54,12 @@ public class ExhibitController {
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
+            @AuthenticationPrincipal UserDetails userDetails,
+            @ParameterObject ImageResizeRequest resize
+            ){
+      
         Long userId = getUserId(userDetails);
-        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id, userId);
+        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
