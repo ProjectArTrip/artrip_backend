@@ -54,16 +54,17 @@ public class Exhibit {
     @Column(name = "ticket_url")
     private String ticketUrl;
 
+    @Builder.Default
     @Column(name = "favorite_count")
-    private long favorite_count = 0;
+    private long favoriteCount = 0;
 
     public void increaseFavoriteCount() {
-        this.favorite_count++;
+        this.favoriteCount++;
     }
 
     public void decreaseFavoriteCount() {
-        if (this.favorite_count > 0) {
-            this.favorite_count--;
+        if (this.favoriteCount > 0) {
+            this.favoriteCount--;
         }
     }
 
