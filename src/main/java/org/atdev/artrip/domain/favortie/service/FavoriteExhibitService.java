@@ -52,6 +52,7 @@ public class FavoriteExhibitService {
                 return toFavoriteResponse(favorite);
             }
             favorite.setStatus(true);
+            exhibit.increaseFavoriteCount();
             log.info("Reactivating favorite exhibit: {}", favorite.getFavoriteId());
         } else {
             favorite = FavoriteExhibit.builder()
@@ -60,6 +61,8 @@ public class FavoriteExhibitService {
                     .status(true)
                     .createdAt(LocalDateTime.now())
                     .build();
+            exhibit.increaseFavoriteCount();
+
             log.info("Creating new favorite");
         }
 
@@ -165,6 +168,7 @@ public class FavoriteExhibitService {
                 .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
 
         favorite.setStatus(false);
+        favorite.getExhibit().decreaseFavoriteCount();
 
         favoriteExhibitRepository.save(favorite);
         log.info("Favorite exhibit removed successfully. favoriteId: {}", favorite.getFavoriteId());
