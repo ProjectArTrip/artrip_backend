@@ -9,5 +9,6 @@ public class MypageResponse {
 
     private String nickName;
     private String profileImage;
+    private String email;
 
 }

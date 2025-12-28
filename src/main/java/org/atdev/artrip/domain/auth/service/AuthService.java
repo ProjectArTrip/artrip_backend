@@ -161,7 +161,6 @@ public class AuthService {
         User user = userRepository.findByEmail(email).
                 orElseGet(()->createNewUser(socialUser, email, provider));
 
-
         boolean isFirstLogin= !user.isOnboardingCompleted();
 
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
