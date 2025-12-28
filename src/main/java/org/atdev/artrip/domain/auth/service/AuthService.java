@@ -158,22 +158,11 @@ public class AuthService {
                 ? socialUser.getEmail()
                 : provider.toLowerCase() + socialUser.getProviderId() + "@example.com";
 
-//        Optional<User> optionalUser = userRepository.findByEmail(email);
-
         User user = userRepository.findByEmail(email).
                 orElseGet(()->createNewUser(socialUser, email, provider));
 
 
         boolean isFirstLogin= !user.isOnboardingCompleted();
-
-//        if (optionalUser.isPresent()) {
-//            user = optionalUser.get();
-//            isFirstLogin = false; // 기존 사용자
-//        } else {
-//            user = createNewUser(socialUser, email, provider);
-//            isFirstLogin = true;  // 신규 생성
-//        }
-//        log.info("user:{}",user);
 
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
 
