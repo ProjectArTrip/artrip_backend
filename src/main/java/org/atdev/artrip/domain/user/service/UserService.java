@@ -133,7 +133,7 @@ public class UserService {
 
         String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.getW(), resize.getH(), resize.getF());
 
-        return new MypageResponse(user.getNickName(), profileImage);
+        return new MypageResponse(user.getNickName(), profileImage, user.getEmail());
     }
 
 
