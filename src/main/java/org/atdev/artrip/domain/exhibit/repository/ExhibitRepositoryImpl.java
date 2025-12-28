@@ -13,7 +13,6 @@ import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.data.QExhibit;
 import org.atdev.artrip.domain.exhibit.web.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
-import org.atdev.artrip.domain.favortie.data.QFavoriteExhibit;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.web.dto.request.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.data.QKeyword;
@@ -36,48 +35,33 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
-        QFavoriteExhibit f = QFavoriteExhibit.favoriteExhibit;
 
         Exhibit cursor = null;
 
-        long cursorFavoriteCount = 0;
         if (cursorId != null) {
             cursor = queryFactory.selectFrom(e)
                     .where(e.exhibitId.eq(cursorId))
                     .fetchOne();
-
-            if (cursor != null && dto.getSortType() == SortType.POPULAR) {
-                Long count = queryFactory
-                        .select(f.favoriteId.count())
-                        .from(f)
-                        .where(f.exhibit.eq(cursor))
-                        .fetchOne();
-
-                cursorFavoriteCount = count != null ? count : 0L;
-            }
         }
 
         List<Exhibit> content = queryFactory
-                .select(e)
+                .selectDistinct(e)
                 .from(e)
                 .join(e.exhibitHall, h)
                 .leftJoin(e.keywords, k)
-                .leftJoin(f).on(f.exhibit.eq(e))
                 .where(
                         e.status.ne(Status.FINISHED),
                         isDomesticEq(dto.getIsDomestic()),
                         dateFilter(dto.getStartDate(), dto.getEndDate(),e),
-                        cursorCondition(cursor, cursorFavoriteCount, dto.getSortType(), e, f),
+                        cursorCondition(cursor, dto.getSortType(), e),
                         countryEq(dto.getCountry()),
                         regionEq(dto.getRegion()),
                         genreIn(dto.getGenres()),
                         styleIn(dto.getStyles())
                 )
-                .orderBy(sortFilter(dto, e, f))
+                .orderBy(sortFilter(dto, e))
                 .limit(size+1)
-                .groupBy(e.exhibitId)
                 .fetch();
-
 
         boolean hasNext = content.size() > size;
 
@@ -127,27 +111,27 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .fetch();
     }
 
-    private BooleanExpression cursorCondition(Exhibit cursor,  long cursorFavoriteCount, SortType sortType, QExhibit e, QFavoriteExhibit f) {
+    private BooleanExpression cursorCondition(Exhibit cursor, SortType sortType, QExhibit e) {
         if (cursor == null) return null;
         if (sortType == null) sortType = SortType.LATEST;
 
         return switch (sortType) {
 
-            case POPULAR -> f.favoriteId.count().loe(cursorFavoriteCount)//<=
-                    .or(f.favoriteId.count().eq(cursorFavoriteCount)
-                            .and(e.exhibitId.lt(cursor.getExhibitId())));//<
+            case POPULAR -> e.favoriteCount.lt(cursor.getFavoriteCount())
+                    .or(e.favoriteCount.eq(cursor.getFavoriteCount())
+                            .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            case LATEST -> e.startDate.lt(cursor.getStartDate())
+            case LATEST -> e.startDate.lt(cursor.getStartDate())//<
                     .or(e.startDate.eq(cursor.getStartDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            default -> e.endDate.gt(cursor.getEndDate())
+            default -> e.endDate.gt(cursor.getEndDate())//>
                     .or(e.endDate.eq(cursor.getEndDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequest dto, QExhibit e, QFavoriteExhibit f) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequest dto, QExhibit e) {
 
         if (dto.getSortType() == null) {
             return new OrderSpecifier[]{e.startDate.desc(), e.exhibitId.desc()};
@@ -156,7 +140,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         switch (dto.getSortType()) {
             case POPULAR:
                 return new OrderSpecifier[]{
-                        f.favoriteId.count().desc().nullsLast(),
+                        e.favoriteCount.desc().nullsLast(),
                         e.exhibitId.desc()
                 };
 
