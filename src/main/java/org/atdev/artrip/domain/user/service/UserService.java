@@ -4,6 +4,10 @@ package org.atdev.artrip.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.data.User;
 import org.atdev.artrip.domain.auth.repository.UserRepository;
+import org.atdev.artrip.domain.exhibit.data.Exhibit;
+import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
+import org.atdev.artrip.domain.exhibit.web.dto.response.ExhibitRecentResponse;
+import org.atdev.artrip.domain.home.converter.HomeConverter;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.domain.keyword.data.UserKeyword;
 import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
@@ -16,12 +20,18 @@ import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 
 @Service
@@ -31,6 +41,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private static final String NICKNAME_REGEX = "^[a-zA-Z0-9가-힣]+$";
+
+    @Qualifier("recommendRedisTemplate")
+    private final StringRedisTemplate recommendRedisTemplate;
+
+    private final ExhibitRepository exhibitRepository;
+    private final HomeConverter homeConverter;
+
+    private static final String KEY_PREFIX = "recent:view:user:";
 
     @Transactional
     public NicknameResponse updateNickName(Long userId, NicknameRequest dto){
@@ -133,8 +151,38 @@ public class UserService {
 
         String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.getW(), resize.getH(), resize.getF());
 
-        return new MypageResponse(user.getNickName(), profileImage);
+        return new MypageResponse(user.getNickName(), profileImage, user.getEmail());
     }
 
+    public void addRecentView(Long userId, Long exhibitId) {
+        String key = KEY_PREFIX + userId;
+        double now = System.currentTimeMillis();
+
+        recommendRedisTemplate.opsForZSet().add(key, String.valueOf(exhibitId), now); // key , exhibitid, time
+        recommendRedisTemplate.opsForZSet().removeRange(key, 0, -21);// 뒤에서 21부터 전부 삭제
+        recommendRedisTemplate.expire(key, Duration.ofDays(30));// 1달 기한
+    }
+
+    // 최근 본 전시 리스트 조회
+    public List<ExhibitRecentResponse> getRecentViews(Long userId) {
+
+        String key = KEY_PREFIX + userId;
+        Set<String> result = recommendRedisTemplate.opsForZSet().reverseRange(key, 0, 19);//시간 역순으로 가져옴
+
+        if (result == null || result.isEmpty())
+            return List.of();
+
+        List<Long> ids= result.stream()
+                .map(Long::valueOf)
+                .toList();
+
+        List<Exhibit> exhibits = exhibitRepository.findAllByIdWithHall(ids);
+
+        exhibits.sort(Comparator.comparingInt(exhibit -> ids.indexOf(exhibit.getExhibitId())));
+
+        return exhibits.stream()
+                .map(exhibit -> homeConverter.toExhibitRecentResponse(exhibit))
+                .toList();
+    }
 
 }

@@ -1,0 +1,2 @@
+ALTER TABLE exhibit
+    ADD COLUMN favoriteCount BIGINT NOT NULL DEFAULT 0;
