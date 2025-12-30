@@ -4,6 +4,7 @@ import org.atdev.artrip.domain.Enum.DomesticRegion;
 import org.atdev.artrip.domain.Enum.KeywordType;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
+import org.atdev.artrip.domain.exhibit.web.dto.response.ExhibitRecentResponse;
 import org.atdev.artrip.domain.home.response.FilterResponse;
 import org.atdev.artrip.domain.home.response.HomeListResponse;
 import org.atdev.artrip.domain.home.web.dto.request.*;
@@ -147,6 +148,15 @@ public class HomeConverter {
                         .imageUrl(region.getImageUrl())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public ExhibitRecentResponse toExhibitRecentResponse(Exhibit exhibit){
+
+        return ExhibitRecentResponse.builder()
+                .exhibitId(exhibit.getExhibitId())
+                .exhibitHallName(exhibit.getExhibitHall().getName())
+                .title(exhibit.getTitle())
+                .build();
     }
 
 
