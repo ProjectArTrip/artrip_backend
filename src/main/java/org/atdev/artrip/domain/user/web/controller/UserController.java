@@ -2,12 +2,14 @@ package org.atdev.artrip.domain.user.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.domain.exhibit.web.dto.response.ExhibitRecentResponse;
 import org.atdev.artrip.domain.user.service.UserService;
 import org.atdev.artrip.domain.user.web.dto.request.NicknameRequest;
 import org.atdev.artrip.domain.user.web.dto.response.MypageResponse;
 import org.atdev.artrip.domain.user.web.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.s3.web.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
@@ -18,6 +20,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -78,10 +82,10 @@ public class UserController {
 
     @Operation(summary = "마이페이지 조회", description = "닉네임, 프로필 이미지 조회")
     @GetMapping("/mypage")
-    @ApiErrorResponses(
-            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
-            user = {UserError._USER_NOT_FOUND}
-    )
+//    @ApiErrorResponses(
+//            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
+//            user = {UserError._USER_NOT_FOUND}
+//    )
     public ResponseEntity<CommonResponse<MypageResponse>> getMypage(
             @AuthenticationPrincipal UserDetails user,
             @ParameterObject ImageResizeRequest resize) {
@@ -91,6 +95,23 @@ public class UserController {
         MypageResponse response = userService.getMypage(userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
+    }
+
+    @Operation(summary = "최근 본 전시", description = "최근 본 전시 20개")
+    @GetMapping("/recent")
+    @ApiErrorResponses(
+            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
+            user = {UserError._USER_NOT_FOUND},
+            exhibit = {ExhibitError._EXHIBIT_NOT_FOUND}
+    )
+    public ResponseEntity<CommonResponse<List<ExhibitRecentResponse>>> getRecentExhibit(
+            @AuthenticationPrincipal UserDetails userDetails){
+
+        Long userId = Long.valueOf(userDetails.getUsername());
+
+        List<ExhibitRecentResponse> responses = userService.getRecentViews(userId);
+
+        return ResponseEntity.ok(CommonResponse.onSuccess(responses));
     }
 
 }
