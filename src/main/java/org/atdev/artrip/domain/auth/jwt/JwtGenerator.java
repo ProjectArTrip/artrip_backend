@@ -45,7 +45,8 @@ public class JwtGenerator {
                 .compact();
 
         String refreshToken = Jwts.builder()
-                .setExpiration(new Date(now + refreshTokenExpirationMillis))//7일 만료
+//                .setExpiration(new Date(now + refreshTokenExpirationMillis))//7일 만료
+                .setExpiration(new Date(now + 1000 * 60 * 30))
                 .setIssuedAt(Calendar.getInstance().getTime())
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
