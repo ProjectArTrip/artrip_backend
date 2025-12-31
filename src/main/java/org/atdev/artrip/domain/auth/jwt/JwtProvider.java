@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.auth.jwt.exception.JwtAuthenticationException;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -79,10 +80,10 @@ public class JwtProvider {
                     .parseClaimsJws(refreshToken);
         } catch (ExpiredJwtException e) {
             log.warn("Expired Refresh Token", e);
-            throw new JwtAuthenticationException(UserError._JWT_EXPIRED_REFRESH_TOKEN);
+            throw new GeneralException(UserError._JWT_EXPIRED_REFRESH_TOKEN);
         } catch (JwtException e) {
             log.warn("Invalid Refresh Token", e);
-            throw new JwtAuthenticationException(UserError._INVALID_REFRESH_TOKEN);
+            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
     }
     private Claims parseClaims(String accessToken) {
