@@ -116,13 +116,6 @@ public class HomeService {
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
 
-        adjustLocationFields(
-                results,
-                request.getIsDomestic(),
-                request.getRegion(),
-                request.getCountry()
-        );
-
         return results;
     }
 
@@ -138,13 +131,6 @@ public class HomeService {
       
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
-
-        adjustLocationFields(
-                results,
-                request.getIsDomestic(),
-                request.getRegion(),
-                request.getCountry()
-        );
 
         return results;
     }
@@ -163,13 +149,6 @@ public class HomeService {
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
 
-        adjustLocationFields(
-                results,
-                request.getIsDomestic(),
-                request.getRegion(),
-                request.getCountry()
-        );
-
         return results;
     }
 
@@ -187,32 +166,9 @@ public class HomeService {
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
 
-        adjustLocationFields(
-                results,
-                request.getIsDomestic(),
-                request.getRegion(),
-                request.getCountry()
-        );
 
         return results;
     }
-    private void adjustLocationFields(List<HomeListResponse> results, boolean isDomestic, String region, String country) {
 
-        boolean isWhole = ("전체".equals(region) || region == null) && ("전체".equals(country) || country == null);
-
-        if (!isWhole) {
-            results.forEach(r -> {
-                r.setRegionName(null);
-                r.setCountryName(null);
-            });
-            return;
-        }
-
-        if (isDomestic) {
-            results.forEach(r -> r.setCountryName(null));
-        } else {
-            results.forEach(r -> r.setRegionName(null));
-        }
-    }
 
 }
