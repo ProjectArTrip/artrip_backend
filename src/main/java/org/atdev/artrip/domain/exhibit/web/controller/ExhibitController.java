@@ -77,24 +77,12 @@ public class ExhibitController {
         return ResponseEntity.ok(CommonResponse.onSuccess(OverseasList));
     }
 
-//    @Operation(summary = "국내 지역 목록 조회")
-//    @ApiErrorResponses(
-//            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
-//    )
-//    @GetMapping("/domestic")
-//    public ResponseEntity<CommonResponse<List<String>>> getDomestic(){
-//
-//        List<String> domesticList = homeService.getDomestic();
-//
-//        return ResponseEntity.ok(CommonResponse.onSuccess(domesticList));
-//    }
-
     @Operation(summary = "국내 지역 목록 조회")//하드코딩
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
     )
     @GetMapping("/domestic")
-    public ResponseEntity<CommonResponse<List<RegionResponse>>> getDomestic2(){
+    public ResponseEntity<CommonResponse<List<RegionResponse>>> getDomestic(){
 
         List<RegionResponse> response = homeService.getRegions();
 
