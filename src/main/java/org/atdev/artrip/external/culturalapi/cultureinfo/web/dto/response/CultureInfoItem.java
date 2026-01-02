@@ -1,4 +1,4 @@
-package org.atdev.artrip.external.culturalapi.cultureinfo.dto.response;
+package org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -60,7 +60,7 @@ public class CultureInfoItem implements BasePublicDataItem{
     }
 
     public boolean isExhibition() {
-        return "전시".equals(realmName);
+        return "전시".equals(serviceName);
     }
 
     public String getFullAddress() {

@@ -16,10 +16,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -252,7 +249,105 @@ public class S3Service {
         return uploadToS3(file, folder);
     }
 
+    public String uploadFromExternalUrl(String externalUrl, String folder){
+        if (externalUrl == null || externalUrl.isBlank()) {
+            return null;
+        }
+
+        if (isInternalUrl(externalUrl))  {
+            return externalUrl;
+        }
 
 
+        try {
+            URL url = new URI(externalUrl).toURL();
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(10000);
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+            connection.setInstanceFollowRedirects(true);
+
+            int responseCode = connection.getResponseCode();
+
+            if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP ||
+            responseCode == HttpURLConnection.HTTP_MOVED_PERM ||
+                    responseCode == 307 || responseCode == 300
+            ) {
+                String redirectUrl = connection.getHeaderField("Location");
+
+                if (redirectUrl != null && !redirectUrl.isBlank()) {
+                    // 리다이렉트 URL로 재귀 호출
+                    return uploadFromExternalUrl(redirectUrl, folder);
+                }
+            }
+
+            if (responseCode != 200) {
+                return externalUrl;
+            }
+
+            String contentType = connection.getContentType();
+            String extension = getExtensionFromContentType(contentType);
+            if (extension == null) {
+                extension = getExtensionFromUrl(externalUrl);
+            }
+
+            String s3Key = String.format("%s/%s.%s", folder, UUID.randomUUID().toString().substring(0, 10), extension);
+            try (InputStream inputStream = connection.getInputStream()){
+                byte[] imageBytes = inputStream.readAllBytes();
+
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3Key)
+                        .contentType(contentType != null ? contentType :  "image/" + extension)
+                        .contentLength((long) imageBytes.length)
+                        .cacheControl("public, max-age=31536000")
+                        .build();
+
+                s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageBytes));
+
+                return buildImageUrl(s3Key);
+
+            }
+        } catch (Exception e) {
+            log.error("외부 이미지 업로드 실패 - URL: {}, 에러: {}", externalUrl, e.getMessage());
+            return externalUrl;
+        }
+    }
+
+    private String getExtensionFromUrl(String url) {
+        try {
+            String path = new URI(url).getPath();
+            int lastDot = path.lastIndexOf('.');
+            if (lastDot > 0) {
+                return path.substring(lastDot + 1).toLowerCase();
+            }
+        } catch (Exception ignored) {}
+        return "jpg";
+    }
+
+    private String getExtensionFromContentType(String contentType) {
+        if (contentType == null) return null;
+        return switch (contentType.toLowerCase()) {
+            case "image/jpeg", "image/jpg" -> "jpg";
+            case "image/png" -> "png";
+            case "image/webp" -> "webp";
+            case "image/gif" -> "gif";
+            default -> null;
+        };
+    }
+
+    public boolean isInternalUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return false;
+        }
+        return url.contains("s3.ap-northeast-2.amazonaws.com") ||
+                url.contains("cloudfront.net") ||
+                url.contains(bucketName);
+    }
+
+    public String uploadPosterFromExternalUrl(String externalUrl) {
+        return uploadFromExternalUrl(externalUrl, FOLDER_POSTERS);
+    }
 
 }
