@@ -39,14 +39,13 @@ public class JwtGenerator {
                 .setIssuer(jwtIssuer)
                 .setSubject(String.valueOf(user.getUserId()))//userid로 할경우 jwt는 사양상 String 타입을 요구함 따라서string변환
                 .claim("auth", authorities)// 권한 설정
-                .setExpiration(new Date(now+1000 * 60))
+                .setExpiration(new Date(now + accessTokenExpirationMillis))
                 .setIssuedAt(Calendar.getInstance().getTime())
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         String refreshToken = Jwts.builder()
-//                .setExpiration(new Date(now + refreshTokenExpirationMillis))//7일 만료
-                .setExpiration(new Date(now + 1000 * 60 * 30))
+                .setExpiration(new Date(now + refreshTokenExpirationMillis))//7일 만료
                 .setIssuedAt(Calendar.getInstance().getTime())
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
