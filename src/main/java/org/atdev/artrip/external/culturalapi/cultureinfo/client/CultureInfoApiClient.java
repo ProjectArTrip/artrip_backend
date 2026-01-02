@@ -2,11 +2,10 @@ package org.atdev.artrip.external.culturalapi.cultureinfo.client;
 
 import io.github.resilience4j.retry.RetryRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.domain.exhibit.reponse.ExhibitDetailResponse;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.request.CultureInfoRequest;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoDetailResponse;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoItem;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoListResponse;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.request.CultureInfoRequest;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoDetailResponse;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoListResponse;
 import org.atdev.artrip.external.culturalapi.properties.PublicDataProperties;
 import org.atdev.artrip.global.apipayload.exception.ExternalApiException;
 import org.springframework.core.ParameterizedTypeReference;
@@ -20,16 +19,16 @@ import java.net.URI;
 
 @Slf4j
 @Component
-public class CultureInfoApiClient extends BasePublicDataClient<CultureInfoItem, CultureInfoRequest, CultureInfoListResponse>{
+public class CultureInfoApiClient extends BasePublicDataClient<CultureInfoItem, CultureInfoRequest, CultureInfoListResponse> {
 
-    private static final String REALM_CODE_EXHIBITION = "D000";
+    private static final String SERVICE_TP = "A";
     private static final String PATH_REALM2 = "/realm2";
     private static final String PATH_DETAILS2 = "/detail2";
 
     public CultureInfoApiClient(
             WebClient publicDataWebClient,
             PublicDataProperties properties,
-            RetryRegistry retryRegistry){
+            RetryRegistry retryRegistry) {
         super(publicDataWebClient, properties, retryRegistry);
     }
 
@@ -45,7 +44,8 @@ public class CultureInfoApiClient extends BasePublicDataClient<CultureInfoItem, 
 
     @Override
     protected ParameterizedTypeReference<CultureInfoListResponse> getResponseTypeRef() {
-        return new ParameterizedTypeReference<>() {};
+        return new ParameterizedTypeReference<>() {
+        };
     }
 
     @Override
@@ -55,7 +55,7 @@ public class CultureInfoApiClient extends BasePublicDataClient<CultureInfoItem, 
 
     @Override
     protected void addRequestParams(UriComponentsBuilder builder, CultureInfoRequest request) {
-        builder.queryParam("realmCode", REALM_CODE_EXHIBITION);
+        builder.queryParam("serviceTp", SERVICE_TP);
 
         if (request.getFrom() != null) {
             builder.queryParam("from", request.getFrom());
@@ -106,7 +106,7 @@ public class CultureInfoApiClient extends BasePublicDataClient<CultureInfoItem, 
         CultureInfoRequest request = CultureInfoRequest.builder()
                 .serviceKey(properties.getServiceKey())
                 .pageNo(pageNo)
-                .numOfRows(pageNo)
+                .numOfRows(properties.getPageSize())
                 .build();
         return fetch(request);
     }
@@ -156,5 +156,4 @@ public class CultureInfoApiClient extends BasePublicDataClient<CultureInfoItem, 
             log.warn("상세 조회 실패 - error: {}", response.getErrorMessage());
         }
     }
-
 }

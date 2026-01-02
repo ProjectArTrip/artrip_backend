@@ -10,14 +10,14 @@ import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.keyword.data.Keyword;
 import org.atdev.artrip.elastic.service.ExhibitIndexService;
 import org.atdev.artrip.external.culturalapi.cultureinfo.client.CultureInfoApiClient;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoDetailItem;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoDetailResponse;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoItem;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoListResponse;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoDetailItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoDetailResponse;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoListResponse;
 import org.atdev.artrip.external.culturalapi.cultureinfo.mapper.CultureInfoMapper;
 import org.atdev.artrip.global.apipayload.exception.ExternalApiException;
+import org.atdev.artrip.global.s3.service.S3Service;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +25,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 @Slf4j
@@ -42,6 +39,7 @@ public class CultureInfoSyncService {
     private final ExhibitHallRepository exhibitHallRepository;
     private final KeywordMatchingService  keywordMatchingService;
     private final ExhibitIndexService exhibitIndexService;
+    private final S3Service s3Service;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final int MAX_PAGES = 200;
@@ -170,6 +168,14 @@ public class CultureInfoSyncService {
             cultureInfoMapper.mergeDetailToExhibit(exhibit, detailItem);
             if (exhibitHall != null) {
                 cultureInfoMapper.mergeDetailToHall(exhibitHall, detailItem);
+            }
+        }
+
+        String posterUrl = exhibit.getPosterUrl();
+        if (posterUrl != null && !s3Service.isInternalUrl(posterUrl)) {
+            String s3Url = s3Service.uploadPosterFromExternalUrl(posterUrl);
+            if (s3Url != null && !s3Url.equals(posterUrl)) {
+                exhibit.setPosterUrl(s3Url);
             }
         }
 
