@@ -59,18 +59,17 @@ public class JwtProvider {
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.warn("Invalid JWT Token", e);
-            throw new GeneralException(UserError._JWT_INVALID_SIGNATURE);
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_SIGNATURE);
         } catch (ExpiredJwtException e) {
             log.warn("Expired JWT Token", e);
-            throw new GeneralException(UserError._JWT_EXPIRED_ACCESS_TOKEN);
+            throw new JwtAuthenticationException(UserError._JWT_EXPIRED_ACCESS_TOKEN);
         } catch (UnsupportedJwtException e) {
             log.warn("Unsupported JWT Token", e);
-            throw new GeneralException(UserError._JWT_UNSUPPORTED_TOKEN);
+            throw new JwtAuthenticationException(UserError._JWT_UNSUPPORTED_TOKEN);
         } catch (IllegalArgumentException e) {
             log.warn("JWT claims string is empty.", e);
-            throw new GeneralException(UserError._JWT_INVALID_TOKEN);
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_TOKEN);
         }
-        // return false;
     }
     public void validateRefreshToken(String refreshToken) {
         try {
