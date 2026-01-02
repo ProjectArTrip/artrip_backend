@@ -18,31 +18,13 @@ import java.util.Map;
 public class CultureInfoSyncController {
 
     private final CultureInfoSyncService CultureInfoSyncService;
-
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
     private final ExhibitIndexService exhibitIndexService;
-
-    @GetMapping("exhibits/latest")
-    public CommonResponse<Map<String, Object>> syncLatest() {
-        String today = LocalDate.now().format(DATE_FORMATTER);
-        log.info("최신 전시 동기화 : {}", today);
-
-        CultureInfoSyncService.SyncResult result = CultureInfoSyncService.syncLatest();
-
-        return CommonResponse.onSuccess(Map.of(
-                "from", today,
-                "inserted", result.getInserted(),
-                "updated", result.getUpdated(),
-                "skipped", result.getSkipped(),
-                "failed", result.getFailed()
-        ));
-
-    }
 
     @GetMapping("/exhibits")
     public CommonResponse<Map<String, Object>> syncByPeriod(
             @RequestParam String from,
             @RequestParam(required = false) String to) {
+
         log.info("기간별 전시 동기화 시작 - 기간: {} ~ {}", from, to != null ? to : "전체");
 
         CultureInfoSyncService.SyncResult result;

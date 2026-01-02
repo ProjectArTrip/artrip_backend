@@ -1,12 +1,11 @@
 package org.atdev.artrip.external.culturalapi.cultureinfo.mapper;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.Enum.Status;
 import org.atdev.artrip.domain.exhibit.data.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoDetailItem;
-import org.atdev.artrip.external.culturalapi.cultureinfo.dto.response.CultureInfoItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoDetailItem;
+import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoItem;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

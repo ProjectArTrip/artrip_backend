@@ -1,4 +1,4 @@
-package org.atdev.artrip.external.culturalapi.cultureinfo.dto.response;
+package org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;

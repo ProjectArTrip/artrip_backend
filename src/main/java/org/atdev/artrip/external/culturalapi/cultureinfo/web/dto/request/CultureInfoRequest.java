@@ -1,4 +1,4 @@
-package org.atdev.artrip.external.culturalapi.cultureinfo.dto.request;
+package org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
