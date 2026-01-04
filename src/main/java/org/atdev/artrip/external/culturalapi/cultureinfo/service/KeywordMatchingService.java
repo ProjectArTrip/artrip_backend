@@ -2,8 +2,8 @@ package org.atdev.artrip.external.culturalapi.cultureinfo.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.domain.keyword.data.Keyword;
-import org.atdev.artrip.domain.keyword.repository.KeywordRepository;
+import org.atdev.artrip.domain.keyword.Keyword;
+import org.atdev.artrip.repository.KeywordRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
