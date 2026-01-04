@@ -47,11 +47,6 @@ mongodb
 .DS_Store
 elasticsearch/
 .cursorrules
-application-stageing.yml
-application-stage.yml
-application-production.yml
-application-prod.yml
-application-local.yml
 !/docker/elasticsearch
 /src/main/resources/firebase/
 

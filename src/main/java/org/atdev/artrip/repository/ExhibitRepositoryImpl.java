@@ -10,12 +10,12 @@ import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.domain.exhibit.data.QExhibit;
+import org.atdev.artrip.domain.exhibit.QExhibit;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
-import org.atdev.artrip.domain.exhibitHall.data.QExhibitHall;
+import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.request.RandomExhibitRequest;
-import org.atdev.artrip.domain.keyword.data.QKeyword;
+import org.atdev.artrip.domain.keyword.QKeyword;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
