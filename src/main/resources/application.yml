@@ -9,46 +9,21 @@ spring:
   config:
     import: optional:file:.env[.properties]
 
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 10MB
+
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 30000
       maximum-pool-size: 10
       minimum-idle: 5
 
-  data:
-    redis:
-      host: localhost
-      port: 63799
-
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
-    hibernate:
-      ddl-auto: update
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: false
-
-  devtools:
-    restart:
-      enabled: true
-      additional-paths: src/main/java
-      exclude: static/**,public/**
-      poll-interval: 2000
-      quiet-period: 1000
-    livereload:
-      enabled: true
-      port: 35729
-
-  servlet:
-    multipart:
-      max-file-size: 2MB
-      max-request-size: 10MB
 
   cloud:
     aws:
@@ -71,7 +46,6 @@ spring:
             client-authentication-method: client_secret_post
             client-id: ${KAKAO_CLIENT_ID}
             client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: ${KAKAO_REDIRECT_URI}
             native-client-id: ${KAKAO_NATIVE_CLIENT_ID}
             authorization-grant-type: authorization_code
             scope: profile_nickname, account_email
@@ -80,7 +54,6 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: ${GOOGLE_REDIRECT_URI}
             aod-client-id: ${GOOGLE_AOD_CLIENT_ID}
             authorization-grant-type: authorization_code
             scope:
@@ -122,12 +95,6 @@ external:
     connect-timeout: 5000
     read-timeout: 60000
     page-size: 50
-
-logging:
-  level:
-    root: INFO
-    org.atdev.artrip: DEBUG
-    org.springframework.boot.devtools: DEBUG
 
 resilience4j:
   retry:
