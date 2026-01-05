@@ -2,13 +2,10 @@ package org.atdev.artrip.jwt;
 
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.jwt.exception.JwtAuthenticationException;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,9 +26,6 @@ public class JwtProvider {
 
     public JwtProvider(Key key) {
         this.key = key;
-    }
-    public Key getKey() {
-        return key;
     }
 
     public Authentication getAuthentication(String accessToken) {

@@ -25,8 +25,8 @@ public class JwtGenerator {
     @Value("${spring.jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
 
-    public JwtGenerator(JwtProvider keyProvider) {
-        this.key = keyProvider.getKey();
+    public JwtGenerator(Key key) {
+        this.key = key;
     }
 
     public JwtToken generateToken(User user, Role roles) {
