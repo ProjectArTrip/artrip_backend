@@ -1,12 +1,87 @@
-server:
-  port: 8080
-
+# application
 spring:
   application:
     name: artrip
   profiles:
+    group:
+      "local": "common, local "
+      "dev" : "common, dev"
     active: local
+---
+# application-local
+spring:
   config:
+    activate:
+      on-profile: local
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  data:
+    redis:
+      host: localhost
+      port: 63799
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+          google:
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+
+logging:
+  level:
+    org.atdev.artrip: DEBUG
+    io.lettuce: WARN
+    co.elastic: WARN # Elasticsearch 제외 후 제거 예정
+
+server:
+  port: 8080
+
+#application-dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  data:
+    redis:
+      host: localhost
+      port: 63799
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: https://dev.coffit.today/login/oauth2/code/kakao
+          google:
+            redirect-uri: https://dev.coffit.today/login/oauth2/code/google
+
+logging:
+  level:
+    root: info
+    org.atdev.artrip: info
+
+server:
+  port: 8082
+
+---
+
+# common
+spring:
+  config:
+    activate:
+      on-profile: "common"
     import: optional:file:.env[.properties]
 
   servlet:
