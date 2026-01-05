@@ -27,10 +27,8 @@ public class JwtProvider {
 
     private final Key key;
 
-    public JwtProvider(@Value("${spring.jwt.secret}") String secretKey) {
-        log.debug("Secret key from application.yml: {}", secretKey);
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+    public JwtProvider(Key key) {
+        this.key = key;
     }
     public Key getKey() {
         return key;
