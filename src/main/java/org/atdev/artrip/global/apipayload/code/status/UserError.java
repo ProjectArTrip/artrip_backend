@@ -23,7 +23,6 @@ public enum UserError implements BaseErrorCode {
     _JWT_INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-INVALID", "JWT 토큰이 잘못되었습니다."),
     _JWT_INVALID_CLAIMS(HttpStatus.UNAUTHORIZED, "JWT401-INVALID_CLAIMS", "JWT 클레임 정보가 올바르지 않습니다."),
 
-
     // JWT Refresh Token Errors
     _JWT_EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-EXPIRED_REFRESH", "만료된 리프레시 토큰입니다."),
     _INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-INVALID_REFRESH", "리프레시 토큰이 유효하지 않습니다."),

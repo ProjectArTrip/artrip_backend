@@ -2,6 +2,7 @@ package org.atdev.artrip.jwt;
 
 
 import io.jsonwebtoken.*;
+import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.jwt.exception.JwtAuthenticationException;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -12,78 +13,67 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
-import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class JwtProvider {
 
-    private final Key key;
+    private final JwtParser parser;
 
-    public JwtProvider(Key key) {
-        this.key = key;
-    }
 
-    public Authentication getAuthentication(String accessToken) {
+
+    public Authentication getAuthentication(String accessToken) {//인가
+
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get("auth") == null || claims.get("auth").toString().isEmpty()) {
+        String subject = claims.getSubject();
+        if (!StringUtils.hasText(subject)) {
             throw new JwtAuthenticationException(UserError._JWT_INVALID_CLAIMS);
         }
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
+
+        Object auth = claims.get("auth");
+        if (!(auth instanceof String authStr) || !StringUtils.hasText(authStr)) {
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_CLAIMS);
+        }
+
+        Collection<? extends GrantedAuthority> authorities = Arrays.stream(authStr.split(","))
+                .map(String::trim)
+                .filter(StringUtils::hasText)
                 .map(SimpleGrantedAuthority::new)
                 .toList();
+
+        if (authorities.isEmpty()) {
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_CLAIMS);
+        }
 
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
-    public boolean validateToken(String token) {
+    private Claims parseClaims(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            throw new JwtAuthenticationException(UserError._JWT_INVALID_SIGNATURE);
+            return parser.parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
             throw new JwtAuthenticationException(UserError._JWT_EXPIRED_ACCESS_TOKEN);
-        } catch (UnsupportedJwtException e) {
-            throw new JwtAuthenticationException(UserError._JWT_UNSUPPORTED_TOKEN);
-        } catch (IllegalArgumentException e) {
+        } catch (JwtException e) {
             throw new JwtAuthenticationException(UserError._JWT_INVALID_TOKEN);
         }
     }
+
     public void validateRefreshToken(String refreshToken) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(refreshToken);
+            parser.parseClaimsJws(refreshToken);
         } catch (ExpiredJwtException e) {
             throw new GeneralException(UserError._JWT_EXPIRED_REFRESH_TOKEN);
         } catch (JwtException e) {
             throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
     }
-    private Claims parseClaims(String accessToken) {
-        try {
-            return Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(accessToken)
-                    .getBody();
-        } catch (ExpiredJwtException e) {
-            return e.getClaims();
-        }
-    }
-
-
-
-
 }
 
 
