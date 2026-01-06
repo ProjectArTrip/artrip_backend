@@ -2,8 +2,8 @@ package org.atdev.artrip.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.atdev.artrip.domain.Enum.Role;
-import org.atdev.artrip.domain.auth.data.User;
+import org.atdev.artrip.constants.Role;
+import org.atdev.artrip.domain.auth.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

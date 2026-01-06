@@ -40,18 +40,10 @@ out/
 /db
 !/resources/db/*.sql
 mongodb
-/src/main/resources/application.yml
-/src/main/resources/application-dev.yml
-/src/main/resources/application-stage.yml
-/src/main/resources/application-prod.yml
+
 .DS_Store
 elasticsearch/
 .cursorrules
-application-stageing.yml
-application-stage.yml
-application-production.yml
-application-prod.yml
-application-local.yml
 !/docker/elasticsearch
 /src/main/resources/firebase/
 

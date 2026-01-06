@@ -16,12 +16,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchConfig {
 
-    @Value("${spring.elasticsearch.uris}")
-    private String elasticsearchUris;
-
     @Bean
     public RestClient restClient() {
-        return RestClient.builder(HttpHost.create(elasticsearchUris)).build();
+        return RestClient.builder(new HttpHost("localhost", 9200)).build();
     }
 
     @Bean
