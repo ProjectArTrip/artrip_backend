@@ -17,7 +17,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class JwtProvider {
 
 
 
-    public Authentication getAuthentication(String accessToken) {//인가
+    public Authentication getAuthentication(String accessToken) {
 
         Claims claims = parseClaims(accessToken);
 
