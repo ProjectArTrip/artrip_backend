@@ -7,12 +7,6 @@ import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.exception.JwtExceptionFilter;
 import org.atdev.artrip.service.CustomOAuth2UserService;
 import org.atdev.artrip.security.OAuth2LoginSuccessHandler;
-<<<<<<< HEAD
-=======
-import org.atdev.artrip.jwt.JwtAuthenticationFilter;
-import org.atdev.artrip.jwt.JwtProvider;
-import org.atdev.artrip.jwt.exception.JwtExceptionFilter;
->>>>>>> developer
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAccessDeniedHandler;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
