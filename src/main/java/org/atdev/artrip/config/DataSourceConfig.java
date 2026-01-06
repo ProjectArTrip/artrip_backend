@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Profile;
 import javax.sql.DataSource;
 
 @Configuration(proxyBeanMethods = false)
-public class ProductionConfiguration {
+public class DataSourceConfig {
 
     @Bean
     @Profile("local")
-    public DataSource locaDataSource() {
+    public DataSource localDataSource() {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://localhost:33069/artrip?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true");
         dataSource.setUsername("root");
