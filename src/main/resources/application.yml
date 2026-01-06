@@ -1,4 +1,3 @@
-# application
 spring:
   application:
     name: artrip
