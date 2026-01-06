@@ -8,7 +8,6 @@ spring:
       "dev" : "common, dev"
     active: local
 ---
-# application-local
 spring:
   config:
     activate:
@@ -41,7 +40,6 @@ logging:
 server:
   port: 8080
 
-#application-dev
 ---
 spring:
   config:
@@ -77,7 +75,6 @@ server:
 
 ---
 
-# common
 spring:
   config:
     activate:
