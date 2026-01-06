@@ -1,0 +1,177 @@
+spring:
+  application:
+    name: artrip
+  profiles:
+    active: local
+  config:
+    import: optional:file:.env[.properties]
+
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 10MB
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID}
+        secret-key: ${AWS_SECRET_ACCESS_KEY}
+      region:
+        static: ${AWS_S3_REGION}
+        auto: false
+      s3:
+        bucket: ${AWS_S3_BUCKET_NAME}
+      cloudfront:
+        domain: ${AWS_CLOUDFRONT_DOMAIN}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-authentication-method: client_secret_post
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            native-client-id: ${KAKAO_NATIVE_CLIENT_ID}
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, account_email
+            client-name: Kakao
+
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            aod-client-id: ${GOOGLE_AOD_CLIENT_ID}
+            authorization-grant-type: authorization_code
+            scope:
+              - profile
+              - email
+            client-name: Google
+
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
+  jwt:
+    issuer: ${JWT_ISSUER}
+    secret: ${JWT_SECRET}
+    access-token-expiration-millis: 900000
+    refresh-token-expiration-millis: 604800000
+  task:
+    scheduling:
+      pool:
+        size: 5
+      thread-name-prefix: scheduling-
+
+firebase:
+  credentials:
+    path: ${FIREBASE_CONFIG_PATH}
+
+external:
+  culturalapi:
+    base-url: https://apis.data.go.kr/B553457/cultureinfo
+    service-key: ${K_CULTURAL_INFO_CENTER_KEY}
+    connect-timeout: 5000
+    read-timeout: 60000
+    page-size: 50
+
+resilience4j:
+  retry:
+    instances:
+      publicDataApi:
+        max-attempts: 3
+        wait-duration: 2s
+        retry-exceptions:
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
+
+image:
+  upload:
+    max-size: 2097152
+    allowed-extensions: jpg,jpeg,png,webp
+  resize:
+    secret-key: ${RESIZE_SECRET_KEY}
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  data:
+    redis:
+      host: localhost
+      port: 63799
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+          google:
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+
+logging:
+  level:
+    org.atdev.artrip: DEBUG
+    io.lettuce: WARN
+    co.elastic: WARN # Elasticsearch 제외 후 제거 예정
+
+server:
+  port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+  data:
+    redis:
+      host: localhost
+      port: 63799
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: https://dev.coffit.today/login/oauth2/code/kakao
+          google:
+            redirect-uri: https://dev.coffit.today/login/oauth2/code/google
+
+logging:
+  level:
+    root: info
+    org.atdev.artrip: info
+
+server:
+  port: 8082

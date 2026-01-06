@@ -31,9 +31,11 @@ public class Curation {
         @Column(name = "curation_type", nullable = false)
         private CurationType curationType;
 
+        @Builder.Default
         @Column(name = "is_active")
         private boolean isActive = true;
 
+        @Builder.Default
         @ManyToMany
         @JoinTable(
                 name = "curation_exhibit",

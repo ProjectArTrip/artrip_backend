@@ -96,7 +96,7 @@ public class ExhibitIndexService {
                                             )
                                             .analyzer("ngram_nori_analyzer", an -> an
                                                     .custom(ca -> ca
-                                                            .tokenizer("nori_tokenizer")
+                                                            .tokenizer("standard")
                                                             .filter("lowercase", "ngram_filter")
                                                     )
                                             )

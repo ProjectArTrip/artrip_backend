@@ -1,1 +1,0 @@
-alter table favorite_exhibit add status TINYINT(1) NOT NULL default 0;
