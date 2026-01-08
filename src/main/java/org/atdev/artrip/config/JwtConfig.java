@@ -1,4 +1,4 @@
-package org.atdev.artrip.jwt;
+package org.atdev.artrip.config;
 
 
 import io.jsonwebtoken.Jwts;

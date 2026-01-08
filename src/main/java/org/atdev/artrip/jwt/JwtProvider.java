@@ -59,6 +59,14 @@ public class JwtProvider {
             return parser.parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
             throw new JwtAuthenticationException(UserError._JWT_EXPIRED_ACCESS_TOKEN);
+        } catch (SignatureException e) {
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_SIGNATURE);
+        } catch (UnsupportedJwtException e){
+            throw new JwtAuthenticationException(UserError._JWT_UNSUPPORTED_TOKEN);
+        } catch (IllegalArgumentException e) {
+            throw new JwtAuthenticationException(UserError._JWT_EMPTY_TOKEN);
+        } catch (MalformedJwtException e) {
+            throw new JwtAuthenticationException(UserError._JWT_MALFORMED_TOKEN);
         } catch (JwtException e) {
             throw new JwtAuthenticationException(UserError._JWT_INVALID_TOKEN);
         }
@@ -69,10 +77,20 @@ public class JwtProvider {
             parser.parseClaimsJws(refreshToken);
         } catch (ExpiredJwtException e) {
             throw new GeneralException(UserError._JWT_EXPIRED_REFRESH_TOKEN);
+        } catch (SignatureException e) {
+            throw new GeneralException(UserError._JWT_INVALID_SIGNATURE);
+        } catch (UnsupportedJwtException e){
+            throw new GeneralException(UserError._JWT_UNSUPPORTED_TOKEN);
+        } catch (IllegalArgumentException e) {
+            throw new GeneralException(UserError._JWT_EMPTY_TOKEN);
+        } catch (MalformedJwtException e) {
+            throw new GeneralException(UserError._JWT_MALFORMED_TOKEN);
         } catch (JwtException e) {
             throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
     }
+
+
 }
 
 
