@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  db:
+    image: mysql:8.4
+    container_name: db
+    platform: linux/amd64
+    environment:
+      MYSQL_USER: artrip
+      MYSQL_ROOT_PASSWORD: artrip1!
+      MYSQL_DATABASE: artrip
+      MYSQL_PASSWORD: artrip1!
+    ports:
+      - "33069:3306"
+    volumes:
+      - ./db/data:/var/lib/mysql
+      - ./db/conf:/etc/mysql/conf.d
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    restart: always
+    ports:
+      - "63799:6379"
+    volumes:
+      - redis-data:/data
+
+
+volumes:
+  redis-data:

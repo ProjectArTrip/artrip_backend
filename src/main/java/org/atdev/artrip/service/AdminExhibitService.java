@@ -15,7 +15,6 @@ import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.repository.KeywordRepository;
-import org.atdev.artrip.elastic.service.ExhibitIndexService;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -35,7 +34,6 @@ public class AdminExhibitService {
     private final ExhibitRepository exhibitRepository;
     private final ExhibitHallRepository exhibitHallRepository;
     private final KeywordRepository keywordRepository;
-    private final ExhibitIndexService exhibitIndexService;
     private final AdminExhibitConverter adminExhibitConverter;
 
     @Transactional(readOnly = true)
@@ -103,10 +101,8 @@ public class AdminExhibitService {
                 savedExhibit.getKeywords().size());
 
         try {
-            exhibitIndexService.indexExhibit(savedExhibit);
-            log.info("Exhibit indexing successfully : id={} ",savedExhibit.getExhibitId());
         } catch (Exception e) {
-            log.error("Exhibit indexing failed", e);
+            System.out.println("create Exhibit error : " + e.getMessage());
         }
         return savedExhibit.getExhibitId();
     }
@@ -149,12 +145,11 @@ public class AdminExhibitService {
 
         Exhibit savedExhibit = exhibitRepository.save(exhibit);
 
+        // TODO: 업데이트 할 내용 추가
         try {
-            exhibitIndexService.indexExhibit(savedExhibit);
-
+            System.out.println("update Exhibit Code");
 
         }catch (Exception e) {
-            log.error("Admin Exhibit Update Error", e.getMessage());
             throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
         }
 
@@ -171,8 +166,9 @@ public class AdminExhibitService {
 
         exhibitRepository.deleteById(exhibitId);
 
+        // TODO: delete 할 code 추가
         try {
-            exhibitIndexService.deleteExhibit(exhibitId);
+            System.out.println("delete Exhibit code");
         } catch (Exception e) {
         log.error("Admin Exhibit Deletion Error", e.getMessage());
             throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);

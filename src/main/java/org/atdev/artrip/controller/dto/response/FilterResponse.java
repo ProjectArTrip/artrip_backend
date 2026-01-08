@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-public class FilterResponse {
+public class FilterResponse<T> {
 
-    private List<HomeListResponse> exhibits;
+    private List<T> result;
     private boolean hasNext;
     private Long nextCursor;
 
