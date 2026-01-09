@@ -12,7 +12,6 @@ import org.atdev.artrip.global.apipayload.code.status.AuthError;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.JwtToken;
-import org.atdev.artrip.jwt.repository.RefreshTokenRedisRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
@@ -21,7 +20,6 @@ import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.social.SocialVerifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +34,8 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final JwtGenerator jwtGenerator;
     private final UserRepository userRepository;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
     private final List<SocialVerifier> socialVerifiers;
+    private final RedisService redisService;
 
     @Value("${spring.jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
@@ -91,7 +88,7 @@ public class AuthService {
 
         jwtProvider.validateRefreshToken(refreshToken);
 
-        String userId = redisTemplate.opsForValue().get(refreshToken);
+        String userId = redisService.getValue(refreshToken);
 
         if (userId == null) {
             throw new GeneralException(UserError._INVALID_USER_REFRESH_TOKEN);
@@ -107,7 +104,7 @@ public class AuthService {
 
         if(refreshToken == null) return;
 
-        refreshTokenRedisRepository.delete(refreshToken);
+        redisService.deleteKey(refreshToken);
 
         expireCookie("accessToken", response);
         expireCookie("refreshToken", response);
@@ -119,8 +116,16 @@ public class AuthService {
         if (request == null || request.getRefreshToken() == null) return;
 
         String refreshToken = request.getRefreshToken();
+        String accessToken = request.getAccessToken();
 
-        refreshTokenRedisRepository.delete(refreshToken);
+        if (accessToken != null) {
+            long remainTime = jwtProvider.getExpiration(accessToken);
+
+            if (remainTime>0)
+                redisService.saveBlacklist(accessToken, remainTime);
+        }
+
+        redisService.deleteKey(refreshToken);
     }
 
     private void expireCookie(String name, HttpServletResponse response) {
@@ -156,11 +161,7 @@ public class AuthService {
         User user = userOptional.orElseGet(() -> createNewUser(socialUser));
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
 
-        refreshTokenRedisRepository.save(
-                jwt.getRefreshToken(),
-                String.valueOf(user.getUserId()),
-                refreshTokenExpirationMillis
-        );
+        redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
 
         return new SocialLoginResponse(
                 jwt.getAccessToken(),

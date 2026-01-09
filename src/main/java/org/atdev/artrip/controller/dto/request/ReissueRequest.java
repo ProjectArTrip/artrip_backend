@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class ReissueRequest {
     private String refreshToken;
+    private String accessToken;
 }
