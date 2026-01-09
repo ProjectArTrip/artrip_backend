@@ -76,6 +76,10 @@ public class User {
         return changed;
     }
 
+    public String getUserIdAsString() {
+        return String.valueOf(userId);
+    }
+
     public void updateNickname(String nickName) {
         this.nickName=nickName.trim();
     }

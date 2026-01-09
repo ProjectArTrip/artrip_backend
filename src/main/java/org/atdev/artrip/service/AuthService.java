@@ -64,7 +64,7 @@ public class AuthService {
 
         User user = getUserFromRefreshToken(request);
 
-        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
+        String newAccessToken = jwtGenerator.createAccessToken(user, user.getRole());
 
         Cookie accessCookie = new Cookie("accessToken", newAccessToken);
         accessCookie.setHttpOnly(true);
@@ -82,7 +82,7 @@ public class AuthService {
 
         User user = getUserFromRefreshToken(request);
 
-        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
+        String newAccessToken = jwtGenerator.createAccessToken(user, user.getRole());
 
         return new SocialLoginResponse(
                 newAccessToken,
@@ -167,7 +167,7 @@ public class AuthService {
 
         refreshTokenRedisRepository.save(
                 jwt.getRefreshToken(),
-                String.valueOf(user.getUserId()),
+                user.getUserIdAsString(),
                 1000L * 60 * 60 * 24 * 7
         );
 
