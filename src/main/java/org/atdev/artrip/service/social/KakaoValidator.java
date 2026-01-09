@@ -1,0 +1,89 @@
+package org.atdev.artrip.service.social;
+
+import com.auth0.jwk.Jwk;
+import com.auth0.jwk.UrlJwkProvider;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
+import org.atdev.artrip.constants.Provider;
+import org.atdev.artrip.controller.dto.response.SocialUserInfo;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.net.URL;
+import java.security.interfaces.RSAPublicKey;
+import java.util.List;
+
+@Service
+public class KakaoValidator implements SocialVerifier{
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakaoClientId;
+
+    @Value("${spring.security.oauth2.client.registration.kakao.native-client-id}")
+    private String kakaoNativeClientId;
+
+    @Override
+    public Provider getProvider() {
+        return Provider.KAKAO;
+    }
+
+    @Override
+    public SocialUserInfo verify(String idToken) {
+        try {
+            String jwksUrl = "https://kauth.kakao.com/.well-known/jwks.json";
+            UrlJwkProvider provider = new UrlJwkProvider(new URL(jwksUrl));
+
+            DecodedJWT decodedJWT = JWT.decode(idToken);
+            String kid = decodedJWT.getKeyId();
+            List<String> audiences = decodedJWT.getAudience();
+
+            if (audiences == null || audiences.isEmpty()) {
+                throw new GeneralException(UserError._SOCIAL_ID_TOKEN_INVALID);
+            }
+
+            String aud = audiences.get(0);
+            String expectedAud;
+            if (aud.equals(kakaoNativeClientId)) {
+                expectedAud = kakaoNativeClientId;
+            } else if (aud.equals(kakaoClientId)) {
+                expectedAud = kakaoClientId;
+            } else {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_AUDIENCE);
+            }
+
+            Jwk jwk = provider.get(kid);
+            Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
+
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("https://kauth.kakao.com")
+                    .withAudience(expectedAud)
+                    .build();
+
+            DecodedJWT verified;
+
+            try {
+                verified = verifier.verify(idToken);
+            } catch (TokenExpiredException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_EXPIRED);
+            } catch (SignatureVerificationException e) {
+                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_SIGNATURE);
+            } catch (Exception e) {
+                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            }
+
+            String email = verified.getClaim("email").asString();
+            String nickname = verified.getClaim("nickname").asString();
+            String sub = verified.getSubject();
+            return new SocialUserInfo(email, nickname, sub, getProvider());
+
+        } catch (Exception e) {
+            throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+        }
+    }
+}
