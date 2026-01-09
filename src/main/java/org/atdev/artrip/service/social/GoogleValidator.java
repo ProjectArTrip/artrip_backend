@@ -81,7 +81,7 @@ public class GoogleValidator implements SocialVerifier{
             String name = verified.getClaim("name").asString();
             String sub = verified.getSubject();
 
-            return new SocialUserInfo(email, name, sub);
+            return new SocialUserInfo(email, name, sub , getProvider());
 
         } catch (Exception e) {
             throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
