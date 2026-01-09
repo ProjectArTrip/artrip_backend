@@ -14,7 +14,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "exhibit")
-@EntityListeners(ExhibitEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor

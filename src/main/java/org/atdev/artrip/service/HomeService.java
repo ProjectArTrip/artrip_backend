@@ -80,7 +80,7 @@ public class HomeService {
 
 
     //필터 전체 조회
-    public FilterResponse getFilterExhibit(ExhibitFilterRequest dto, Long size, Long cursorId, Long userId) {
+    public FilterResponse<HomeListResponse> getFilterExhibit(ExhibitFilterRequest dto, Long size, Long cursorId, Long userId) {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, size, cursorId);
         Set<Long> favoriteIds = getFavoriteIds(userId);

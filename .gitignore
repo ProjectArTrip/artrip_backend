@@ -37,7 +37,7 @@ out/
 .vscode/
 .idea
 .env
-/db
+/docker/db
 !/resources/db/*.sql
 mongodb
 

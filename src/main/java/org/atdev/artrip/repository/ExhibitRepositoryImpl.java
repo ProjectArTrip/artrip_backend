@@ -12,6 +12,7 @@ import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.request.RandomExhibitRequest;
@@ -23,6 +24,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import static org.atdev.artrip.domain.exhibit.QExhibit.exhibit;
+
 @Repository
 @RequiredArgsConstructor
 public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
@@ -32,7 +35,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     @Override
     public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Long size, Long cursorId) {
 
-        QExhibit e = QExhibit.exhibit;
+        QExhibit e = exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
 
@@ -74,7 +77,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     @Override
     public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
 
-        QExhibit e = QExhibit.exhibit;
+        QExhibit e = exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
 
@@ -201,8 +204,33 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private BooleanExpression findDate(LocalDate date){
         if (date == null) return null;
 
-        return QExhibit.exhibit.startDate.loe(date)//<=
-                .and(QExhibit.exhibit.endDate.goe(date));//>=
+        return exhibit.startDate.loe(date)//<=
+                .and(exhibit.endDate.goe(date));//>=
+    }
+
+    @Override
+    public Slice<Exhibit> searchByKeyword(String keywords, Long cursor, Long size) {
+        QExhibitHall exhibitHall = QExhibitHall.exhibitHall;
+        QKeyword keyword = QKeyword.keyword;
+        List<Exhibit> content = queryFactory
+                .selectDistinct(exhibit)
+                .from(exhibit)
+                .leftJoin(exhibit.exhibitHall, exhibitHall).fetchJoin()
+                .join(exhibit.keywords, keyword)
+                .where(
+                        keywords != null ? keyword.name.contains(keywords) : null,
+                        cursor != null ? exhibit.exhibitId.lt(cursor) : null
+                )
+                .limit(size + 1)
+                .orderBy(exhibit.exhibitId.desc())
+                .fetch();
+
+        boolean hasNext = false;
+        if (content.size() > size) {
+            content.remove(size.intValue());
+            hasNext = true;
+        }
+        return new SliceImpl<>(content, PageRequest.ofSize(size.intValue()),hasNext);
     }
 
 }

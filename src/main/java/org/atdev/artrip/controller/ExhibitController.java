@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
+import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.controller.dto.response.FilterResponse;
@@ -93,12 +94,12 @@ public class ExhibitController {
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
     @PostMapping("/filter")
-    public ResponseEntity<FilterResponse> getDomesticFilter(@RequestBody ExhibitFilterRequest dto,
-                                                            @RequestParam(required = false) Long cursor,
-                                                            @RequestParam(defaultValue = "20") Long size,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<FilterResponse<HomeListResponse>> getDomesticFilter(@RequestBody ExhibitFilterRequest dto,
+                                                                              @RequestParam(required = false) Long cursor,
+                                                                              @RequestParam(defaultValue = "20") Long size,
+                                                                              @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = getUserId(userDetails);
-        FilterResponse exhibits = homeService.getFilterExhibit(dto, size, cursor,userId);
+        FilterResponse<HomeListResponse> exhibits = homeService.getFilterExhibit(dto, size, cursor,userId);
 
         return ResponseEntity.ok(exhibits);
 

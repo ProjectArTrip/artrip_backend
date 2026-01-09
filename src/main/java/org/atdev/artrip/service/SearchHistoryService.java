@@ -21,7 +21,6 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class SearchHistoryService {
 
     private final SearchHistoryRepository searchHistoryRepository;
@@ -33,7 +32,6 @@ public class SearchHistoryService {
     @PostConstruct
     public void initRedis() {
         try {
-            log.info("Redis cache with popular keywords");
             List<String> keywords = searchHistoryRepository.findPopularKeywords();
 
             if (!keywords.isEmpty()) {
@@ -41,7 +39,7 @@ public class SearchHistoryService {
                 syncToRedis(keywords);
             }
         } catch (Exception e) {
-            log.error("redis cache filed : {}", e.getMessage(), e);
+            System.out.println( "init Redis : " + e.getMessage());
         }
     }
 
@@ -55,15 +53,13 @@ public class SearchHistoryService {
                 syncToRedis(keywords);
             }
         } catch (Exception e) {
-            log.error("redis cache filed : {}", e.getMessage(), e);
+            System.out.println("redis cache filed : {}" +  e.getMessage());
         }
     }
 
     @Transactional
     public void create(Long userId, String keyword) {
-        //TODO: 배포 전 로그 레벨 조정
         try {
-            log.debug("Saving search history for userId: {}, keyword: {}", userId, keyword);
 
             User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(CommonError._INTERNAL_SERVER_ERROR));
 
@@ -77,13 +73,11 @@ public class SearchHistoryService {
         recommendRedisTemplate.opsForZSet().incrementScore(POPULAR_KEYWORDS_KEY, keyword, 1);
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            System.out.println("create error : " + e.getMessage());
         }
     }
 
     public List<String> findRecent(Long userId) {
-        //TODO: 배포 전 로그 레벨 조정
-        log.info("Searching for userId: {}", userId);
         return searchHistoryRepository.findTop10ByUser_UserIdOrderByCreatedAtDesc(userId)
                 .stream()
                 .map(SearchHistory::getContent)
@@ -94,11 +88,10 @@ public class SearchHistoryService {
     @Transactional
     public void remove(Long userId, String keyword) {
         try {
-            log.debug("Deleting search history for userId: {}, keyword: {}", userId, keyword);
             searchHistoryRepository.deleteByUserIdAndContent(userId, keyword);
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            System.out.println("remove error : " + e.getMessage());
             throw new GeneralException(SearchError._SEARCH_HISTORY_NOT_FOUND);
         }
     }
@@ -106,10 +99,9 @@ public class SearchHistoryService {
     @Transactional
     public void removeAll(Long userId) {
         try {
-            log.debug("Deleting all search history for userId: {}", userId);
             searchHistoryRepository.deleteByUserId(userId);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            System.out.println("removeAll error : " + e.getMessage());
             throw new GeneralException(SearchError._SEARCH_EXHIBIT_NOT_FOUND);
         }
     }
@@ -120,10 +112,9 @@ public class SearchHistoryService {
                     .reverseRange(POPULAR_KEYWORDS_KEY, 0, 4);
 
             if (redisResult != null && !redisResult.isEmpty()) {
-                log.debug("Popular keywords from Redis: {}", redisResult);
                 return redisResult.stream().toList();
             }
-            log.debug("Redis empty, falling back to MySQL");
+
             List<String> mysqlResult = searchHistoryRepository.findPopularKeywords();
 
             if (!mysqlResult.isEmpty()) {
@@ -132,7 +123,7 @@ public class SearchHistoryService {
 
             return mysqlResult;
         } catch (Exception e) {
-            log.error("Error finding popular keywrods from Redis: {}", e.getMessage(), e );
+            System.out.println("find PopularKeywrods error : " + e.getMessage());
             return searchHistoryRepository.findPopularKeywords();
         }
     }
@@ -143,9 +134,8 @@ public class SearchHistoryService {
                 double score = keywords.size() - i;
                 recommendRedisTemplate.opsForZSet().add(POPULAR_KEYWORDS_KEY, keywords.get(i), score);
             }
-            log.debug("Synced {} keywords to Redis", keywords.size());
         } catch (Exception e) {
-            log.error("error syncing to Redis: {}", e.getMessage(), e);
+            System.out.println("syncRedis error : " + e.getMessage());
         }
     }
 
