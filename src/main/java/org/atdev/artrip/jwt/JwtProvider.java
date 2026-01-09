@@ -58,17 +58,15 @@ public class JwtProvider {
         try {
             return parser.parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
-            throw new JwtAuthenticationException(UserError._JWT_EXPIRED_ACCESS_TOKEN);
-        } catch (SignatureException e) {
-            throw new JwtAuthenticationException(UserError._JWT_INVALID_SIGNATURE);
+            throw new JwtAuthenticationException(UserError._JWT_EXPIRED_ACCESS_TOKEN,e);
         } catch (UnsupportedJwtException e){
-            throw new JwtAuthenticationException(UserError._JWT_UNSUPPORTED_TOKEN);
+            throw new JwtAuthenticationException(UserError._JWT_UNSUPPORTED_TOKEN,e);
         } catch (IllegalArgumentException e) {
-            throw new JwtAuthenticationException(UserError._JWT_EMPTY_TOKEN);
+            throw new JwtAuthenticationException(UserError._JWT_EMPTY_TOKEN,e);
         } catch (MalformedJwtException e) {
-            throw new JwtAuthenticationException(UserError._JWT_MALFORMED_TOKEN);
+            throw new JwtAuthenticationException(UserError._JWT_MALFORMED_TOKEN,e);
         } catch (JwtException e) {
-            throw new JwtAuthenticationException(UserError._JWT_INVALID_TOKEN);
+            throw new JwtAuthenticationException(UserError._JWT_INVALID_TOKEN,e);
         }
     }
 
@@ -76,17 +74,15 @@ public class JwtProvider {
         try {
             parser.parseClaimsJws(refreshToken);
         } catch (ExpiredJwtException e) {
-            throw new GeneralException(UserError._JWT_EXPIRED_REFRESH_TOKEN);
-        } catch (SignatureException e) {
-            throw new GeneralException(UserError._JWT_INVALID_SIGNATURE);
+            throw new GeneralException(UserError._JWT_EXPIRED_REFRESH_TOKEN,e);
         } catch (UnsupportedJwtException e){
-            throw new GeneralException(UserError._JWT_UNSUPPORTED_TOKEN);
+            throw new GeneralException(UserError._JWT_UNSUPPORTED_TOKEN,e);
         } catch (IllegalArgumentException e) {
-            throw new GeneralException(UserError._JWT_EMPTY_TOKEN);
+            throw new GeneralException(UserError._JWT_EMPTY_TOKEN,e);
         } catch (MalformedJwtException e) {
-            throw new GeneralException(UserError._JWT_MALFORMED_TOKEN);
+            throw new GeneralException(UserError._JWT_MALFORMED_TOKEN,e);
         } catch (JwtException e) {
-            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
+            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN,e);
         }
     }
 
