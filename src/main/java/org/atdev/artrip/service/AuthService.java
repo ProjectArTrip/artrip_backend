@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.constants.Role;
+import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.domain.auth.SocialAccounts;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.AuthError;
@@ -13,7 +14,6 @@ import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.JwtToken;
 import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
@@ -44,7 +44,6 @@ public class AuthService {
     private int accessTokenExpirationMillis;
 
 
-    // 웹 관리자 전용
     @Transactional
     public String webReissueToken(ReissueRequest request, HttpServletResponse response) {
 
@@ -62,7 +61,6 @@ public class AuthService {
         return newAccessToken;
     }
 
-    // 앱 사용자 전용
     @Transactional
     public SocialLoginResponse appReissueToken(ReissueRequest request) {
 
@@ -71,18 +69,18 @@ public class AuthService {
 
         return new SocialLoginResponse(
                 newAccessToken,
-                request.getRefreshToken(),
+                request.refreshToken(),
                 false
         );
     }
 
     private User getUserFromRefreshToken(ReissueRequest request) {
 
-        if (request == null || request.getRefreshToken() == null) {
+        if (request == null || request.refreshToken() == null) {
             throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
         }
 
-        String refreshToken = request.getRefreshToken();
+        String refreshToken = request.refreshToken();
         jwtProvider.validateRefreshToken(refreshToken);
         String userId = redisService.getValue(refreshToken);
 
@@ -108,10 +106,10 @@ public class AuthService {
     @Transactional
     public void appLogout(ReissueRequest request) {
 
-        if (request == null || request.getRefreshToken() == null) return;
+        if (request == null || request.refreshToken() == null) return;
 
-        String refreshToken = request.getRefreshToken();
-        String accessToken = request.getAccessToken();
+        String refreshToken = request.refreshToken();
+        String accessToken = request.accessToken();
 
         if (accessToken != null) {
             long remainTime = jwtProvider.getExpiration(accessToken);

@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.service.AuthService;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
+import org.atdev.artrip.service.AuthService;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
@@ -81,9 +81,9 @@ public class AuthController {
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/app/logout")
-    public ResponseEntity<String> appLogout(@RequestBody(required = false) ReissueRequest refreshToken) {
+    public ResponseEntity<String> appLogout(@RequestBody(required = false) ReissueRequest token) {
 
-        authService.appLogout(refreshToken);
+        authService.appLogout(token);
 
         return ResponseEntity.ok("로그아웃 완료");
     }

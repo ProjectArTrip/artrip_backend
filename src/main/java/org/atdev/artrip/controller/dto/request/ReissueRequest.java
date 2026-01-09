@@ -1,9 +1,6 @@
 package org.atdev.artrip.controller.dto.request;
 
-import lombok.Data;
+public record ReissueRequest(String accessToken, String refreshToken) {
 
-@Data
-public class ReissueRequest {
-    private String refreshToken;
-    private String accessToken;
+
 }
