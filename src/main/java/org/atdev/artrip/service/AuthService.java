@@ -49,7 +49,6 @@ public class AuthService {
     public String webReissueToken(ReissueRequest request, HttpServletResponse response) {
 
         User user = getUserFromRefreshToken(request);
-
         String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
 
         Cookie accessCookie = new Cookie("accessToken", newAccessToken);
@@ -68,7 +67,6 @@ public class AuthService {
     public SocialLoginResponse appReissueToken(ReissueRequest request) {
 
         User user = getUserFromRefreshToken(request);
-
         String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
 
         return new SocialLoginResponse(
@@ -85,9 +83,7 @@ public class AuthService {
         }
 
         String refreshToken = request.getRefreshToken();
-
         jwtProvider.validateRefreshToken(refreshToken);
-
         String userId = redisService.getValue(refreshToken);
 
         if (userId == null) {
@@ -103,7 +99,6 @@ public class AuthService {
     public void webLogout(String refreshToken, HttpServletResponse response) {
 
         if(refreshToken == null) return;
-
         redisService.deleteKey(refreshToken);
 
         expireCookie("accessToken", response);
@@ -124,7 +119,6 @@ public class AuthService {
             if (remainTime>0)
                 redisService.saveBlacklist(accessToken, remainTime);
         }
-
         redisService.deleteKey(refreshToken);
     }
 
@@ -204,5 +198,4 @@ public class AuthService {
         user.getSocialAccounts().add(social);
         return userRepository.save(user);
     }
-
 }
