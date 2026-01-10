@@ -12,4 +12,8 @@ public class JwtAuthenticationException extends RuntimeException {
         super(userError.getMessage());
         this.userError = userError;
     }
+    public JwtAuthenticationException(UserError userError, Throwable e) {
+        super(userError.getMessage(), e);
+        this.userError = userError;
+    }
 }

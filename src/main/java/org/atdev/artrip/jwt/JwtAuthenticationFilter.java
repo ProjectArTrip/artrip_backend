@@ -6,6 +6,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.jwt.exception.JwtAuthenticationException;
+import org.atdev.artrip.service.RedisService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -18,6 +21,7 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final RedisService redisService;
     private static final String GRANT_TYPE = "Bearer ";
 
 
@@ -27,11 +31,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (token != null && jwtProvider.validateToken(token)) {
-            Authentication authentication = jwtProvider.getAuthentication(token);
-            log.info("Authentication principal: {}", authentication.getPrincipal());
-            log.info("Authorities: {}", authentication.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        if (StringUtils.hasText(token)) {
+            try {
+                if (redisService.hasKey("BLACKLIST:" + token)) {
+                    throw new JwtAuthenticationException(UserError._JWT_BLACKLISTED_TOKEN);
+                }
+                Authentication authentication = jwtProvider.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (JwtAuthenticationException e) {
+                SecurityContextHolder.clearContext();
+                throw e;
+            }
         }
 
         filterChain.doFilter(request, response);

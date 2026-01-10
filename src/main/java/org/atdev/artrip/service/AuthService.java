@@ -5,9 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.Provider;
-import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
-import org.atdev.artrip.domain.auth.SocialAccounts;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.AuthError;
 import org.atdev.artrip.jwt.JwtGenerator;
@@ -49,7 +47,7 @@ public class AuthService {
     public String webReissueToken(ReissueRequest request, HttpServletResponse response) {
 
         User user = getUserFromRefreshToken(request);
-        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
+        String newAccessToken = jwtGenerator.createAccessToken(user, user.getRole());
 
         Cookie accessCookie = new Cookie("accessToken", newAccessToken);
         accessCookie.setHttpOnly(true);
@@ -66,7 +64,7 @@ public class AuthService {
     public SocialLoginResponse appReissueToken(ReissueRequest request) {
 
         User user = getUserFromRefreshToken(request);
-        String newAccessToken = jwtGenerator.createAccessToken(user.getUserId().toString(), user.getRole().name());
+        String newAccessToken = jwtGenerator.createAccessToken(user, user.getRole());
 
         return new SocialLoginResponse(
                 newAccessToken,
