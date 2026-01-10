@@ -18,6 +18,7 @@ import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
+import org.atdev.artrip.security.utill.CookieUtils;
 import org.atdev.artrip.service.social.SocialVerifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -99,8 +100,8 @@ public class AuthService {
         if(refreshToken == null) return;
         redisService.deleteKey(refreshToken);
 
-        expireCookie("accessToken", response);
-        expireCookie("refreshToken", response);
+        CookieUtils.expire("accessToken", response);
+        CookieUtils.expire("refreshToken", response);
     }
 
     @Transactional
@@ -120,19 +121,10 @@ public class AuthService {
         redisService.deleteKey(refreshToken);
     }
 
-    private void expireCookie(String name, HttpServletResponse response) {
-        Cookie cookie = new Cookie(name, null);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-    }
-
     @Transactional
-    public SocialLoginResponse loginWithSocial(String providerStr, String idToken) {
+    public SocialLoginResponse loginWithSocial(String providerName, String idToken) {
 
-        Provider provider = parseProvider(providerStr);
+        Provider provider = Provider.from(providerName);
 
         SocialVerifier verifier = socialVerifiers.stream()
                 .filter(v -> v.getProvider() == provider)
@@ -162,15 +154,7 @@ public class AuthService {
         );
     }
 
-    private Provider parseProvider(String providerStr) {
-        try {
-            return Provider.valueOf(providerStr.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new GeneralException(AuthError._UNSUPPORTED_SOCIAL_PROVIDER);
-        }
-    }
-
-    @Transactional// 테스트용 로직 -> 프론트 요청
+    @Transactional
     public void completeOnboarding(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow();

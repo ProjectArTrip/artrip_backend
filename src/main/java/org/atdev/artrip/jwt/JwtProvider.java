@@ -98,7 +98,6 @@ public class JwtProvider {
         }
     }
 
-    //만료까지 남은시간
     public long getExpiration(String accessToken) {
 
         try {
@@ -111,8 +110,8 @@ public class JwtProvider {
             long expirationTime = claims.getExpiration().getTime();
             long now = new Date().getTime();
 
-            return (expirationTime - now);
-        } catch (ExpiredJwtException e){
+            return Math.max(0, expirationTime - now);
+        } catch (Exception e){
             return 0;
         }
     }
