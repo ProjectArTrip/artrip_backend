@@ -116,7 +116,7 @@ public class AuthService {
             long remainTime = jwtProvider.getExpiration(accessToken);
 
             if (remainTime>0)
-                redisService.saveBlacklist(accessToken, remainTime);
+                redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
         }
         redisService.deleteKey(refreshToken);
     }

@@ -25,11 +25,7 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, value, Duration.ofMillis(durationMillis));
     }
 
-    public void saveBlacklist(String accessToken, long expirationMillis) {
-        save("BLACKLIST:" + accessToken, "logout", expirationMillis);
-    }
-
-    public boolean isBlacklisted(String accessToken) {
-        return getValue("BLACKLIST:" + accessToken) != null;
+    public boolean hasKey(String key) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 }
