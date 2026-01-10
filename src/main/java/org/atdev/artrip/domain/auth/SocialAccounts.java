@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.auth;
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.constants.Provider;
+import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -42,5 +43,11 @@ public class SocialAccounts {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-
+    public static SocialAccounts create(User user, SocialUserInfo info) {
+        return SocialAccounts.builder()
+                .user(user)
+                .provider(info.getProvider())
+                .providerId(info.getProviderId())
+                .build();
+    }
 }

@@ -3,6 +3,7 @@ package org.atdev.artrip.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.jwt.exception.JwtAuthenticationException;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -17,14 +18,14 @@ import org.springframework.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
 
     private final JwtParser parser;
-
-
 
     public Authentication getAuthentication(String accessToken) {
 
@@ -86,7 +87,22 @@ public class JwtProvider {
         }
     }
 
+    public long getExpiration(String accessToken) {
 
+        try {
+            Claims claims = parser.parseClaimsJws(accessToken).getBody();
+
+            long expirationTime = claims.getExpiration().getTime();
+            long now = new Date().getTime();
+
+            return Math.max(0, expirationTime - now);
+        } catch (ExpiredJwtException e) {
+            return 0;
+        } catch (Exception e) {
+            log.warn("잘못된 토큰 로그아웃 시도가 감지 되었습니다");
+            return 0;
+        }
+    }
 }
 
 
