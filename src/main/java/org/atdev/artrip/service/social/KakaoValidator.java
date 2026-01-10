@@ -28,6 +28,9 @@ public class KakaoValidator implements SocialVerifier{
     @Value("${spring.security.oauth2.client.registration.kakao.native-client-id}")
     private String kakaoNativeClientId;
 
+    private static final String KAKAO_JWKS_URL = "https://kauth.kakao.com/.well-known/jwks.json";
+    private static final String KAKAO_ISSUER = "https://kauth.kakao.com";
+
     @Override
     public Provider getProvider() {
         return Provider.KAKAO;
@@ -36,8 +39,7 @@ public class KakaoValidator implements SocialVerifier{
     @Override
     public SocialUserInfo verify(String idToken) {
         try {
-            String jwksUrl = "https://kauth.kakao.com/.well-known/jwks.json";
-            UrlJwkProvider provider = new UrlJwkProvider(new URL(jwksUrl));
+            UrlJwkProvider provider = new UrlJwkProvider(new URL(KAKAO_JWKS_URL));
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
@@ -61,7 +63,7 @@ public class KakaoValidator implements SocialVerifier{
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("https://kauth.kakao.com")
+                    .withIssuer(KAKAO_ISSUER)
                     .withAudience(expectedAud)
                     .build();
 
@@ -77,10 +79,7 @@ public class KakaoValidator implements SocialVerifier{
                 throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
             }
 
-            String email = verified.getClaim("email").asString();
-            String nickname = verified.getClaim("nickname").asString();
-            String sub = verified.getSubject();
-            return new SocialUserInfo(email, nickname, sub, getProvider());
+            return SocialUserInfo.from(verified, getProvider());
 
         } catch (Exception e) {
             throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);

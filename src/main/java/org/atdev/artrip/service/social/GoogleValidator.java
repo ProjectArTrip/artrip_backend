@@ -28,6 +28,9 @@ public class GoogleValidator implements SocialVerifier{
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
+    private static final String GOOGLE_JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs";
+    private static final String GOOGLE_ISSUER = "https://accounts.google.com";
+
     @Override
     public Provider getProvider() {
         return Provider.GOOGLE;
@@ -37,8 +40,7 @@ public class GoogleValidator implements SocialVerifier{
     public SocialUserInfo verify(String idToken) {
 
         try {
-            String jwksUrl = "https://www.googleapis.com/oauth2/v3/certs";
-            UrlJwkProvider provider = new UrlJwkProvider(new URL(jwksUrl));
+            UrlJwkProvider provider = new UrlJwkProvider(new URL(GOOGLE_JWKS_URL));
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
@@ -62,7 +64,7 @@ public class GoogleValidator implements SocialVerifier{
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("https://accounts.google.com")
+                    .withIssuer(GOOGLE_ISSUER)
                     .withAudience(expectedAud)
                     .build();
 
@@ -77,11 +79,7 @@ public class GoogleValidator implements SocialVerifier{
                 throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
             }
 
-            String email = verified.getClaim("email").asString();
-            String name = verified.getClaim("name").asString();
-            String sub = verified.getSubject();
-
-            return new SocialUserInfo(email, name, sub , getProvider());
+            return SocialUserInfo.from(verified,getProvider());
 
         } catch (Exception e) {
             throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
