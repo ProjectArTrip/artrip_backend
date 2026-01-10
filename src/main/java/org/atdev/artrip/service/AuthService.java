@@ -142,7 +142,7 @@ public class AuthService {
 
         boolean isFirstLogin = userOptional.isEmpty();
 
-        User user = userOptional.orElseGet(() -> createNewUser(socialUser));
+        User user = userOptional.orElseGet(() -> userRepository.save(User.createUser(socialUser)));
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
 
         redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
@@ -162,22 +162,4 @@ public class AuthService {
         user.setOnboardingCompleted(!user.isOnboardingCompleted());
     }
 
-    private User createNewUser(SocialUserInfo info) {
-
-        User user = User.builder()
-                .email(info.getEmail())
-                .name(info.getNickname())
-                .role(Role.USER)
-                .onboardingCompleted(false)
-                .build();
-
-        SocialAccounts social = SocialAccounts.builder()
-                .user(user)
-                .provider(info.getProvider())
-                .providerId(info.getProviderId())
-                .build();
-
-        user.getSocialAccounts().add(social);
-        return userRepository.save(user);
-    }
 }
