@@ -9,8 +9,8 @@ import org.atdev.artrip.controller.dto.response.ReviewResponse;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.controller.dto.response.ReviewSliceResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.ReviewError;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
@@ -31,8 +31,8 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 생성")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            review = {ReviewError._REVIEW_USER_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND}
     )
     @PostMapping("/{exhibitId}")
     public ResponseEntity<CommonResponse<ReviewResponse>> CreateReview(@PathVariable Long exhibitId,
@@ -49,8 +49,8 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 수정")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            review = {ReviewError._REVIEW_USER_NOT_FOUND, ReviewError._REVIEW_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND, ReviewErrorCode._REVIEW_NOT_FOUND}
     )
     @PutMapping("/{reviewId}")
     public ResponseEntity<CommonResponse<ReviewResponse>> UpdateReview(@PathVariable Long reviewId,
@@ -67,8 +67,8 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 삭제")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            review = {ReviewError._REVIEW_USER_NOT_FOUND, ReviewError._REVIEW_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND, ReviewErrorCode._REVIEW_NOT_FOUND}
     )
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<CommonResponse<String>> DeleteReview(@PathVariable Long reviewId,
@@ -83,8 +83,8 @@ public class ReviewController {
 
     @Operation(summary = "나의 리뷰 전체 조회 (무한스크롤)")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            review = {ReviewError._REVIEW_USER_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND}
     )
     @GetMapping("/all")
     public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllReview(
@@ -102,8 +102,8 @@ public class ReviewController {
 
     @Operation(summary = "전시 상세페이지 리뷰 조회 (무한스크롤)")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            review = {ReviewError._REVIEW_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            review = {ReviewErrorCode._REVIEW_NOT_FOUND}
     )
     @GetMapping("/{exhibitId}/detail")
     public ResponseEntity<CommonResponse<ExhibitReviewSliceResponse>> getExhibitReview(

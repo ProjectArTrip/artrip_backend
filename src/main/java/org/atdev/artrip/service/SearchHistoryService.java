@@ -4,11 +4,11 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.global.apipayload.code.status.SearchErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.search.SearchHistory;
 import org.atdev.artrip.repository.SearchHistoryRepository;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.SearchError;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -65,7 +65,7 @@ public class SearchHistoryService {
         try {
             log.debug("Saving search history for userId: {}, keyword: {}", userId, keyword);
 
-            User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(CommonError._INTERNAL_SERVER_ERROR));
+            User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(CommonErrorCode._INTERNAL_SERVER_ERROR));
 
             SearchHistory history = SearchHistory.builder()
                     .user(user)
@@ -99,7 +99,7 @@ public class SearchHistoryService {
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new GeneralException(SearchError._SEARCH_HISTORY_NOT_FOUND);
+            throw new GeneralException(SearchErrorCode._SEARCH_HISTORY_NOT_FOUND);
         }
     }
 
@@ -110,7 +110,7 @@ public class SearchHistoryService {
             searchHistoryRepository.deleteByUserId(userId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new GeneralException(SearchError._SEARCH_EXHIBIT_NOT_FOUND);
+            throw new GeneralException(SearchErrorCode._SEARCH_EXHIBIT_NOT_FOUND);
         }
     }
 

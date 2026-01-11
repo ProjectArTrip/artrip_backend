@@ -16,7 +16,7 @@ import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.repository.UserKeywordRepository;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import org.atdev.artrip.global.s3.service.S3Service;
@@ -92,7 +92,7 @@ public class HomeService {
     public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request, ImageResizeRequest resize){
 
         if (!userRepository.existsById(userId)) {
-            throw new GeneralException(UserError._USER_NOT_FOUND);
+            throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
         List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)

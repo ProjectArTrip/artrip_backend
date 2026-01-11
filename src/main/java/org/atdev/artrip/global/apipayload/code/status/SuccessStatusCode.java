@@ -3,12 +3,11 @@ package org.atdev.artrip.global.apipayload.code.status;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.atdev.artrip.global.apipayload.code.BaseCode;
-import org.atdev.artrip.global.apipayload.code.ReasonDTO;
 import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum SuccessStatus implements BaseCode {
+public enum SuccessStatusCode implements BaseCode {
 
     // 일반적인 응답
     _OK(HttpStatus.OK, "COMMON200", "성공입니다.");

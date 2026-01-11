@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum AuthError implements BaseErrorCode {
+public enum AuthErrorCode implements BaseErrorCode {
 
     // Auth Errors
     _UNSUPPORTED_SOCIAL_PROVIDER(HttpStatus.BAD_REQUEST, "AUTH400-UNSUPPORTED_PROVIDER", "지원하지 않는 소셜 로그인입니다."),

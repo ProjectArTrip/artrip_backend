@@ -10,7 +10,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ public class KakaoValidator implements SocialVerifier{
             List<String> audiences = decodedJWT.getAudience();
 
             if (audiences == null || audiences.isEmpty()) {
-                throw new GeneralException(UserError._SOCIAL_ID_TOKEN_INVALID);
+                throw new GeneralException(UserErrorCode._SOCIAL_ID_TOKEN_INVALID);
             }
 
             String aud = audiences.get(0);
@@ -56,7 +56,7 @@ public class KakaoValidator implements SocialVerifier{
             } else if (aud.equals(kakaoClientId)) {
                 expectedAud = kakaoClientId;
             } else {
-                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_AUDIENCE);
+                throw new GeneralException(UserErrorCode._SOCIAL_TOKEN_INVALID_AUDIENCE);
             }
 
             Jwk jwk = provider.get(kid);
@@ -72,17 +72,17 @@ public class KakaoValidator implements SocialVerifier{
             try {
                 verified = verifier.verify(idToken);
             } catch (TokenExpiredException e) {
-                throw new GeneralException(UserError._SOCIAL_TOKEN_EXPIRED);
+                throw new GeneralException(UserErrorCode._SOCIAL_TOKEN_EXPIRED);
             } catch (SignatureVerificationException e) {
-                throw new GeneralException(UserError._SOCIAL_TOKEN_INVALID_SIGNATURE);
+                throw new GeneralException(UserErrorCode._SOCIAL_TOKEN_INVALID_SIGNATURE);
             } catch (Exception e) {
-                throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+                throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);
             }
 
             return SocialUserInfo.from(verified, getProvider());
 
         } catch (Exception e) {
-            throw new GeneralException(UserError._SOCIAL_VERIFICATION_FAILED);
+            throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);
         }
     }
 }

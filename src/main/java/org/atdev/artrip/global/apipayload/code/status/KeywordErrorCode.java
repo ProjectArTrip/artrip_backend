@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum KeywordError implements BaseErrorCode {
+public enum KeywordErrorCode implements BaseErrorCode {
 
     _KEYWORD_NOT_FOUND(HttpStatus.NOT_FOUND, "KEYWORD404-NOT_FOUND", "존재하지 않거나 유효하지 않은 키워드 ID가 요청되었습니다."),
     _KEYWORD_SELECTION_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "KEYWORD400-SELECTION_LIMIT_EXCEEDED", "키워드 선택 최대 개수를 초과했습니다."),

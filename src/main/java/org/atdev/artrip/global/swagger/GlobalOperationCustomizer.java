@@ -9,8 +9,7 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import jakarta.annotation.security.PermitAll;
 import org.atdev.artrip.global.apipayload.code.BaseErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.springdoc.core.customizers.OperationCustomizer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -38,10 +37,10 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
                     responses,
                     "401",
                     List.of(
-                            UserError._JWT_INVALID_TOKEN,
-                            UserError._JWT_EXPIRED_ACCESS_TOKEN,
-                            UserError._SOCIAL_TOKEN_INVALID_SIGNATURE,
-                            UserError._JWT_UNSUPPORTED_TOKEN
+                            UserErrorCode._JWT_INVALID_TOKEN,
+                            UserErrorCode._JWT_EXPIRED_ACCESS_TOKEN,
+                            UserErrorCode._SOCIAL_TOKEN_INVALID_SIGNATURE,
+                            UserErrorCode._JWT_UNSUPPORTED_TOKEN
                     )
             );
         }

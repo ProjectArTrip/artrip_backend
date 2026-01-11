@@ -7,14 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.AuthError;
+import org.atdev.artrip.global.apipayload.code.status.AuthErrorCode;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.JwtToken;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.security.utill.CookieUtils;
 import org.atdev.artrip.service.social.SocialVerifier;
@@ -76,7 +76,7 @@ public class AuthService {
     private User getUserFromRefreshToken(ReissueRequest request) {
 
         if (request == null || request.refreshToken() == null) {
-            throw new GeneralException(UserError._INVALID_REFRESH_TOKEN);
+            throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN);
         }
 
         String refreshToken = request.refreshToken();
@@ -84,11 +84,11 @@ public class AuthService {
         String userId = redisService.getValue(refreshToken);
 
         if (userId == null) {
-            throw new GeneralException(UserError._INVALID_USER_REFRESH_TOKEN);
+            throw new GeneralException(UserErrorCode._INVALID_USER_REFRESH_TOKEN);
         }
 
         return userRepository.findById(Long.valueOf(userId))
-                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
     }
 
 
@@ -127,13 +127,13 @@ public class AuthService {
         SocialVerifier verifier = socialVerifiers.stream()
                 .filter(v -> v.getProvider() == provider)
                 .findFirst()
-                .orElseThrow(() -> new GeneralException(AuthError._UNSUPPORTED_SOCIAL_PROVIDER));
+                .orElseThrow(() -> new GeneralException(AuthErrorCode._UNSUPPORTED_SOCIAL_PROVIDER));
 
         SocialUserInfo socialUser = verifier.verify(idToken);
 
         String email = socialUser.getEmail();
         if (email == null) {
-            throw new GeneralException(AuthError._SOCIAL_EMAIL_NOT_PROVIDED);
+            throw new GeneralException(AuthErrorCode._SOCIAL_EMAIL_NOT_PROVIDED);
         }
 
         Optional<User> userOptional = userRepository.findByEmail(email);
