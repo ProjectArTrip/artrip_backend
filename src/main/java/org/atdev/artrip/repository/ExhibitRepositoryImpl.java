@@ -82,7 +82,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         QKeyword k = QKeyword.keyword;
 
         return queryFactory
-                .selectDistinct(Projections.constructor(// select 순서와 DTO 생성자 파라미터 순서를 1:1 매핑함!
+                .selectDistinct(Projections.constructor(
                         HomeListResponse.class,
                         e.exhibitId,
                         e.title,
@@ -124,11 +124,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                     .or(e.favoriteCount.eq(cursor.getFavoriteCount())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            case LATEST -> e.startDate.lt(cursor.getStartDate())//<
+            case LATEST -> e.startDate.lt(cursor.getStartDate())
                     .or(e.startDate.eq(cursor.getStartDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            default -> e.endDate.gt(cursor.getEndDate())//>
+            default -> e.endDate.gt(cursor.getEndDate())
                     .or(e.endDate.eq(cursor.getEndDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
         };
@@ -204,8 +204,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private BooleanExpression findDate(LocalDate date){
         if (date == null) return null;
 
-        return exhibit.startDate.loe(date)//<=
-                .and(exhibit.endDate.goe(date));//>=
+        return exhibit.startDate.loe(date)
+                .and(exhibit.endDate.goe(date));
     }
 
     private BooleanExpression keywordSearch(String keyword, QExhibit e, QExhibitHall h, QKeyword k) {
