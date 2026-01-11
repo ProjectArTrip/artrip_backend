@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.controller.dto.response.CalenderResponse;
 import org.atdev.artrip.controller.dto.response.FavoriteResponse;
+import org.atdev.artrip.global.resolver.CurrentUserId;
 import org.atdev.artrip.service.FavoriteExhibitService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
@@ -21,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("favorites")
@@ -37,11 +37,8 @@ public class FavoriteController {
     )
     @PostMapping("/{exhibitId}")
     public CommonResponse<FavoriteResponse> addFavorite(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @PathVariable Long exhibitId) {
-
-        Long userId = Long.parseLong(userDetails.getUsername());
-        log.info("Adding favorite for userId: {} , exhibit {}", userId, exhibitId);
 
         FavoriteResponse response = favoriteExhibitService.addFavorite(userId, exhibitId);
         return CommonResponse.onSuccess(response);
@@ -54,11 +51,8 @@ public class FavoriteController {
     )
     @DeleteMapping("/{exhibitId}")
     public CommonResponse<Void> removeFavorite(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @PathVariable Long exhibitId) {
-
-        Long userId = Long.parseLong(userDetails.getUsername());
-        log.info("Removing favorite for userId: {} , exhibit {}", userId, exhibitId);
 
         favoriteExhibitService.removeFavorite(userId, exhibitId);
         return CommonResponse.onSuccess(null);
@@ -71,10 +65,7 @@ public class FavoriteController {
     )
     @GetMapping
     public CommonResponse<List<FavoriteResponse>> getAllFavorites(
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Long userId = Long.parseLong(userDetails.getUsername());
-        log.info("Getting all favorites for userId: {}", userId);
+            @CurrentUserId Long userId) {
 
         List<FavoriteResponse> favorites = favoriteExhibitService.getAllFavorites(userId);
 
@@ -90,12 +81,9 @@ public class FavoriteController {
     )
     @GetMapping("/date")
     public CommonResponse<List<FavoriteResponse>> getFavoritesByDate(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @RequestParam("data")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-
-        Long userId = Long.parseLong(userDetails.getUsername());
-        log.info("Getting all favorites for userId: {}, date: {}", userId, date);
 
         List<FavoriteResponse> favorites = favoriteExhibitService.getFavoritesByDate(userId, date);
         return CommonResponse.onSuccess(favorites);
@@ -110,12 +98,11 @@ public class FavoriteController {
     )
     @GetMapping("/country")
     public CommonResponse<List<FavoriteResponse>> getFavoritesByCountry(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @RequestParam String country) {
-        Long userId = Long.parseLong(userDetails.getUsername());
-        log.info("Getting all favorites for userId: {}, country: {}", userId, country);
 
         List<FavoriteResponse> favorites = favoriteExhibitService.getFavoritesByCountry(userId, country);
+
         return CommonResponse.onSuccess(favorites);
     }
 
@@ -128,12 +115,9 @@ public class FavoriteController {
     )
     @GetMapping("/calendar")
     public CommonResponse<CalenderResponse> getCalenderDates(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @RequestParam int year,
             @RequestParam int month) {
-
-        Long userId = Long.parseLong(userDetails.getUsername());
-        log.info("Getting calendar dates for userId: {}, year: {}, month: {}", userId, year, month);
 
         CalenderResponse response = favoriteExhibitService.getCalenderDates(userId, year, month);
         return CommonResponse.onSuccess(response);
@@ -148,10 +132,7 @@ public class FavoriteController {
     )
     @GetMapping("/countries")
     public CommonResponse<List<String>> getFavoriteCountries(
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Long userId = Long.parseLong(userDetails.getUsername());
-        log.info("Getting favorite countries for userId: {}", userId);
+            @CurrentUserId Long userId) {
 
         List<String> countries = favoriteExhibitService.getFavoriteCountries(userId);
         return CommonResponse.onSuccess(countries);
@@ -166,9 +147,8 @@ public class FavoriteController {
     )
     @GetMapping("/check/{exhibitId}")
     public CommonResponse<Map<String, Boolean>> checkFavorite(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @PathVariable Long exhibitId) {
-        Long userId = Long.parseLong(userDetails.getUsername());
 
         boolean isFavorite = favoriteExhibitService.isFavorite(userId, exhibitId);
 

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.global.resolver.CurrentUserId;
 import org.atdev.artrip.service.AuthService;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
@@ -112,9 +113,7 @@ public class AuthController {
     @Operation(summary = "isFirstLogin값 반전 api")
     @PostMapping("/complete")
     public ResponseEntity<String> completeOnboarding(
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        long userId = Long.parseLong(userDetails.getUsername());
+            @CurrentUserId Long userId) {
 
         authService.completeOnboarding(userId);
 

@@ -28,7 +28,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AdminExhibitService {
 
     private final ExhibitRepository exhibitRepository;
@@ -38,7 +37,6 @@ public class AdminExhibitService {
 
     @Transactional(readOnly = true)
     public PagingResponseDTO<AdminExhibitListResponse> getExhibitList(Criteria cri) {
-        log.info("Admin Getting Exhibit List : {}", cri);
 
         Pageable pageable = cri.toPageable();
 
@@ -57,7 +55,6 @@ public class AdminExhibitService {
 
     @Transactional(readOnly = true)
     public AdminExhibitResponse getExhibit (Long exhibitId) {
-        log.info("Admin Getting Exhibit : {}", exhibitId);
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
@@ -67,7 +64,6 @@ public class AdminExhibitService {
 
     @Transactional
     public Long createExhibit(CreateExhibitRequest request) {
-        log.info("Admin Creating exhibit : title={}", request);
 
         ExhibitHall exhibitHall = exhibitHallRepository.findById(request.getExhibitHallId())
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
@@ -94,22 +90,14 @@ public class AdminExhibitService {
                 .build();
         exhibit.getKeywords().addAll(keywords);
 
-        Exhibit savedExhibit = exhibitRepository.save(exhibit);
-
-        log.info("Exhibit created : id={}, keywords.size={} ",
-                savedExhibit.getExhibitId(),
-                savedExhibit.getKeywords().size());
-
         try {
         } catch (Exception e) {
-            System.out.println("create Exhibit error : " + e.getMessage());
         }
-        return savedExhibit.getExhibitId();
+        return null;
     }
 
     @Transactional
     public Long updateExhibit(Long exhibitId, UpdateExhibitRequest request) {
-        log.info("Admin Updating Exhibit : {}", exhibitId);
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
@@ -147,7 +135,6 @@ public class AdminExhibitService {
 
         // TODO: 업데이트 할 내용 추가
         try {
-            System.out.println("update Exhibit Code");
 
         }catch (Exception e) {
             throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
@@ -158,7 +145,6 @@ public class AdminExhibitService {
 
     @Transactional
     public void deleteExhibit(Long exhibitId) {
-        log.info("Admin Deleting Exhibit : {}", exhibitId);
 
         if (!exhibitRepository.existsById(exhibitId)) {
             throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
@@ -170,7 +156,6 @@ public class AdminExhibitService {
         try {
             System.out.println("delete Exhibit code");
         } catch (Exception e) {
-        log.error("Admin Exhibit Deletion Error", e.getMessage());
             throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
         }
     }

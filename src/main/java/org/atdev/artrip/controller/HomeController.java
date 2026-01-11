@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
+import org.atdev.artrip.global.resolver.CurrentUserId;
 import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.controller.dto.request.GenreRandomRequest;
 import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
@@ -51,11 +52,9 @@ public class HomeController {
     )
     @PostMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @Valid @RequestBody PersonalizedRequest requestDto,
             @ParameterObject ImageResizeRequest resize){
-
-        long userId = Long.parseLong(userDetails.getUsername());
 
         List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId, requestDto, resize);
 
@@ -85,12 +84,10 @@ public class HomeController {
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
             @Valid @RequestBody ScheduleRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @ParameterObject ImageResizeRequest resize){
 
 
-        Long userId = Long.parseLong(userDetails.getUsername());
-      
         List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
@@ -121,12 +118,9 @@ public class HomeController {
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
             @Valid @RequestBody GenreRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @ParameterObject ImageResizeRequest resize){
 
-
-        Long userId = Long.parseLong(userDetails.getUsername());
-      
         List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId, resize);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -154,11 +148,9 @@ public class HomeController {
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
             @Valid @RequestBody TodayRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @ParameterObject ImageResizeRequest resize){
 
-        Long userId = Long.parseLong(userDetails.getUsername());
-      
         List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));

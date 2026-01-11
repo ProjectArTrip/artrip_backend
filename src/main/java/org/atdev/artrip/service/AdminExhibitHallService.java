@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AdminExhibitHallService {
 
     private final ExhibitHallRepository exhibitHallRepository;
@@ -32,7 +31,6 @@ public class AdminExhibitHallService {
 
     @Transactional(readOnly = true)
     public PagingResponseDTO<ExhibitHallListResponse> getExhibitHallList(Criteria cri) {
-        log.info("Admin getting exhibit hall list: {}", cri);
 
         Pageable pageable = cri.toPageable();
         Page<ExhibitHall> hallPage;
@@ -54,7 +52,6 @@ public class AdminExhibitHallService {
 
     @Transactional(readOnly = true)
     public ExhibitHallResponse getExhibitHall(Long exhibitHallId) {
-        log.info("Admin getting exhibit hall : {}", exhibitHallId);
 
         ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
 
@@ -65,7 +62,6 @@ public class AdminExhibitHallService {
 
     @Transactional
     public Long createExhibitHall(CreateExhibitHallRequest request) {
-        log.info("Admin creating exhibit hall: {}", request);
 
         ExhibitHall exhibitHall = ExhibitHall.builder()
                 .name(request.getName())
@@ -85,38 +81,17 @@ public class AdminExhibitHallService {
 
         ExhibitHall savedHall = exhibitHallRepository.save(exhibitHall);
 
-        log.info("Exhibit hall saved: {}", savedHall);
-
         return savedHall.getExhibitHallId();
     }
 
     @Transactional
     public Long updateExhibitHall(Long exhibitHallId, UpdateExhibitHallRequest request) {
-        log.info("Admin updating exhibit hall: {}, {}", exhibitHallId, request);
 
-        ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
-
-        if (request.getName() != null) {hall.setName(request.getName());}
-        if (request.getAddress() != null) {hall.setAddress(request.getAddress());}
-        if (request.getCountry() != null) {hall.setCountry(request.getCountry());}
-        if (request.getRegion() != null) {hall.setRegion(request.getRegion());}
-        if (request.getPhone() != null) {hall.setPhone(request.getPhone());}
-        if (request.getHomepageUrl() != null) {hall.setHomepageUrl(request.getHomepageUrl());}
-        if (request.getOpeningHours() != null) {hall.setOpeningHours(request.getOpeningHours());}
-        if (request.getIsDomestic() != null) {hall.setIsDomestic(request.getIsDomestic());}
-        if (request.getClosedDays() != null) {hall.setClosedDays(request.getClosedDays());}
-
-        hall.setUpdatedAt(LocalDateTime.now());
-        ExhibitHall savedHall = exhibitHallRepository.save(hall);
-
-        log.info("ExhibitHall updated: id={}, name={}", savedHall.getExhibitHallId(), savedHall.getName());
-
-        return savedHall.getExhibitHallId();
+    return null;
     }
 
     @Transactional
     public void deleteExhibitHall(Long exhibitHallId) {
-        log.info("Admin deleting exhibit hall: {}", exhibitHallId);
 
         if (!exhibitHallRepository.existsById(exhibitHallId)) {
             throw  new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND);
@@ -129,7 +104,6 @@ public class AdminExhibitHallService {
 
         exhibitHallRepository.deleteById(exhibitHallId);
 
-        log.info("Exhibit hall deleted: {}", exhibitHallId);
     }
 
 

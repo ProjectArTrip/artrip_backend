@@ -29,7 +29,7 @@ public class ExhibitService {
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
 
-        String resizedPosterUrl = s3Service.buildResizeUrl(exhibit.getPosterUrl(), resize.getW(), resize.getH(), resize.getF());
+        String resizedPosterUrl = s3Service.buildResizeUrl(exhibit.getPosterUrl(), resize.w(), resize.h(), resize.f());
 
         boolean isFavorite = false;
         if (userId != null ) {
@@ -40,6 +40,5 @@ public class ExhibitService {
 
         return homeConverter.toHomeExhibitResponse(exhibit, isFavorite, resizedPosterUrl);
     }
-
 
 }

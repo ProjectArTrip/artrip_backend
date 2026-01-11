@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.global.resolver.CurrentUserId;
 import org.atdev.artrip.service.ReviewService;
 import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitReviewSliceResponse;
@@ -38,9 +39,7 @@ public class ReviewController {
     public ResponseEntity<CommonResponse<ReviewResponse>> CreateReview(@PathVariable Long exhibitId,
                                                                        @RequestPart(value = "images",required = false) List<MultipartFile> images,
                                                                        @RequestPart(value = "request") ReviewCreateRequest request,
-                                                                       @AuthenticationPrincipal UserDetails userDetails){
-
-        Long userId = Long.valueOf(userDetails.getUsername());
+                                                                       @CurrentUserId Long userId){
 
         ReviewResponse review = reviewService.createReview(exhibitId, request, images, userId);
 
@@ -56,9 +55,7 @@ public class ReviewController {
     public ResponseEntity<CommonResponse<ReviewResponse>> UpdateReview(@PathVariable Long reviewId,
                                                                        @RequestPart(value = "images",required = false) List<MultipartFile> images,
                                                                        @RequestPart("request") ReviewUpdateRequest request,
-                                                                       @AuthenticationPrincipal UserDetails userDetails){
-
-        Long userId = Long.valueOf(userDetails.getUsername());
+                                                                       @CurrentUserId Long userId ){
 
         ReviewResponse review = reviewService.updateReview(reviewId, request, images, userId);
 
@@ -72,9 +69,7 @@ public class ReviewController {
     )
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<CommonResponse<String>> DeleteReview(@PathVariable Long reviewId,
-                                                               @AuthenticationPrincipal UserDetails userDetails){
-
-        Long userId = Long.valueOf(userDetails.getUsername());
+                                                               @CurrentUserId Long userId){
 
         reviewService.deleteReview(reviewId, userId);
 
@@ -90,10 +85,8 @@ public class ReviewController {
     public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @ParameterObject ImageResizeRequest resize) {
-
-        Long userId = Long.valueOf(userDetails.getUsername());
 
         ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size, resize);
 

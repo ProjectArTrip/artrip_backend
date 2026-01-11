@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
+import org.atdev.artrip.global.resolver.CurrentUserId;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
@@ -37,10 +38,8 @@ public class UserController {
             user = {UserError._PROFILE_IMAGE_NOT_EXIST,UserError._USER_NOT_FOUND}
     )
     public ResponseEntity<CommonResponse<String>> getUpdateImage(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @RequestPart("image") MultipartFile image){
-
-        Long userId = Long.parseLong(userDetails.getUsername());
 
         userService.updateProfileImg(userId,image);
 
@@ -54,9 +53,7 @@ public class UserController {
             user = {UserError._PROFILE_IMAGE_NOT_EXIST,UserError._USER_NOT_FOUND}
     )
     public ResponseEntity<CommonResponse<String>> getDeleteImage(
-            @AuthenticationPrincipal UserDetails userDetails){
-
-        Long userId = Long.parseLong(userDetails.getUsername());
+            @CurrentUserId Long userId){
 
         userService.deleteProfileImg(userId);
 
@@ -70,10 +67,8 @@ public class UserController {
             user = {UserError._DUPLICATE_NICKNAME,UserError._USER_NOT_FOUND,UserError._NICKNAME_BAD_REQUEST}
     )
     public ResponseEntity<CommonResponse<NicknameResponse>> updateNickname(
-            @AuthenticationPrincipal UserDetails user,
+            @CurrentUserId Long userId,
             @RequestBody NicknameRequest dto) {
-
-        Long userId = Long.valueOf(user.getUsername());
 
         NicknameResponse response = userService.updateNickName(userId, dto);
 
@@ -82,15 +77,9 @@ public class UserController {
 
     @Operation(summary = "마이페이지 조회", description = "닉네임, 프로필 이미지 조회")
     @GetMapping("/mypage")
-//    @ApiErrorResponses(
-//            common = {CommonError._INTERNAL_SERVER_ERROR, CommonError._UNAUTHORIZED},
-//            user = {UserError._USER_NOT_FOUND}
-//    )
     public ResponseEntity<CommonResponse<MypageResponse>> getMypage(
-            @AuthenticationPrincipal UserDetails user,
+            @CurrentUserId Long userId,
             @ParameterObject ImageResizeRequest resize) {
-
-        Long userId = Long.valueOf(user.getUsername());
 
         MypageResponse response = userService.getMypage(userId, resize);
 
@@ -105,9 +94,7 @@ public class UserController {
             exhibit = {ExhibitError._EXHIBIT_NOT_FOUND}
     )
     public ResponseEntity<CommonResponse<List<ExhibitRecentResponse>>> getRecentExhibit(
-            @AuthenticationPrincipal UserDetails userDetails){
-
-        Long userId = Long.valueOf(userDetails.getUsername());
+            @CurrentUserId Long userId){
 
         List<ExhibitRecentResponse> responses = userService.getRecentViews(userId);
 

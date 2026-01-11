@@ -39,7 +39,6 @@ public class SearchHistoryService {
                 syncToRedis(keywords);
             }
         } catch (Exception e) {
-            System.out.println( "init Redis : " + e.getMessage());
         }
     }
 
@@ -53,7 +52,6 @@ public class SearchHistoryService {
                 syncToRedis(keywords);
             }
         } catch (Exception e) {
-            System.out.println("redis cache filed : {}" +  e.getMessage());
         }
     }
 
@@ -73,7 +71,6 @@ public class SearchHistoryService {
         recommendRedisTemplate.opsForZSet().incrementScore(POPULAR_KEYWORDS_KEY, keyword, 1);
 
         } catch (Exception e) {
-            System.out.println("create error : " + e.getMessage());
         }
     }
 
@@ -91,7 +88,6 @@ public class SearchHistoryService {
             searchHistoryRepository.deleteByUserIdAndContent(userId, keyword);
 
         } catch (Exception e) {
-            System.out.println("remove error : " + e.getMessage());
             throw new GeneralException(SearchError._SEARCH_HISTORY_NOT_FOUND);
         }
     }
@@ -101,7 +97,6 @@ public class SearchHistoryService {
         try {
             searchHistoryRepository.deleteByUserId(userId);
         } catch (Exception e) {
-            System.out.println("removeAll error : " + e.getMessage());
             throw new GeneralException(SearchError._SEARCH_EXHIBIT_NOT_FOUND);
         }
     }
@@ -123,7 +118,6 @@ public class SearchHistoryService {
 
             return mysqlResult;
         } catch (Exception e) {
-            System.out.println("find PopularKeywrods error : " + e.getMessage());
             return searchHistoryRepository.findPopularKeywords();
         }
     }
@@ -135,7 +129,6 @@ public class SearchHistoryService {
                 recommendRedisTemplate.opsForZSet().add(POPULAR_KEYWORDS_KEY, keywords.get(i), score);
             }
         } catch (Exception e) {
-            System.out.println("syncRedis error : " + e.getMessage());
         }
     }
 

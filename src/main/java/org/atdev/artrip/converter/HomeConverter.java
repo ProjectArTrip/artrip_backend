@@ -24,7 +24,7 @@ public class HomeConverter {
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
-    public FilterResponse<HomeListResponse> toFilterResponse(Slice<Exhibit> slice, Set<Long> favorites) {
+    public FilterResponse toFilterResponse(Slice<Exhibit> slice, Set<Long> favorites) {
 
         List<HomeListResponse> postDtos = slice.getContent()
                 .stream()
@@ -35,7 +35,7 @@ public class HomeConverter {
                 ? slice.getContent().get(slice.getContent().size() - 1).getExhibitId()
                 : null;
 
-        return new FilterResponse<>(postDtos, slice.hasNext(), nextCursor);
+        return FilterResponse.of(postDtos, slice.hasNext(), nextCursor);
     }
 
 

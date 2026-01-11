@@ -9,18 +9,17 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
-public class FilterResponse {
+public class CursorPaginationResponse<T> {
 
-    private List<HomeListResponse> exhibits;
+    private List<T> data;
     private boolean hasNext;
     private Long nextCursor;
 
-    public static FilterResponse of (List<HomeListResponse> data, boolean hasNext, Long nextCursor) {
-        return FilterResponse.builder()
-                .exhibits(data)
+    public static <T> CursorPaginationResponse<T> of(List<T> data, boolean hasNext, Long nextCursor) {
+        return CursorPaginationResponse.<T>builder()
+                .data(data)
                 .hasNext(hasNext)
                 .nextCursor(nextCursor)
                 .build();
     }
-
 }

@@ -1,24 +1,15 @@
 package org.atdev.artrip.controller.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public record ImageResizeRequest(
+        Integer w,
+        Integer h,
+        String f
+) {
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ImageResizeRequest {
+    public ImageResizeRequest {
+        w = (w == null || w <= 0) ? 100 : w;
+        h = (h == null || h <= 0) ? 100 : h;
 
-    @Schema(description = "width", defaultValue = "100")
-    private Integer w;
-
-    @Schema(description = "height", defaultValue = "100")
-    private Integer h;
-
-    @Schema(defaultValue = "webp")
-    private String f = "webp";
-
+        f = (f == null || f.isBlank()) ? "webp" : f;
+    }
 }

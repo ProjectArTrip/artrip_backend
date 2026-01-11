@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.global.resolver.CurrentUserId;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
 import org.atdev.artrip.controller.dto.response.KeywordResponse;
@@ -30,10 +31,8 @@ public class UserKeywordController {
     )
     @PostMapping("/keywords")
     public ResponseEntity<CommonResponse<Void>> saveUserKeywords(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @RequestBody KeywordRequest request) {
-
-        Long userId = Long.parseLong(userDetails.getUsername()); // subject → userId형변환
 
         keywordService.saveUserKeywords(userId, request.getKeywordIds());
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
@@ -57,9 +56,8 @@ public class UserKeywordController {
     )
     @GetMapping("/keywords")
     public ResponseEntity<CommonResponse<List<KeywordResponse>>> getUserKeywords(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @CurrentUserId Long userId) {
 
-        Long userId = Long.parseLong(userDetails.getUsername());
         List<KeywordResponse> keywords = keywordService.getUserKeywords(userId);
         return ResponseEntity.ok(CommonResponse.onSuccess(keywords));
     }

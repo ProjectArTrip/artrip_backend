@@ -1,8 +1,6 @@
 package org.atdev.artrip.service;
 
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.controller.dto.response.ExhibitSearchResponse;
-import org.atdev.artrip.controller.dto.response.FilterResponse;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.global.s3.service.S3Service;
@@ -30,7 +28,7 @@ import java.util.List;
 public class SearchServiceTest {
 
     @InjectMocks
-    SearchService searchService;
+    ExhibitService exhibitService;
 
     @Mock
     ExhibitRepository exhibitRepository;
@@ -71,7 +69,7 @@ public class SearchServiceTest {
         List<Exhibit> content = List.of(mockExhibit);
         Slice<Exhibit> slice = new SliceImpl<>(content, PageRequest.of(0, 10), false);
 
-        ExhibitSearchResponse mockDto = ExhibitSearchResponse.builder()
+        KeywordSearchResponse mockDto = KeywordSearchResponse.builder()
                 .id(1L)
                 .title("Matisse – Soulages")
                 .posterUrl(mockResizedUrl)
@@ -79,7 +77,7 @@ public class SearchServiceTest {
 
         when(exhibitRepository.searchByKeyword(anyString(), any(), anyLong()))
                 .thenReturn(slice);
-        when(modelMapper.map(any(Exhibit.class), eq(ExhibitSearchResponse.class)))
+        when(modelMapper.map(any(Exhibit.class), eq(KeywordSearchResponse.class)))
                 .thenReturn(mockDto);
         when(s3Service.buildResizeUrl(any(),any(),any(),any()))
                 .thenReturn(mockResizedUrl);
@@ -87,12 +85,12 @@ public class SearchServiceTest {
                 .thenReturn(Collections.emptySet());
 
         // when
-        FilterResponse<ExhibitSearchResponse> result = searchService.getKeyword(keyword, null, 10L, userId, resized);
+        KeywordSearchListResponse result = exhibitService.getKeyword(keyword, null, 10L, userId, resized);
 
         // then
         Assertions.assertNotNull(result);
-        Assertions.assertEquals(1, result.getResult().size());
-        ExhibitSearchResponse actualDto = result.getResult().get(0);
+        Assertions.assertEquals(1, result.getData().size());
+        KeywordSearchResponse actualDto = result.getData().get(0);
         Assertions.assertEquals("Matisse – Soulages", actualDto.getTitle());
         Assertions.assertEquals(mockResizedUrl, actualDto.getPosterUrl());
 

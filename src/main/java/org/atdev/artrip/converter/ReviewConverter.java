@@ -89,10 +89,7 @@ public class ReviewConverter {
     public void updateReviewFromDto(Review review, ReviewUpdateRequest request) {
 
         if (request.getContent() != null) {
-            review.setContent(request.getContent());
-        }
-        if (request.getDate() != null) {
-            review.setVisitDate(request.getDate());
+            review.updateContent(request.getContent(), LocalDateTime.now());
         }
     }
 

@@ -12,7 +12,6 @@ import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
-import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.request.RandomExhibitRequest;
@@ -60,7 +59,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         countryEq(dto.getCountry()),
                         regionEq(dto.getRegion()),
                         genreIn(dto.getGenres()),
-                        styleIn(dto.getStyles())
+                        styleIn(dto.getStyles()),
+                        keywordSearch(dto.getKeyword(), e, h, k)
                 )
                 .orderBy(sortFilter(dto, e))
                 .limit(size+1)
@@ -72,7 +72,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
             content.remove(size.intValue());
 
         return new SliceImpl<>(content, PageRequest.of(0, size.intValue()), hasNext);
-    }// 페이지 개념은 사용 x
+    }
 
     @Override
     public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
@@ -182,11 +182,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     }
 
     private BooleanExpression countryEq(String country) {
-        return country == null ? null : QExhibitHall.exhibitHall.country.eq(country);
+        return country == null || country.isBlank() ? null : QExhibitHall.exhibitHall.country.eq(country);
     }
 
     private BooleanExpression regionEq(String region) {
-        return region == null ? null : QExhibitHall.exhibitHall.region.eq(region);
+        return region == null || region.isBlank() ? null : QExhibitHall.exhibitHall.region.eq(region);
     }
 
     private BooleanExpression genreIn(Set<String> genres) {
@@ -206,6 +206,17 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
 
         return exhibit.startDate.loe(date)//<=
                 .and(exhibit.endDate.goe(date));//>=
+    }
+
+    private BooleanExpression keywordSearch(String keyword, QExhibit e, QExhibitHall h, QKeyword k) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+
+        return e.title.containsIgnoreCase(keyword)
+                .or(e.description.containsIgnoreCase(keyword))
+                .or(h.name.containsIgnoreCase(keyword))
+                .or(k.name.containsIgnoreCase(keyword));
     }
 
     @Override

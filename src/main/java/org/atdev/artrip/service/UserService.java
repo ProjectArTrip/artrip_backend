@@ -143,7 +143,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new GeneralException(UserError._USER_NOT_FOUND));
 
-        String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.getW(), resize.getH(), resize.getF());
+        String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.w(), resize.h(), resize.f());
 
         return new MypageResponse(user.getNickName(), profileImage, user.getEmail());
     }

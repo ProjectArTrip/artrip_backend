@@ -1,14 +1,13 @@
 package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
-import org.atdev.artrip.controller.dto.response.HomeListResponse;
+import org.atdev.artrip.controller.dto.response.*;
+import org.atdev.artrip.global.resolver.CurrentUserId;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
-import org.atdev.artrip.controller.dto.response.FilterResponse;
 import org.atdev.artrip.service.HomeService;
-import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.HomeError;
@@ -16,23 +15,18 @@ import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/exhibit")
+@RequestMapping("/exhibits")
 public class ExhibitController {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
 
-    private Long getUserId(UserDetails userDetails) {
-        return userDetails != null ? Long.parseLong(userDetails.getUsername()) : null;
-    }
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
@@ -52,11 +46,10 @@ public class ExhibitController {
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @CurrentUserId Long userId,
             @ParameterObject ImageResizeRequest resize
             ){
       
-        Long userId = getUserId(userDetails);
         ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id, userId, resize);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
@@ -88,20 +81,19 @@ public class ExhibitController {
     }
 
 
-    @Operation(summary = "전시 조건 필터 전체 조회",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
+    @Operation(summary = "전시 검색 및 필터링",description = "기간, 지역, 장르, 전시 스타일, 키워드 필터 조회 - null 시 전체선택")
     @ApiErrorResponses(
             common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
-    @PostMapping("/filter")
-    public ResponseEntity<FilterResponse<HomeListResponse>> getDomesticFilter(@RequestBody ExhibitFilterRequest dto,
-                                                                              @RequestParam(required = false) Long cursor,
-                                                                              @RequestParam(defaultValue = "20") Long size,
-                                                                              @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = getUserId(userDetails);
-        FilterResponse<HomeListResponse> exhibits = homeService.getFilterExhibit(dto, size, cursor,userId);
+    @GetMapping
+    public CommonResponse<CursorPaginationResponse<HomeListResponse>> getDomesticFilter(
+            @ModelAttribute ExhibitFilterRequest request,
+            @ModelAttribute ImageResizeRequest resizeRequest,
+            @CurrentUserId Long userId) {
 
-        return ResponseEntity.ok(exhibits);
+        CursorPaginationResponse<HomeListResponse> result = homeService.searchExhibit(request, resizeRequest, userId);
 
+        return CommonResponse.onSuccess(result);
     }
 }
