@@ -154,7 +154,6 @@ public class AdminExhibitService {
 
         // TODO: delete 할 code 추가
         try {
-            System.out.println("delete Exhibit code");
         } catch (Exception e) {
             throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
         }
