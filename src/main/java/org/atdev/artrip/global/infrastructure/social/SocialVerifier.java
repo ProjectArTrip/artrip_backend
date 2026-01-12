@@ -1,4 +1,4 @@
-package org.atdev.artrip.service.social;
+package org.atdev.artrip.global.infrastructure.social;
 
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;

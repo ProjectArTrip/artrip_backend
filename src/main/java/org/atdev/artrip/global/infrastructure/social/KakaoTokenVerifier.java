@@ -1,4 +1,4 @@
-package org.atdev.artrip.service.social;
+package org.atdev.artrip.global.infrastructure.social;
 
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.UrlJwkProvider;
@@ -13,14 +13,14 @@ import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
-@Service
-public class KakaoValidator implements SocialVerifier{
+@Component
+public class KakaoTokenVerifier implements SocialVerifier{
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
