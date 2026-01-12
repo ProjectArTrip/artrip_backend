@@ -1,4 +1,4 @@
-package org.atdev.artrip.global.infrastructure.social;
+package org.atdev.artrip.validator.social;
 
 import com.auth0.jwk.Jwk;
 import com.auth0.jwk.UrlJwkProvider;
@@ -20,27 +20,26 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.List;
 
 @Component
-public class GoogleTokenVerifier implements SocialVerifier{
+public class KakaoTokenVerifier implements SocialVerifier{
 
-    @Value("${spring.security.oauth2.client.registration.google.aod-client-id}")
-    private String googleAodClientId;
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakaoClientId;
 
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String googleClientId;
+    @Value("${spring.security.oauth2.client.registration.kakao.native-client-id}")
+    private String kakaoNativeClientId;
 
-    private static final String GOOGLE_JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs";
-    private static final String GOOGLE_ISSUER = "https://accounts.google.com";
+    private static final String KAKAO_JWKS_URL = "https://kauth.kakao.com/.well-known/jwks.json";
+    private static final String KAKAO_ISSUER = "https://kauth.kakao.com";
 
     @Override
     public Provider getProvider() {
-        return Provider.GOOGLE;
+        return Provider.KAKAO;
     }
 
     @Override
     public SocialUserInfo verify(String idToken) {
-
         try {
-            UrlJwkProvider provider = new UrlJwkProvider(new URL(GOOGLE_JWKS_URL));
+            UrlJwkProvider provider = new UrlJwkProvider(new URL(KAKAO_JWKS_URL));
 
             DecodedJWT decodedJWT = JWT.decode(idToken);
             String kid = decodedJWT.getKeyId();
@@ -52,10 +51,10 @@ public class GoogleTokenVerifier implements SocialVerifier{
 
             String aud = audiences.get(0);
             String expectedAud;
-            if (aud.equals(googleAodClientId)) {
-                expectedAud = googleAodClientId;
-            } else if (aud.equals(googleClientId)) {
-                expectedAud = googleClientId;
+            if (aud.equals(kakaoNativeClientId)) {
+                expectedAud = kakaoNativeClientId;
+            } else if (aud.equals(kakaoClientId)) {
+                expectedAud = kakaoClientId;
             } else {
                 throw new GeneralException(UserErrorCode._SOCIAL_TOKEN_INVALID_AUDIENCE);
             }
@@ -64,11 +63,12 @@ public class GoogleTokenVerifier implements SocialVerifier{
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(GOOGLE_ISSUER)
+                    .withIssuer(KAKAO_ISSUER)
                     .withAudience(expectedAud)
                     .build();
 
             DecodedJWT verified;
+
             try {
                 verified = verifier.verify(idToken);
             } catch (TokenExpiredException e) {
@@ -79,7 +79,7 @@ public class GoogleTokenVerifier implements SocialVerifier{
                 throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);
             }
 
-            String nickname = verified.getClaim("name").asString();
+            String nickname = verified.getClaim("nickname").asString();
 
             return SocialUserInfo.of(verified, nickname, getProvider());
 
