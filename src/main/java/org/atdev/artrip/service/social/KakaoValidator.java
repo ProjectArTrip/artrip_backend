@@ -79,7 +79,9 @@ public class KakaoValidator implements SocialVerifier{
                 throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);
             }
 
-            return SocialUserInfo.from(verified, getProvider());
+            String nickname = verified.getClaim("nickname").asString();
+
+            return SocialUserInfo.of(verified, nickname, getProvider());
 
         } catch (Exception e) {
             throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);

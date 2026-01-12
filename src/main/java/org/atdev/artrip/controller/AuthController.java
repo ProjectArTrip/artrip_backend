@@ -66,12 +66,12 @@ public class AuthController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/web/logout")
-    public ResponseEntity<String> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+    public ResponseEntity<CommonResponse<Void>> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                        HttpServletResponse response) {
 
         authService.webLogout(refreshToken, response);
 
-        return ResponseEntity.ok("로그아웃 완료");
+        return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 
     @PermitAll
@@ -81,11 +81,11 @@ public class AuthController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/app/logout")
-    public ResponseEntity<String> appLogout(@RequestBody(required = false) ReissueRequest token) {
+    public ResponseEntity<Void> appLogout(@RequestBody(required = false) ReissueRequest token) {
 
         authService.appLogout(token);
 
-        return ResponseEntity.ok("로그아웃 완료");
+        return ResponseEntity.ok().build();
     }
 
     @PermitAll

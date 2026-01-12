@@ -15,22 +15,13 @@ public class SocialUserInfo {
     private String providerId;
     private Provider provider;
 
-    public static SocialUserInfo from(DecodedJWT verified, Provider provider) {
+    public static SocialUserInfo of(DecodedJWT jwt, String nickname, Provider provider) {
         return SocialUserInfo.builder()
-                .email(verified.getClaim("email").asString())
-                .nickname(extractNickname(verified, provider))
-                .providerId(verified.getSubject())
+                .email(jwt.getClaim("email").asString())
+                .nickname(nickname)
+                .providerId(jwt.getSubject())
                 .provider(provider)
                 .build();
     }
 
-    private static String extractNickname(DecodedJWT verified, Provider provider) {
-        if (provider == Provider.GOOGLE) {
-            return verified.getClaim("name").asString();
-        }
-        if (provider == Provider.KAKAO) {
-            return verified.getClaim("nickname").asString();
-        }
-        return null;
-    }
 }
