@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum S3Error implements BaseErrorCode {
+public enum S3ErrorCode implements BaseErrorCode {
 
     // s3 관련 응답
     _NOT_EXIST_FILE(HttpStatus.NOT_FOUND, "FILE404-NOT_FOUND", "존재하지 않는 파일입니다."),

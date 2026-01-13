@@ -1,19 +1,19 @@
 package org.atdev.artrip.jwt.exception;
 
 import lombok.Getter;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 
 @Getter
 public class JwtAuthenticationException extends RuntimeException {
 
-    private final UserError userError;
+    private final UserErrorCode userErrorCode;
 
-    public JwtAuthenticationException(UserError userError) {
-        super(userError.getMessage());
-        this.userError = userError;
+    public JwtAuthenticationException(UserErrorCode userErrorCode) {
+        super(userErrorCode.getMessage());
+        this.userErrorCode = userErrorCode;
     }
-    public JwtAuthenticationException(UserError userError, Throwable e) {
-        super(userError.getMessage(), e);
-        this.userError = userError;
+    public JwtAuthenticationException(UserErrorCode userErrorCode, Throwable e) {
+        super(userErrorCode.getMessage(), e);
+        this.userErrorCode = userErrorCode;
     }
 }

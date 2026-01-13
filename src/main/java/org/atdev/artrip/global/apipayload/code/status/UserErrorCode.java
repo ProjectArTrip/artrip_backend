@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum UserError implements BaseErrorCode {
+public enum UserErrorCode implements BaseErrorCode {
 
     // User Errors
     _USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER404-NOT_FOUND", "존재하지 않는 회원입니다."),
@@ -23,6 +23,7 @@ public enum UserError implements BaseErrorCode {
     _JWT_INVALID_CLAIMS(HttpStatus.UNAUTHORIZED, "JWT401-INVALID_CLAIMS", "JWT 클레임 정보가 올바르지 않습니다."),
     _JWT_EMPTY_TOKEN(HttpStatus.UNAUTHORIZED,"JWT401-EMPTY_TOKEN", "JWT 토큰이 null이거나 비어있습니다."),
     _JWT_MALFORMED_TOKEN(HttpStatus.UNAUTHORIZED,"JWT401-MALFORMED_TOKEN", "손상된 JWT 토큰입니다."),
+    _JWT_BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-BLACKLISTED", "블랙 리스트에 등록 된 토큰입니다. 다시 로그인해주세요."),
 
     // JWT Refresh Token Errors
     _JWT_EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-EXPIRED_REFRESH", "만료된 리프레시 토큰입니다."),

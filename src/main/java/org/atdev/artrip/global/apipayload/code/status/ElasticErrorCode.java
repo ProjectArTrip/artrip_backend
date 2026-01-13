@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ElasticError implements BaseErrorCode {
+public enum ElasticErrorCode implements BaseErrorCode {
 
     _ES_CONNECTION_FAILED(HttpStatus.SERVICE_UNAVAILABLE, "ES503-CONNECTION_FAILED", "Elasticsearch 서버에 연결할 수 없습니다."),
     _ES_TIMEOUT(HttpStatus.SERVICE_UNAVAILABLE, "ES503-TIMEOUT", "Elasticsearch 요청 시간이 초과되었습니다."),

@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum HomeError implements BaseErrorCode {
+public enum HomeErrorCode implements BaseErrorCode {
 
     _HOME_INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "HOME400-INVALID_DATE_RANGE", "전시 기간 설정이 올바르지 않습니다. 종료일이 시작일보다 빠릅니다."),
     _HOME_UNRECOGNIZED_REGION(HttpStatus.BAD_REQUEST, "HOME400-UNRECOGNIZED_REGION", "요청하신 국가 또는 지역 정보를 인식할 수 없습니다."),

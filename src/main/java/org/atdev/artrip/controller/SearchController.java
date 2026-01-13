@@ -4,12 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.global.apipayload.code.status.SearchErrorCode;
 import org.atdev.artrip.service.SearchHistoryService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.controller.dto.response.ExhibitSearchResponse;
 import org.atdev.artrip.service.ExhibitSearchService;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.SearchError;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +30,8 @@ public class SearchController {
 
     @Operation(summary = "전시회 검색", description = "키워드로 전시회를 검색합니다.")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._BAD_REQUEST},
-            search = {SearchError._SEARCH_EXHIBIT_NOT_FOUND, SearchError._SEARCH_KEYWORD_INVALID}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._BAD_REQUEST},
+            search = {SearchErrorCode._SEARCH_EXHIBIT_NOT_FOUND, SearchErrorCode._SEARCH_KEYWORD_INVALID}
     )
     @GetMapping("/exhibits")
     public CommonResponse<List<ExhibitSearchResponse>> searchExhibits(
@@ -45,8 +45,8 @@ public class SearchController {
 
     @Operation(summary = "최근 검색어 조회", description = "사용자의 최근 검색어 10개를 조회합니다.")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._BAD_REQUEST},
-            search = {SearchError._SEARCH_HISTORY_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._BAD_REQUEST},
+            search = {SearchErrorCode._SEARCH_HISTORY_NOT_FOUND}
     )
     @GetMapping("/history")
     public CommonResponse<List<String>> getRecentKeywords(
@@ -59,8 +59,8 @@ public class SearchController {
 
     @Operation(summary = "검색어 삭제", description = "사용자의 특정 검색어를 삭제합니다.")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._BAD_REQUEST},
-            search = {SearchError._SEARCH_HISTORY_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._BAD_REQUEST},
+            search = {SearchErrorCode._SEARCH_HISTORY_NOT_FOUND}
     )
     @DeleteMapping("/history")
     public CommonResponse<Void> deleteKeywords(
@@ -74,8 +74,8 @@ public class SearchController {
 
     @Operation(summary = "검색어 전체 삭제", description = "사용자의 모든 검색어를 삭제합니다.")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._BAD_REQUEST},
-            search = {SearchError._SEARCH_HISTORY_NOT_FOUND, SearchError._SEARCH_TOO_FREQUENT}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._BAD_REQUEST},
+            search = {SearchErrorCode._SEARCH_HISTORY_NOT_FOUND, SearchErrorCode._SEARCH_TOO_FREQUENT}
     )
     @DeleteMapping("/history/all")
     public CommonResponse<Void> deleteAllKeywords(
@@ -93,15 +93,15 @@ public class SearchController {
 
     @Operation(summary = "추천 검색어", description = "전체 사용자가 많이 검색한 인기 키워드를 조회합니다.")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._BAD_REQUEST},
-            search = {SearchError._SEARCH_RECOMMENDATION_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._BAD_REQUEST},
+            search = {SearchErrorCode._SEARCH_RECOMMENDATION_NOT_FOUND}
     )
     @GetMapping("/recommendations")
     public CommonResponse<List<String>> getRecommendations(
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         if (userDetails == null ) {
-            throw new GeneralException(CommonError._UNAUTHORIZED);
+            throw new GeneralException(CommonErrorCode._UNAUTHORIZED);
         }
         List<String> keywords = searchHistoryService.findPopularKeywords();
         return CommonResponse.onSuccess(keywords);
