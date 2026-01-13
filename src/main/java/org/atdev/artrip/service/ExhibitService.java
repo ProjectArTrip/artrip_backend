@@ -10,6 +10,7 @@ import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.redis.UserHistoryRedisService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,9 +22,9 @@ public class ExhibitService {
     private final HomeConverter homeConverter;
     private final S3Service s3Service;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
-    private final UserService userService;
+    private final UserHistoryRedisService userHistoryRedisService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ExhibitDetailResponse getExhibitDetail(Long exhibitId, Long userId, ImageResizeRequest resize) {
 
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
@@ -36,7 +37,7 @@ public class ExhibitService {
             isFavorite = favoriteExhibitRepository.existsActive(userId, exhibitId);
         }
 
-        userService.addRecentView(userId,exhibitId);
+        userHistoryRedisService.addRecentView(userId,exhibitId);
 
         return homeConverter.toHomeExhibitResponse(exhibit, isFavorite, resizedPosterUrl);
     }
