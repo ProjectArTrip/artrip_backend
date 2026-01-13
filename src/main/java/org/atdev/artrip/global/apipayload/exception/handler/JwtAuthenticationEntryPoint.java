@@ -25,15 +25,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             AuthenticationException authException
     ) throws IOException {
 
-        UserErrorCode errorCode = UserErrorCode._JWT_INVALID_TOKEN;
+        UserErrorCode errorCode = UserErrorCode._JWT_EMPTY_TOKEN;
 
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json;charset=UTF-8");
 
         ErrorReasonDTO errorResponse = errorCode.getReasonHttpStatus();
 
-        response.getWriter().write(
-                objectMapper.writeValueAsString(errorResponse)
-        );
+        response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }
