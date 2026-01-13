@@ -3,6 +3,7 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.controller.dto.request.*;
+import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitHallRepository;
@@ -37,8 +38,9 @@ public class HomeService {
     private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
     private final HomeConverter homeConverter;
-    private final S3Service s3Service;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
+    private final ImageUrlFormatter imageUrlFormatter;
+
 
     private Set<Long> getFavoriteIds(Long userId) {
         if (userId == null) {
@@ -46,14 +48,6 @@ public class HomeService {
         }
         return favoriteExhibitRepository.findActiveExhibitIds(userId);
     }
-
-//   //  큐레이션 전시
-//    public List<HomeExhibitResponse> getCuratedExhibits() {
-//        return exhibitRepository.findCuratedExhibits()
-//                .stream()
-//                .map(this::toHomeExhibitResponse)
-//                .toList();
-//    }
 
     private void setFavorites(List<HomeListResponse> result, Set<Long> favoriteIds) {
         result.forEach(r -> r.setFavorite(favoriteIds.contains(r.getExhibit_id())));
@@ -69,11 +63,6 @@ public class HomeService {
         return exhibitHallRepository.findAllOverseasCountries();
     }
 
-    // 국내 지역 목록 조회
-//    public List<String> getDomestic(){
-//        return exhibitHallRepository.findAllDomesticRegions();
-//    }
-
     public List<RegionResponse> getRegions() {
         return homeConverter.toResponseList();
     }
@@ -88,7 +77,6 @@ public class HomeService {
     }
 
     // 사용자 맞춤 전시 랜덤 추천
-    @Transactional
     public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request, ImageResizeRequest resize){
 
         if (!userRepository.existsById(userId)) {
@@ -107,9 +95,7 @@ public class HomeService {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
-        ));
+        imageUrlFormatter.resizePosterUrls(results,resize);
       
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
@@ -123,10 +109,8 @@ public class HomeService {
         RandomExhibitRequest filter = homeConverter.from(request);
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
-        ));
-      
+        imageUrlFormatter.resizePosterUrls(results,resize);
+
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
 
@@ -140,10 +124,8 @@ public class HomeService {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
-        ));
-      
+        imageUrlFormatter.resizePosterUrls(results,resize);
+
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
 
@@ -157,10 +139,8 @@ public class HomeService {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
-        ));
-      
+        imageUrlFormatter.resizePosterUrls(results,resize);
+
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
 
