@@ -81,11 +81,9 @@ public class AuthController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/app/logout")
-    public ResponseEntity<Void> appLogout(@RequestBody(required = false) ReissueRequest token) {
+    public void appLogout(@RequestBody(required = false) ReissueRequest token) {
 
         authService.appLogout(token);
-
-        return ResponseEntity.ok().build();
     }
 
     @PermitAll
