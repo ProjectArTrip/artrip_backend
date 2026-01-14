@@ -3,6 +3,7 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
+import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.converter.HomeConverter;
@@ -10,6 +11,7 @@ import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.ExhibitDetailQuery;
 import org.atdev.artrip.service.redis.UserHistoryRedisService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,21 +25,27 @@ public class ExhibitService {
     private final S3Service s3Service;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final UserHistoryRedisService userHistoryRedisService;
+    private final ImageUrlFormatter imageUrlFormatter;
+
 
     @Transactional(readOnly = true)
-    public ExhibitDetailResponse getExhibitDetail(Long exhibitId, Long userId, ImageResizeRequest resize) {
+    public ExhibitDetailResponse getExhibitDetail(ExhibitDetailQuery query) {
 
-        Exhibit exhibit = exhibitRepository.findById(exhibitId)
+        Exhibit exhibit = exhibitRepository.findById(query.exhibitId())
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
-        String resizedPosterUrl = s3Service.buildResizeUrl(exhibit.getPosterUrl(), resize.getW(), resize.getH(), resize.getF());
+        String resizedPosterUrl = imageUrlFormatter.getResizedUrl(
+                exhibit.getPosterUrl(),
+                query.width(),
+                query.height(),
+                query.format()
+        );
 
         boolean isFavorite = false;
-        if (userId != null ) {
-            isFavorite = favoriteExhibitRepository.existsActive(userId, exhibitId);
+        if (query.userId() != null) {
+            isFavorite = favoriteExhibitRepository.existsActive(query.userId(), query.exhibitId());
+            userHistoryRedisService.addRecentView(query.userId(), query.exhibitId());
         }
-
-        userHistoryRedisService.addRecentView(userId,exhibitId);
 
         return homeConverter.toHomeExhibitResponse(exhibit, isFavorite, resizedPosterUrl);
     }

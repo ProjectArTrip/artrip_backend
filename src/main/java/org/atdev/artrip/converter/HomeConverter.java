@@ -69,7 +69,7 @@ public class HomeConverter {
                 .ticketUrl(exhibit.getTicketUrl())
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
-                .hallName(hall != null ? hall.getName() : null)// exhibit과 exhibithall이 연결되어있지않아도 체크 가능
+                .hallName(hall != null ? hall.getName() : null)
                 .hallAddress(hall != null ? hall.getAddress() : null)
                 .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
                 .hallPhone(hall != null ? hall.getPhone() : null)

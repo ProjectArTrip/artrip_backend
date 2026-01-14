@@ -14,10 +14,8 @@ public class ImageUrlFormatter {
 
     private final S3Service s3Service;
 
-    public void resizePosterUrls(List<HomeListResponse> responses, ImageResizeRequest resize) {
-        if (resize == null) return;
-        responses.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
-        ));
+    public String getResizedUrl(String originalUrl, Integer w, Integer h, String f) {
+        return s3Service.buildResizeUrl(originalUrl, w, h, f);
     }
+
 }

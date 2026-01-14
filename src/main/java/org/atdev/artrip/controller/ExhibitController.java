@@ -13,6 +13,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.ExhibitDetailQuery;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -54,9 +55,9 @@ public class ExhibitController {
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize
             ){
-      
-        Long userId = getUserId(userDetails);
-        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id, userId, resize);
+
+        ExhibitDetailQuery query = ExhibitDetailQuery.of(id, getUserId(userDetails), resize);
+        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(query);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
     }
