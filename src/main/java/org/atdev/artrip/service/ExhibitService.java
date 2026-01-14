@@ -22,7 +22,6 @@ public class ExhibitService {
 
     private final ExhibitRepository exhibitRepository;
     private final HomeConverter homeConverter;
-    private final S3Service s3Service;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final UserHistoryRedisService userHistoryRedisService;
     private final ImageUrlFormatter imageUrlFormatter;

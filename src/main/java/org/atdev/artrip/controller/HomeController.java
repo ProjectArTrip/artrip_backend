@@ -49,10 +49,10 @@ public class HomeController {
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
-    @PostMapping("/personalized/random")
+    @GetMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody PersonalizedRequest requestDto,
+            @Valid @ModelAttribute PersonalizedRequest requestDto,
             @ParameterObject ImageResizeRequest resize){
 
         long userId = Long.parseLong(userDetails.getUsername());
@@ -82,9 +82,9 @@ public class HomeController {
       }
     """
     )
-    @PostMapping("/schedule")
+    @GetMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
-            @Valid @RequestBody ScheduleRandomRequest request,
+            @Valid @ModelAttribute ScheduleRandomRequest request,
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
@@ -118,9 +118,9 @@ public class HomeController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
     )
-    @PostMapping("/genre/random")
+    @GetMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @Valid @RequestBody GenreRandomRequest request,
+            @Valid @ModelAttribute GenreRandomRequest request,
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
@@ -151,9 +151,9 @@ public class HomeController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
-    @PostMapping("recommend/today")
+    @GetMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @Valid @RequestBody TodayRandomRequest request,
+            @Valid @ModelAttribute TodayRandomRequest request,
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
@@ -163,11 +163,5 @@ public class HomeController {
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
-
-    //    @GetMapping("/curation")
-//    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getCuratedExhibits() {
-//        List<HomeExhibitResponse> exhibits = exhibitService.getCuratedExhibits();
-//        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
-//    }
 
 }

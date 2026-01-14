@@ -95,7 +95,7 @@ public class HomeService {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        imageUrlFormatter.resizePosterUrls(results,resize);
+//        imageUrlFormatter.resizePosterUrls(results,resize);
       
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
@@ -109,7 +109,7 @@ public class HomeService {
         RandomExhibitRequest filter = homeConverter.from(request);
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        imageUrlFormatter.resizePosterUrls(results,resize);
+//        imageUrlFormatter.resizePosterUrls(results,resize);
 
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
@@ -124,7 +124,7 @@ public class HomeService {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        imageUrlFormatter.resizePosterUrls(results,resize);
+//        imageUrlFormatter.resizePosterUrls(results,resize);
 
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
@@ -139,7 +139,7 @@ public class HomeService {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
-        imageUrlFormatter.resizePosterUrls(results,resize);
+
 
         Set<Long> favoriteIds = getFavoriteIds(userId);
         setFavorites(results, favoriteIds);
