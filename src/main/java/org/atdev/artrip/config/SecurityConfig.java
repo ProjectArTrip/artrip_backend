@@ -9,6 +9,7 @@ import org.atdev.artrip.service.CustomOAuth2UserService;
 import org.atdev.artrip.security.OAuth2LoginSuccessHandler;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAccessDeniedHandler;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAuthenticationEntryPoint;
+import org.atdev.artrip.service.RedisService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private final ObjectMapper objectMapper;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final RedisService redisService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -49,8 +51,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/","/a","/login/**", "/oauth2/**", "/error",
-                                "/swagger-ui/**", "/v3/api-docs/**","/auth/web/reissue","/auth/app/reissue","/s3/**","/auth/social").permitAll()
+                        .requestMatchers("/", "/a", "/login/**", "/oauth2/**", "/error",
+                                "/swagger-ui/**", "/v3/api-docs/**", "/auth/web/reissue", "/auth/app/reissue", "/s3/**", "/auth/social").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()//스웨거 에러
                         .anyRequest().authenticated()
                 )
@@ -69,9 +71,10 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtProvider);
+        return new JwtAuthenticationFilter(jwtProvider, redisService);
     }
 
     @Bean

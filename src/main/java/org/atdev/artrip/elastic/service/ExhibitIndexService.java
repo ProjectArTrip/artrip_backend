@@ -10,8 +10,8 @@ import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.elastic.document.KeywordInfo;
 import org.atdev.artrip.elastic.document.ExhibitDocument;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.ElasticError;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.ElasticErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,9 +138,9 @@ public class ExhibitIndexService {
         } catch (IOException e) {
             log.error("Error createing or applying index settings", e);
             if (e.getMessage().contains("nori_tokenizer")) {
-                throw new GeneralException(ElasticError._ES_ANALYZER_CONFIG_FAILED);
+                throw new GeneralException(ElasticErrorCode._ES_ANALYZER_CONFIG_FAILED);
             }
-            throw new GeneralException(ElasticError._ES_INDEX_CREATE_FAILED);
+            throw new GeneralException(ElasticErrorCode._ES_INDEX_CREATE_FAILED);
         }
     }
 
@@ -178,12 +178,12 @@ public class ExhibitIndexService {
 
             }
             if (response.errors()) {
-                throw new GeneralException(ElasticError._ES_BULK_PARTIAL_FAILED);
+                throw new GeneralException(ElasticErrorCode._ES_BULK_PARTIAL_FAILED);
             }
             return count;
         } catch (Exception e) {
             log.error("Elasticsearch indexing error : {}", e.getClass().getName(), e );
-            throw new GeneralException(ElasticError._ES_BULK_INDEX_FAILED);
+            throw new GeneralException(ElasticErrorCode._ES_BULK_INDEX_FAILED);
         }
     }
 
@@ -197,7 +197,7 @@ public class ExhibitIndexService {
                     .document(doc));
         } catch (Exception e) {
             log.error("Indexing failed : {}", e.getMessage(), e);
-            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonErrorCode._INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -208,7 +208,7 @@ public class ExhibitIndexService {
                     .id(String.valueOf(exhibitId)));
         } catch (Exception e) {
             log.error("Delete Failed: {}", e.getMessage(), e);
-            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonErrorCode._INTERNAL_SERVER_ERROR);
         }
     }
 }

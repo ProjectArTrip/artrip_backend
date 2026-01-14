@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum SearchError implements BaseErrorCode {
+public enum SearchErrorCode implements BaseErrorCode {
 
 
     _SEARCH_KEYWORD_INVALID(HttpStatus.BAD_REQUEST, "SEARCH400-KEYWORD_INVALID", "검색 키워드가 유효하지 않습니다."),

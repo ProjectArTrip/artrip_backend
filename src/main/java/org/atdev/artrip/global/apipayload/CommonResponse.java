@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.atdev.artrip.global.apipayload.code.BaseCode;
-import org.atdev.artrip.global.apipayload.code.status.SuccessStatus;
+import org.atdev.artrip.global.apipayload.code.status.SuccessStatusCode;
 
 @Getter
 @AllArgsConstructor
@@ -22,7 +22,7 @@ public class CommonResponse<T> {
 
 
     public static <T> CommonResponse<T> onSuccess(T result){
-        return new CommonResponse<>(true, SuccessStatus._OK.getCode() , SuccessStatus._OK.getMessage(), result);
+        return new CommonResponse<>(true, SuccessStatusCode._OK.getCode() , SuccessStatusCode._OK.getMessage(), result);
     }
 
     public static <T> CommonResponse<T> of(BaseCode code, T result){

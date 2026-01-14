@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ExhibitError implements BaseErrorCode {
+public enum ExhibitErrorCode implements BaseErrorCode {
 
     _EXHIBIT_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBIT404-NOT_FOUND", "전시 정보를 찾을 수 없습니다."),
     _EXHIBIT_HALL_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBITHALL404-NOT_FOUND", "전시관 정보를 찾을 수 없습니다."),

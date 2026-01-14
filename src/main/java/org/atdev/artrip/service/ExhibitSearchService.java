@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.controller.dto.response.ExhibitSearchResponse;
 import org.atdev.artrip.elastic.document.ExhibitDocument;
-import org.atdev.artrip.global.apipayload.code.status.SearchError;
+import org.atdev.artrip.global.apipayload.code.status.SearchErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 
@@ -33,18 +33,18 @@ public class ExhibitSearchService {
         log.info("Searching exhibits - user: {}, keyword: {}", userId, keyword);
 
         if (keyword == null || keyword.trim().isEmpty()) {
-            throw new GeneralException(SearchError._SEARCH_KEYWORD_EMPTY);
+            throw new GeneralException(SearchErrorCode._SEARCH_KEYWORD_EMPTY);
         }
 
         // 글자 길이 검증 로직 필요 시 활성화 예정
 //        keyword = keyword.trim();
 //
 //        if (keyword.length() < 2) {
-//            throw new GeneralException(SearchError._SEARCH_KEYWORD_TOO_SHORT);
+//            throw new GeneralException(SearchErrorCode._SEARCH_KEYWORD_TOO_SHORT);
 //        }
 //
 //        if (keyword.length() > 50) {
-//            throw new GeneralException(SearchError._SEARCH_KEYWORD_TOO_LONG);
+//            throw new GeneralException(SearchErrorCode._SEARCH_KEYWORD_TOO_LONG);
 //        }
         if (userId != null) {
             try {
@@ -109,7 +109,7 @@ public class ExhibitSearchService {
 
         } catch (IOException e) {
             log.error("Elasticsearch search error", e);
-            throw new GeneralException(SearchError._SEARCH_EXHIBIT_NOT_FOUND);
+            throw new GeneralException(SearchErrorCode._SEARCH_EXHIBIT_NOT_FOUND);
         }
     }
 

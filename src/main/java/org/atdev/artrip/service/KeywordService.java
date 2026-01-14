@@ -2,13 +2,13 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.repository.KeywordRepository;
 import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.controller.dto.response.KeywordResponse;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +29,7 @@ public class KeywordService {
     public void saveUserKeywords(Long userId, List<Long> keywordIds) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         userKeywordRepository.deleteByUser(user);
 
