@@ -69,7 +69,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
             content.remove(size.intValue());
 
         return new SliceImpl<>(content, PageRequest.of(0, size.intValue()), hasNext);
-    }// 페이지 개념은 사용 x
+    }
 
     @Override
     public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
@@ -79,7 +79,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         QKeyword k = QKeyword.keyword;
 
         return queryFactory
-                .selectDistinct(Projections.constructor(// select 순서와 DTO 생성자 파라미터 순서를 1:1 매핑함!
+                .selectDistinct(Projections.constructor(
                         HomeListResponse.class,
                         e.exhibitId,
                         e.title,
@@ -96,7 +96,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)
-                .leftJoin(e.keywords, k)
+                .join(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
                         isDomesticEq(c.getIsDomestic()),

@@ -127,7 +127,7 @@ public class HomeConverter {
                 .isDomestic(query.isDomestic())
                 .country(normalize(query.country()))
                 .region(normalize(query.region()))
-                .singleGenre(query.singleGenre())
+                .genres(query.singleGenre() != null ? Set.of(query.singleGenre()) : null)
                 .limit(3)
                 .build();
     }
