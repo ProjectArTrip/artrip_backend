@@ -20,11 +20,10 @@ import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
-import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.RandomQuery;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -77,73 +76,50 @@ public class HomeService {
     }
 
     // 사용자 맞춤 전시 랜덤 추천
-    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request, ImageResizeRequest resize){
+    public List<HomeListResponse> getRandomPersonalized(RandomQuery query){
 
-        if (!userRepository.existsById(userId)) {
+        if (!userRepository.existsById(query.userId())) {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
-        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
+        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(query.userId())
                 .stream()
                 .map(UserKeyword::getKeyword)
                 .toList();
 
-        RandomExhibitRequest filter = homeConverter.from(
-                request,
-                userKeywords
-        );
-
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
-
-//        imageUrlFormatter.resizePosterUrls(results,resize);
-      
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
-        return results;
+        return processExhibits(homeConverter.fromPersonalized(query, userKeywords), query);
     }
 
     // 이번주 랜덤 전시 추천
-    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequest request, Long userId, ImageResizeRequest resize){
+    public List<HomeListResponse> getRandomSchedule(RandomQuery query){
 
-        RandomExhibitRequest filter = homeConverter.from(request);
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
-
-//        imageUrlFormatter.resizePosterUrls(results,resize);
-
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
-        return results;
+        return processExhibits(homeConverter.fromSchedule(query), query);
     }
 
     // 장르별 전시 랜덤 추천
-    public List<HomeListResponse> getRandomGenre(GenreRandomRequest request, Long userId, ImageResizeRequest resize){
+    public List<HomeListResponse> getRandomGenre(RandomQuery query){
 
-        RandomExhibitRequest filter = homeConverter.fromGenre(request);
-
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
-
-//        imageUrlFormatter.resizePosterUrls(results,resize);
-
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
-        return results;
+        return processExhibits(homeConverter.fromGenre(query), query);
     }
 
     // 오늘날 전시 랜덤 추천
-    public List<HomeListResponse> getRandomToday(TodayRandomRequest request, Long userId, ImageResizeRequest resize){
+    public List<HomeListResponse> getRandomToday(RandomQuery query){
 
-        RandomExhibitRequest filter = homeConverter.fromToday(request);
+        return processExhibits(homeConverter.fromToday(query), query);
+    }
+
+    private List<HomeListResponse> processExhibits(RandomExhibitRequest filter, RandomQuery query) {
 
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
+        if (query.width() != null && query.height() != null) {
+            imageUrlFormatter.resizePosterUrls(results, query.width(), query.height(), query.format());
+        }
 
-
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
+        if (query.userId() != null) {
+            Set<Long> favoriteIds = getFavoriteIds(query.userId());
+            setFavorites(results, favoriteIds);
+        }
 
         return results;
     }

@@ -2,6 +2,7 @@ package org.atdev.artrip.controller.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.atdev.artrip.service.dto.RandomQuery;
 
 @Getter
 @Setter
@@ -12,4 +13,10 @@ public class GenreRandomRequest extends BaseRandomRequest {
 
     @NotNull
     private String singleGenre;
+
+    public RandomQuery toQuery(Long userId, ImageResizeRequest resize) {
+        return createBaseQueryBuilder(userId, resize)
+                .singleGenre(this.singleGenre)
+                .build();
+    }
 }

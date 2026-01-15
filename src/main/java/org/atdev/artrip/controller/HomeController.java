@@ -14,6 +14,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.RandomQuery;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -52,12 +53,13 @@ public class HomeController {
     @GetMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @ModelAttribute PersonalizedRequest requestDto,
+            @Valid @ModelAttribute PersonalizedRequest request,
             @ParameterObject ImageResizeRequest resize){
 
         long userId = Long.parseLong(userDetails.getUsername());
+        RandomQuery query = request.toQuery(userId, resize);
 
-        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId, requestDto, resize);
+        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(query);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -88,10 +90,10 @@ public class HomeController {
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
-
         Long userId = Long.parseLong(userDetails.getUsername());
-      
-        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, userId, resize);
+        RandomQuery query = request.toQuery(userId, resize);
+
+        List<HomeListResponse> exhibits= homeService.getRandomSchedule(query);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
@@ -124,10 +126,11 @@ public class HomeController {
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
-
         Long userId = Long.parseLong(userDetails.getUsername());
-      
-        List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId, resize);
+
+        RandomQuery query = request.toQuery(userId, resize);
+
+        List<HomeListResponse> exhibits = homeService.getRandomGenre(query);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }
 
@@ -158,8 +161,9 @@ public class HomeController {
             @ParameterObject ImageResizeRequest resize){
 
         Long userId = Long.parseLong(userDetails.getUsername());
-      
-        List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId, resize);
+        RandomQuery query = request.toQuery(userId, resize);
+
+        List<HomeListResponse> exhibits = homeService.getRandomToday(query);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
     }

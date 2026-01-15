@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.atdev.artrip.service.dto.RandomQuery;
 
 @Getter
 @Setter
@@ -33,5 +34,16 @@ public class BaseRandomRequest {
         } else {
             return hasCountry && !hasRegion;
         }
+    }
+
+    protected RandomQuery.RandomQueryBuilder createBaseQueryBuilder(Long userId, ImageResizeRequest resize) {
+        return RandomQuery.builder()
+                .userId(userId)
+                .isDomestic(this.isDomestic)
+                .region(this.region)
+                .country(this.country)
+                .width(resize.getW())
+                .height(resize.getH())
+                .format(resize.getF());
     }
 }

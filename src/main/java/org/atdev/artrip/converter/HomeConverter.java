@@ -10,6 +10,7 @@ import org.atdev.artrip.controller.dto.response.FilterResponse;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
+import org.atdev.artrip.service.dto.RandomQuery;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
@@ -80,7 +81,7 @@ public class HomeConverter {
     }
 
 
-    public RandomExhibitRequest from(PersonalizedRequest request, List<Keyword> keywords) {
+    public RandomExhibitRequest fromPersonalized(RandomQuery query, List<Keyword> keywords) {
 
         Set<String> genres = keywords.stream()
                 .filter(k -> k.getType() == KeywordType.GENRE)
@@ -93,40 +94,40 @@ public class HomeConverter {
                 .collect(Collectors.toSet());
 
         return RandomExhibitRequest.builder()
-                .isDomestic(request.getIsDomestic())
-                .country(normalize(request.getCountry()))
-                .region(normalize(request.getRegion()))
+                .isDomestic(query.isDomestic())
+                .country(normalize(query.country()))
+                .region(normalize(query.region()))
                 .genres(toNullable(genres))
                 .styles(toNullable(styles))
                 .limit(3)
                 .build();
     }
 
-    public RandomExhibitRequest from(ScheduleRandomRequest request) {
+    public RandomExhibitRequest fromSchedule(RandomQuery query) {
 
         return RandomExhibitRequest.builder()
-                .isDomestic(request.getIsDomestic())
-                .country(normalize(request.getCountry()))
-                .region(normalize(request.getRegion()))
-                .date(request.getDate())
+                .isDomestic(query.isDomestic())
+                .country(normalize(query.country()))
+                .region(normalize(query.region()))
+                .date(query.date())
                 .limit(2)
                 .build();
     }
 
-    public RandomExhibitRequest fromToday(TodayRandomRequest request) {
+    public RandomExhibitRequest fromToday(RandomQuery query) {
         return RandomExhibitRequest.builder()
-                .isDomestic(request.getIsDomestic())
-                .country(normalize(request.getCountry()))
-                .region(normalize(request.getRegion()))
+                .isDomestic(query.isDomestic())
+                .country(normalize(query.country()))
+                .region(normalize(query.region()))
                 .limit(3)
                 .build();
     }
-    public RandomExhibitRequest fromGenre(GenreRandomRequest request) {
+    public RandomExhibitRequest fromGenre(RandomQuery query) {
         return RandomExhibitRequest.builder()
-                .isDomestic(request.getIsDomestic())
-                .country(normalize(request.getCountry()))
-                .region(normalize(request.getRegion()))
-                .singleGenre(request.getSingleGenre())
+                .isDomestic(query.isDomestic())
+                .country(normalize(query.country()))
+                .region(normalize(query.region()))
+                .singleGenre(query.singleGenre())
                 .limit(3)
                 .build();
     }
