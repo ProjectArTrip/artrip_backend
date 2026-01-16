@@ -10,6 +10,7 @@ import org.atdev.artrip.controller.dto.response.FilterResponse;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
+import org.atdev.artrip.service.dto.ExhibitDetailResult;
 import org.atdev.artrip.service.dto.RandomQuery;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
@@ -53,12 +54,11 @@ public class HomeConverter {
                 .isFavorite(isFavorite)
                 .build();
     }
-
-    public ExhibitDetailResponse toHomeExhibitResponse(Exhibit exhibit, boolean isFavorite, String resizePosterUrl) {
-
+    public ExhibitDetailResponse toDetailResponse(ExhibitDetailResult dto) {
+        Exhibit exhibit = dto.exhibit();
         var hall = exhibit.getExhibitHall();
-        String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
 
+        String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
         Double lat = hall.getLatitude() != null ? hall.getLatitude().doubleValue() : null;
         Double lng = hall.getLongitude() != null ? hall.getLongitude().doubleValue() : null;
 
@@ -66,20 +66,19 @@ public class HomeConverter {
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
                 .description(exhibit.getDescription())
-                .posterUrl(resizePosterUrl)
+                .posterUrl(dto.resizedUrl())
+                .exhibitPeriod(period)
+                .isFavorite(dto.isFavorite())
                 .ticketUrl(exhibit.getTicketUrl())
                 .status(exhibit.getStatus())
-                .exhibitPeriod(period)
                 .hallName(hall != null ? hall.getName() : null)
                 .hallAddress(hall != null ? hall.getAddress() : null)
                 .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
                 .hallPhone(hall != null ? hall.getPhone() : null)
                 .hallLatitude(lat)
                 .hallLongitude(lng)
-                .isFavorite(isFavorite)
                 .build();
     }
-
 
     public RandomExhibitRequest fromPersonalized(RandomQuery query, List<Keyword> keywords) {
 

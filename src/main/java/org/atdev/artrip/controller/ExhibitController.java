@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
+import org.atdev.artrip.converter.HomeConverter;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.controller.dto.response.FilterResponse;
@@ -13,6 +14,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.ExhibitDetailResult;
 import org.atdev.artrip.service.dto.ExhibitDetailQuery;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,7 @@ public class ExhibitController {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
+    private final HomeConverter homeConverter;
 
     private Long getUserId(UserDetails userDetails) {
         return userDetails != null ? Long.parseLong(userDetails.getUsername()) : null;
@@ -57,9 +60,11 @@ public class ExhibitController {
             ){
 
         ExhibitDetailQuery query = ExhibitDetailQuery.of(id, getUserId(userDetails), resize.getW(), resize.getH(), resize.getF());
-        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(query);
+//        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(query);
+        ExhibitDetailResult serviceDto = exhibitService.getExhibitDetail(query);
+        ExhibitDetailResponse response = homeConverter.toDetailResponse(serviceDto);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
+        return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
 
 
