@@ -50,14 +50,23 @@ public class HomeController {
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
-    @GetMapping("/personalized/random")
+    @GetMapping("/exhibits/personalized")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @ModelAttribute PersonalizedRequest request,
             @ParameterObject ImageResizeRequest resize){
 
-        long userId = Long.parseLong(userDetails.getUsername());
-        RandomQuery query = request.toQuery(userId, resize);
+        Long userId = Long.parseLong(userDetails.getUsername());
+
+        RandomQuery query = RandomQuery.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .width(resize.getW())
+                .height(resize.getH())
+                .format(resize.getF())
+                .build();
 
         List<HomeListResponse> exhibits= homeService.getRandomPersonalized(query);
 
@@ -84,14 +93,24 @@ public class HomeController {
       }
     """
     )
-    @GetMapping("/schedule")
+    @GetMapping("/exhibits/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
             @Valid @ModelAttribute ScheduleRandomRequest request,
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
         Long userId = Long.parseLong(userDetails.getUsername());
-        RandomQuery query = request.toQuery(userId, resize);
+
+        RandomQuery query = RandomQuery.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .date(request.getDate())
+                .width(resize.getW())
+                .height(resize.getH())
+                .format(resize.getF())
+                .build();
 
         List<HomeListResponse> exhibits= homeService.getRandomSchedule(query);
 
@@ -120,7 +139,7 @@ public class HomeController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
     )
-    @GetMapping("/genre/random")
+    @GetMapping("/exhibits/genres")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
             @Valid @ModelAttribute GenreRandomRequest request,
             @AuthenticationPrincipal UserDetails userDetails,
@@ -128,7 +147,16 @@ public class HomeController {
 
         Long userId = Long.parseLong(userDetails.getUsername());
 
-        RandomQuery query = request.toQuery(userId, resize);
+        RandomQuery query = RandomQuery.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .singleGenre(request.getSingleGenre())
+                .width(resize.getW())
+                .height(resize.getH())
+                .format(resize.getF())
+                .build();
 
         List<HomeListResponse> exhibits = homeService.getRandomGenre(query);
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
@@ -154,14 +182,23 @@ public class HomeController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
-    @GetMapping("recommend/today")
+    @GetMapping("/exhibits/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
             @Valid @ModelAttribute TodayRandomRequest request,
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize){
 
         Long userId = Long.parseLong(userDetails.getUsername());
-        RandomQuery query = request.toQuery(userId, resize);
+
+        RandomQuery query = RandomQuery.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .width(resize.getW())
+                .height(resize.getH())
+                .format(resize.getF())
+                .build();
 
         List<HomeListResponse> exhibits = homeService.getRandomToday(query);
 

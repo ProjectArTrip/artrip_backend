@@ -14,9 +14,4 @@ public class GenreRandomRequest extends BaseRandomRequest {
     @NotNull
     private String singleGenre;
 
-    public RandomQuery toQuery(Long userId, ImageResizeRequest resize) {
-        return createBaseQueryBuilder(userId, resize)
-                .singleGenre(this.singleGenre)
-                .build();
-    }
 }

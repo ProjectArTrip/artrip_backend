@@ -9,8 +9,4 @@ import org.atdev.artrip.service.dto.RandomQuery;
 @Builder
 public class PersonalizedRequest extends BaseRandomRequest {
 
-    public RandomQuery toQuery(Long userId, ImageResizeRequest resize) {
-        return createBaseQueryBuilder(userId, resize)
-                .build();
-    }
 }

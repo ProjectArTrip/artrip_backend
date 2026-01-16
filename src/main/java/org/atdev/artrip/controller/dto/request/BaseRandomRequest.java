@@ -36,14 +36,4 @@ public class BaseRandomRequest {
         }
     }
 
-    protected RandomQuery.RandomQueryBuilder createBaseQueryBuilder(Long userId, ImageResizeRequest resize) {
-        return RandomQuery.builder()
-                .userId(userId)
-                .isDomestic(this.isDomestic)
-                .region(this.region)
-                .country(this.country)
-                .width(resize.getW())
-                .height(resize.getH())
-                .format(resize.getF());
-    }
 }

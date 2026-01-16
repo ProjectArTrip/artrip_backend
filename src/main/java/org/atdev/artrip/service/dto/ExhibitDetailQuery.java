@@ -1,9 +1,5 @@
 package org.atdev.artrip.service.dto;
 
-import lombok.Builder;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-
-@Builder
 public record ExhibitDetailQuery(
         Long exhibitId,
         Long userId,
@@ -12,13 +8,7 @@ public record ExhibitDetailQuery(
         String format
 ) {
 
-    public static ExhibitDetailQuery of(Long id, Long userId, ImageResizeRequest resize) {
-        return ExhibitDetailQuery.builder()
-                .exhibitId(id)
-                .userId(userId)
-                .width(resize.getW())
-                .height(resize.getH())
-                .format(resize.getF())
-                .build();
+    public static ExhibitDetailQuery of(Long id, Long userId, Integer w, Integer h, String f) {
+        return new ExhibitDetailQuery(id, userId, w, h, f);
     }
 }

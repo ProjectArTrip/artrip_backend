@@ -16,10 +16,4 @@ public class ScheduleRandomRequest extends BaseRandomRequest {
     @NotNull
     private LocalDate date;
 
-    public RandomQuery toQuery(Long userId, ImageResizeRequest resize) {
-        return createBaseQueryBuilder(userId, resize)
-                .date(this.date)
-                .build();
-    }
-
 }

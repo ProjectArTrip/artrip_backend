@@ -56,7 +56,7 @@ public class ExhibitController {
             @ParameterObject ImageResizeRequest resize
             ){
 
-        ExhibitDetailQuery query = ExhibitDetailQuery.of(id, getUserId(userDetails), resize);
+        ExhibitDetailQuery query = ExhibitDetailQuery.of(id, getUserId(userDetails), resize.getW(), resize.getH(), resize.getF());
         ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(query);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));

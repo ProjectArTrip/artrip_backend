@@ -12,6 +12,7 @@ public record RandomQuery(
         LocalDate date,
         String singleGenre,
         Long userId,
+
         Integer width,
         Integer height,
         String format
