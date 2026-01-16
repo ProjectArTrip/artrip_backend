@@ -60,7 +60,6 @@ public class ExhibitController {
             ){
 
         ExhibitDetailQuery query = ExhibitDetailQuery.of(id, getUserId(userDetails), resize.getW(), resize.getH(), resize.getF());
-//        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(query);
         ExhibitDetailResult serviceDto = exhibitService.getExhibitDetail(query);
         ExhibitDetailResponse response = homeConverter.toDetailResponse(serviceDto);
 

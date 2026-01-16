@@ -20,8 +20,8 @@ public class ExhibitService {
 
     private final ExhibitRepository exhibitRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
-    private final UserHistoryRedisService userHistoryRedisService;
     private final ImageUrlFormatter imageUrlFormatter;
+    private final UserHistoryService userHistoryService;
 
 
     @Transactional(readOnly = true)
@@ -40,7 +40,7 @@ public class ExhibitService {
         boolean isFavorite = false;
         if (query.userId() != null) {
             isFavorite = favoriteExhibitRepository.existsActive(query.userId(), query.exhibitId());
-            userHistoryRedisService.addRecentView(query.userId(), query.exhibitId());
+            userHistoryService.addRecentView(query.userId(), query.exhibitId());
         }
 
         return new ExhibitDetailResult(exhibit, isFavorite, resizedPosterUrl);
