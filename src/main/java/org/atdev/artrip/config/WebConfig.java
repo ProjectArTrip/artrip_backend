@@ -1,7 +1,7 @@
 package org.atdev.artrip.config;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.global.resolver.CurrentUserIdArgumentResolver;
+import org.atdev.artrip.global.resolver.LoginUserIdArgumentResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final CurrentUserIdArgumentResolver userIdArgumentResolver;
+    private final LoginUserIdArgumentResolver userIdArgumentResolver;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

@@ -1,10 +1,10 @@
 package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.*;
-import org.atdev.artrip.global.resolver.CurrentUserId;
+import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
@@ -17,6 +17,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -26,6 +27,7 @@ public class ExhibitController {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
+    private final S3Service s3Service;
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @ApiErrorResponses(
@@ -46,7 +48,7 @@ public class ExhibitController {
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
             @PathVariable Long id,
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize
             ){
       
@@ -87,12 +89,42 @@ public class ExhibitController {
             home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
     )
     @GetMapping
-    public CommonResponse<CursorPaginationResponse<HomeListResponse>> getDomesticFilter(
+    public CommonResponse<CursorPaginationResponse<HomeListResponse>> getExhibit(
             @ModelAttribute ExhibitFilterRequest request,
             @ModelAttribute ImageResizeRequest resizeRequest,
-            @CurrentUserId Long userId) {
+            @LoginUser Long userId) {
 
-        CursorPaginationResponse<HomeListResponse> result = homeService.searchExhibit(request, resizeRequest, userId);
+        CursorPaginationResponse<ExhibitSearchResult> serviceResult = homeService.findExhibits(request, userId);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
+        List<HomeListResponse> data = serviceResult.getData().stream()
+                .map(result -> {
+                    String period = result.startDate().format(formatter) + " - " + result.endDate().format(formatter);
+                    String resizedUrl = s3Service.buildResizeUrl(
+                            result.posterUrl(),
+                            resizeRequest.w(),
+                            resizeRequest.h(),
+                            resizeRequest.f()
+                    );
+                    return HomeListResponse.builder()
+                            .exhibit_id(result.exhibitId())
+                            .title(result.title())
+                            .posterUrl(resizedUrl)
+                            .status(result.status())
+                            .exhibitPeriod(period)
+                            .hallName(result.hallName())
+                            .regionName(result.region())
+                            .countryName(result.country())
+                            .isFavorite(result.isFavorite())
+                            .build();
+                }).toList();
+
+        CursorPaginationResponse<HomeListResponse> result = CursorPaginationResponse.of(
+                data,
+                serviceResult.isHasNext(),
+                serviceResult.getNextCursor()
+        );
 
         return CommonResponse.onSuccess(result);
     }

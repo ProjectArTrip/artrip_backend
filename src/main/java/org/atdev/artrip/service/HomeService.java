@@ -1,15 +1,15 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.controller.dto.request.*;
 import org.atdev.artrip.controller.dto.response.CursorPaginationResponse;
+import org.atdev.artrip.controller.dto.response.ExhibitSearchResult;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitHallRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.converter.HomeConverter;
-import org.atdev.artrip.controller.dto.response.FilterResponse;
 
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
@@ -22,7 +22,6 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +40,6 @@ public class HomeService {
     private final HomeConverter homeConverter;
     private final S3Service s3Service;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
-    private final ModelMapper modelMapper;
 
     private Set<Long> getFavoriteIds(Long userId) {
         if (userId == null) {
@@ -83,34 +81,31 @@ public class HomeService {
 
 
     @Transactional(readOnly = true)
-    public CursorPaginationResponse<HomeListResponse> searchExhibit(ExhibitFilterRequest request, ImageResizeRequest resizeRequest, Long userId) {
+    public CursorPaginationResponse<ExhibitSearchResult> findExhibits(ExhibitFilterRequest request,  Long userId) {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(request, request.getSize(), request.getCursor());
         Set<Long> favoriteIds = getFavoriteIds(userId);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-
-        List<HomeListResponse> data = slice.getContent().stream()
+        List<ExhibitSearchResult> data = slice.getContent().stream()
                 .map(exhibit -> {
-                    String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
+                    ExhibitHall hall = exhibit.getExhibitHall();
+                    String hallName = (hall != null) ? hall.getName() : null;
+                    String region =  (hall != null) ? hall.getRegion() : null;
+                    String country = (hall != null) ? hall.getCountry() : null;
 
-                    String resizedUrl = s3Service.buildResizeUrl(
-                            exhibit.getPosterUrl(),
-                            resizeRequest.w(),
-                            resizeRequest.h(),
-                            resizeRequest.f()
-                    );
-
-                    return HomeListResponse.builder()
-                            .exhibit_id(exhibit.getExhibitId())
+                    return ExhibitSearchResult.builder()
+                            .exhibitId(exhibit.getExhibitId())
                             .title(exhibit.getTitle())
-                            .posterUrl(resizedUrl)
+                            .posterUrl(exhibit.getPosterUrl())
                             .status(exhibit.getStatus())
-                            .exhibitPeriod(period)
+                            .startDate(exhibit.getStartDate())
+                            .endDate(exhibit.getEndDate())
+                            .hallName(hallName)
+                            .country(country)
+                            .region(region)
                             .isFavorite(favoriteIds.contains(exhibit.getExhibitId()))
                             .build();
-
-                }).toList();
+                        }).toList();
 
         Long nextCursor = (slice.hasNext() && !data.isEmpty()) ? slice.getContent().get(slice.getContent().size() - 1).getExhibitId() : null;
 

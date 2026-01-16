@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -81,7 +80,7 @@ public class SearchServiceTest {
                 .thenReturn(Collections.emptySet());
 
         // when
-        CursorPaginationResponse<HomeListResponse> result = homeService.searchExhibit(request, resizeRequest,  userId);
+        CursorPaginationResponse<HomeListResponse> result = homeService.findExhibits(request, resizeRequest,  userId);
 
         // then
         HomeListResponse actualDto = result.getData().get(0);

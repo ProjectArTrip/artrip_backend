@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
-import org.atdev.artrip.global.resolver.CurrentUserId;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.controller.dto.request.GenreRandomRequest;
 import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
@@ -17,8 +17,6 @@ import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -52,7 +50,7 @@ public class HomeController {
     )
     @PostMapping("/personalized/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @Valid @RequestBody PersonalizedRequest requestDto,
             @ParameterObject ImageResizeRequest resize){
 
@@ -84,7 +82,7 @@ public class HomeController {
     @PostMapping("/schedule")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
             @Valid @RequestBody ScheduleRandomRequest request,
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
 
 
@@ -118,7 +116,7 @@ public class HomeController {
     @PostMapping("/genre/random")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
             @Valid @RequestBody GenreRandomRequest request,
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
 
         List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId, resize);
@@ -148,7 +146,7 @@ public class HomeController {
     @PostMapping("recommend/today")
     public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
             @Valid @RequestBody TodayRandomRequest request,
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
 
         List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId, resize);

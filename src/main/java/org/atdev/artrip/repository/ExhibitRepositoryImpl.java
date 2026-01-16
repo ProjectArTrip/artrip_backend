@@ -49,7 +49,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         List<Exhibit> content = queryFactory
                 .selectDistinct(e)
                 .from(e)
-                .join(e.exhibitHall, h)
+                .join(e.exhibitHall, h).fetchJoin()
                 .leftJoin(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
@@ -59,8 +59,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         countryEq(dto.getCountry()),
                         regionEq(dto.getRegion()),
                         genreIn(dto.getGenres()),
-                        styleIn(dto.getStyles()),
-                        keywordSearch(dto.getKeyword(), e, h, k)
+                        styleIn(dto.getStyles())
                 )
                 .orderBy(sortFilter(dto, e))
                 .limit(size+1)

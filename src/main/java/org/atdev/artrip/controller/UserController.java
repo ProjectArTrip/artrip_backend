@@ -3,7 +3,7 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
-import org.atdev.artrip.global.resolver.CurrentUserId;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
@@ -17,8 +17,6 @@ import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,7 +36,7 @@ public class UserController {
             user = {UserError._PROFILE_IMAGE_NOT_EXIST,UserError._USER_NOT_FOUND}
     )
     public ResponseEntity<CommonResponse<String>> getUpdateImage(
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @RequestPart("image") MultipartFile image){
 
         userService.updateProfileImg(userId,image);
@@ -53,7 +51,7 @@ public class UserController {
             user = {UserError._PROFILE_IMAGE_NOT_EXIST,UserError._USER_NOT_FOUND}
     )
     public ResponseEntity<CommonResponse<String>> getDeleteImage(
-            @CurrentUserId Long userId){
+            @LoginUser Long userId){
 
         userService.deleteProfileImg(userId);
 
@@ -67,7 +65,7 @@ public class UserController {
             user = {UserError._DUPLICATE_NICKNAME,UserError._USER_NOT_FOUND,UserError._NICKNAME_BAD_REQUEST}
     )
     public ResponseEntity<CommonResponse<NicknameResponse>> updateNickname(
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @RequestBody NicknameRequest dto) {
 
         NicknameResponse response = userService.updateNickName(userId, dto);
@@ -78,7 +76,7 @@ public class UserController {
     @Operation(summary = "마이페이지 조회", description = "닉네임, 프로필 이미지 조회")
     @GetMapping("/mypage")
     public ResponseEntity<CommonResponse<MypageResponse>> getMypage(
-            @CurrentUserId Long userId,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize) {
 
         MypageResponse response = userService.getMypage(userId, resize);
@@ -94,7 +92,7 @@ public class UserController {
             exhibit = {ExhibitError._EXHIBIT_NOT_FOUND}
     )
     public ResponseEntity<CommonResponse<List<ExhibitRecentResponse>>> getRecentExhibit(
-            @CurrentUserId Long userId){
+            @LoginUser Long userId){
 
         List<ExhibitRecentResponse> responses = userService.getRecentViews(userId);
 

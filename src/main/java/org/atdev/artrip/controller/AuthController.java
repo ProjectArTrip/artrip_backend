@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.global.resolver.CurrentUserId;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AuthService;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
@@ -14,8 +14,6 @@ import org.atdev.artrip.global.apipayload.code.status.CommonError;
 import org.atdev.artrip.global.apipayload.code.status.UserError;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -113,7 +111,7 @@ public class AuthController {
     @Operation(summary = "isFirstLogin값 반전 api")
     @PostMapping("/complete")
     public ResponseEntity<String> completeOnboarding(
-            @CurrentUserId Long userId) {
+            @LoginUser Long userId) {
 
         authService.completeOnboarding(userId);
 

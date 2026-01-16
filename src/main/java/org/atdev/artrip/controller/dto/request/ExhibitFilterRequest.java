@@ -29,9 +29,6 @@ public class ExhibitFilterRequest {
 
     private SortType sortType;
 
-    @Pattern(regexp = "^[가-힣a-zA-Z0-9\\s]*$")
-    private String keyword;
-
     private Long cursor;
 
     private Long size;
