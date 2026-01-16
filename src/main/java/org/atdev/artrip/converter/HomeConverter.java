@@ -1,5 +1,6 @@
 package org.atdev.artrip.converter;
 
+import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.DomesticRegion;
 import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.controller.dto.request.*;

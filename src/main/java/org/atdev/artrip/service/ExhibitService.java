@@ -2,6 +2,7 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
@@ -27,7 +28,7 @@ public class ExhibitService {
     @Transactional(readOnly = true)
     public ExhibitDetailResult getExhibitDetail(ExhibitDetailQuery query) {
 
-        Exhibit exhibit = exhibitRepository.findById(query.exhibitId())
+        Exhibit exhibit = exhibitRepository.findByIdWithHall(query.exhibitId())
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
         String resizedPosterUrl = imageUrlFormatter.getResizedUrl(
@@ -42,6 +43,7 @@ public class ExhibitService {
             isFavorite = favoriteExhibitRepository.existsActive(query.userId(), query.exhibitId());
             userHistoryService.addRecentView(query.userId(), query.exhibitId());
         }
+
 
         return new ExhibitDetailResult(exhibit, isFavorite, resizedPosterUrl);
     }

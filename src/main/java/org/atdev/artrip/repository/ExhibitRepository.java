@@ -62,4 +62,7 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     // 패치조인 전시홀 전시관
     @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId in :ids")
     List<Exhibit> findAllByIdWithHall(@Param("ids") List<Long> ids);
+
+    @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId = :id")
+    Optional<Exhibit> findByIdWithHall(@Param("id") Long id);
 }
