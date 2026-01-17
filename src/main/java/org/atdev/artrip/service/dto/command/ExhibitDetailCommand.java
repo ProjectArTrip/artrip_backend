@@ -1,4 +1,4 @@
-package org.atdev.artrip.service.dto;
+package org.atdev.artrip.service.dto.command;
 
 public record ExhibitDetailCommand(
         Long exhibitId,

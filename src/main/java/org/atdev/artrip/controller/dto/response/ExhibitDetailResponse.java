@@ -1,9 +1,8 @@
 package org.atdev.artrip.controller.dto.response;
 
 import lombok.Builder;
-import lombok.Getter;
 import org.atdev.artrip.constants.Status;
-import org.atdev.artrip.service.dto.ExhibitDetailResult;
+import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
 
 import java.math.BigDecimal;
 

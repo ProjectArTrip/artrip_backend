@@ -1,4 +1,4 @@
-package org.atdev.artrip.service.dto;
+package org.atdev.artrip.service.dto.result;
 
 import lombok.Builder;
 import org.atdev.artrip.constants.Status;

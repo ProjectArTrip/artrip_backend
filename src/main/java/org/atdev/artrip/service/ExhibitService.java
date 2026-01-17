@@ -7,8 +7,8 @@ import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.service.dto.ExhibitDetailResult;
-import org.atdev.artrip.service.dto.ExhibitDetailCommand;
+import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
+import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

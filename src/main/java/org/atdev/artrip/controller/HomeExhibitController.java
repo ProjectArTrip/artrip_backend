@@ -3,8 +3,8 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
-import org.atdev.artrip.controller.spec.ExhibitSpecification;
-import org.atdev.artrip.converter.HomeConverter;
+import org.atdev.artrip.controller.dto.response.GenreResponse;
+import org.atdev.artrip.controller.spec.HomeExhibitSpecification;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.controller.dto.response.FilterResponse;
@@ -15,39 +15,36 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.atdev.artrip.service.dto.ExhibitDetailResult;
-import org.atdev.artrip.service.dto.ExhibitDetailCommand;
+import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
+import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
+import org.atdev.artrip.service.dto.result.GenreResult;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/exhibit")
-public class ExhibitController implements ExhibitSpecification {
+public class HomeExhibitController implements HomeExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
-    private final HomeConverter homeConverter;
 
     private Long getUserId(UserDetails userDetails) {
         return userDetails != null ? Long.parseLong(userDetails.getUsername()) : null;
     }
-    @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
-    )
-    @GetMapping("/genre")
-    public ResponseEntity<CommonResponse<List<String>>> getGenres(){
-        List<String> genres = homeService.getAllGenres();
-        return ResponseEntity.ok(CommonResponse.onSuccess(genres));
-    }
 
+    @Override
+    @GetMapping("/genre")
+    public ResponseEntity<List<GenreResponse>> getGenres(){
+
+        List<GenreResult> genres = homeService.getAllGenres();
+
+        return ResponseEntity.ok(GenreResponse.from(genres));
+    }
 
     @Override
     @GetMapping("/{id}")
@@ -62,7 +59,6 @@ public class ExhibitController implements ExhibitSpecification {
 
         return ResponseEntity.ok(ExhibitDetailResponse.from(result));
     }
-
 
     @Operation(summary = "해외 국가 목록 조회")
     @ApiErrorResponses(
@@ -87,7 +83,6 @@ public class ExhibitController implements ExhibitSpecification {
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
-
 
     @Operation(summary = "전시 조건 필터 전체 조회",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
     @ApiErrorResponses(

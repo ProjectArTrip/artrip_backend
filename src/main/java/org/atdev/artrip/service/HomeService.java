@@ -1,8 +1,11 @@
 package org.atdev.artrip.service;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.controller.dto.request.*;
+import org.atdev.artrip.controller.dto.response.GenreResponse;
 import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
@@ -22,6 +25,7 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.service.dto.RandomQuery;
+import org.atdev.artrip.service.dto.result.GenreResult;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -53,8 +57,14 @@ public class HomeService {
     }
 
     // 장르 전체 조회
-    public List<String> getAllGenres() {
-        return exhibitRepository.findAllGenres();
+    public List<GenreResult> getAllGenres() {
+        List<String> genreNames = exhibitRepository.findAllGenres();
+
+        if (genreNames == null) {return List.of();}
+
+        return genreNames.stream()
+                .map(GenreResult::from)
+                .toList();
     }
 
     // 해외 국가 목록 조회
