@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
+import org.atdev.artrip.controller.spec.ExhibitSpecification;
 import org.atdev.artrip.converter.HomeConverter;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
@@ -27,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/exhibit")
-public class ExhibitController {
+public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
@@ -47,11 +48,8 @@ public class ExhibitController {
         return ResponseEntity.ok(CommonResponse.onSuccess(genres));
     }
 
-    @Operation(summary = "전시 상세 조회")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
-    )
+
+    @Override
     @GetMapping("/{id}")
     public ResponseEntity<ExhibitDetailResponse> getExhibit(
             @PathVariable Long id,
@@ -107,4 +105,5 @@ public class ExhibitController {
         return ResponseEntity.ok(exhibits);
 
     }
+
 }
