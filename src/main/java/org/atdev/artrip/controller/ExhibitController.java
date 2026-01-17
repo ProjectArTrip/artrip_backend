@@ -15,7 +15,7 @@ import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.ExhibitDetailResult;
-import org.atdev.artrip.service.dto.ExhibitDetailQuery;
+import org.atdev.artrip.service.dto.ExhibitDetailCommand;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -53,17 +53,16 @@ public class ExhibitController {
             home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
+    public ResponseEntity<ExhibitDetailResponse> getExhibit(
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails,
             @ParameterObject ImageResizeRequest resize
             ){
 
-        ExhibitDetailQuery query = ExhibitDetailQuery.of(id, getUserId(userDetails), resize.getW(), resize.getH(), resize.getF());
-        ExhibitDetailResult serviceDto = exhibitService.getExhibitDetail(query);
-        ExhibitDetailResponse response = homeConverter.toDetailResponse(serviceDto);
+        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, getUserId(userDetails), resize.getW(), resize.getH(), resize.getF());
+        ExhibitDetailResult result = exhibitService.getExhibitDetail(query);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(ExhibitDetailResponse.from(result));
     }
 
 

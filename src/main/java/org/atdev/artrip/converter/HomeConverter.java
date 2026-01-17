@@ -1,6 +1,5 @@
 package org.atdev.artrip.converter;
 
-import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.DomesticRegion;
 import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.controller.dto.request.*;
@@ -53,31 +52,6 @@ public class HomeConverter {
                 .status(exhibit.getStatus())
                 .exhibitPeriod(period)
                 .isFavorite(isFavorite)
-                .build();
-    }
-    public ExhibitDetailResponse toDetailResponse(ExhibitDetailResult dto) {
-        Exhibit exhibit = dto.exhibit();
-        var hall = exhibit.getExhibitHall();
-
-        String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
-        Double lat = hall.getLatitude() != null ? hall.getLatitude().doubleValue() : null;
-        Double lng = hall.getLongitude() != null ? hall.getLongitude().doubleValue() : null;
-
-        return ExhibitDetailResponse.builder()
-                .exhibitId(exhibit.getExhibitId())
-                .title(exhibit.getTitle())
-                .description(exhibit.getDescription())
-                .posterUrl(dto.resizedUrl())
-                .exhibitPeriod(period)
-                .isFavorite(dto.isFavorite())
-                .ticketUrl(exhibit.getTicketUrl())
-                .status(exhibit.getStatus())
-                .hallName(hall != null ? hall.getName() : null)
-                .hallAddress(hall != null ? hall.getAddress() : null)
-                .hallOpeningHours(hall != null ? hall.getOpeningHours() : null)
-                .hallPhone(hall != null ? hall.getPhone() : null)
-                .hallLatitude(lat)
-                .hallLongitude(lng)
                 .build();
     }
 
