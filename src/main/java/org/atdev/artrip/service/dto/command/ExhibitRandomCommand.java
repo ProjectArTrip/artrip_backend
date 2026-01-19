@@ -23,6 +23,14 @@ public record ExhibitRandomCommand(
 
         int limit
 ) {
+    private static String normalize(String value) {
+        return (value == null || "전체".equals(value)) ? null : value;
+    }
+    public ExhibitRandomCommand {
+        region = normalize(region);
+        country = normalize(country);
+    }
+
 
     public ExhibitRandomCommand withKeywords(Set<String> genres, Set<String> styles) {
         return this.toBuilder()
@@ -46,5 +54,7 @@ public record ExhibitRandomCommand(
                 .limit(3)
                 .build();
     }
+
+
 }
 

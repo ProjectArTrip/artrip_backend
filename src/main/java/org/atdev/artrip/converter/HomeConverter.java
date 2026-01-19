@@ -1,23 +1,15 @@
 package org.atdev.artrip.converter;
 
-import org.atdev.artrip.constants.DomesticRegion;
-import org.atdev.artrip.constants.KeywordType;
-import org.atdev.artrip.controller.dto.request.*;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
 import org.atdev.artrip.controller.dto.response.FilterResponse;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
-import org.atdev.artrip.controller.dto.response.RegionResponse;
-import org.atdev.artrip.domain.keyword.Keyword;
-import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class HomeConverter {
@@ -53,75 +45,8 @@ public class HomeConverter {
                 .build();
     }
 
-    public RandomExhibitRequest fromPersonalized(ExhibitRandomCommand query, List<Keyword> keywords) {
 
-        Set<String> genres = keywords.stream()
-                .filter(k -> k.getType() == KeywordType.GENRE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
 
-        Set<String> styles = keywords.stream()
-                .filter(k -> k.getType() == KeywordType.STYLE)
-                .map(Keyword::getName)
-                .collect(Collectors.toSet());
-
-        return RandomExhibitRequest.builder()
-                .isDomestic(query.isDomestic())
-                .country(normalize(query.country()))
-                .region(normalize(query.region()))
-                .genres(toNullable(genres))
-                .styles(toNullable(styles))
-                .limit(3)
-                .build();
-    }
-
-    public RandomExhibitRequest fromSchedule(ExhibitRandomCommand query) {
-
-        return RandomExhibitRequest.builder()
-                .isDomestic(query.isDomestic())
-                .country(normalize(query.country()))
-                .region(normalize(query.region()))
-                .date(query.date())
-                .limit(2)
-                .build();
-    }
-
-    public RandomExhibitRequest fromToday(ExhibitRandomCommand query) {
-        return RandomExhibitRequest.builder()
-                .isDomestic(query.isDomestic())
-                .country(normalize(query.country()))
-                .region(normalize(query.region()))
-                .limit(3)
-                .build();
-    }
-    public RandomExhibitRequest fromGenre(ExhibitRandomCommand query) {
-        return RandomExhibitRequest.builder()
-                .isDomestic(query.isDomestic())
-                .country(normalize(query.country()))
-                .region(normalize(query.region()))
-                .genres(query.singleGenre() != null ? Set.of(query.singleGenre()) : null)
-                .limit(3)
-                .build();
-    }
-
-    private <T> Set<T> toNullable(Set<T> value) {
-        return (value == null || value.isEmpty()) ? null : value;
-    }
-
-    private String normalize(String value) {
-        if (value == null) return null;
-        if ("전체".equals(value)) return null;
-        return value;
-    }
-
-    public List<RegionResponse> toResponseList() {
-        return Arrays.stream(DomesticRegion.values())
-                .map(region -> RegionResponse.builder()
-                        .region(region.getRegion())
-                        .imageUrl(region.getImageUrl())
-                        .build())
-                .collect(Collectors.toList());
-    }
 
     public ExhibitRecentResponse toExhibitRecentResponse(Exhibit exhibit){
 

@@ -5,24 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.controller.dto.request.*;
 import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
-import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.repository.*;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.repository.ExhibitHallRepository;
-import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.converter.HomeConverter;
 import org.atdev.artrip.controller.dto.response.FilterResponse;
 
-import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
-import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.atdev.artrip.service.dto.result.GenreResult;
+import org.atdev.artrip.service.dto.result.RegionResult;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -38,23 +35,11 @@ public class HomeService {
     private final UserKeywordRepository userkeywordRepository;
     private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
+    private final RegionRepository regionRepository;
     private final HomeConverter homeConverter;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final ImageUrlFormatter imageUrlFormatter;
 
-
-    private Set<Long> getFavoriteIds(Long userId) {
-        if (userId == null) {
-            return Collections.emptySet();
-        }
-        return favoriteExhibitRepository.findActiveExhibitIds(userId);
-    }
-
-    private List<ExhibitRandomResult> setFavorites(List<ExhibitRandomResult> results, Set<Long> favoriteIds) {
-        return results.stream()
-                .map(r -> r.withFavorite(favoriteIds.contains(r.exhibitId())))
-                .toList();
-    }
 
     // 장르 전체 조회
     public List<GenreResult> getAllGenres() {
@@ -72,10 +57,12 @@ public class HomeService {
         return exhibitHallRepository.findAllOverseasCountries();
     }
 
-    public List<RegionResponse> getRegions() {
-        return homeConverter.toResponseList();
-    }
+    public List<RegionResult> getRegions() {
 
+        return regionRepository.findAll().stream()
+                .map(RegionResult::from)
+                .toList();
+    }
 
     //필터 전체 조회
     public FilterResponse getFilterExhibit(ExhibitFilterRequest dto, Long size, Long cursorId, Long userId) {
@@ -84,6 +71,8 @@ public class HomeService {
         Set<Long> favoriteIds = getFavoriteIds(userId);
         return homeConverter.toFilterResponse(slice, favoriteIds);
     }
+
+//------------------------------------------------------------------------------------------
 
     // 사용자 맞춤 전시 랜덤 추천
     public List<ExhibitRandomResult> getRandomPersonalized(ExhibitRandomCommand query){
@@ -149,6 +138,19 @@ public class HomeService {
         }
 
         return results;
+    }
+
+    private Set<Long> getFavoriteIds(Long userId) {
+        if (userId == null) {
+            return Collections.emptySet();
+        }
+        return favoriteExhibitRepository.findActiveExhibitIds(userId);
+    }
+
+    private List<ExhibitRandomResult> setFavorites(List<ExhibitRandomResult> results, Set<Long> favoriteIds) {
+        return results.stream()
+                .map(r -> r.withFavorite(favoriteIds.contains(r.exhibitId())))
+                .toList();
     }
 
 
