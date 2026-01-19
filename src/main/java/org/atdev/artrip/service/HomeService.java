@@ -3,15 +3,9 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.KeywordType;
-import org.atdev.artrip.constants.OverseasCountry;
-import org.atdev.artrip.controller.dto.request.*;
 import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.*;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.converter.HomeConverter;
-import org.atdev.artrip.controller.dto.response.FilterResponse;
-
-import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -33,7 +27,6 @@ public class HomeService {
 
     private final ExhibitRepository exhibitRepository;
     private final UserKeywordRepository userkeywordRepository;
-    private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
@@ -67,8 +60,6 @@ public class HomeService {
         Set<Long> favoriteIds = getFavoriteIds(command.userId());
 
         return ExhibitFilterResult.of(slice,favoriteIds);
-
-//        return homeConverter.toFilterResponse(slice, favoriteIds);
     }
 
 
