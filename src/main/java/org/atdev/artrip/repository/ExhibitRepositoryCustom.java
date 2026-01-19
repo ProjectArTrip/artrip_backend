@@ -4,6 +4,8 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.request.RandomExhibitRequest;
+import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +16,6 @@ public interface ExhibitRepositoryCustom {
 
     Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest filter, Long size, Long cursorId);
 
-    List<HomeListResponse> findRandomExhibits(RandomExhibitRequest condition);
+    List<ExhibitRandomResult> findRandomExhibits(ExhibitRandomCommand condition);
 
 }

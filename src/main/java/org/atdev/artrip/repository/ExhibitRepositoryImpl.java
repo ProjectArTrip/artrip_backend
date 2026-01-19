@@ -16,6 +16,8 @@ import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.request.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.QKeyword;
+import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
@@ -72,7 +74,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     }
 
     @Override
-    public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
+    public List<ExhibitRandomResult> findRandomExhibits(ExhibitRandomCommand c) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -80,7 +82,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
 
         return queryFactory
                 .selectDistinct(Projections.constructor(
-                        HomeListResponse.class,
+                        ExhibitRandomResult.class,
                         e.exhibitId,
                         e.title,
                         e.posterUrl,
@@ -92,22 +94,24 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         ),
                         h.name,
                         h.country,
-                        h.region
+                        h.region,
+                        Expressions.asBoolean(false),
+                        Expressions.asString("")
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)
                 .join(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
-                        isDomesticEq(c.getIsDomestic()),
-                        countryEq(c.getCountry()),
-                        regionEq(c.getRegion()),
-                        genreIn(c.getGenres()),
-                        styleIn(c.getStyles()),
-                        findDate(c.getDate())
+                        isDomesticEq(c.isDomestic()),
+                        countryEq(c.country()),
+                        regionEq(c.region()),
+                        genreIn(c.genres()),
+                        styleIn(c.styles()),
+                        findDate(c.date())
                 )
                 .orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc())
-                .limit(c.getLimit())
+                .limit(c.limit())
                 .fetch();
     }
 

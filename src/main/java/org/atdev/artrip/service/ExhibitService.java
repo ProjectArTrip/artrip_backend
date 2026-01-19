@@ -23,22 +23,22 @@ public class ExhibitService {
 
 
     @Transactional(readOnly = true)
-    public ExhibitDetailResult getExhibitDetail(ExhibitDetailCommand query) {
+    public ExhibitDetailResult getExhibitDetail(ExhibitDetailCommand command) {
 
-        Exhibit exhibit = exhibitRepository.findByIdWithHall(query.exhibitId())
+        Exhibit exhibit = exhibitRepository.findByIdWithHall(command.exhibitId())
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
         String resizedPosterUrl = imageUrlFormatter.getResizedUrl(
                 exhibit.getPosterUrl(),
-                query.width(),
-                query.height(),
-                query.format()
+                command.width(),
+                command.height(),
+                command.format()
         );
 
         boolean isFavorite = false;
-        if (query.userId() != null) {
-            isFavorite = favoriteExhibitRepository.existsActive(query.userId(), query.exhibitId());
-            userHistoryService.addRecentView(query.userId(), query.exhibitId());
+        if (command.userId() != null) {
+            isFavorite = favoriteExhibitRepository.existsActive(command.userId(), command.exhibitId());
+            userHistoryService.addRecentView(command.userId(), command.exhibitId());
         }
 
         return ExhibitDetailResult.of(exhibit, isFavorite, resizedPosterUrl);

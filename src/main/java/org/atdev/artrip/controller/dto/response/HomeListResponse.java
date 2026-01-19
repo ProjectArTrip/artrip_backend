@@ -6,37 +6,44 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.atdev.artrip.constants.Status;
+import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
+import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 
-@Getter
-@Setter
+import java.util.List;
+
 @Builder
-@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class HomeListResponse {
+public record HomeListResponse (
+         Long exhibitId,
+         String title,
+         String posterUrl,
+         Status status,
+         String exhibitPeriod,
 
-    private Long exhibit_id;
-    private String title;
-    private String posterUrl;
-    private Status status;
-    private String exhibitPeriod;
+         String hallName,
+         String countryName,
+         String regionName,
 
-    private String hallName;
-    private String countryName;
-    private String regionName;
+         boolean isFavorite
+){
+    public static HomeListResponse from(ExhibitRandomResult result) {
+        return HomeListResponse.builder()
+                .exhibitId(result.exhibitId())
+                .title(result.title())
+                .posterUrl(result.posterUrl())
+                .status(result.status())
+                .exhibitPeriod(result.exhibitPeriod())
 
-    private boolean isFavorite;
+                .hallName(result.hallName())
+                .countryName(result.countryName())
+                .regionName(result.regionName())
 
-    public HomeListResponse(Long exhibit_id, String title, String posterUrl, Status status,
-                            String exhibitPeriod, String hallName, String countryName, String regionName) {
-        this.exhibit_id = exhibit_id;
-        this.title = title;
-        this.posterUrl = posterUrl;
-        this.status = status;
-        this.exhibitPeriod = exhibitPeriod;
-        this.hallName = hallName;
-        this.countryName = countryName;
-        this.regionName = regionName;
-        this.isFavorite = false;
+                .isFavorite(result.isFavorite())
+                .build();
+    }
+    public static List<HomeListResponse> fromList(List<ExhibitRandomResult> results) {
+        return results.stream()
+                .map(HomeListResponse::from)
+                .toList();
     }
 }
 

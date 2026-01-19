@@ -1,4 +1,4 @@
-package org.atdev.artrip.util;
+package org.atdev.artrip.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

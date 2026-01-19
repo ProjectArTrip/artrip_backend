@@ -9,7 +9,7 @@ import org.atdev.artrip.controller.dto.response.FilterResponse;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
-import org.atdev.artrip.service.dto.RandomQuery;
+import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
@@ -44,7 +44,7 @@ public class HomeConverter {
         String period = exhibit.getStartDate().format(formatter) + " - " + exhibit.getEndDate().format(formatter);
 
         return HomeListResponse.builder()
-                .exhibit_id(exhibit.getExhibitId())
+                .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
                 .posterUrl(exhibit.getPosterUrl())
                 .status(exhibit.getStatus())
@@ -53,7 +53,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public RandomExhibitRequest fromPersonalized(RandomQuery query, List<Keyword> keywords) {
+    public RandomExhibitRequest fromPersonalized(ExhibitRandomCommand query, List<Keyword> keywords) {
 
         Set<String> genres = keywords.stream()
                 .filter(k -> k.getType() == KeywordType.GENRE)
@@ -75,7 +75,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public RandomExhibitRequest fromSchedule(RandomQuery query) {
+    public RandomExhibitRequest fromSchedule(ExhibitRandomCommand query) {
 
         return RandomExhibitRequest.builder()
                 .isDomestic(query.isDomestic())
@@ -86,7 +86,7 @@ public class HomeConverter {
                 .build();
     }
 
-    public RandomExhibitRequest fromToday(RandomQuery query) {
+    public RandomExhibitRequest fromToday(ExhibitRandomCommand query) {
         return RandomExhibitRequest.builder()
                 .isDomestic(query.isDomestic())
                 .country(normalize(query.country()))
@@ -94,7 +94,7 @@ public class HomeConverter {
                 .limit(3)
                 .build();
     }
-    public RandomExhibitRequest fromGenre(RandomQuery query) {
+    public RandomExhibitRequest fromGenre(ExhibitRandomCommand query) {
         return RandomExhibitRequest.builder()
                 .isDomestic(query.isDomestic())
                 .country(normalize(query.country()))

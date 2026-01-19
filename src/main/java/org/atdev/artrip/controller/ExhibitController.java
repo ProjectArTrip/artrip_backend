@@ -28,7 +28,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/exhibit")
-public class HomeExhibitController implements HomeExhibitSpecification {
+public class ExhibitController implements HomeExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;

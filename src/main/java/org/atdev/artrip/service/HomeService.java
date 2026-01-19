@@ -1,11 +1,9 @@
 package org.atdev.artrip.service;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.controller.dto.request.*;
-import org.atdev.artrip.controller.dto.response.GenreResponse;
 import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
@@ -15,7 +13,6 @@ import org.atdev.artrip.converter.HomeConverter;
 import org.atdev.artrip.controller.dto.response.FilterResponse;
 
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
@@ -23,13 +20,14 @@ import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.service.dto.RandomQuery;
+import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.atdev.artrip.service.dto.result.GenreResult;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,8 +50,10 @@ public class HomeService {
         return favoriteExhibitRepository.findActiveExhibitIds(userId);
     }
 
-    private void setFavorites(List<HomeListResponse> result, Set<Long> favoriteIds) {
-        result.forEach(r -> r.setFavorite(favoriteIds.contains(r.getExhibit_id())));
+    private List<ExhibitRandomResult> setFavorites(List<ExhibitRandomResult> results, Set<Long> favoriteIds) {
+        return results.stream()
+                .map(r -> r.withFavorite(favoriteIds.contains(r.exhibitId())))
+                .toList();
     }
 
     // 장르 전체 조회
@@ -86,7 +86,7 @@ public class HomeService {
     }
 
     // 사용자 맞춤 전시 랜덤 추천
-    public List<HomeListResponse> getRandomPersonalized(RandomQuery query){
+    public List<ExhibitRandomResult> getRandomPersonalized(ExhibitRandomCommand query){
 
         if (!userRepository.existsById(query.userId())) {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
@@ -97,38 +97,55 @@ public class HomeService {
                 .map(UserKeyword::getKeyword)
                 .toList();
 
-        return processExhibits(homeConverter.fromPersonalized(query, userKeywords), query);
+        Set<String> genres = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        Set<String> styles = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        ExhibitRandomCommand command = query.withKeywords(genres, styles);
+
+        return processExhibits(command);
     }
 
     // 이번주 랜덤 전시 추천
-    public List<HomeListResponse> getRandomSchedule(RandomQuery query){
+    public List<ExhibitRandomResult> getRandomSchedule(ExhibitRandomCommand query){
 
-        return processExhibits(homeConverter.fromSchedule(query), query);
+        ExhibitRandomCommand command = query.withLimit(2);
+        return processExhibits(command);
     }
 
-    // 장르별 전시 랜덤 추천
-    public List<HomeListResponse> getRandomGenre(RandomQuery query){
 
-        return processExhibits(homeConverter.fromGenre(query), query);
+    // 장르별 전시 랜덤 추천
+    public List<ExhibitRandomResult> getRandomGenre(ExhibitRandomCommand query){
+
+        ExhibitRandomCommand command = query.withGenre();
+
+        return processExhibits(command);
     }
 
     // 오늘날 전시 랜덤 추천
-    public List<HomeListResponse> getRandomToday(RandomQuery query){
+    public List<ExhibitRandomResult> getRandomToday(ExhibitRandomCommand query){
 
-        return processExhibits(homeConverter.fromToday(query), query);
+        ExhibitRandomCommand command = query.withLimit(3);
+        return processExhibits(command);
     }
 
-    private List<HomeListResponse> processExhibits(RandomExhibitRequest filter, RandomQuery query) {
+    private List<ExhibitRandomResult> processExhibits(ExhibitRandomCommand command) {
 
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
+        List<ExhibitRandomResult> results = exhibitRepository.findRandomExhibits(command);
 
-        if (query.width() != null && query.height() != null) {
-            imageUrlFormatter.resizePosterUrls(results, query.width(), query.height(), query.format());
+        if (command.width() != null && command.height() != null) {
+            results = imageUrlFormatter.resizePosterUrls(results, command.width(), command.height(), command.format());
         }
 
-        if (query.userId() != null) {
-            Set<Long> favoriteIds = getFavoriteIds(query.userId());
-            setFavorites(results, favoriteIds);
+        if (command.userId() != null) {
+            Set<Long> favoriteIds = getFavoriteIds(command.userId());
+            results = setFavorites(results, favoriteIds);
         }
 
         return results;

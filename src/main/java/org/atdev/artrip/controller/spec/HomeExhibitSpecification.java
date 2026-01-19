@@ -1,9 +1,12 @@
 package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
 import org.atdev.artrip.controller.dto.response.GenreResponse;
+import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
@@ -11,6 +14,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
@@ -32,5 +37,6 @@ public interface HomeExhibitSpecification {
             home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
     )
     ResponseEntity<List<GenreResponse>> getGenres();
+
 
 }

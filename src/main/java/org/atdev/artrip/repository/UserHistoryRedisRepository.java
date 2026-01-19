@@ -1,6 +1,7 @@
 package org.atdev.artrip.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 public class UserHistoryRedisRepository {
+
+    @Qualifier("recommendRedisTemplate")
     private final StringRedisTemplate recommendRedisTemplate;
 
     public void saveWithLimit(String key, String value, double score, int limit, long ttl) {
