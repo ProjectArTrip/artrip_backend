@@ -1,7 +1,8 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.page.Criteria;
 import org.atdev.artrip.global.page.PagingResponseDTO;
 import org.atdev.artrip.converter.AdminExhibitConverter;
@@ -15,9 +16,6 @@ import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.repository.KeywordRepository;
-import org.atdev.artrip.elastic.service.ExhibitIndexService;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,18 +27,15 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AdminExhibitService {
 
     private final ExhibitRepository exhibitRepository;
     private final ExhibitHallRepository exhibitHallRepository;
     private final KeywordRepository keywordRepository;
-    private final ExhibitIndexService exhibitIndexService;
     private final AdminExhibitConverter adminExhibitConverter;
 
     @Transactional(readOnly = true)
     public PagingResponseDTO<AdminExhibitListResponse> getExhibitList(Criteria cri) {
-        log.info("Admin Getting Exhibit List : {}", cri);
 
         Pageable pageable = cri.toPageable();
 
@@ -59,7 +54,6 @@ public class AdminExhibitService {
 
     @Transactional(readOnly = true)
     public AdminExhibitResponse getExhibit (Long exhibitId) {
-        log.info("Admin Getting Exhibit : {}", exhibitId);
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
@@ -69,7 +63,6 @@ public class AdminExhibitService {
 
     @Transactional
     public Long createExhibit(CreateExhibitRequest request) {
-        log.info("Admin Creating exhibit : title={}", request);
 
         ExhibitHall exhibitHall = exhibitHallRepository.findById(request.getExhibitHallId())
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_HALL_NOT_FOUND));
@@ -96,24 +89,14 @@ public class AdminExhibitService {
                 .build();
         exhibit.getKeywords().addAll(keywords);
 
-        Exhibit savedExhibit = exhibitRepository.save(exhibit);
-
-        log.info("Exhibit created : id={}, keywords.size={} ",
-                savedExhibit.getExhibitId(),
-                savedExhibit.getKeywords().size());
-
         try {
-            exhibitIndexService.indexExhibit(savedExhibit);
-            log.info("Exhibit indexing successfully : id={} ",savedExhibit.getExhibitId());
         } catch (Exception e) {
-            log.error("Exhibit indexing failed", e);
         }
-        return savedExhibit.getExhibitId();
+        return null;
     }
 
     @Transactional
     public Long updateExhibit(Long exhibitId, UpdateExhibitRequest request) {
-        log.info("Admin Updating Exhibit : {}", exhibitId);
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
@@ -149,12 +132,10 @@ public class AdminExhibitService {
 
         Exhibit savedExhibit = exhibitRepository.save(exhibit);
 
+        // TODO: 업데이트 할 내용 추가
         try {
-            exhibitIndexService.indexExhibit(savedExhibit);
-
 
         }catch (Exception e) {
-            log.error("Admin Exhibit Update Error", e.getMessage());
             throw new GeneralException(CommonErrorCode._INTERNAL_SERVER_ERROR);
         }
 
@@ -163,7 +144,6 @@ public class AdminExhibitService {
 
     @Transactional
     public void deleteExhibit(Long exhibitId) {
-        log.info("Admin Deleting Exhibit : {}", exhibitId);
 
         if (!exhibitRepository.existsById(exhibitId)) {
             throw new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND);
@@ -171,10 +151,9 @@ public class AdminExhibitService {
 
         exhibitRepository.deleteById(exhibitId);
 
+        // TODO: delete 할 code 추가
         try {
-            exhibitIndexService.deleteExhibit(exhibitId);
         } catch (Exception e) {
-        log.error("Admin Exhibit Deletion Error", e.getMessage());
             throw new GeneralException(CommonErrorCode._INTERNAL_SERVER_ERROR);
         }
     }

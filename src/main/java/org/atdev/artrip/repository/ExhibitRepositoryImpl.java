@@ -23,6 +23,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+import static org.atdev.artrip.domain.exhibit.QExhibit.exhibit;
+
 @Repository
 @RequiredArgsConstructor
 public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
@@ -32,7 +34,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     @Override
     public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Long size, Long cursorId) {
 
-        QExhibit e = QExhibit.exhibit;
+        QExhibit e = exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
 
@@ -47,7 +49,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         List<Exhibit> content = queryFactory
                 .selectDistinct(e)
                 .from(e)
-                .join(e.exhibitHall, h)
+                .join(e.exhibitHall, h).fetchJoin()
                 .leftJoin(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
@@ -69,17 +71,17 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
             content.remove(size.intValue());
 
         return new SliceImpl<>(content, PageRequest.of(0, size.intValue()), hasNext);
-    }// 페이지 개념은 사용 x
+    }
 
     @Override
     public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
 
-        QExhibit e = QExhibit.exhibit;
+        QExhibit e = exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
 
         return queryFactory
-                .selectDistinct(Projections.constructor(// select 순서와 DTO 생성자 파라미터 순서를 1:1 매핑함!
+                .selectDistinct(Projections.constructor(
                         HomeListResponse.class,
                         e.exhibitId,
                         e.title,
@@ -121,11 +123,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                     .or(e.favoriteCount.eq(cursor.getFavoriteCount())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            case LATEST -> e.startDate.lt(cursor.getStartDate())//<
+            case LATEST -> e.startDate.lt(cursor.getStartDate())
                     .or(e.startDate.eq(cursor.getStartDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            default -> e.endDate.gt(cursor.getEndDate())//>
+            default -> e.endDate.gt(cursor.getEndDate())
                     .or(e.endDate.eq(cursor.getEndDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
         };
@@ -179,11 +181,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     }
 
     private BooleanExpression countryEq(String country) {
-        return country == null ? null : QExhibitHall.exhibitHall.country.eq(country);
+        return country == null || country.isBlank() ? null : QExhibitHall.exhibitHall.country.eq(country);
     }
 
     private BooleanExpression regionEq(String region) {
-        return region == null ? null : QExhibitHall.exhibitHall.region.eq(region);
+        return region == null || region.isBlank() ? null : QExhibitHall.exhibitHall.region.eq(region);
     }
 
     private BooleanExpression genreIn(Set<String> genres) {
@@ -201,8 +203,44 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private BooleanExpression findDate(LocalDate date){
         if (date == null) return null;
 
-        return QExhibit.exhibit.startDate.loe(date)//<=
-                .and(QExhibit.exhibit.endDate.goe(date));//>=
+        return exhibit.startDate.loe(date)
+                .and(exhibit.endDate.goe(date));
+    }
+
+    private BooleanExpression keywordSearch(String keyword, QExhibit e, QExhibitHall h, QKeyword k) {
+        if (keyword == null || keyword.isBlank()) {
+            return null;
+        }
+
+        return e.title.containsIgnoreCase(keyword)
+                .or(e.description.containsIgnoreCase(keyword))
+                .or(h.name.containsIgnoreCase(keyword))
+                .or(k.name.containsIgnoreCase(keyword));
+    }
+
+    @Override
+    public Slice<Exhibit> searchByKeyword(String keywords, Long cursor, Long size) {
+        QExhibitHall exhibitHall = QExhibitHall.exhibitHall;
+        QKeyword keyword = QKeyword.keyword;
+        List<Exhibit> content = queryFactory
+                .selectDistinct(exhibit)
+                .from(exhibit)
+                .leftJoin(exhibit.exhibitHall, exhibitHall).fetchJoin()
+                .join(exhibit.keywords, keyword)
+                .where(
+                        keywords != null ? keyword.name.contains(keywords) : null,
+                        cursor != null ? exhibit.exhibitId.lt(cursor) : null
+                )
+                .limit(size + 1)
+                .orderBy(exhibit.exhibitId.desc())
+                .fetch();
+
+        boolean hasNext = false;
+        if (content.size() > size) {
+            content.remove(size.intValue());
+            hasNext = true;
+        }
+        return new SliceImpl<>(content, PageRequest.ofSize(size.intValue()),hasNext);
     }
 
 }

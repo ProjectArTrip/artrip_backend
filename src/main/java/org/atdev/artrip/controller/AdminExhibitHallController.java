@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/exhibit-halls")
 @RequiredArgsConstructor
-@Slf4j
 @Tag(name = "Admin - ExhibitHall", description = "관리자 전시관 관리 API")
 public class AdminExhibitHallController {
 
@@ -37,7 +36,6 @@ public class AdminExhibitHallController {
     )
     @GetMapping
     public CommonResponse<PagingResponseDTO<ExhibitHallListResponse>> getExhibitHallList(Criteria cri) {
-        log.info("Admin getting exhibit hall : {}" , cri);
 
         PagingResponseDTO<ExhibitHallListResponse> result = adminExhibitHallService.getExhibitHallList(cri);
 
@@ -47,7 +45,6 @@ public class AdminExhibitHallController {
     @Operation(summary = "전시관 상세 조회", description = "전시관 ID로 전시관 상세 조회")
     @GetMapping("/{exhibitHallId}")
     public CommonResponse<ExhibitHallResponse> getExhibitHall(@PathVariable Long exhibitHallId) {
-        log.info("Admin getting exhibit hall : {}" , exhibitHallId);
 
         ExhibitHallResponse result = adminExhibitHallService.getExhibitHall(exhibitHallId);
 
@@ -57,7 +54,6 @@ public class AdminExhibitHallController {
     @Operation(summary = "전시관 등록" )
     @PostMapping
     public CommonResponse<Long> createExhibitHall(@RequestBody CreateExhibitHallRequest request) {
-        log.info("Admin creating exhibit hall : {}" , request);
 
         Long result = adminExhibitHallService.createExhibitHall(request);
 
@@ -67,7 +63,6 @@ public class AdminExhibitHallController {
     @Operation(summary = "전시관 수정" )
     @PutMapping("/{exhibitHallId}")
     public CommonResponse<Long> updateExhibitHall(@PathVariable Long exhibitHallId, @RequestBody UpdateExhibitHallRequest request) {
-        log.info("Admin updating exhibit hall : {}, {}", exhibitHallId, request);
 
         Long result = adminExhibitHallService.updateExhibitHall(exhibitHallId, request);
 
@@ -77,7 +72,6 @@ public class AdminExhibitHallController {
     @Operation(summary = "전시관 삭제" )
     @DeleteMapping("/{exhibitHallId}")
     public CommonResponse<Void> deleteExhibitHall(@PathVariable Long exhibitHallId) {
-        log.info("Admin deleting exhibit hall : {}" , exhibitHallId);
 
         adminExhibitHallService.deleteExhibitHall(exhibitHallId);
 

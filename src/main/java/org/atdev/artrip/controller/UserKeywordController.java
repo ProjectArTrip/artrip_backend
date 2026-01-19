@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
 import org.atdev.artrip.controller.dto.response.KeywordResponse;
@@ -10,8 +11,6 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.KeywordErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,10 +29,8 @@ public class UserKeywordController {
     )
     @PostMapping("/keywords")
     public ResponseEntity<CommonResponse<Void>> saveUserKeywords(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @RequestBody KeywordRequest request) {
-
-        Long userId = Long.parseLong(userDetails.getUsername()); // subject → userId형변환
 
         keywordService.saveUserKeywords(userId, request.getKeywordIds());
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
@@ -57,9 +54,8 @@ public class UserKeywordController {
     )
     @GetMapping("/keywords")
     public ResponseEntity<CommonResponse<List<KeywordResponse>>> getUserKeywords(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @LoginUser Long userId) {
 
-        Long userId = Long.parseLong(userDetails.getUsername());
         List<KeywordResponse> keywords = keywordService.getUserKeywords(userId);
         return ResponseEntity.ok(CommonResponse.onSuccess(keywords));
     }

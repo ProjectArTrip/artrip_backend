@@ -1,14 +1,15 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.controller.dto.request.*;
+import org.atdev.artrip.controller.dto.response.CursorPaginationResponse;
+import org.atdev.artrip.controller.dto.response.ExhibitSearchResult;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitHallRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.converter.HomeConverter;
-import org.atdev.artrip.controller.dto.response.FilterResponse;
 
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
@@ -25,11 +26,11 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class HomeService {
 
     private final ExhibitRepository exhibitRepository;
@@ -79,12 +80,36 @@ public class HomeService {
     }
 
 
-    //필터 전체 조회
-    public FilterResponse getFilterExhibit(ExhibitFilterRequest dto, Long size, Long cursorId, Long userId) {
+    @Transactional(readOnly = true)
+    public CursorPaginationResponse<ExhibitSearchResult> findExhibits(ExhibitFilterRequest request,  Long userId) {
 
-        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, size, cursorId);
+        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(request, request.getSize(), request.getCursor());
         Set<Long> favoriteIds = getFavoriteIds(userId);
-        return homeConverter.toFilterResponse(slice, favoriteIds);
+
+        List<ExhibitSearchResult> data = slice.getContent().stream()
+                .map(exhibit -> {
+                    ExhibitHall hall = exhibit.getExhibitHall();
+                    String hallName = (hall != null) ? hall.getName() : null;
+                    String region =  (hall != null) ? hall.getRegion() : null;
+                    String country = (hall != null) ? hall.getCountry() : null;
+
+                    return ExhibitSearchResult.builder()
+                            .exhibitId(exhibit.getExhibitId())
+                            .title(exhibit.getTitle())
+                            .posterUrl(exhibit.getPosterUrl())
+                            .status(exhibit.getStatus())
+                            .startDate(exhibit.getStartDate())
+                            .endDate(exhibit.getEndDate())
+                            .hallName(hallName)
+                            .country(country)
+                            .region(region)
+                            .isFavorite(favoriteIds.contains(exhibit.getExhibitId()))
+                            .build();
+                        }).toList();
+
+        Long nextCursor = (slice.hasNext() && !data.isEmpty()) ? slice.getContent().get(slice.getContent().size() - 1).getExhibitId() : null;
+
+        return CursorPaginationResponse.of(data, slice.hasNext(), nextCursor);
     }
 
     // 사용자 맞춤 전시 랜덤 추천
@@ -108,7 +133,7 @@ public class HomeService {
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
         results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
         ));
       
         Set<Long> favoriteIds = getFavoriteIds(userId);
@@ -124,7 +149,7 @@ public class HomeService {
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
         results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
         ));
       
         Set<Long> favoriteIds = getFavoriteIds(userId);
@@ -141,7 +166,7 @@ public class HomeService {
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
         results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
         ));
       
         Set<Long> favoriteIds = getFavoriteIds(userId);
@@ -158,7 +183,7 @@ public class HomeService {
         List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
 
         results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.getW(), resize.getH(), resize.getF())
+                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
         ));
       
         Set<Long> favoriteIds = getFavoriteIds(userId);

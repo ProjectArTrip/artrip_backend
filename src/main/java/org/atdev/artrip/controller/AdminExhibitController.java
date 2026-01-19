@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/admin/exhibits")
-@Slf4j
 @Tag(name = "Admin - Exhibit", description = "관리자 전시 관리 API")
 public class AdminExhibitController {
 
@@ -37,7 +36,6 @@ public class AdminExhibitController {
     )
     @GetMapping
     public CommonResponse<PagingResponseDTO<AdminExhibitListResponse>> getExhibitList(Criteria cri) {
-        log.info("Admin getting exhibit list: {}", cri);
 
         PagingResponseDTO<AdminExhibitListResponse> result = adminExhibitService.getExhibitList(cri);
 
@@ -47,7 +45,6 @@ public class AdminExhibitController {
     @Operation(summary = "전시 상세 조회", description = "특정 전시의 상세 정보를 조회합니다.")
     @GetMapping("/{exhibitId}")
     public CommonResponse<AdminExhibitResponse> getExhibit(@PathVariable Long exhibitId) {
-        log.info("Admin getting exhibit : {}", exhibitId);
 
         AdminExhibitResponse result = adminExhibitService.getExhibit(exhibitId);
 
@@ -57,7 +54,6 @@ public class AdminExhibitController {
     @Operation(summary = "전시 등록", description = "새로운 전시를 등록합니다.")
     @PostMapping
     public CommonResponse<Long> createExhibit(@RequestBody CreateExhibitRequest request) {
-        log.info("Admin creating exhibit: title = {}", request.getTitle());
 
         Long exhibitId = adminExhibitService.createExhibit(request);
 
@@ -67,7 +63,6 @@ public class AdminExhibitController {
     @Operation(summary = "전시 수정", description = "특정 전시를 수정합니다.")
     @PutMapping("/{exhibitId}")
     public CommonResponse<Long> updateExhibit(@PathVariable Long exhibitId, @RequestBody UpdateExhibitRequest request){
-    log.info("Admin updating exhibit: {}", request.getTitle());
 
     Long updatedId = adminExhibitService.updateExhibit(exhibitId, request);
 
@@ -77,7 +72,6 @@ public class AdminExhibitController {
     @Operation(summary = "전시 삭제", description = "특정 전시를 삭제합니다.")
     @DeleteMapping("/{exhibitId}")
     public CommonResponse<Void> deleteExhibit(@PathVariable Long exhibitId) {
-        log.info("Admin deleting exhibit: {}", exhibitId);
 
         adminExhibitService.deleteExhibit(exhibitId);
         return CommonResponse.onSuccess(null);

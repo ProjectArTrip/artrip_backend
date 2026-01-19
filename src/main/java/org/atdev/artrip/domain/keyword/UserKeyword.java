@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "user_keyword")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

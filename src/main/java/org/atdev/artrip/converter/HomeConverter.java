@@ -35,7 +35,7 @@ public class HomeConverter {
                 ? slice.getContent().get(slice.getContent().size() - 1).getExhibitId()
                 : null;
 
-        return new FilterResponse(postDtos, slice.hasNext(), nextCursor);
+        return FilterResponse.of(postDtos, slice.hasNext(), nextCursor);
     }
 
 
