@@ -14,7 +14,7 @@ import org.atdev.artrip.repository.ReviewImageRepository;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
-import org.atdev.artrip.global.apipayload.code.status.ReviewError;
+import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
@@ -44,10 +44,10 @@ public class ReviewService {
     public ReviewResponse createReview(Long exhibitId, ReviewCreateRequest request, List<MultipartFile> images, Long userId){
 
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
 
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
 
         Review review = reviewConverter.toEntity(user,exhibit,request);
         reviewRepository.save(review);
@@ -71,10 +71,10 @@ public class ReviewService {
 
 
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
+                .orElseThrow(()-> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
 
         if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ReviewError._REVIEW_USER_NOT_FOUND);
+            throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_FOUND);
         }
 
         reviewConverter.updateReviewFromDto(review, request);
@@ -125,10 +125,10 @@ public class ReviewService {
 
 
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ReviewError._REVIEW_NOT_FOUND));
+                .orElseThrow(()-> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
 
         if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ReviewError._REVIEW_USER_NOT_FOUND);
+            throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_FOUND);
         }
 
 

@@ -12,7 +12,7 @@ import org.atdev.artrip.controller.dto.request.UpdateExhibitHallRequest;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.ExhibitHallRepository;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -94,12 +94,12 @@ public class AdminExhibitHallService {
     public void deleteExhibitHall(Long exhibitHallId) {
 
         if (!exhibitHallRepository.existsById(exhibitHallId)) {
-            throw  new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND);
+            throw  new GeneralException(ExhibitErrorCode._EXHIBIT_HALL_NOT_FOUND);
         }
 
         long exhibitCount = exhibitRepository.countByExhibitHall_ExhibitHallId(exhibitHallId);
         if (exhibitCount > 0) {
-            throw new GeneralException(ExhibitError._EXHIBIT_HALL_IN_USE);
+            throw new GeneralException(ExhibitErrorCode._EXHIBIT_HALL_IN_USE);
         }
 
         exhibitHallRepository.deleteById(exhibitHallId);

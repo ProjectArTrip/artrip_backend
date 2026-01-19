@@ -9,8 +9,8 @@ import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.HomeError;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
@@ -31,8 +31,8 @@ public class ExhibitController {
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_GENRE_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
     )
     @GetMapping("/genre")
     public ResponseEntity<CommonResponse<List<String>>> getGenres(){
@@ -42,8 +42,8 @@ public class ExhibitController {
 
     @Operation(summary = "전시 상세 조회")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_EXHIBIT_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
     @GetMapping("/{id}")
     public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
@@ -60,7 +60,7 @@ public class ExhibitController {
 
     @Operation(summary = "해외 국가 목록 조회")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
     @GetMapping("/overseas")
     public ResponseEntity<CommonResponse<List<String>>> getOverseas(){
@@ -72,7 +72,7 @@ public class ExhibitController {
 
     @Operation(summary = "국내 지역 목록 조회")//하드코딩
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
     @GetMapping("/domestic")
     public ResponseEntity<CommonResponse<List<RegionResponse>>> getDomestic(){
@@ -85,8 +85,8 @@ public class ExhibitController {
 
     @Operation(summary = "전시 검색 및 필터링",description = "기간, 지역, 장르, 전시 스타일, 키워드 필터 조회 - null 시 전체선택")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            home = {HomeError._HOME_INVALID_DATE_RANGE, HomeError._HOME_UNRECOGNIZED_REGION, HomeError._HOME_EXHIBIT_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            home = {HomeErrorCode._HOME_INVALID_DATE_RANGE, HomeErrorCode._HOME_UNRECOGNIZED_REGION, HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
     @GetMapping
     public CommonResponse<CursorPaginationResponse<HomeListResponse>> getExhibit(

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.atdev.artrip.constants.Role;
+import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -76,11 +77,39 @@ public class User {
         return changed;
     }
 
+    public String getUserIdAsString() {
+        return String.valueOf(userId);
+    }
+
     public void updateNickname(String nickName) {
         this.nickName=nickName.trim();
     }
 
     public void updateProfileImage(String url){
         this.profileImageUrl=url;
+    }
+
+    public static User createUser(SocialUserInfo info) {
+
+        User user = User.builder()
+                .email(info.getEmail())
+                .name(info.getNickname())
+                .role(Role.USER)
+                .onboardingCompleted(false)
+                .socialAccounts(new ArrayList<>())
+                .build();
+
+        SocialAccounts social = SocialAccounts.create(user, info);
+        user.addSocialAccount(social);
+
+        return user;
+    }
+
+    public void addSocialAccount(SocialAccounts social){
+        this.socialAccounts.add(social);
+
+        if (social.getUser() != this) {
+            social.setUser(this);
+        }
     }
 }

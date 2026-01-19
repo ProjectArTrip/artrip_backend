@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,18 +27,18 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (JwtAuthenticationException e) {
             log.warn("JWT Authentication failed: {}", e.getMessage());
-            setErrorResponse(response, e.getUserError());
+            setErrorResponse(response, e.getUserErrorCode());
         }
     }
 
-    private void setErrorResponse(HttpServletResponse response, UserError userError) throws IOException {
-        response.setStatus(userError.getHttpStatus().value());
+    private void setErrorResponse(HttpServletResponse response, UserErrorCode userErrorCode) throws IOException {
+        response.setStatus(userErrorCode.getHttpStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
         CommonResponse<Object> errorResponse = CommonResponse.onFailure(
-                userError.getCode(),
-                userError.getMessage(),
+                userErrorCode.getCode(),
+                userErrorCode.getMessage(),
                 null
         );
 

@@ -2,6 +2,8 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.page.Criteria;
 import org.atdev.artrip.global.page.PagingResponseDTO;
 import org.atdev.artrip.converter.AdminExhibitConverter;
@@ -57,7 +59,7 @@ public class AdminExhibitService {
     public AdminExhibitResponse getExhibit (Long exhibitId) {
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
-                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
         return adminExhibitConverter.toAdminResponse(exhibit);
     }
@@ -66,13 +68,13 @@ public class AdminExhibitService {
     public Long createExhibit(CreateExhibitRequest request) {
 
         ExhibitHall exhibitHall = exhibitHallRepository.findById(request.getExhibitHallId())
-                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_HALL_NOT_FOUND));
 
         List<Keyword> keywords = List.of();
         if (request.getKeywordIds() != null && !request.getKeywordIds().isEmpty()) {
             keywords = keywordRepository.findAllById(request.getKeywordIds());
             if (keywords.size() != request.getKeywordIds().size()) {
-                throw new GeneralException(CommonError._BAD_REQUEST);
+                throw new GeneralException(CommonErrorCode._BAD_REQUEST);
             }
         }
 
@@ -100,7 +102,7 @@ public class AdminExhibitService {
     public Long updateExhibit(Long exhibitId, UpdateExhibitRequest request) {
 
         Exhibit exhibit = exhibitRepository.findByIdWithKeywords(exhibitId)
-                .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
         if (request.getExhibitHallId() != null || request.getExhibitHallName() != null ) {
             ExhibitHall exhibitHall = getOrCreateExhibitHall(
@@ -137,7 +139,7 @@ public class AdminExhibitService {
         try {
 
         }catch (Exception e) {
-            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonErrorCode._INTERNAL_SERVER_ERROR);
         }
 
         return savedExhibit.getExhibitId();
@@ -147,7 +149,7 @@ public class AdminExhibitService {
     public void deleteExhibit(Long exhibitId) {
 
         if (!exhibitRepository.existsById(exhibitId)) {
-            throw new GeneralException(ExhibitError._EXHIBIT_NOT_FOUND);
+            throw new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND);
         }
 
         exhibitRepository.deleteById(exhibitId);
@@ -155,7 +157,7 @@ public class AdminExhibitService {
         // TODO: delete 할 code 추가
         try {
         } catch (Exception e) {
-            throw new GeneralException(CommonError._INTERNAL_SERVER_ERROR);
+            throw new GeneralException(CommonErrorCode._INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -169,7 +171,7 @@ public class AdminExhibitService {
 
         if (exhibitHallId != null) {
             return exhibitHallRepository.findById(exhibitHallId)
-                    .orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
+                    .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_HALL_NOT_FOUND));
         } else if (exhibitHallName != null) {
             ExhibitHall hall = ExhibitHall.builder()
                     .name(exhibitHallName)
@@ -183,7 +185,7 @@ public class AdminExhibitService {
                     .build();
             return exhibitHallRepository.save(hall);
         } else {
-            throw new GeneralException(CommonError._BAD_REQUEST);
+            throw new GeneralException(CommonErrorCode._BAD_REQUEST);
         }
     }
 

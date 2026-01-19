@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.ErrorReasonDTO;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -40,7 +40,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         });
 
         return handleExceptionInternalArgs(
-                e, HttpHeaders.EMPTY, CommonError._BAD_REQUEST, request, errors
+                e, HttpHeaders.EMPTY, CommonErrorCode._BAD_REQUEST, request, errors
         );
     }
 
@@ -57,14 +57,14 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
             errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
         });
 
-        return handleExceptionInternalArgs(e, HttpHeaders.EMPTY, CommonError._BAD_REQUEST, request, errors);
+        return handleExceptionInternalArgs(e, HttpHeaders.EMPTY, CommonErrorCode._BAD_REQUEST, request, errors);
     }
 
     @ExceptionHandler
     public ResponseEntity<Object> exception(Exception e, WebRequest request) {
         log.error("Unhandled exception", e);
         // 내부 상세 메시지는 노출하지 않음
-        return handleExceptionInternalFalse(e, CommonError._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, CommonError._INTERNAL_SERVER_ERROR.getHttpStatus(),request, null);
+        return handleExceptionInternalFalse(e, CommonErrorCode._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, CommonErrorCode._INTERNAL_SERVER_ERROR.getHttpStatus(),request, null);
     }
 
     @ExceptionHandler(value = GeneralException.class)
@@ -89,7 +89,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalFalse(Exception e, CommonError errorCommonStatus,
+    private ResponseEntity<Object> handleExceptionInternalFalse(Exception e, CommonErrorCode errorCommonStatus,
                                                                 HttpHeaders headers, HttpStatus status, WebRequest request, String errorPoint) {
         CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorPoint);
         return super.handleExceptionInternal(
@@ -101,7 +101,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         );
     }
 
-    private ResponseEntity<Object> handleExceptionInternalArgs(Exception e, HttpHeaders headers, CommonError errorCommonStatus,
+    private ResponseEntity<Object> handleExceptionInternalArgs(Exception e, HttpHeaders headers, CommonErrorCode errorCommonStatus,
                                                                WebRequest request, Map<String, String> errorArgs) {
         CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorArgs);
         return super.handleExceptionInternal(

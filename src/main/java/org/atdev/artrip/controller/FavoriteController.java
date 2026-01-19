@@ -8,8 +8,8 @@ import org.atdev.artrip.controller.dto.response.FavoriteResponse;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.FavoriteExhibitService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.FavoriteError;
+import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +29,8 @@ public class FavoriteController {
 
     @Operation(summary = "즐겨찾기 추가", description = "전시 즐겨찾기 추가")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND, FavoriteError._FAVORITE_ALREADY_EXISTS, FavoriteError._FAVORITE_LIMIT_EXCEEDED}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND, FavoriteErrorCode._FAVORITE_ALREADY_EXISTS, FavoriteErrorCode._FAVORITE_LIMIT_EXCEEDED}
     )
     @PostMapping("/{exhibitId}")
     public CommonResponse<FavoriteResponse> addFavorite(
@@ -43,8 +43,8 @@ public class FavoriteController {
 
     @Operation(summary = "즐겨찾기 삭제", description = "즐겨찾기에서 전시를 삭제")
     @ApiErrorResponses(
-            common = {CommonError._BAD_REQUEST, CommonError._UNAUTHORIZED},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND}
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     @DeleteMapping("/{exhibitId}")
     public CommonResponse<Void> removeFavorite(
@@ -57,8 +57,8 @@ public class FavoriteController {
 
     @Operation(summary = "즐겨찾기 전체 목록 조회", description = "사용자의 모든 즐겨찾기를 조회")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     @GetMapping
     public CommonResponse<List<FavoriteResponse>> getAllFavorites(
@@ -73,8 +73,8 @@ public class FavoriteController {
             summary = "날짜별 즐겨찾기 조회",
             description = "특정 날짜에 진행 중인 즐겨찾기 전시 조회 (캘린더, 전체 탭)")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     @GetMapping("/date")
     public CommonResponse<List<FavoriteResponse>> getFavoritesByDate(
@@ -90,8 +90,8 @@ public class FavoriteController {
             summary = "국가별 즐겨찾기 조회",
             description = "특정 국가의 즐겨찾기 전시를 조회 (캘린더, 국가별 탭)")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     @GetMapping("/country")
     public CommonResponse<List<FavoriteResponse>> getFavoritesByCountry(
@@ -107,8 +107,8 @@ public class FavoriteController {
             summary = "캘린더 날짜 목록 조회",
             description = "특정 월에 즐겨찾기한 전시가 있는 날짜 목록 조회")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     @GetMapping("/calendar")
     public CommonResponse<CalenderResponse> getCalenderDates(
@@ -124,8 +124,8 @@ public class FavoriteController {
             summary = "즐겨찾기 국가 목록 조회",
             description = "즐겨찾기한 전시들 국가 목록 조회")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     @GetMapping("/countries")
     public CommonResponse<List<String>> getFavoriteCountries(
@@ -139,8 +139,8 @@ public class FavoriteController {
             summary = "즐겨찾기 여부 확인",
             description = "특정 전시가 즐겨찾기에 추가되어 있는지 확인")
     @ApiErrorResponses(
-            common = {CommonError._UNAUTHORIZED, CommonError._INTERNAL_SERVER_ERROR},
-            favorite = {FavoriteError._FAVORITE_NOT_FOUND}
+            common = {CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR},
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     @GetMapping("/check/{exhibitId}")
     public CommonResponse<Map<String, Boolean>> checkFavorite(

@@ -3,6 +3,7 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
@@ -11,8 +12,7 @@ import org.atdev.artrip.converter.HomeConverter;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
 import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.global.apipayload.code.status.S3Error;
-import org.atdev.artrip.global.apipayload.code.status.UserError;
+import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
@@ -53,7 +53,7 @@ public class UserService {
         //4. 중복 검사
         //5. 업뎃 후 반환
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(UserError._USER_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         String newNick = validateNickname(dto);
 
@@ -62,7 +62,7 @@ public class UserService {
         }
 
         if (userRepository.existsByNickName(newNick)) {
-            throw new GeneralException(UserError._DUPLICATE_NICKNAME);
+            throw new GeneralException(UserErrorCode._DUPLICATE_NICKNAME);
         }
 
         user.updateNickname(newNick);
@@ -73,17 +73,17 @@ public class UserService {
     private String validateNickname(NicknameRequest dto) {
 
         if (dto == null || dto.getNickName() == null) {
-            throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
+            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
         }
 
         String nickname = dto.getNickName();
 
         if (nickname.isBlank() || nickname.contains(" ")) {
-            throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
+            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
         }
 
         if (!nickname.matches(NICKNAME_REGEX)) {
-            throw new GeneralException(UserError._NICKNAME_BAD_REQUEST);
+            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
         }
 
         return nickname;
@@ -93,10 +93,10 @@ public class UserService {
     public String updateProfileImg(Long userId, MultipartFile image){
 
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(UserError._USER_NOT_FOUND));
+                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         if (image == null || image.isEmpty()) {
-            throw new GeneralException(UserError._PROFILE_IMAGE_NOT_EXIST);
+            throw new GeneralException(UserErrorCode._PROFILE_IMAGE_NOT_EXIST);
         }
 
         String oldUrl = user.getProfileImageUrl();
@@ -105,7 +105,7 @@ public class UserService {
         try {
             newUrl = s3Service.uploadProfile(image);
         } catch (Exception e) {
-            throw new GeneralException(S3Error._IO_EXCEPTION_UPLOAD_FILE);
+            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
         }
         user.updateProfileImage(newUrl);
 
@@ -113,7 +113,7 @@ public class UserService {
             try {
                 s3Service.delete(oldUrl);
             } catch (Exception e) {
-                throw new GeneralException(S3Error._IO_EXCEPTION_DELETE_FILE);
+                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
             }
         }
         return newUrl;
@@ -123,7 +123,7 @@ public class UserService {
     public void deleteProfileImg(Long userId){
 
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(UserError._USER_NOT_FOUND));
+                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         String oldUrl = user.getProfileImageUrl();
 
@@ -131,7 +131,7 @@ public class UserService {
             try {
                 s3Service.delete(oldUrl);
             } catch (Exception e) {
-                throw new GeneralException(S3Error._IO_EXCEPTION_UPLOAD_FILE);
+                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
             }
         }
         user.updateProfileImage(null);
@@ -141,7 +141,7 @@ public class UserService {
     public MypageResponse getMypage(Long userId, ImageResizeRequest resize){
 
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(UserError._USER_NOT_FOUND));
+                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.w(), resize.h(), resize.f());
 

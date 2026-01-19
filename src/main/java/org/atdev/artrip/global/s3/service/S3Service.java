@@ -1,7 +1,7 @@
 package org.atdev.artrip.global.s3.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.global.apipayload.code.status.S3Error;
+import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -74,13 +74,13 @@ public class S3Service {
         String filename = file.getOriginalFilename();
         // 파일 존재 유무 검증
         if (filename == null || filename.isEmpty()) {
-            throw new GeneralException(S3Error._NOT_EXIST_FILE);
+            throw new GeneralException(S3ErrorCode._NOT_EXIST_FILE);
         }
 
         // 확장자 존재 유무 검증
         int lastDotIndex = filename.lastIndexOf(".");
         if (lastDotIndex == -1) {
-            throw new GeneralException(S3Error._NOT_EXIST_FILE_EXTENSION);
+            throw new GeneralException(S3ErrorCode._NOT_EXIST_FILE_EXTENSION);
         }
 
         // 허용되지 않는 확장자 검증
@@ -88,12 +88,12 @@ public class S3Service {
         List<String> allowedExtensions = Arrays.asList("jpg", "png", "jpeg", "webp");
 
         if (!allowedExtensions.contains(fileExtension)) {
-            throw new GeneralException(S3Error._INVALID_FILE_EXTENSION);
+            throw new GeneralException(S3ErrorCode._INVALID_FILE_EXTENSION);
         }
 
         if (file.getSize() > maxFileSize) {
             log.warn("파일 크기 초과 : {}bytes (최대 : {}bytes", file.getSize(), maxFileSize);
-            throw new GeneralException(S3Error._FILE_SIZE_EXCEEDED);
+            throw new GeneralException(S3ErrorCode._FILE_SIZE_EXCEEDED);
         }
     }
 
@@ -120,7 +120,7 @@ public class S3Service {
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
-            throw new GeneralException(S3Error._IO_EXCEPTION_UPLOAD_FILE);
+            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
         }
 
         // public url 반환
@@ -156,7 +156,7 @@ public class S3Service {
             s3Client.deleteObjects(deleteObjectsRequest); // S3에서 객체 삭제
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
-            throw new GeneralException(S3Error._IO_EXCEPTION_DELETE_FILE);
+            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
         }
     }
 
@@ -175,7 +175,7 @@ public class S3Service {
 
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
-            throw new GeneralException(S3Error._IO_EXCEPTION_DELETE_FILE);
+            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
         }
     }
 
@@ -187,7 +187,7 @@ public class S3Service {
             return decodedKey.substring(1); // 경로 앞에 '/'가 있으므로 이를 제거한 뒤 반환
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
-            throw new GeneralException(S3Error._INVALID_URL_FORMAT);
+            throw new GeneralException(S3ErrorCode._INVALID_URL_FORMAT);
         }
     }
 
@@ -208,7 +208,7 @@ public class S3Service {
             return HexFormat.of().formatHex(hash);
         } catch (Exception e) {
             log.error("서명 생성 실패", e);
-            throw new GeneralException(S3Error._IO_EXCEPTION_UPLOAD_FILE);
+            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
         }
     }
 

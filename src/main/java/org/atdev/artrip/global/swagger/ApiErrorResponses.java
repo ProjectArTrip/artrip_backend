@@ -12,13 +12,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApiErrorResponses {
 
-    CommonError[] common() default {};
-    ExhibitError[] exhibit() default {};
-    FavoriteError[] favorite() default {};
-    UserError[] user() default {};
-    ReviewError[] review() default {};
-    S3Error[] s3() default {};
-    SearchError[] search() default {};
-    KeywordError[] keyword() default {};
-    HomeError[] home() default {};
+    CommonErrorCode[] common() default {};
+    ExhibitErrorCode[] exhibit() default {};
+    FavoriteErrorCode[] favorite() default {};
+    UserErrorCode[] user() default {};
+    ReviewErrorCode[] review() default {};
+    S3ErrorCode[] s3() default {};
+    SearchErrorCode[] search() default {};
+    KeywordErrorCode[] keyword() default {};
+    HomeErrorCode[] home() default {};
 }

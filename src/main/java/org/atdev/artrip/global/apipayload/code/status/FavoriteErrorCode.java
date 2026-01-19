@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum FavoriteError implements BaseErrorCode {
+public enum FavoriteErrorCode implements BaseErrorCode {
 
     _FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "FAVORITE404-NOT_FOUND", "즐겨찾기를 찾을 수 없습니다."),
     _FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "FAVORITE409-ALREADY_EXISTS", "이미 즐겨찾기에 추가된 전시입니다."),
