@@ -11,11 +11,9 @@ import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
-import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
-import org.atdev.artrip.controller.dto.response.HomeListResponse;
-import org.atdev.artrip.controller.dto.request.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.QKeyword;
+import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
@@ -24,7 +22,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-
 @Repository
 @RequiredArgsConstructor
 public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
@@ -32,7 +29,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Long size, Long cursorId) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterCommand c) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -40,9 +37,9 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
 
         Exhibit cursor = null;
 
-        if (cursorId != null) {
+        if (c.cursor() != null) {
             cursor = queryFactory.selectFrom(e)
-                    .where(e.exhibitId.eq(cursorId))
+                    .where(e.exhibitId.eq(c.cursor()))
                     .fetchOne();
         }
 
@@ -53,24 +50,24 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .leftJoin(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
-                        isDomesticEq(dto.getIsDomestic()),
-                        dateFilter(dto.getStartDate(), dto.getEndDate(),e),
-                        cursorCondition(cursor, dto.getSortType(), e),
-                        countryEq(dto.getCountry()),
-                        regionEq(dto.getRegion()),
-                        genreIn(dto.getGenres()),
-                        styleIn(dto.getStyles())
+                        isDomesticEq(c.isDomestic()),
+                        dateFilter(c.startDate(), c.endDate(),e),
+                        cursorCondition(cursor, c.sortType(), e),
+                        countryEq(c.country()),
+                        regionEq(c.region()),
+                        genreIn(c.genres()),
+                        styleIn(c.styles())
                 )
-                .orderBy(sortFilter(dto, e))
-                .limit(size+1)
+                .orderBy(sortFilter(c, e))
+                .limit(c.size()+1)
                 .fetch();
 
-        boolean hasNext = content.size() > size;
+        boolean hasNext = content.size() > c.size();
 
         if (hasNext)
-            content.remove(size.intValue());
+            content.remove(c.size().intValue());
 
-        return new SliceImpl<>(content, PageRequest.of(0, size.intValue()), hasNext);
+        return new SliceImpl<>(content, PageRequest.of(0, c.size().intValue()), hasNext);
     }
 
     @Override
@@ -135,13 +132,13 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequest dto, QExhibit e) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterCommand dto, QExhibit e) {
 
-        if (dto.getSortType() == null) {
+        if (dto.sortType() == null) {
             return new OrderSpecifier[]{e.startDate.desc(), e.exhibitId.desc()};
         }
 
-        switch (dto.getSortType()) {
+        switch (dto.sortType()) {
             case POPULAR:
                 return new OrderSpecifier[]{
                         e.favoriteCount.desc().nullsLast(),

@@ -17,11 +17,9 @@ import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
+import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
-import org.atdev.artrip.service.dto.result.CountryResult;
-import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
-import org.atdev.artrip.service.dto.result.GenreResult;
-import org.atdev.artrip.service.dto.result.RegionResult;
+import org.atdev.artrip.service.dto.result.*;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -38,12 +36,10 @@ public class HomeService {
     private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
-    private final HomeConverter homeConverter;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final ImageUrlFormatter imageUrlFormatter;
 
 
-    // 장르 전체 조회
     public List<GenreResult> getAllGenres() {
         List<String> genreNames = exhibitRepository.findAllGenres();
 
@@ -53,7 +49,7 @@ public class HomeService {
                 .map(GenreResult::from)
                 .toList();
     }
-    // 해외 국가 목록 조회
+
     public List<CountryResult> getOverseas() {
         return CountryResult.from();
     }
@@ -65,17 +61,17 @@ public class HomeService {
                 .toList();
     }
 
-    //필터 전체 조회
-    public FilterResponse getFilterExhibit(ExhibitFilterRequest dto, Long size, Long cursorId, Long userId) {
+    public ExhibitFilterResult getFilterExhibit(ExhibitFilterCommand command) {
 
-        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(dto, size, cursorId);
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        return homeConverter.toFilterResponse(slice, favoriteIds);
+        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(command);
+        Set<Long> favoriteIds = getFavoriteIds(command.userId());
+
+        return ExhibitFilterResult.of(slice,favoriteIds);
+
+//        return homeConverter.toFilterResponse(slice, favoriteIds);
     }
 
-//------------------------------------------------------------------------------------------
 
-    // 사용자 맞춤 전시 랜덤 추천
     public List<ExhibitRandomResult> getRandomPersonalized(ExhibitRandomCommand query){
 
         if (!userRepository.existsById(query.userId())) {
@@ -102,7 +98,6 @@ public class HomeService {
         return processExhibits(command);
     }
 
-    // 이번주 랜덤 전시 추천
     public List<ExhibitRandomResult> getRandomSchedule(ExhibitRandomCommand query){
 
         ExhibitRandomCommand command = query.withLimit(2);
@@ -110,7 +105,6 @@ public class HomeService {
     }
 
 
-    // 장르별 전시 랜덤 추천
     public List<ExhibitRandomResult> getRandomGenre(ExhibitRandomCommand query){
 
         ExhibitRandomCommand command = query.withGenre();
@@ -118,7 +112,6 @@ public class HomeService {
         return processExhibits(command);
     }
 
-    // 오늘날 전시 랜덤 추천
     public List<ExhibitRandomResult> getRandomToday(ExhibitRandomCommand query){
 
         ExhibitRandomCommand command = query.withLimit(3);

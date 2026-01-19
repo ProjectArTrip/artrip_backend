@@ -8,11 +8,9 @@ import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.service.dto.result.CountryResult;
-import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
+import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
-import org.atdev.artrip.service.dto.result.GenreResult;
-import org.atdev.artrip.service.dto.result.RegionResult;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -79,12 +77,32 @@ public class ExhibitController implements ExhibitSpecification {
     public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
                                                             @RequestParam(defaultValue = "20") Long size,
-                                                            @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = getUserId(userDetails);
-        FilterResponse exhibits = homeService.getFilterExhibit(dto, size, cursor,userId);
+                                                            @AuthenticationPrincipal UserDetails userDetails,
+                                                            @ParameterObject ImageResizeRequest resize) {
 
-        return ResponseEntity.ok(exhibits);
+        ExhibitFilterCommand command = ExhibitFilterCommand.builder()
+                .isDomestic(dto.isDomestic())
+                .startDate(dto.startDate())
+                .endDate(dto.endDate())
+                .country(dto.country())
+                .region(dto.region())
+                .genres(dto.genres())
+                .styles(dto.styles())
+                .sortType(dto.sortType())
 
+                .userId(getUserId(userDetails))
+                .cursor(cursor)
+                .size(size)
+
+                .width(resize.getW())
+                .height(resize.getH())
+                .format(resize.getF())
+                .build();
+
+
+        ExhibitFilterResult result = homeService.getFilterExhibit(command);
+
+        return ResponseEntity.ok(FilterResponse.from(result));
     }
 
 }

@@ -1,18 +1,24 @@
 package org.atdev.artrip.controller.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 
 import java.util.List;
 
-@Getter
 @Builder
-@AllArgsConstructor
-public class FilterResponse {
+public record FilterResponse(
+        List<HomeListResponse> exhibits,
+        boolean hasNext,
+        Long nextCursor
+) {
+    public static FilterResponse from(ExhibitFilterResult result) {
 
-    private List<HomeListResponse> exhibits;
-    private boolean hasNext;
-    private Long nextCursor;
-
+        return FilterResponse.builder()
+                .exhibits(result.items().stream()
+                        .map(HomeListResponse::from)
+                        .toList())
+                .hasNext(result.hasNext())
+                .nextCursor(result.nextCursor())
+                .build();
+    }
 }

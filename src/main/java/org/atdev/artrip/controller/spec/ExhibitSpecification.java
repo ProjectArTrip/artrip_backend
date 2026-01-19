@@ -56,5 +56,7 @@ public interface ExhibitSpecification {
     public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
                                                             @RequestParam(defaultValue = "20") Long size,
-                                                            @AuthenticationPrincipal UserDetails userDetails);
+                                                            @AuthenticationPrincipal UserDetails userDetails,
+                                                            @ParameterObject ImageResizeRequest resize);
+
 }
