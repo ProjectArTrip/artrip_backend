@@ -53,7 +53,7 @@ public class AdminExhibitHallService {
     @Transactional(readOnly = true)
     public ExhibitHallResponse getExhibitHall(Long exhibitHallId) {
 
-        ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ExhibitError._EXHIBIT_HALL_NOT_FOUND));
+        ExhibitHall hall = exhibitHallRepository.findById(exhibitHallId).orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_HALL_NOT_FOUND));
 
         long exhibitCount = exhibitRepository.countByExhibitHall_ExhibitHallId(exhibitHallId);
 

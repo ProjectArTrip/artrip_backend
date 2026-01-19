@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AuthService;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
@@ -13,8 +14,6 @@ import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

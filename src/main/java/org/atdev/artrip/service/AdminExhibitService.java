@@ -1,7 +1,6 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.page.Criteria;
@@ -17,8 +16,6 @@ import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.ExhibitHallRepository;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.repository.KeywordRepository;
-import org.atdev.artrip.global.apipayload.code.status.CommonError;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitError;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
