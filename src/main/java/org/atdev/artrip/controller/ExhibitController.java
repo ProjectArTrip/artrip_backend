@@ -1,16 +1,14 @@
 package org.atdev.artrip.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
-import org.atdev.artrip.controller.dto.response.GenreResponse;
+import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.ExhibitSpecification;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
-import org.atdev.artrip.controller.dto.response.FilterResponse;
 import org.atdev.artrip.service.HomeService;
-import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.result.CountryResult;
 import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.atdev.artrip.service.dto.result.GenreResult;
@@ -57,14 +55,13 @@ public class ExhibitController implements ExhibitSpecification {
         return ResponseEntity.ok(ExhibitDetailResponse.from(result));
     }
 
-
     @Override
     @GetMapping("/overseas")
-    public ResponseEntity<CommonResponse<List<String>>> getOverseas(){
+    public ResponseEntity<List<CountryResponse>> getOverseas() {
 
-        List<String> OverseasList = homeService.getOverseas();
+        List<CountryResult> OverseasList = homeService.getOverseas();
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(OverseasList));
+        return ResponseEntity.ok(CountryResponse.from(OverseasList));
     }
 
     @Override

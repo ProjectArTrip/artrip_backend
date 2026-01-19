@@ -3,6 +3,7 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.KeywordType;
+import org.atdev.artrip.constants.OverseasCountry;
 import org.atdev.artrip.controller.dto.request.*;
 import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.*;
@@ -17,6 +18,7 @@ import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.CountryResult;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.atdev.artrip.service.dto.result.GenreResult;
 import org.atdev.artrip.service.dto.result.RegionResult;
@@ -51,10 +53,9 @@ public class HomeService {
                 .map(GenreResult::from)
                 .toList();
     }
-
     // 해외 국가 목록 조회
-    public List<String> getOverseas(){
-        return exhibitHallRepository.findAllOverseasCountries();
+    public List<CountryResult> getOverseas() {
+        return CountryResult.from();
     }
 
     public List<RegionResult> getRegions() {

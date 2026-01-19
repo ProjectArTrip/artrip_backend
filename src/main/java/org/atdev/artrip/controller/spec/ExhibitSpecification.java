@@ -40,7 +40,7 @@ public interface ExhibitSpecification {
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
-    public ResponseEntity<CommonResponse<List<String>>> getOverseas();
+    public ResponseEntity<List<CountryResponse>> getOverseas();
 
     @Operation(summary = "국내 지역 목록 조회")
     @ApiErrorResponses(
