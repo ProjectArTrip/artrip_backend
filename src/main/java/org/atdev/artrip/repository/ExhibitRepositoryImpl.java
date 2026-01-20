@@ -122,11 +122,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                     .or(e.favoriteCount.eq(cursor.getFavoriteCount())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            case LATEST -> e.startDate.lt(cursor.getStartDate())//<
+            case LATEST -> e.startDate.lt(cursor.getStartDate())
                     .or(e.startDate.eq(cursor.getStartDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
 
-            default -> e.endDate.gt(cursor.getEndDate())//>
+            default -> e.endDate.gt(cursor.getEndDate())
                     .or(e.endDate.eq(cursor.getEndDate())
                             .and(e.exhibitId.lt(cursor.getExhibitId())));
         };
@@ -202,8 +202,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private BooleanExpression findDate(LocalDate date){
         if (date == null) return null;
 
-        return QExhibit.exhibit.startDate.loe(date)//<=
-                .and(QExhibit.exhibit.endDate.goe(date));//>=
+        return QExhibit.exhibit.startDate.loe(date)
+                .and(QExhibit.exhibit.endDate.goe(date));
     }
 
 }
