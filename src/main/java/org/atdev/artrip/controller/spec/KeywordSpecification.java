@@ -28,13 +28,13 @@ public interface KeywordSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR},
             keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST}
     )
-    public ResponseEntity<CommonResponse<List<KeywordResponse>>> getAllKeywords();
+    public ResponseEntity<List<KeywordResponse>> getAllKeywords();
 
     @Operation(summary = "나의 키워드 조회", description = "내가 선택한 키워드 조회")
     @ApiErrorResponses(
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST}
     )
-    public ResponseEntity<CommonResponse<List<KeywordResponse>>> getUserKeywords(
+    public ResponseEntity<List<KeywordResponse>> getUserKeywords(
             @LoginUser Long userId);
 }

@@ -4,12 +4,30 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import org.atdev.artrip.constants.KeywordType;
+import org.atdev.artrip.service.dto.result.KeywordResult;
 
-@Getter
+import java.util.List;
+
 @Builder
-@AllArgsConstructor
-public class KeywordResponse {
-    private Long keywordId;
-    private String name;
-    private KeywordType type;
+public record KeywordResponse(
+        Long keywordId,
+        String name,
+        KeywordType type) {
+
+    public static KeywordResponse from(KeywordResult result) {
+
+        return KeywordResponse.builder()
+                .keywordId(result.keywordId())
+                .name(result.name())
+                .type(result.type())
+                .build();
+    }
+
+    public static List<KeywordResponse> from(List<KeywordResult> results){
+
+        return results.stream()
+                .map(KeywordResponse::from)
+                .toList();
+    }
+
 }

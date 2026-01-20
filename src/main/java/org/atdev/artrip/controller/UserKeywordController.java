@@ -12,6 +12,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.KeywordErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.command.KeywordCommand;
+import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,19 +39,23 @@ public class UserKeywordController implements KeywordSpecification {
     }
 
     @Override
-    @GetMapping("/allkeywords")
-    public ResponseEntity<CommonResponse<List<KeywordResponse>>> getAllKeywords() {
-        List<KeywordResponse> keywords = keywordService.getAllKeywords();
-        return ResponseEntity.ok(CommonResponse.onSuccess(keywords));
+    @GetMapping("/allKeywords")
+    public ResponseEntity<List<KeywordResponse>> getAllKeywords() {
+
+        List<KeywordResult> keywords = keywordService.getAllKeywords();
+        List<KeywordResponse> responses = KeywordResponse.from(keywords);
+
+        return ResponseEntity.ok(responses);
     }
 
     @Override
     @GetMapping("/keywords")
-    public ResponseEntity<CommonResponse<List<KeywordResponse>>> getUserKeywords(
-            @LoginUser Long userId) {
+    public ResponseEntity<List<KeywordResponse>> getUserKeywords(@LoginUser Long userId) {
 
-        List<KeywordResponse> keywords = keywordService.getUserKeywords(userId);
-        return ResponseEntity.ok(CommonResponse.onSuccess(keywords));
+        List<KeywordResult> keywords = keywordService.getUserKeywords(userId);
+        List<KeywordResponse> responses = KeywordResponse.from(keywords);
+
+        return ResponseEntity.ok(responses);
     }
 
 

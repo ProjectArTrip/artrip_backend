@@ -12,6 +12,7 @@ import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.controller.dto.response.KeywordResponse;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.command.KeywordCommand;
+import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +43,7 @@ public class KeywordService {
         if (keywords.size() != command.keywords().size())
             throw new GeneralException(KeywordErrorCode._KEYWORD_NOT_FOUND);
 
-        keywordRepository.deleteByUserId(command.userId());
+        userKeywordRepository.deleteByUserId(command.userId());
 
         List<UserKeyword> userKeywords = keywords.stream()
                 .map(keyword -> UserKeyword.builder()
@@ -55,23 +56,20 @@ public class KeywordService {
         userKeywordRepository.saveAll(userKeywords);
     }
 
-    @Transactional
-    public List<KeywordResponse> getAllKeywords() {
+    @Transactional(readOnly = true)
+    public List<KeywordResult> getAllKeywords() {
+
         return keywordRepository.findAll()
                 .stream()
-                .map(k -> new KeywordResponse(k.getKeywordId(), k.getName(), k.getType()))
-                .collect(Collectors.toList());
+                .map(KeywordResult::from)
+                .toList();
     }
 
-    @Transactional
-    public List<KeywordResponse> getUserKeywords(Long userId) {
-        return userKeywordRepository.findAllByUserUserId(userId) // UserKeyword 테이블에서 조회
+    @Transactional(readOnly = true)
+    public List<KeywordResult> getUserKeywords(Long userId) {
+        return userKeywordRepository.findAllByUserIdWithKeyword(userId)
                 .stream()
-                .map(uk -> new KeywordResponse(
-                        uk.getKeyword().getKeywordId(),
-                        uk.getKeyword().getName(),
-                        uk.getKeyword().getType()
-                ))
-                .collect(Collectors.toList());
+                .map(KeywordResult::from)
+                .toList();
     }
 }

@@ -18,7 +18,5 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
     List<Keyword> findAllByNameIn(List<String> keywordName);
 
-    @Modifying
-    @Query("delete from UserKeyword uk where uk.user.userId = :userId")
-    void deleteByUserId(@Param("userId") Long userId);
+
 }
