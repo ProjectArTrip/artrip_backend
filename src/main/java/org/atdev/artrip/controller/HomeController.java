@@ -1,6 +1,5 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
@@ -10,11 +9,7 @@ import org.atdev.artrip.controller.dto.request.GenreRandomRequest;
 import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
 import org.atdev.artrip.controller.dto.request.ScheduleRandomRequest;
 import org.atdev.artrip.controller.dto.request.TodayRandomRequest;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springdoc.core.annotations.ParameterObject;
@@ -47,9 +42,9 @@ public class HomeController implements HomeSpecification {
                 .isDomestic(request.getIsDomestic())
                 .region(request.getRegion())
                 .country(request.getCountry())
-                .width(resize.getW())
-                .height(resize.getH())
-                .format(resize.getF())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
                 .build();
 
         List<ExhibitRandomResult> exhibits= homeService.getRandomPersonalized(query);
@@ -74,9 +69,9 @@ public class HomeController implements HomeSpecification {
                 .region(request.getRegion())
                 .country(request.getCountry())
                 .date(request.getDate())
-                .width(resize.getW())
-                .height(resize.getH())
-                .format(resize.getF())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
                 .build();
 
         List<ExhibitRandomResult> exhibits= homeService.getRandomSchedule(query);
@@ -99,9 +94,9 @@ public class HomeController implements HomeSpecification {
                 .region(request.getRegion())
                 .country(request.getCountry())
                 .singleGenre(request.getSingleGenre())
-                .width(resize.getW())
-                .height(resize.getH())
-                .format(resize.getF())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
                 .build();
 
         List<ExhibitRandomResult> exhibits = homeService.getRandomGenre(query);
@@ -123,9 +118,9 @@ public class HomeController implements HomeSpecification {
                 .isDomestic(request.getIsDomestic())
                 .region(request.getRegion())
                 .country(request.getCountry())
-                .width(resize.getW())
-                .height(resize.getH())
-                .format(resize.getF())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
                 .build();
         List<ExhibitRandomResult> exhibits = homeService.getRandomToday(query);
 

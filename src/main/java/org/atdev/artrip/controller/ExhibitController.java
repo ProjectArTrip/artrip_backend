@@ -6,7 +6,6 @@ import org.atdev.artrip.controller.spec.ExhibitSpecification;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
-import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
 import org.atdev.artrip.service.dto.result.*;
@@ -47,7 +46,7 @@ public class ExhibitController implements ExhibitSpecification {
             @ParameterObject ImageResizeRequest resize
             ){
 
-        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, getUserId(userDetails), resize.getW(), resize.getH(), resize.getF());
+        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, getUserId(userDetails), resize.w(), resize.h(), resize.f());
         ExhibitDetailResult result = exhibitService.getExhibitDetail(query);
 
         return ResponseEntity.ok(ExhibitDetailResponse.from(result));
@@ -94,9 +93,9 @@ public class ExhibitController implements ExhibitSpecification {
                 .cursor(cursor)
                 .size(size)
 
-                .width(resize.getW())
-                .height(resize.getH())
-                .format(resize.getF())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
                 .build();
 
 

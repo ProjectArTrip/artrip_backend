@@ -19,4 +19,5 @@ public interface ExhibitRepositoryCustom {
 
     List<ExhibitRandomResult> findRandomExhibits(ExhibitRandomCommand condition);
 
+//    Slice<Exhibit> searchByKeyword(String title, Long cursor, Long size);
 }

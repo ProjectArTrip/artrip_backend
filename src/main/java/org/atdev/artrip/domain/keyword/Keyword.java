@@ -9,7 +9,6 @@ import java.util.List;
 @Entity
 @Table(name = "keyword")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
