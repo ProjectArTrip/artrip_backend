@@ -20,7 +20,7 @@ public interface KeywordSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST, KeywordErrorCode._KEYWORD_SELECTION_LIMIT_EXCEEDED, KeywordErrorCode._KEYWORD_NOT_FOUND}
     )
-    public ResponseEntity<CommonResponse<Void>> saveUserKeywords( @LoginUser Long userId,
+    public ResponseEntity<Void> saveUserKeywords( @LoginUser Long userId,
                                                                   @RequestBody KeywordRequest request);
 
     @Operation(summary = "모든 키워드 조회", description = "전체 조회")

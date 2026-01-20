@@ -1,10 +1,16 @@
 package org.atdev.artrip.controller.dto.request;
 
 import lombok.Getter;
+import org.atdev.artrip.service.dto.command.KeywordCommand;
 
 import java.util.List;
 
-@Getter
-public class KeywordRequest {
-    private List<Long> keywordIds;
+public record KeywordRequest(
+        List<String> keywords) {
+    public KeywordCommand toCommand(Long userId) {
+        return KeywordCommand.builder()
+                .userId(userId)
+                .keywords(this.keywords)
+                .build();
+    }
 }
