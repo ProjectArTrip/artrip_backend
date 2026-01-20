@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.spec.KeywordSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
@@ -18,15 +19,11 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-public class UserKeywordController {
+public class UserKeywordController implements KeywordSpecification {
 
     private final KeywordService keywordService;
 
-    @Operation(summary = "나의 취향 분석", description = "내가 선택한 키워드 선택 저장")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST, KeywordErrorCode._KEYWORD_SELECTION_LIMIT_EXCEEDED, KeywordErrorCode._KEYWORD_NOT_FOUND}
-    )
+    @Override
     @PostMapping("/keywords")
     public ResponseEntity<CommonResponse<Void>> saveUserKeywords(
             @LoginUser Long userId,
@@ -36,22 +33,14 @@ public class UserKeywordController {
         return ResponseEntity.ok(CommonResponse.onSuccess(null));
     }
 
-    @Operation(summary = "모든 키워드 조회", description = "전체 조회")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR},
-            keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST}
-    )
+    @Override
     @GetMapping("/allkeywords")
     public ResponseEntity<CommonResponse<List<KeywordResponse>>> getAllKeywords() {
         List<KeywordResponse> keywords = keywordService.getAllKeywords();
         return ResponseEntity.ok(CommonResponse.onSuccess(keywords));
     }
 
-    @Operation(summary = "나의 키워드 조회", description = "내가 선택한 키워드 조회")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST}
-    )
+    @Override
     @GetMapping("/keywords")
     public ResponseEntity<CommonResponse<List<KeywordResponse>>> getUserKeywords(
             @LoginUser Long userId) {
