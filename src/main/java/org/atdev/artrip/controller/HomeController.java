@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.controller.spec.HomeSpecification;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.controller.dto.request.GenreRandomRequest;
 import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
@@ -14,8 +15,6 @@ import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,11 +30,9 @@ public class HomeController implements HomeSpecification {
     @Override
     @GetMapping("/exhibits/personalized")
     public ResponseEntity<List<HomeListResponse>> getRandomPersonalized(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @Valid @ModelAttribute PersonalizedRequest request,
             @ParameterObject ImageResizeRequest resize){
-
-        Long userId = Long.parseLong(userDetails.getUsername());
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)
@@ -58,10 +55,8 @@ public class HomeController implements HomeSpecification {
     @GetMapping("/exhibits/schedule")
     public ResponseEntity<List<HomeListResponse>> getRandomSchedule(
             @Valid @ModelAttribute ScheduleRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
-
-        Long userId = Long.parseLong(userDetails.getUsername());
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)
@@ -83,10 +78,8 @@ public class HomeController implements HomeSpecification {
     @GetMapping("/exhibits/genres")
     public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
             @Valid @ModelAttribute GenreRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
-
-        Long userId = Long.parseLong(userDetails.getUsername());
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)
@@ -108,10 +101,8 @@ public class HomeController implements HomeSpecification {
     @GetMapping("/exhibits/today")
     public ResponseEntity<List<HomeListResponse>> getTodayRecommendations(
             @Valid @ModelAttribute TodayRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
-
-        Long userId = Long.parseLong(userDetails.getUsername());
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)

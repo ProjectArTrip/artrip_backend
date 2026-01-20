@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.ExhibitSpecification;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
@@ -12,8 +13,6 @@ import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -24,10 +23,6 @@ public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
-
-    private Long getUserId(UserDetails userDetails) {
-        return userDetails != null ? Long.parseLong(userDetails.getUsername()) : null;
-    }
 
     @Override
     @GetMapping("/genre")
@@ -42,11 +37,11 @@ public class ExhibitController implements ExhibitSpecification {
     @GetMapping("/{id}")
     public ResponseEntity<ExhibitDetailResponse> getExhibit(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize
             ){
 
-        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, getUserId(userDetails), resize.w(), resize.h(), resize.f());
+        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, userId, resize.w(), resize.h(), resize.f());
         ExhibitDetailResult result = exhibitService.getExhibitDetail(query);
 
         return ResponseEntity.ok(ExhibitDetailResponse.from(result));
@@ -76,7 +71,7 @@ public class ExhibitController implements ExhibitSpecification {
     public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
                                                             @RequestParam(defaultValue = "20") Long size,
-                                                            @AuthenticationPrincipal UserDetails userDetails,
+                                                            @LoginUser Long userId,
                                                             @ParameterObject ImageResizeRequest resize) {
 
         ExhibitFilterCommand command = ExhibitFilterCommand.builder()
@@ -89,7 +84,7 @@ public class ExhibitController implements ExhibitSpecification {
                 .styles(dto.styles())
                 .sortType(dto.sortType())
 
-                .userId(getUserId(userDetails))
+                .userId(userId)
                 .cursor(cursor)
                 .size(size)
 

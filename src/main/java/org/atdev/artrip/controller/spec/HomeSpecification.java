@@ -6,6 +6,7 @@ import org.atdev.artrip.controller.dto.request.*;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,7 @@ public interface HomeSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
     public ResponseEntity<List<HomeListResponse>> getRandomPersonalized(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @Valid @ModelAttribute PersonalizedRequest request,
             @ParameterObject ImageResizeRequest resize);
 
@@ -65,7 +66,7 @@ public interface HomeSpecification {
     )
     public ResponseEntity<List<HomeListResponse>> getRandomSchedule(
             @Valid @ModelAttribute ScheduleRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize);
 
     @Operation(summary = "장르별 랜덤 조회",
@@ -92,7 +93,7 @@ public interface HomeSpecification {
     )
     public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
             @Valid @ModelAttribute GenreRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize);
 
     @Operation(summary = "오늘의(국가/지역별) 전시 랜덤 추천",
@@ -117,6 +118,6 @@ public interface HomeSpecification {
     )
     public ResponseEntity<List<HomeListResponse>> getTodayRecommendations(
             @Valid @ModelAttribute TodayRandomRequest request,
-            @AuthenticationPrincipal UserDetails userDetails,
+            @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize);
 }

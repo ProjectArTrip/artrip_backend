@@ -7,6 +7,7 @@ import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
+import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public interface ExhibitSpecification {
             home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
     ResponseEntity<ExhibitDetailResponse> getExhibit( @PathVariable Long id,
-                                                      @AuthenticationPrincipal UserDetails userDetails,
+                                                      @LoginUser Long userId,
                                                       @ParameterObject ImageResizeRequest resize);
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
@@ -56,7 +57,7 @@ public interface ExhibitSpecification {
     public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
                                                             @RequestParam(defaultValue = "20") Long size,
-                                                            @AuthenticationPrincipal UserDetails userDetails,
+                                                            @LoginUser Long userId,
                                                             @ParameterObject ImageResizeRequest resize);
 
 }
