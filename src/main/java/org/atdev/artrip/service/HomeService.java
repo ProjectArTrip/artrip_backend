@@ -1,45 +1,129 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.request.*;
-import org.atdev.artrip.controller.dto.response.CursorPaginationResponse;
-import org.atdev.artrip.controller.dto.response.ExhibitSearchResult;
-import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
-import org.atdev.artrip.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.KeywordType;
+import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
+import org.atdev.artrip.repository.*;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.repository.ExhibitHallRepository;
-import org.atdev.artrip.repository.FavoriteExhibitRepository;
-import org.atdev.artrip.converter.HomeConverter;
-
-import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.controller.dto.response.HomeListResponse;
-import org.atdev.artrip.controller.dto.response.RegionResponse;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
-import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
-import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.*;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class HomeService {
 
     private final ExhibitRepository exhibitRepository;
     private final UserKeywordRepository userkeywordRepository;
-    private final ExhibitHallRepository exhibitHallRepository;
     private final UserRepository userRepository;
-    private final HomeConverter homeConverter;
-    private final S3Service s3Service;
+    private final RegionRepository regionRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
+    private final ImageUrlFormatter imageUrlFormatter;
+
+
+    public List<GenreResult> getAllGenres() {
+        List<String> genreNames = exhibitRepository.findAllGenres();
+
+        if (genreNames == null) {return List.of();}
+
+        return genreNames.stream()
+                .map(GenreResult::from)
+                .toList();
+    }
+
+    public List<CountryResult> getOverseas() {
+        return CountryResult.from();
+    }
+
+    public List<RegionResult> getRegions() {
+
+        return regionRepository.findAll().stream()
+                .map(RegionResult::from)
+                .toList();
+    }
+
+    public ExhibitFilterResult getFilterExhibit(ExhibitFilterCommand command) {
+
+        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(command);
+        Set<Long> favoriteIds = getFavoriteIds(command.userId());
+
+        return ExhibitFilterResult.of(slice,favoriteIds);
+    }
+
+
+    public List<ExhibitRandomResult> getRandomPersonalized(ExhibitRandomCommand query){
+
+        if (!userRepository.existsById(query.userId())) {
+            throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
+        }
+
+        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(query.userId())
+                .stream()
+                .map(UserKeyword::getKeyword)
+                .toList();
+
+        Set<String> genres = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        Set<String> styles = userKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName)
+                .collect(Collectors.toSet());
+
+        ExhibitRandomCommand command = query.withKeywords(genres, styles);
+
+        return processExhibits(command);
+    }
+
+    public List<ExhibitRandomResult> getRandomSchedule(ExhibitRandomCommand query){
+
+        ExhibitRandomCommand command = query.withLimit(2);
+        return processExhibits(command);
+    }
+
+
+    public List<ExhibitRandomResult> getRandomGenre(ExhibitRandomCommand query){
+
+        ExhibitRandomCommand command = query.withGenre();
+
+        return processExhibits(command);
+    }
+
+    public List<ExhibitRandomResult> getRandomToday(ExhibitRandomCommand query){
+
+        ExhibitRandomCommand command = query.withLimit(3);
+        return processExhibits(command);
+    }
+
+    private List<ExhibitRandomResult> processExhibits(ExhibitRandomCommand command) {
+
+        List<ExhibitRandomResult> results = exhibitRepository.findRandomExhibits(command);
+
+        if (command.width() != null && command.height() != null) {
+            results = imageUrlFormatter.resizePosterUrls(results, command.width(), command.height(), command.format());
+        }
+
+        if (command.userId() != null) {
+            Set<Long> favoriteIds = getFavoriteIds(command.userId());
+            results = setFavorites(results, favoriteIds);
+        }
+
+        return results;
+    }
 
     private Set<Long> getFavoriteIds(Long userId) {
         if (userId == null) {
@@ -48,149 +132,10 @@ public class HomeService {
         return favoriteExhibitRepository.findActiveExhibitIds(userId);
     }
 
-//   //  큐레이션 전시
-//    public List<HomeExhibitResponse> getCuratedExhibits() {
-//        return exhibitRepository.findCuratedExhibits()
-//                .stream()
-//                .map(this::toHomeExhibitResponse)
-//                .toList();
-//    }
-
-    private void setFavorites(List<HomeListResponse> result, Set<Long> favoriteIds) {
-        result.forEach(r -> r.setFavorite(favoriteIds.contains(r.getExhibit_id())));
-    }
-
-    // 장르 전체 조회
-    public List<String> getAllGenres() {
-        return exhibitRepository.findAllGenres();
-    }
-
-    // 해외 국가 목록 조회
-    public List<String> getOverseas(){
-        return exhibitHallRepository.findAllOverseasCountries();
-    }
-
-    // 국내 지역 목록 조회
-//    public List<String> getDomestic(){
-//        return exhibitHallRepository.findAllDomesticRegions();
-//    }
-
-    public List<RegionResponse> getRegions() {
-        return homeConverter.toResponseList();
-    }
-
-
-    @Transactional(readOnly = true)
-    public CursorPaginationResponse<ExhibitSearchResult> findExhibits(ExhibitFilterRequest request,  Long userId) {
-
-        Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(request, request.getSize(), request.getCursor());
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-
-        List<ExhibitSearchResult> data = slice.getContent().stream()
-                .map(exhibit -> {
-                    ExhibitHall hall = exhibit.getExhibitHall();
-                    String hallName = (hall != null) ? hall.getName() : null;
-                    String region =  (hall != null) ? hall.getRegion() : null;
-                    String country = (hall != null) ? hall.getCountry() : null;
-
-                    return ExhibitSearchResult.builder()
-                            .exhibitId(exhibit.getExhibitId())
-                            .title(exhibit.getTitle())
-                            .posterUrl(exhibit.getPosterUrl())
-                            .status(exhibit.getStatus())
-                            .startDate(exhibit.getStartDate())
-                            .endDate(exhibit.getEndDate())
-                            .hallName(hallName)
-                            .country(country)
-                            .region(region)
-                            .isFavorite(favoriteIds.contains(exhibit.getExhibitId()))
-                            .build();
-                        }).toList();
-
-        Long nextCursor = (slice.hasNext() && !data.isEmpty()) ? slice.getContent().get(slice.getContent().size() - 1).getExhibitId() : null;
-
-        return CursorPaginationResponse.of(data, slice.hasNext(), nextCursor);
-    }
-
-    // 사용자 맞춤 전시 랜덤 추천
-    @Transactional
-    public List<HomeListResponse> getRandomPersonalized(Long userId, PersonalizedRequest request, ImageResizeRequest resize){
-
-        if (!userRepository.existsById(userId)) {
-            throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
-        }
-
-        List<Keyword> userKeywords = userkeywordRepository.findByUser_UserId(userId)
-                .stream()
-                .map(UserKeyword::getKeyword)
+    private List<ExhibitRandomResult> setFavorites(List<ExhibitRandomResult> results, Set<Long> favoriteIds) {
+        return results.stream()
+                .map(r -> r.withFavorite(favoriteIds.contains(r.exhibitId())))
                 .toList();
-
-        RandomExhibitRequest filter = homeConverter.from(
-                request,
-                userKeywords
-        );
-
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
-
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
-        ));
-      
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
-        return results;
-    }
-
-    // 이번주 랜덤 전시 추천
-    public List<HomeListResponse> getRandomSchedule(ScheduleRandomRequest request, Long userId, ImageResizeRequest resize){
-
-        RandomExhibitRequest filter = homeConverter.from(request);
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
-
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
-        ));
-      
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
-        return results;
-    }
-
-    // 장르별 전시 랜덤 추천
-    public List<HomeListResponse> getRandomGenre(GenreRandomRequest request, Long userId, ImageResizeRequest resize){
-
-        RandomExhibitRequest filter = homeConverter.fromGenre(request);
-
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
-
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
-        ));
-      
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
-        return results;
-    }
-
-    // 오늘날 전시 랜덤 추천
-    public List<HomeListResponse> getRandomToday(TodayRandomRequest request, Long userId, ImageResizeRequest resize){
-
-        RandomExhibitRequest filter = homeConverter.fromToday(request);
-
-        List<HomeListResponse> results = exhibitRepository.findRandomExhibits(filter);
-
-        results.forEach(r -> r.setPosterUrl(
-                s3Service.buildResizeUrl(r.getPosterUrl(), resize.w(), resize.h(), resize.f())
-        ));
-      
-        Set<Long> favoriteIds = getFavoriteIds(userId);
-        setFavorites(results, favoriteIds);
-
-
-        return results;
     }
 
 

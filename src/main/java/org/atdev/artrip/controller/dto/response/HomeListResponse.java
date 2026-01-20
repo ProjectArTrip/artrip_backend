@@ -1,42 +1,61 @@
 package org.atdev.artrip.controller.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import org.atdev.artrip.constants.Status;
+import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
+import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 
-@Getter
-@Setter
+import java.util.List;
+
 @Builder
-@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class HomeListResponse {
+public record HomeListResponse(
 
-    private Long exhibit_id;
-    private String title;
-    private String posterUrl;
-    private Status status;
-    private String exhibitPeriod;
+        Long exhibitId,
+        String title,
+        String posterUrl,
+        Status status,
+        String exhibitPeriod,
 
-    private String hallName;
-    private String countryName;
-    private String regionName;
+        String hallName,
+        String countryName,
+        String regionName,
 
-    private boolean isFavorite;
+        boolean isFavorite) {
+    public static HomeListResponse from(ExhibitRandomResult result) {
+        return HomeListResponse.builder()
 
-    public HomeListResponse(Long exhibit_id, String title, String posterUrl, Status status,
-                            String exhibitPeriod, String hallName, String countryName, String regionName) {
-        this.exhibit_id = exhibit_id;
-        this.title = title;
-        this.posterUrl = posterUrl;
-        this.status = status;
-        this.exhibitPeriod = exhibitPeriod;
-        this.hallName = hallName;
-        this.countryName = countryName;
-        this.regionName = regionName;
-        this.isFavorite = false;
+                .exhibitId(result.exhibitId())
+                .title(result.title())
+                .posterUrl(result.posterUrl())
+                .status(result.status())
+                .exhibitPeriod(result.exhibitPeriod())
+
+                .hallName(result.hallName())
+                .countryName(result.countryName())
+                .regionName(result.regionName())
+
+                .isFavorite(result.isFavorite())
+                .build();
+    }
+
+    public static List<HomeListResponse> fromList(List<ExhibitRandomResult> results) {
+        return results.stream()
+                .map(HomeListResponse::from)
+                .toList();
+    }
+
+    public static HomeListResponse from(ExhibitFilterResult.ExhibitItem item) {
+        return HomeListResponse.builder()
+                .exhibitId(item.exhibitId())
+                .title(item.title())
+                .posterUrl(item.posterUrl())
+                .status(item.status())
+                .exhibitPeriod(item.exhibitPeriod())
+                .isFavorite(item.isFavorite())
+                .hallName(item.hallName())
+                .countryName(item.countryName())
+                .regionName(item.regionName())
+                .build();
     }
 }
 

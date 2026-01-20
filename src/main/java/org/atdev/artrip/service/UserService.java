@@ -148,15 +148,6 @@ public class UserService {
         return new MypageResponse(user.getNickName(), profileImage, user.getEmail());
     }
 
-    public void addRecentView(Long userId, Long exhibitId) {
-        String key = KEY_PREFIX + userId;
-        double now = System.currentTimeMillis();
-
-        recommendRedisTemplate.opsForZSet().add(key, String.valueOf(exhibitId), now); // key , exhibitid, time
-        recommendRedisTemplate.opsForZSet().removeRange(key, 0, -21);// 뒤에서 21부터 전부 삭제
-        recommendRedisTemplate.expire(key, Duration.ofDays(30));// 1달 기한
-    }
-
     // 최근 본 전시 리스트 조회
     public List<ExhibitRecentResponse> getRecentViews(Long userId) {
 

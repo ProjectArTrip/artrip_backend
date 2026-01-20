@@ -1,4 +1,4 @@
-package org.atdev.artrip.service;
+package org.atdev.artrip.service.redis;
 
 
 import lombok.RequiredArgsConstructor;
@@ -28,4 +28,5 @@ public class RedisService {
     public boolean hasKey(String key) {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
+
 }

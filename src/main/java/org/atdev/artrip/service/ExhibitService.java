@@ -2,14 +2,13 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.controller.dto.response.ExhibitDetailResponse;
+import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
-import org.atdev.artrip.converter.HomeConverter;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
+import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,27 +17,32 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExhibitService {
 
     private final ExhibitRepository exhibitRepository;
-    private final HomeConverter homeConverter;
-    private final S3Service s3Service;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
-    private final UserService userService;
+    private final ImageUrlFormatter imageUrlFormatter;
+    private final UserHistoryService userHistoryService;
 
-    @Transactional
-    public ExhibitDetailResponse getExhibitDetail(Long exhibitId, Long userId, ImageResizeRequest resize) {
 
-        Exhibit exhibit = exhibitRepository.findById(exhibitId)
+    @Transactional(readOnly = true)
+    public ExhibitDetailResult getExhibitDetail(ExhibitDetailCommand command) {
+
+        Exhibit exhibit = exhibitRepository.findByIdWithHall(command.exhibitId())
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
-        String resizedPosterUrl = s3Service.buildResizeUrl(exhibit.getPosterUrl(), resize.w(), resize.h(), resize.f());
+        String resizedPosterUrl = imageUrlFormatter.getResizedUrl(
+                exhibit.getPosterUrl(),
+                command.width(),
+                command.height(),
+                command.format()
+        );
 
         boolean isFavorite = false;
-        if (userId != null ) {
-            isFavorite = favoriteExhibitRepository.existsActive(userId, exhibitId);
+        if (command.userId() != null) {
+            isFavorite = favoriteExhibitRepository.existsActive(command.userId(), command.exhibitId());
+            userHistoryService.addRecentView(command.userId(), command.exhibitId());
         }
 
-        userService.addRecentView(userId,exhibitId);
-
-        return homeConverter.toHomeExhibitResponse(exhibit, isFavorite, resizedPosterUrl);
+        return ExhibitDetailResult.of(exhibit, isFavorite, resizedPosterUrl);
     }
+
 
 }

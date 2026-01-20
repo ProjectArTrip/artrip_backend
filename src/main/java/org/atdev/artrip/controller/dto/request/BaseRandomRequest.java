@@ -34,4 +34,5 @@ public class BaseRandomRequest {
             return hasCountry && !hasRegion;
         }
     }
+
 }

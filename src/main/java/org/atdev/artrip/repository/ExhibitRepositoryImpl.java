@@ -11,20 +11,17 @@ import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
-import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
-import org.atdev.artrip.controller.dto.response.HomeListResponse;
-import org.atdev.artrip.controller.dto.request.RandomExhibitRequest;
 import org.atdev.artrip.domain.keyword.QKeyword;
+import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-
-import static org.atdev.artrip.domain.exhibit.QExhibit.exhibit;
-
 @Repository
 @RequiredArgsConstructor
 public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
@@ -32,57 +29,57 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterRequest dto, Long size, Long cursorId) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterCommand c) {
 
-        QExhibit e = exhibit;
+        QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
 
         Exhibit cursor = null;
 
-        if (cursorId != null) {
+        if (c.cursor() != null) {
             cursor = queryFactory.selectFrom(e)
-                    .where(e.exhibitId.eq(cursorId))
+                    .where(e.exhibitId.eq(c.cursor()))
                     .fetchOne();
         }
 
         List<Exhibit> content = queryFactory
                 .selectDistinct(e)
                 .from(e)
-                .join(e.exhibitHall, h).fetchJoin()
+                .join(e.exhibitHall, h)
                 .leftJoin(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
-                        isDomesticEq(dto.getIsDomestic()),
-                        dateFilter(dto.getStartDate(), dto.getEndDate(),e),
-                        cursorCondition(cursor, dto.getSortType(), e),
-                        countryEq(dto.getCountry()),
-                        regionEq(dto.getRegion()),
-                        genreIn(dto.getGenres()),
-                        styleIn(dto.getStyles())
+                        isDomesticEq(c.isDomestic()),
+                        dateFilter(c.startDate(), c.endDate(),e),
+                        cursorCondition(cursor, c.sortType(), e),
+                        countryEq(c.country()),
+                        regionEq(c.region()),
+                        genreIn(c.genres()),
+                        styleIn(c.styles())
                 )
-                .orderBy(sortFilter(dto, e))
-                .limit(size+1)
+                .orderBy(sortFilter(c, e))
+                .limit(c.size()+1)
                 .fetch();
 
-        boolean hasNext = content.size() > size;
+        boolean hasNext = content.size() > c.size();
 
         if (hasNext)
-            content.remove(size.intValue());
+            content.remove(c.size().intValue());
 
-        return new SliceImpl<>(content, PageRequest.of(0, size.intValue()), hasNext);
+        return new SliceImpl<>(content, PageRequest.of(0, c.size().intValue()), hasNext);
     }
 
     @Override
-    public List<HomeListResponse> findRandomExhibits(RandomExhibitRequest c) {
+    public List<ExhibitRandomResult> findRandomExhibits(ExhibitRandomCommand c) {
 
-        QExhibit e = exhibit;
+        QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
         QKeyword k = QKeyword.keyword;
 
         return queryFactory
                 .selectDistinct(Projections.constructor(
-                        HomeListResponse.class,
+                        ExhibitRandomResult.class,
                         e.exhibitId,
                         e.title,
                         e.posterUrl,
@@ -94,22 +91,24 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         ),
                         h.name,
                         h.country,
-                        h.region
+                        h.region,
+                        Expressions.asBoolean(false),
+                        Expressions.asString("")
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)
-                .leftJoin(e.keywords, k)
+                .join(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
-                        isDomesticEq(c.getIsDomestic()),
-                        countryEq(c.getCountry()),
-                        regionEq(c.getRegion()),
-                        genreIn(c.getGenres()),
-                        styleIn(c.getStyles()),
-                        findDate(c.getDate())
+                        isDomesticEq(c.isDomestic()),
+                        countryEq(c.country()),
+                        regionEq(c.region()),
+                        genreIn(c.genres()),
+                        styleIn(c.styles()),
+                        findDate(c.date())
                 )
                 .orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc())
-                .limit(c.getLimit())
+                .limit(c.limit())
                 .fetch();
     }
 
@@ -133,13 +132,13 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterRequest dto, QExhibit e) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitFilterCommand dto, QExhibit e) {
 
-        if (dto.getSortType() == null) {
+        if (dto.sortType() == null) {
             return new OrderSpecifier[]{e.startDate.desc(), e.exhibitId.desc()};
         }
 
-        switch (dto.getSortType()) {
+        switch (dto.sortType()) {
             case POPULAR:
                 return new OrderSpecifier[]{
                         e.favoriteCount.desc().nullsLast(),
@@ -181,11 +180,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     }
 
     private BooleanExpression countryEq(String country) {
-        return country == null || country.isBlank() ? null : QExhibitHall.exhibitHall.country.eq(country);
+        return country == null ? null : QExhibitHall.exhibitHall.country.eq(country);
     }
 
     private BooleanExpression regionEq(String region) {
-        return region == null || region.isBlank() ? null : QExhibitHall.exhibitHall.region.eq(region);
+        return region == null ? null : QExhibitHall.exhibitHall.region.eq(region);
     }
 
     private BooleanExpression genreIn(Set<String> genres) {
@@ -203,44 +202,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private BooleanExpression findDate(LocalDate date){
         if (date == null) return null;
 
-        return exhibit.startDate.loe(date)
-                .and(exhibit.endDate.goe(date));
-    }
-
-    private BooleanExpression keywordSearch(String keyword, QExhibit e, QExhibitHall h, QKeyword k) {
-        if (keyword == null || keyword.isBlank()) {
-            return null;
-        }
-
-        return e.title.containsIgnoreCase(keyword)
-                .or(e.description.containsIgnoreCase(keyword))
-                .or(h.name.containsIgnoreCase(keyword))
-                .or(k.name.containsIgnoreCase(keyword));
-    }
-
-    @Override
-    public Slice<Exhibit> searchByKeyword(String keywords, Long cursor, Long size) {
-        QExhibitHall exhibitHall = QExhibitHall.exhibitHall;
-        QKeyword keyword = QKeyword.keyword;
-        List<Exhibit> content = queryFactory
-                .selectDistinct(exhibit)
-                .from(exhibit)
-                .leftJoin(exhibit.exhibitHall, exhibitHall).fetchJoin()
-                .join(exhibit.keywords, keyword)
-                .where(
-                        keywords != null ? keyword.name.contains(keywords) : null,
-                        cursor != null ? exhibit.exhibitId.lt(cursor) : null
-                )
-                .limit(size + 1)
-                .orderBy(exhibit.exhibitId.desc())
-                .fetch();
-
-        boolean hasNext = false;
-        if (content.size() > size) {
-            content.remove(size.intValue());
-            hasNext = true;
-        }
-        return new SliceImpl<>(content, PageRequest.ofSize(size.intValue()),hasNext);
+        return QExhibit.exhibit.startDate.loe(date)
+                .and(QExhibit.exhibit.endDate.goe(date));
     }
 
 }

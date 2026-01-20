@@ -1,20 +1,18 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
+import org.atdev.artrip.controller.spec.HomeSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.controller.dto.request.GenreRandomRequest;
 import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
 import org.atdev.artrip.controller.dto.request.ScheduleRandomRequest;
 import org.atdev.artrip.controller.dto.request.TodayRandomRequest;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,139 +23,99 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/home")
-public class HomeController {
+public class HomeController implements HomeSpecification {
 
     private final HomeService homeService;
 
-    @Operation(summary = "사용자 맞춤 전시 랜덤 조회",
-            description = """
-    [요청 규칙]
-    - isDomestic = true (국내)
-      - region: 필수
-      - country: 사용하지 않음
-    - isDomestic = false (국외)
-      - country: 필수
-      - region: 사용하지 않음
-    
-       예시 요청:
-    {
-      "isDomestic": true,
-      "region": "전체"
-    }
-    """)
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
-    )
-    @PostMapping("/personalized/random")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomPersonalized(
+    @Override
+    @GetMapping("/exhibits/personalized")
+    public ResponseEntity<List<HomeListResponse>> getRandomPersonalized(
             @LoginUser Long userId,
-            @Valid @RequestBody PersonalizedRequest requestDto,
+            @Valid @ModelAttribute PersonalizedRequest request,
             @ParameterObject ImageResizeRequest resize){
 
-        List<HomeListResponse> exhibits= homeService.getRandomPersonalized(userId, requestDto, resize);
+        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
+                .build();
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+        List<ExhibitRandomResult> exhibits= homeService.getRandomPersonalized(query);
+
+
+        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
     }
 
-    @Operation(
-            summary = "이번주 전시 일정 랜덤 조회",
-            description = """
-    [요청 규칙]
-    - isDomestic = true (국내)
-      - region: 필수
-      - country: 사용하지 않음
-    - isDomestic = false (국외)
-      - country: 필수
-      - region: 사용하지 않음
-    - date: 필수
-    
-      예시 요청:
-      {
-        "isDomestic": true,
-        "region": "전체",
-        "date": "2025-12-16"
-      }
-    """
-    )
-    @PostMapping("/schedule")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomSchedule(
-            @Valid @RequestBody ScheduleRandomRequest request,
+
+    @Override
+    @GetMapping("/exhibits/schedule")
+    public ResponseEntity<List<HomeListResponse>> getRandomSchedule(
+            @Valid @ModelAttribute ScheduleRandomRequest request,
             @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
 
+        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .date(request.getDate())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
+                .build();
 
-        List<HomeListResponse> exhibits= homeService.getRandomSchedule(request, userId, resize);
+        List<ExhibitRandomResult> exhibits= homeService.getRandomSchedule(query);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
     }
 
-    @Operation(summary = "장르별 랜덤 조회",
-            description = """
-    [요청 규칙]
-    - isDomestic = true (국내)
-      - region: 필수
-      - country: 사용하지 않음
-    - isDomestic = false (국외)
-      - country: 필수
-      - region: 사용하지 않음
-    - singleGenre: 필수
-    
-      예시 요청:
-    {
-      "isDomestic": true,
-      "region": "전체",
-      "singleGenre": "현대 미술"
-    }
-    """)
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
-    )
-    @PostMapping("/genre/random")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getRandomExhibits(
-            @Valid @RequestBody GenreRandomRequest request,
+
+    @GetMapping("/exhibits/genres")
+    public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
+            @Valid @ModelAttribute GenreRandomRequest request,
             @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
 
-        List<HomeListResponse> exhibits = homeService.getRandomGenre(request, userId, resize);
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .singleGenre(request.getSingleGenre())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
+                .build();
+
+        List<ExhibitRandomResult> exhibits = homeService.getRandomGenre(query);
+
+        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
     }
 
-    @Operation(summary = "오늘의(국가/지역별) 전시 랜덤 추천",
-            description = """
-    [요청 규칙]
-    - isDomestic = true (국내)
-      - region: 필수
-      - country: 사용하지 않음
-    - isDomestic = false (국외)
-      - country: 필수
-      - region: 사용하지 않음
-    
-      예시 요청:
-    {
-      "isDomestic": true,
-      "region": "전체"
-    }
-    """)
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @PostMapping("recommend/today")
-    public ResponseEntity<CommonResponse<List<HomeListResponse>>> getTodayRecommendations(
-            @Valid @RequestBody TodayRandomRequest request,
+    @Override
+    @GetMapping("/exhibits/today")
+    public ResponseEntity<List<HomeListResponse>> getTodayRecommendations(
+            @Valid @ModelAttribute TodayRandomRequest request,
             @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize){
 
-        List<HomeListResponse> exhibits = homeService.getRandomToday(request, userId, resize);
+        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
+                .userId(userId)
+                .isDomestic(request.getIsDomestic())
+                .region(request.getRegion())
+                .country(request.getCountry())
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
+                .build();
+        List<ExhibitRandomResult> exhibits = homeService.getRandomToday(query);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibits));
+        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
     }
-
-    //    @GetMapping("/curation")
-//    public ResponseEntity<ApiResponse<List<HomeExhibitResponse>>> getCuratedExhibits() {
-//        List<HomeExhibitResponse> exhibits = exhibitService.getCuratedExhibits();
-//        return ResponseEntity.ok(ApiResponse.onSuccess(exhibits));
-//    }
 
 }

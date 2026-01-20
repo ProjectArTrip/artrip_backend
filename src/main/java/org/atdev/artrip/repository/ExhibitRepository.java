@@ -2,7 +2,6 @@ package org.atdev.artrip.repository;
 
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -46,8 +45,13 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
 """, nativeQuery = true)
     int updateFinishedStatus();
 
+
+
     @Query("SELECT DISTINCT e FROM Exhibit e LEFT JOIN FETCH e.keywords WHERE e.exhibitId = :id")
     Optional<Exhibit> findByIdWithKeywords(@Param("id") Long id);
+
+    @Query("SELECT DISTINCT e FROM Exhibit e LEFT JOIN FETCH e.keywords")
+    List<Exhibit> findAllWithKeywords();
 
     Page<Exhibit> findByDescriptionContaining(String description, Pageable pageable);
 
@@ -59,4 +63,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId in :ids")
     List<Exhibit> findAllByIdWithHall(@Param("ids") List<Long> ids);
 
+    @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId = :id")
+    Optional<Exhibit> findByIdWithHall(@Param("id") Long id);
 }

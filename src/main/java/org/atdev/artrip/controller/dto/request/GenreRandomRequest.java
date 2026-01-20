@@ -12,4 +12,5 @@ public class GenreRandomRequest extends BaseRandomRequest {
 
     @NotNull
     private String singleGenre;
+
 }

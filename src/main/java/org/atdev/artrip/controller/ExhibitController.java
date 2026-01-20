@@ -1,131 +1,102 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.*;
+import org.atdev.artrip.controller.spec.ExhibitSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
-import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.result.*;
+import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/exhibits")
-public class ExhibitController {
+@RequestMapping("/exhibit")
+public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
-    private final S3Service s3Service;
 
-    @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
-    )
+    @Override
     @GetMapping("/genre")
-    public ResponseEntity<CommonResponse<List<String>>> getGenres(){
-        List<String> genres = homeService.getAllGenres();
-        return ResponseEntity.ok(CommonResponse.onSuccess(genres));
+    public ResponseEntity<List<GenreResponse>> getGenres(){
+
+        List<GenreResult> genres = homeService.getAllGenres();
+
+        return ResponseEntity.ok(GenreResponse.from(genres));
     }
 
-    @Operation(summary = "전시 상세 조회")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
-    )
+    @Override
     @GetMapping("/{id}")
-    public ResponseEntity<CommonResponse<ExhibitDetailResponse>> getExhibit(
+    public ResponseEntity<ExhibitDetailResponse> getExhibit(
             @PathVariable Long id,
             @LoginUser Long userId,
             @ParameterObject ImageResizeRequest resize
             ){
-      
-        ExhibitDetailResponse exhibit= exhibitService.getExhibitDetail(id, userId, resize);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(exhibit));
+        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, userId, resize.w(), resize.h(), resize.f());
+        ExhibitDetailResult result = exhibitService.getExhibitDetail(query);
+
+        return ResponseEntity.ok(ExhibitDetailResponse.from(result));
     }
 
-
-    @Operation(summary = "해외 국가 목록 조회")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
-    )
+    @Override
     @GetMapping("/overseas")
-    public ResponseEntity<CommonResponse<List<String>>> getOverseas(){
+    public ResponseEntity<List<CountryResponse>> getOverseas() {
 
-        List<String> OverseasList = homeService.getOverseas();
+        List<CountryResult> OverseasList = homeService.getOverseas();
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(OverseasList));
+        return ResponseEntity.ok(CountryResponse.from(OverseasList));
     }
 
-    @Operation(summary = "국내 지역 목록 조회")//하드코딩
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
-    )
+    @Override
     @GetMapping("/domestic")
-    public ResponseEntity<CommonResponse<List<RegionResponse>>> getDomestic(){
+    public ResponseEntity<List<RegionResponse>> getDomestic(){
 
-        List<RegionResponse> response = homeService.getRegions();
+        List<RegionResult> results = homeService.getRegions();
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(RegionResponse.from(results));
     }
 
 
-    @Operation(summary = "전시 검색 및 필터링",description = "기간, 지역, 장르, 전시 스타일, 키워드 필터 조회 - null 시 전체선택")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            home = {HomeErrorCode._HOME_INVALID_DATE_RANGE, HomeErrorCode._HOME_UNRECOGNIZED_REGION, HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
-    )
-    @GetMapping
-    public CommonResponse<CursorPaginationResponse<HomeListResponse>> getExhibit(
-            @ModelAttribute ExhibitFilterRequest request,
-            @ModelAttribute ImageResizeRequest resizeRequest,
-            @LoginUser Long userId) {
+    @Override
+    @GetMapping("/filter")
+    public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
+                                                            @RequestParam(required = false) Long cursor,
+                                                            @RequestParam(defaultValue = "20") Long size,
+                                                            @LoginUser Long userId,
+                                                            @ParameterObject ImageResizeRequest resize) {
 
-        CursorPaginationResponse<ExhibitSearchResult> serviceResult = homeService.findExhibits(request, userId);
+        ExhibitFilterCommand command = ExhibitFilterCommand.builder()
+                .isDomestic(dto.isDomestic())
+                .startDate(dto.startDate())
+                .endDate(dto.endDate())
+                .country(dto.country())
+                .region(dto.region())
+                .genres(dto.genres())
+                .styles(dto.styles())
+                .sortType(dto.sortType())
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                .userId(userId)
+                .cursor(cursor)
+                .size(size)
 
-        List<HomeListResponse> data = serviceResult.getData().stream()
-                .map(result -> {
-                    String period = result.startDate().format(formatter) + " - " + result.endDate().format(formatter);
-                    String resizedUrl = s3Service.buildResizeUrl(
-                            result.posterUrl(),
-                            resizeRequest.w(),
-                            resizeRequest.h(),
-                            resizeRequest.f()
-                    );
-                    return HomeListResponse.builder()
-                            .exhibit_id(result.exhibitId())
-                            .title(result.title())
-                            .posterUrl(resizedUrl)
-                            .status(result.status())
-                            .exhibitPeriod(period)
-                            .hallName(result.hallName())
-                            .regionName(result.region())
-                            .countryName(result.country())
-                            .isFavorite(result.isFavorite())
-                            .build();
-                }).toList();
+                .width(resize.w())
+                .height(resize.h())
+                .format(resize.f())
+                .build();
 
-        CursorPaginationResponse<HomeListResponse> result = CursorPaginationResponse.of(
-                data,
-                serviceResult.isHasNext(),
-                serviceResult.getNextCursor()
-        );
 
-        return CommonResponse.onSuccess(result);
+        ExhibitFilterResult result = homeService.getFilterExhibit(command);
+
+        return ResponseEntity.ok(FilterResponse.from(result));
     }
+
 }

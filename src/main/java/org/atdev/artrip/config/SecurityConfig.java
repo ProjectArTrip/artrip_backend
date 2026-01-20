@@ -9,7 +9,7 @@ import org.atdev.artrip.service.CustomOAuth2UserService;
 import org.atdev.artrip.security.OAuth2LoginSuccessHandler;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAccessDeniedHandler;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAuthenticationEntryPoint;
-import org.atdev.artrip.service.RedisService;
+import org.atdev.artrip.service.redis.RedisService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
