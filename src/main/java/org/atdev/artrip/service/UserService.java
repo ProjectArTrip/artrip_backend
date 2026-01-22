@@ -23,9 +23,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -58,7 +57,6 @@ public class UserService {
         }
 
         user.updateNickname(newNick);
-
         return new NicknameResult(newNick);
     }
 
@@ -93,20 +91,11 @@ public class UserService {
 
         String oldUrl = user.getProfileImageUrl();
 
-        String newUrl;
-        try {
-            newUrl = s3Service.uploadProfile(command.image());
-        } catch (Exception e) {
-            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
-        }
+        String newUrl = s3Service.uploadProfile(command.image());
         user.updateProfileImage(newUrl);
 
         if (oldUrl != null && !oldUrl.isBlank()) {
-            try {
-                s3Service.delete(oldUrl);
-            } catch (Exception e) {
-                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
-            }
+            s3Service.delete(oldUrl);
         }
 
         return new ProfileResult(newUrl);
@@ -141,12 +130,10 @@ public class UserService {
         return new MypageResult(user.getNickName(), profileImage, user.getEmail());
     }
 
-    // 최근 본 전시 리스트 조회
     public List<ExhibitRecentResult> getRecentViews(UserReadCommand command) {
 
         String key = RedisUtils.getRecentViewKey(command.userId());
-        Set<String> result = recommendRedisTemplate.opsForZSet().reverseRange(key, 0, 19);//시간 역순으로 가져옴
-
+        Set<String> result = recommendRedisTemplate.opsForZSet().reverseRange(key, 0, 19);
         if (result == null || result.isEmpty())
             return List.of();
 
@@ -156,9 +143,12 @@ public class UserService {
 
         List<Exhibit> exhibits = exhibitRepository.findAllByIdWithHall(ids);
 
-        exhibits.sort(Comparator.comparingInt(exhibit -> ids.indexOf(exhibit.getExhibitId())));
+        Map<Long, Exhibit> exhibitMap = exhibits.stream()
+                .collect(Collectors.toMap(Exhibit::getExhibitId, e -> e));
 
-        return exhibits.stream()
+        return ids.stream()
+                .map(exhibitMap::get)
+                .filter(Objects::nonNull)
                 .map(ExhibitRecentResult::from)
                 .toList();
     }
