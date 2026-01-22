@@ -7,8 +7,6 @@ import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
-import org.atdev.artrip.converter.HomeConverter;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
@@ -19,6 +17,7 @@ import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
 import org.atdev.artrip.service.dto.result.NicknameResult;
 import org.atdev.artrip.service.dto.result.ProfileResult;
+import org.atdev.artrip.utils.RedisUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -41,9 +40,6 @@ public class UserService {
     private final StringRedisTemplate recommendRedisTemplate;
 
     private final ExhibitRepository exhibitRepository;
-    private final HomeConverter homeConverter;
-
-    private static final String KEY_PREFIX = "recent:view:user:";
 
     @Transactional
     public NicknameResult updateNickName(NicknameCommand command){
@@ -148,7 +144,7 @@ public class UserService {
     // 최근 본 전시 리스트 조회
     public List<ExhibitRecentResult> getRecentViews(UserReadCommand command) {
 
-        String key = KEY_PREFIX + command.userId();
+        String key = RedisUtils.getRecentViewKey(command.userId());
         Set<String> result = recommendRedisTemplate.opsForZSet().reverseRange(key, 0, 19);//시간 역순으로 가져옴
 
         if (result == null || result.isEmpty())
