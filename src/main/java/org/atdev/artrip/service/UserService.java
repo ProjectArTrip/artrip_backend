@@ -9,20 +9,21 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
 import org.atdev.artrip.converter.HomeConverter;
-import org.atdev.artrip.controller.dto.request.NicknameRequest;
-import org.atdev.artrip.controller.dto.response.MypageResponse;
-import org.atdev.artrip.controller.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.command.UserReadCommand;
+import org.atdev.artrip.service.dto.command.NicknameCommand;
+import org.atdev.artrip.service.dto.command.ProfileCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
+import org.atdev.artrip.service.dto.result.MypageResult;
+import org.atdev.artrip.service.dto.result.NicknameResult;
+import org.atdev.artrip.service.dto.result.ProfileResult;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -45,20 +46,15 @@ public class UserService {
     private static final String KEY_PREFIX = "recent:view:user:";
 
     @Transactional
-    public NicknameResponse updateNickName(Long userId, NicknameRequest dto){
+    public NicknameResult updateNickName(NicknameCommand command){
 
-        //1. 유저 검사
-        //2. 닉네임 유효성 검사 + 공백 금지
-        //3. 기존과 동일한지 체크
-        //4. 중복 검사
-        //5. 업뎃 후 반환
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        String newNick = validateNickname(dto);
+        String newNick = validateNickname(command);
 
         if (newNick.equals(user.getNickName())) {
-            return new NicknameResponse(newNick);
+            return new NicknameResult(newNick);
         }
 
         if (userRepository.existsByNickName(newNick)) {
@@ -67,16 +63,16 @@ public class UserService {
 
         user.updateNickname(newNick);
 
-        return new NicknameResponse(newNick);
+        return new NicknameResult(newNick);
     }
 
-    private String validateNickname(NicknameRequest dto) {
+    private String validateNickname(NicknameCommand command) {
 
-        if (dto == null || dto.getNickName() == null) {
+        if (command == null || command.nickName() == null) {
             throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
         }
 
-        String nickname = dto.getNickName();
+        String nickname = command.nickName();
 
         if (nickname.isBlank() || nickname.contains(" ")) {
             throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
@@ -90,12 +86,12 @@ public class UserService {
     }
 
     @Transactional
-    public String updateProfileImg(Long userId, MultipartFile image){
+    public ProfileResult updateProfileImg(ProfileCommand command){
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(command.userId())
                 .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        if (image == null || image.isEmpty()) {
+        if (command.image() == null || command.image().isEmpty()) {
             throw new GeneralException(UserErrorCode._PROFILE_IMAGE_NOT_EXIST);
         }
 
@@ -103,7 +99,7 @@ public class UserService {
 
         String newUrl;
         try {
-            newUrl = s3Service.uploadProfile(image);
+            newUrl = s3Service.uploadProfile(command.image());
         } catch (Exception e) {
             throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
         }
@@ -116,13 +112,14 @@ public class UserService {
                 throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
             }
         }
-        return newUrl;
+
+        return new ProfileResult(newUrl);
     }
 
     @Transactional
-    public void deleteProfileImg(Long userId){
+    public void deleteProfileImg(ProfileCommand command){
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(command.userId())
                 .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         String oldUrl = user.getProfileImageUrl();
@@ -138,20 +135,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public MypageResponse getMypage(Long userId, ImageResizeRequest resize){
+    public MypageResult getMypage(UserReadCommand command){
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(command.userId())
                 .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.w(), resize.h(), resize.f());
+        String profileImage = user.getProfileImageUrl();
 
-        return new MypageResponse(user.getNickName(), profileImage, user.getEmail());
+        return new MypageResult(user.getNickName(), profileImage, user.getEmail());
     }
 
     // 최근 본 전시 리스트 조회
-    public List<ExhibitRecentResponse> getRecentViews(Long userId) {
+    public List<ExhibitRecentResult> getRecentViews(UserReadCommand command) {
 
-        String key = KEY_PREFIX + userId;
+        String key = KEY_PREFIX + command.userId();
         Set<String> result = recommendRedisTemplate.opsForZSet().reverseRange(key, 0, 19);//시간 역순으로 가져옴
 
         if (result == null || result.isEmpty())
@@ -166,7 +163,7 @@ public class UserService {
         exhibits.sort(Comparator.comparingInt(exhibit -> ids.indexOf(exhibit.getExhibitId())));
 
         return exhibits.stream()
-                .map(exhibit -> homeConverter.toExhibitRecentResponse(exhibit))
+                .map(ExhibitRecentResult::from)
                 .toList();
     }
 

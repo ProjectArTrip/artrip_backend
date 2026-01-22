@@ -31,7 +31,6 @@ public class UserKeywordController implements KeywordSpecification {
             @LoginUser Long userId,
             @RequestBody KeywordRequest request) {
 
-
         KeywordCommand command= request.toCommand(userId);
 
         keywordService.saveUserKeywords(command);

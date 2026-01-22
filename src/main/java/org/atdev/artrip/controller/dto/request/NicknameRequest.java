@@ -1,14 +1,14 @@
 package org.atdev.artrip.controller.dto.request;
 
 import lombok.*;
+import org.atdev.artrip.service.dto.command.NicknameCommand;
 
 @Builder
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class NicknameRequest {
+public record NicknameRequest (
+        String NickName
+){
+    public NicknameCommand toCommand(NicknameRequest request,Long userId){
 
-    private String NickName;
-
+        return new NicknameCommand(request.NickName(),userId);
+    }
 }

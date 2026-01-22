@@ -3,6 +3,8 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
+import org.atdev.artrip.controller.dto.response.ProfileImageResponse;
+import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.UserService;
@@ -12,9 +14,14 @@ import org.atdev.artrip.controller.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.springdoc.core.annotations.ParameterObject;
+import org.atdev.artrip.service.dto.command.UserReadCommand;
+import org.atdev.artrip.service.dto.command.NicknameCommand;
+import org.atdev.artrip.service.dto.command.ProfileCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
+import org.atdev.artrip.service.dto.result.MypageResult;
+import org.atdev.artrip.service.dto.result.NicknameResult;
+import org.atdev.artrip.service.dto.result.ProfileResult;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,83 +31,76 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/my")
-public class UserController {
+@RequestMapping("/me")
+public class UserController implements UserSpecification {
 
     private final UserService userService;
 
-    @Operation(summary = "프로필 이미지 추가", description = "프로필 이미지를 추가합니다")
-    @PostMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
-    )
-    public ResponseEntity<CommonResponse<String>> getUpdateImage(
+    @Override
+    @PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProfileImageResponse> getUpdateImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image){
 
-        userService.updateProfileImg(userId,image);
+        ProfileCommand command = ProfileCommand.of(userId,image);
+        ProfileResult result = userService.updateProfileImg(command);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 생성"));
+        return ResponseEntity.ok(ProfileImageResponse.from(result));
     }
 
-    @Operation(summary = "프로필 이미지 삭제", description = "기본 프로필 이미지로 변경됩니다")
-    @DeleteMapping("/profile")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
-    )
-    public ResponseEntity<CommonResponse<String>> getDeleteImage(
+    @Override
+    @DeleteMapping("/profile-image")
+    public ResponseEntity<Void> getDeleteImage(
             @LoginUser Long userId){
 
-        userService.deleteProfileImg(userId);
+        ProfileCommand command = ProfileCommand.of(userId);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 삭제"));
+        userService.deleteProfileImg(command);
+
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "닉네임 설정", description = "공백 입력 불가")
-    @PatchMapping("/nickname")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._DUPLICATE_NICKNAME, UserErrorCode._USER_NOT_FOUND, UserErrorCode._NICKNAME_BAD_REQUEST}
-    )
-    public ResponseEntity<CommonResponse<NicknameResponse>> updateNickname(
+    @Override
+    @PatchMapping()
+    public ResponseEntity<NicknameResponse> updateNickname(
             @LoginUser Long userId,
-            @RequestBody NicknameRequest dto) {
+            @RequestBody NicknameRequest request) {
 
-        NicknameResponse response = userService.updateNickName(userId, dto);
+        NicknameCommand command = request.toCommand(request,userId);
+        NicknameResult response = userService.updateNickName(command);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(NicknameResponse.from(response));
     }
 
     @Operation(summary = "마이페이지 조회", description = "닉네임, 프로필 이미지 조회")
-    @GetMapping("/mypage")
-//    @ApiErrorResponses(
-//            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-//            user = {UserErrorCode._USER_NOT_FOUND}
-//    )
-    public ResponseEntity<CommonResponse<MypageResponse>> getMypage(
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize) {
+    @GetMapping()
+    @ApiErrorResponses(
+            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
+            user = {UserErrorCode._USER_NOT_FOUND}
+    )
+    public ResponseEntity<MypageResponse> getMypage(
+            @LoginUser Long userId) {
 
-        MypageResponse response = userService.getMypage(userId, resize);
+        UserReadCommand command = UserReadCommand.from(userId);
+        MypageResult response = userService.getMypage(command);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(MypageResponse.from(response));
     }
 
     @Operation(summary = "최근 본 전시", description = "최근 본 전시 20개")
-    @GetMapping("/recent")
+    @GetMapping("/recent-exhibits")
     @ApiErrorResponses(
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._USER_NOT_FOUND},
             exhibit = {ExhibitErrorCode._EXHIBIT_NOT_FOUND}
     )
-    public ResponseEntity<CommonResponse<List<ExhibitRecentResponse>>> getRecentExhibit(
+    public ResponseEntity<List<ExhibitRecentResponse>> getRecentExhibit(
             @LoginUser Long userId){
 
-        List<ExhibitRecentResponse> responses = userService.getRecentViews(userId);
+        UserReadCommand command = UserReadCommand.from(userId);
+        List<ExhibitRecentResult> responses = userService.getRecentViews(command);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(responses));
+        return ResponseEntity.ok(ExhibitRecentResponse.from(responses));
     }
 
 }

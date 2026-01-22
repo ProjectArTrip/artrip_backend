@@ -15,14 +15,7 @@ import java.util.Set;
 public class HomeConverter {
 
 
-    public ExhibitRecentResponse toExhibitRecentResponse(Exhibit exhibit){
 
-        return ExhibitRecentResponse.builder()
-                .exhibitId(exhibit.getExhibitId())
-                .exhibitHallName(exhibit.getExhibitHall().getName())
-                .title(exhibit.getTitle())
-                .build();
-    }
 
 
 }

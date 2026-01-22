@@ -2,10 +2,12 @@ package org.atdev.artrip.controller.dto.response;
 
 
 import lombok.*;
+import org.atdev.artrip.service.dto.result.NicknameResult;
 
-@Getter
-@AllArgsConstructor
-public class NicknameResponse {
 
-    private String nickName;
+public record NicknameResponse(String nickName) {
+
+    public static NicknameResponse from(NicknameResult result){
+        return new NicknameResponse(result.nickName());
+    }
 }

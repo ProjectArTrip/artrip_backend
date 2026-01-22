@@ -1,8 +1,6 @@
 package org.atdev.artrip.controller.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 

@@ -1,6 +1,5 @@
 package org.atdev.artrip.controller.dto.request;
 
-import lombok.Getter;
 import org.atdev.artrip.service.dto.command.KeywordCommand;
 
 import java.util.List;
