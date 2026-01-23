@@ -7,7 +7,6 @@ import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.service.dto.command.UserReadCommand;

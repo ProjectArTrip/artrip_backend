@@ -72,12 +72,8 @@ public class UserController implements UserSpecification {
         return ResponseEntity.ok(NicknameResponse.from(response));
     }
 
-    @Operation(summary = "마이페이지 조회", description = "닉네임, 프로필 이미지 조회")
+    @Override
     @GetMapping()
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._USER_NOT_FOUND}
-    )
     public ResponseEntity<MypageResponse> getMypage(
             @LoginUser Long userId) {
 
@@ -87,13 +83,8 @@ public class UserController implements UserSpecification {
         return ResponseEntity.ok(MypageResponse.from(response));
     }
 
-    @Operation(summary = "최근 본 전시", description = "최근 본 전시 20개")
+    @Override
     @GetMapping("/recent-exhibits")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._USER_NOT_FOUND},
-            exhibit = {ExhibitErrorCode._EXHIBIT_NOT_FOUND}
-    )
     public ResponseEntity<List<ExhibitRecentResponse>> getRecentExhibit(
             @LoginUser Long userId){
 
