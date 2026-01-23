@@ -34,8 +34,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final S3Service s3Service;
-    private static final String NICKNAME_REGEX = "^[a-zA-Z0-9가-힣]+$";
-
     @Qualifier("recommendRedisTemplate")
     private final StringRedisTemplate recommendRedisTemplate;
     private final ExhibitRepository exhibitRepository;
@@ -103,7 +101,6 @@ public class UserService {
         if (oldUrl != null && !oldUrl.isBlank()) {
                 s3Service.delete(oldUrl);
         }
-        user.updateProfileImage(null);
     }
 
     @Transactional(readOnly = true)
@@ -127,6 +124,7 @@ public class UserService {
                 .toList();
 
         List<Exhibit> exhibits = exhibitRepository.findAllByIdWithHall(ids);
+        if (exhibits.isEmpty()) return List.of();
 
         Map<Long, Exhibit> exhibitMap = exhibits.stream()
                 .collect(Collectors.toMap(Exhibit::getExhibitId, e -> e));
