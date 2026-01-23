@@ -44,8 +44,7 @@ public class UserService {
     @Transactional
     public NicknameResult updateNickName(NicknameCommand command){
 
-        User user = userRepository.findById(command.userId())
-                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+        User user = findUserOrThrow(command.userId());
 
         String newNick = validateNickname(command);
 
@@ -82,8 +81,8 @@ public class UserService {
 
     public ProfileResult updateProfileImg(ProfileCommand command){
 
-        User user = userRepository.findById(command.userId())
-                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+        User user = findUserOrThrow(command.userId());
+
 
         if (command.image() == null || command.image().isEmpty()) {
             throw new GeneralException(UserErrorCode._PROFILE_IMAGE_NOT_EXIST);
@@ -94,8 +93,7 @@ public class UserService {
 
         try {
             transactionTemplate.executeWithoutResult(status -> {
-                User tUser = userRepository.findById(command.userId())
-                        .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+                User tUser = findUserOrThrow(command.userId());
                 tUser.updateProfileImage(newUrl);
             });
         } catch (Exception e) {
@@ -112,14 +110,13 @@ public class UserService {
 
     public void deleteProfileImg(ProfileCommand command){
 
-        User user = userRepository.findById(command.userId())
-                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+        User user = findUserOrThrow(command.userId());
+
 
         String oldUrl = user.getProfileImageUrl();
 
         transactionTemplate.executeWithoutResult(status -> {
-            User tUser = userRepository.findById(command.userId())
-                    .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+            User tUser = findUserOrThrow(command.userId());
             tUser.updateProfileImage(null);
         });
 
@@ -132,9 +129,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public MypageResult getMypage(UserReadCommand command){
 
-        User user = userRepository.findById(command.userId())
-                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
+        User user = findUserOrThrow(command.userId());
         String profileImage = user.getProfileImageUrl();
 
         return new MypageResult(user.getNickName(), profileImage, user.getEmail());
@@ -161,5 +156,10 @@ public class UserService {
                 .filter(Objects::nonNull)
                 .map(ExhibitRecentResult::from)
                 .toList();
+    }
+
+    private User findUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
     }
 }
