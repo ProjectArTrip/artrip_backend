@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,8 +38,8 @@ public class UserService {
 
     @Qualifier("recommendRedisTemplate")
     private final StringRedisTemplate recommendRedisTemplate;
-
     private final ExhibitRepository exhibitRepository;
+    private final TransactionTemplate transactionTemplate;
 
     @Transactional
     public NicknameResult updateNickName(NicknameCommand command){
@@ -79,7 +80,6 @@ public class UserService {
         return nickname;
     }
 
-    @Transactional
     public ProfileResult updateProfileImg(ProfileCommand command){
 
         User user = userRepository.findById(command.userId())
@@ -90,9 +90,18 @@ public class UserService {
         }
 
         String oldUrl = user.getProfileImageUrl();
-
         String newUrl = s3Service.uploadProfile(command.image());
-        user.updateProfileImage(newUrl);
+
+        try {
+            transactionTemplate.executeWithoutResult(status -> {
+                User tUser = userRepository.findById(command.userId())
+                        .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+                tUser.updateProfileImage(newUrl);
+            });
+        } catch (Exception e) {
+            s3Service.delete(newUrl);
+            throw e;
+        }
 
         if (oldUrl != null && !oldUrl.isBlank()) {
             s3Service.delete(oldUrl);
@@ -101,7 +110,6 @@ public class UserService {
         return new ProfileResult(newUrl);
     }
 
-    @Transactional
     public void deleteProfileImg(ProfileCommand command){
 
         User user = userRepository.findById(command.userId())
@@ -109,12 +117,14 @@ public class UserService {
 
         String oldUrl = user.getProfileImageUrl();
 
+        transactionTemplate.executeWithoutResult(status -> {
+            User tUser = userRepository.findById(command.userId())
+                    .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+            tUser.updateProfileImage(null);
+        });
+
         if (oldUrl != null && !oldUrl.isBlank()) {
-            try {
                 s3Service.delete(oldUrl);
-            } catch (Exception e) {
-                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
-            }
         }
         user.updateProfileImage(null);
     }
@@ -152,5 +162,4 @@ public class UserService {
                 .map(ExhibitRecentResult::from)
                 .toList();
     }
-
 }
