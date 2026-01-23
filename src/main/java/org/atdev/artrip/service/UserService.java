@@ -45,8 +45,7 @@ public class UserService {
     public NicknameResult updateNickName(NicknameCommand command){
 
         User user = findUserOrThrow(command.userId());
-
-        String newNick = validateNickname(command);
+        String newNick = command.nickName();
 
         if (newNick.equals(user.getNickName())) {
             return new NicknameResult(newNick);
@@ -58,25 +57,6 @@ public class UserService {
 
         user.updateNickname(newNick);
         return new NicknameResult(newNick);
-    }
-
-    private String validateNickname(NicknameCommand command) {
-
-        if (command == null || command.nickName() == null) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        String nickname = command.nickName();
-
-        if (nickname.isBlank() || nickname.contains(" ")) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        if (!nickname.matches(NICKNAME_REGEX)) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        return nickname;
     }
 
     public ProfileResult updateProfileImg(ProfileCommand command){
