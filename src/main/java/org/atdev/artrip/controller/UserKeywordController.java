@@ -22,13 +22,13 @@ public class UserKeywordController implements KeywordSpecification {
 
     @Override
     @PostMapping
-    public ResponseEntity<Void> saveUserKeywords(
+    public ResponseEntity<Void> saveKeywords(
             @LoginUser Long userId,
             @RequestBody KeywordRequest request) {
 
         KeywordCommand command= request.toCommand(userId);
 
-        keywordService.saveUserKeywords(command);
+        keywordService.saveKeywords(command);
         return ResponseEntity.noContent().build();
     }
 
@@ -44,9 +44,9 @@ public class UserKeywordController implements KeywordSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<KeywordListResponse> getUserKeywords(@LoginUser Long userId) {
+    public ResponseEntity<KeywordListResponse> getKeyword(@LoginUser Long userId) {
 
-        List<KeywordResult> keywords = keywordService.getUserKeywords(userId);
+        List<KeywordResult> keywords = keywordService.getKeyword(userId);
         KeywordListResponse response = KeywordListResponse.from(keywords);
 
         return ResponseEntity.ok(response);

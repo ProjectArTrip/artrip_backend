@@ -9,19 +9,16 @@ import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.repository.KeywordRepository;
 import org.atdev.artrip.repository.UserKeywordRepository;
-import org.atdev.artrip.controller.dto.response.KeywordResponse;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.command.KeywordCommand;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +29,7 @@ public class KeywordService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void saveUserKeywords(KeywordCommand command) {
+    public void saveKeywords(KeywordCommand command) {
 
         User user = userRepository.findById(command.userId())
                 .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
@@ -62,7 +59,7 @@ public class KeywordService {
     }
 
     @Transactional(readOnly = true)
-    public List<KeywordResult> getUserKeywords(Long userId) {
+    public List<KeywordResult> getKeyword(Long userId) {
         return userKeywordRepository.findAllByUserIdWithKeyword(userId)
                 .stream()
                 .map(KeywordResult::from)
