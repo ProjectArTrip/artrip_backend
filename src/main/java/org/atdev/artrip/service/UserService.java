@@ -15,14 +15,12 @@ import org.atdev.artrip.controller.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -138,14 +136,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public MypageResponse getMypage(Long userId, ImageResizeRequest resize){
+    public MypageResponse getMypage(Long userId){
 
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.w(), resize.h(), resize.f());
-
-        return new MypageResponse(user.getNickName(), profileImage, user.getEmail());
+        return new MypageResponse(user.getNickName(), user.getProfileImageUrl(), user.getEmail());
     }
 
     // 최근 본 전시 리스트 조회

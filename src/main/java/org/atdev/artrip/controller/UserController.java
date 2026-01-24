@@ -12,9 +12,7 @@ import org.atdev.artrip.controller.dto.response.NicknameResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -80,10 +78,9 @@ public class UserController {
 //            user = {UserErrorCode._USER_NOT_FOUND}
 //    )
     public ResponseEntity<CommonResponse<MypageResponse>> getMypage(
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize) {
+            @LoginUser Long userId) {
 
-        MypageResponse response = userService.getMypage(userId, resize);
+        MypageResponse response = userService.getMypage(userId);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }

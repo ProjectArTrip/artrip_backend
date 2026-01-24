@@ -17,7 +17,6 @@ import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -143,7 +142,7 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewSliceResponse getAllReview(Long userId, Long cursor, int size, ImageResizeRequest resize){
+    public ReviewSliceResponse getAllReview(Long userId, Long cursor, int size){
 
         Slice<Review> slice;
 
@@ -162,15 +161,11 @@ public class ReviewService {
                 .map(ReviewConverter::toSummary)
                 .toList();
 
-        summaries.forEach(r -> r.setThumbnailUrl(
-                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.w(), resize.h(), resize.f())
-        ));
-
         return new ReviewSliceResponse(summaries, nextCursor, slice.hasNext());
     }
 
     @Transactional
-    public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size, ImageResizeRequest resize){
+    public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size){
 
         long totalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
 
@@ -190,10 +185,6 @@ public class ReviewService {
                 .stream()
                 .map(ReviewConverter::toExhibitReviewSummary)
                 .toList();
-
-        summaries.forEach(r -> r.setThumbnailUrl(
-                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.w(), resize.h(), resize.f())
-        ));
 
         return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext(),totalCount);
     }
