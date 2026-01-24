@@ -21,13 +21,13 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/keyword")
 public class UserKeywordController implements KeywordSpecification {
 
     private final KeywordService keywordService;
 
     @Override
-    @PostMapping("/keywords")
+    @PostMapping
     public ResponseEntity<Void> saveUserKeywords(
             @LoginUser Long userId,
             @RequestBody KeywordRequest request) {
@@ -39,7 +39,7 @@ public class UserKeywordController implements KeywordSpecification {
     }
 
     @Override
-    @GetMapping("/allKeywords")
+    @GetMapping("/all")
     public ResponseEntity<KeywordListResponse> getAllKeywords() {
 
         List<KeywordResult> keywords = keywordService.getAllKeywords();
@@ -49,7 +49,7 @@ public class UserKeywordController implements KeywordSpecification {
     }
 
     @Override
-    @GetMapping("/keywords")
+    @GetMapping
     public ResponseEntity<KeywordListResponse> getUserKeywords(@LoginUser Long userId) {
 
         List<KeywordResult> keywords = keywordService.getUserKeywords(userId);
