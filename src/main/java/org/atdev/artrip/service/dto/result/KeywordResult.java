@@ -1,6 +1,5 @@
 package org.atdev.artrip.service.dto.result;
 
-import lombok.Builder;
 import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;

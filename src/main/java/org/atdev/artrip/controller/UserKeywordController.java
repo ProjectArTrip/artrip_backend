@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.response.KeywordListResponse;
 import org.atdev.artrip.controller.spec.KeywordSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
@@ -31,7 +32,6 @@ public class UserKeywordController implements KeywordSpecification {
             @LoginUser Long userId,
             @RequestBody KeywordRequest request) {
 
-
         KeywordCommand command= request.toCommand(userId);
 
         keywordService.saveUserKeywords(command);
@@ -40,22 +40,22 @@ public class UserKeywordController implements KeywordSpecification {
 
     @Override
     @GetMapping("/allKeywords")
-    public ResponseEntity<List<KeywordResponse>> getAllKeywords() {
+    public ResponseEntity<KeywordListResponse> getAllKeywords() {
 
         List<KeywordResult> keywords = keywordService.getAllKeywords();
-        List<KeywordResponse> responses = KeywordResponse.from(keywords);
+        KeywordListResponse response = KeywordListResponse.from(keywords);
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(response);
     }
 
     @Override
     @GetMapping("/keywords")
-    public ResponseEntity<List<KeywordResponse>> getUserKeywords(@LoginUser Long userId) {
+    public ResponseEntity<KeywordListResponse> getUserKeywords(@LoginUser Long userId) {
 
         List<KeywordResult> keywords = keywordService.getUserKeywords(userId);
-        List<KeywordResponse> responses = KeywordResponse.from(keywords);
+        KeywordListResponse response = KeywordListResponse.from(keywords);
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(response);
     }
 
 

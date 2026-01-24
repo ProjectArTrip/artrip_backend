@@ -2,6 +2,7 @@ package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
+import org.atdev.artrip.controller.dto.response.KeywordListResponse;
 import org.atdev.artrip.controller.dto.response.KeywordResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
@@ -28,13 +29,13 @@ public interface KeywordSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR},
             keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST}
     )
-    public ResponseEntity<List<KeywordResponse>> getAllKeywords();
+    public ResponseEntity<KeywordListResponse> getAllKeywords();
 
     @Operation(summary = "나의 키워드 조회", description = "내가 선택한 키워드 조회")
     @ApiErrorResponses(
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST}
     )
-    public ResponseEntity<List<KeywordResponse>> getUserKeywords(
+    public ResponseEntity<KeywordListResponse> getUserKeywords(
             @LoginUser Long userId);
 }
