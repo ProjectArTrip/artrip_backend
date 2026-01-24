@@ -9,6 +9,9 @@ import java.util.Set;
 
 @Builder
 public record ExhibitFilterRequest (
+
+        String query,
+
         LocalDate startDate,
         LocalDate endDate,
 
@@ -20,5 +23,6 @@ public record ExhibitFilterRequest (
         Set<String> genres,
         Set<String> styles,
 
-        SortType sortType) {
+        SortType sortType
+        ) {
 }

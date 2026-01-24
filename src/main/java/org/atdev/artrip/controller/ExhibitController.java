@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/exhibit")
+@RequestMapping("/exhibits")
 public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
@@ -67,8 +67,8 @@ public class ExhibitController implements ExhibitSpecification {
 
 
     @Override
-    @GetMapping("/filter")
-    public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
+    @GetMapping
+    public ResponseEntity<FilterResponse> getFilterExhibit(@ModelAttribute ExhibitFilterRequest dto,
                                                             @RequestParam(required = false) Long cursor,
                                                             @RequestParam(defaultValue = "20") Long size,
                                                             @LoginUser Long userId,
@@ -91,8 +91,8 @@ public class ExhibitController implements ExhibitSpecification {
                 .width(resize.w())
                 .height(resize.h())
                 .format(resize.f())
+                .query(dto.query())
                 .build();
-
 
         ExhibitFilterResult result = homeService.getFilterExhibit(command);
 

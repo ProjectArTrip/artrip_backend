@@ -16,6 +16,7 @@ import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.*;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ public class HomeService {
     private final RegionRepository regionRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final ImageUrlFormatter imageUrlFormatter;
+    private final SearchHistoryService searchHistoryService;
 
 
     public List<GenreResult> getAllGenres() {
@@ -58,6 +60,10 @@ public class HomeService {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(command);
         Set<Long> favoriteIds = getFavoriteIds(command.userId());
+
+        if (command.userId() != null) {
+            saveSearchHistory(command);
+        }
 
         return ExhibitFilterResult.of(slice,favoriteIds);
     }
@@ -138,5 +144,10 @@ public class HomeService {
                 .toList();
     }
 
+    private void saveSearchHistory(ExhibitFilterCommand command) {
+
+        command.getValidSearch()
+                .forEach(keyword -> searchHistoryService.saveSearchHistory(command.userId(), keyword));
+    }
 
 }
