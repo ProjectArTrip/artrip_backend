@@ -3,7 +3,6 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.KeywordType;
-import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.*;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.keyword.Keyword;
@@ -30,7 +29,6 @@ public class HomeService {
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
-    private final ImageUrlFormatter imageUrlFormatter;
 
 
     public List<GenreResult> getAllGenres() {
@@ -112,10 +110,6 @@ public class HomeService {
     private List<ExhibitRandomResult> processExhibits(ExhibitRandomCommand command) {
 
         List<ExhibitRandomResult> results = exhibitRepository.findRandomExhibits(command);
-
-        if (command.width() != null && command.height() != null) {
-            results = imageUrlFormatter.resizePosterUrls(results, command.width(), command.height(), command.format());
-        }
 
         if (command.userId() != null) {
             Set<Long> favoriteIds = getFavoriteIds(command.userId());

@@ -40,8 +40,7 @@ public interface HomeSpecification {
     )
     public ResponseEntity<List<HomeListResponse>> getRandomPersonalized(
             @LoginUser Long userId,
-            @Valid @ModelAttribute PersonalizedRequest request,
-            @ParameterObject ImageResizeRequest resize);
+            @Valid @ModelAttribute PersonalizedRequest request);
 
 
     @Operation(
@@ -66,8 +65,7 @@ public interface HomeSpecification {
     )
     public ResponseEntity<List<HomeListResponse>> getRandomSchedule(
             @Valid @ModelAttribute ScheduleRandomRequest request,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize);
+            @LoginUser Long userId);
 
     @Operation(summary = "장르별 랜덤 조회",
             description = """
@@ -93,8 +91,7 @@ public interface HomeSpecification {
     )
     public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
             @Valid @ModelAttribute GenreRandomRequest request,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize);
+            @LoginUser Long userId);
 
     @Operation(summary = "오늘의(국가/지역별) 전시 랜덤 추천",
             description = """
@@ -118,6 +115,5 @@ public interface HomeSpecification {
     )
     public ResponseEntity<List<HomeListResponse>> getTodayRecommendations(
             @Valid @ModelAttribute TodayRandomRequest request,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize);
+            @LoginUser Long userId);
 }

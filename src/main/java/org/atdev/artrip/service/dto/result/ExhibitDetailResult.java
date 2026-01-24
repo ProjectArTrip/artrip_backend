@@ -24,10 +24,9 @@ public record ExhibitDetailResult(
         String hallPhone,
         BigDecimal hallLatitude,
         BigDecimal hallLongitude,
-        boolean isFavorite,
-        String resizedUrl
+        boolean isFavorite
 ) {
-    public static ExhibitDetailResult of(Exhibit exhibit, boolean isFavorite, String resizedUrl){
+    public static ExhibitDetailResult of(Exhibit exhibit, boolean isFavorite){
         return ExhibitDetailResult.builder()
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
@@ -46,7 +45,6 @@ public record ExhibitDetailResult(
                 .hallLongitude(exhibit.getExhibitHall().getLongitude())
 
                 .isFavorite(isFavorite)
-                .resizedUrl(resizedUrl)
                 .build();
     }
 

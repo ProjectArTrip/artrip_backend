@@ -20,10 +20,7 @@ public record ExhibitFilterCommand (
 
         Long size,
         Long cursor,
-        Long userId,
+        Long userId
 
-        Integer width,
-        Integer height,
-        String format
         ){
 }

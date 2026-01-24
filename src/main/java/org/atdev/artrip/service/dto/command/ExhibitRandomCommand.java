@@ -17,10 +17,6 @@ public record ExhibitRandomCommand(
         Set<String> genres,
         Set<String> styles,
 
-        Integer width,
-        Integer height,
-        String format,
-
         int limit
 ) {
     private static String normalize(String value) {

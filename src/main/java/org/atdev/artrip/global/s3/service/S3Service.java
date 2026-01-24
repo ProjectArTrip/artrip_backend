@@ -212,38 +212,6 @@ public class S3Service {
         }
     }
 
-    public String buildResizeUrl(String originalUrl, Integer width, Integer height, String format) {
-        if (originalUrl == null || originalUrl.isEmpty()) {
-            return originalUrl;
-        }
-
-        if (cloudFrontDomain == null || cloudFrontDomain.isEmpty()) {
-            return originalUrl;
-        }
-
-        if (resizeSecretKey == null || resizeSecretKey.isEmpty()) {
-            return null;
-        }
-
-        try {
-            String s3Key = getKeyFromImageUrls(originalUrl);
-            int w = (width != null && width > 0) ? Math.min(width, 1200) : 1;
-            int h = (height != null && height > 0) ? Math.min(height, 1200) : 1;
-            String f = (format != null && !format.isEmpty()) ? format : "webp";
-            long ts = System.currentTimeMillis() / 1000;
-
-            String sig = generateSignature(s3Key, w, h, f, ts);
-
-            return String.format("https://%s?key=%s&w=%d&h=%d&f=%s&ts=%d&sig=%s",
-                    cloudFrontDomain,
-                    URLEncoder.encode(s3Key, StandardCharsets.UTF_8),
-                    w, h, f, ts, sig);
-        } catch (Exception e) {
-            log.warn("리사이징 URL 생성 실패: {}", originalUrl);
-            return originalUrl;
-        }
-    }
-
     private String uploadToFolder(MultipartFile file, String folder) {
         validateFile(file);
         return uploadToS3(file, folder);
