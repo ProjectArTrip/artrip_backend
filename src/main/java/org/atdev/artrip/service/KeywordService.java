@@ -46,11 +46,7 @@ public class KeywordService {
         userKeywordRepository.deleteByUserId(command.userId());
 
         List<UserKeyword> userKeywords = keywords.stream()
-                .map(keyword -> UserKeyword.builder()
-                        .user(user)
-                        .keyword(keyword)
-                        .createdAt(LocalDateTime.now())
-                        .build())
+                .map(keyword -> UserKeyword.create(user,keyword))
                 .toList();
 
         userKeywordRepository.saveAll(userKeywords);

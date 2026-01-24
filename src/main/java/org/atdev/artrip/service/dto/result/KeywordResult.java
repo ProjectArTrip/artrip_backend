@@ -4,6 +4,7 @@ import org.atdev.artrip.constants.KeywordType;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
 
+
 public record KeywordResult(
         Long keywordId,
         String name,
@@ -18,7 +19,5 @@ public record KeywordResult(
         Keyword k = userKeyword.getKeyword();
         return new KeywordResult(k.getKeywordId(), k.getName(), k.getType());
     }
-
-
 
 }

@@ -1,17 +1,11 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.KeywordListResponse;
 import org.atdev.artrip.controller.spec.KeywordSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
-import org.atdev.artrip.controller.dto.response.KeywordResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.KeywordErrorCode;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.command.KeywordCommand;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.http.ResponseEntity;

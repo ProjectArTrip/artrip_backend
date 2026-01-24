@@ -7,6 +7,7 @@ import java.util.List;
 public record KeywordListResponse(
         List<KeywordResponse> keywords
 ) {
+
     public static KeywordListResponse from(List<KeywordResult> results) {
         return new KeywordListResponse(
                 results.stream().map(KeywordResponse::from).toList());
