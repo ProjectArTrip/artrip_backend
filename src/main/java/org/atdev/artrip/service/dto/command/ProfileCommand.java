@@ -14,4 +14,5 @@ public record ProfileCommand(
     public static ProfileCommand of(Long userId) {
         return new ProfileCommand(userId,null);
     }
+
 }

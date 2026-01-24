@@ -1,20 +1,14 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
 import org.atdev.artrip.controller.dto.response.ProfileImageResponse;
 import org.atdev.artrip.controller.spec.UserSpecification;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
 import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.command.UserReadCommand;
 import org.atdev.artrip.service.dto.command.NicknameCommand;
 import org.atdev.artrip.service.dto.command.ProfileCommand;

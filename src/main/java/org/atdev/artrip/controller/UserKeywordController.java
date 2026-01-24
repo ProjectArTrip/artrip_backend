@@ -20,7 +20,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+
 public class UserKeywordController implements KeywordSpecification {
 
     private final KeywordService keywordService;
