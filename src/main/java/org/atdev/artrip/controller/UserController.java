@@ -2,14 +2,11 @@ package org.atdev.artrip.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
-import org.atdev.artrip.controller.dto.response.ProfileImageResponse;
+import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
-import org.atdev.artrip.controller.dto.response.MypageResponse;
-import org.atdev.artrip.controller.dto.response.NicknameResponse;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
 import org.springframework.http.MediaType;
@@ -70,12 +67,12 @@ public class UserController implements UserSpecification {
 
     @Override
     @GetMapping("/recent-exhibits")
-    public ResponseEntity<List<ExhibitRecentResponse>> getRecentExhibit(
+    public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
             @LoginUser Long userId){
 
-        List<ExhibitRecentResult> responses = userService.getRecentViews(userId);
+        List<ExhibitRecentResult> results = userService.getRecentViews(userId);
 
-        return ResponseEntity.ok(ExhibitRecentResponse.from(responses));
+        return ResponseEntity.ok(ExhibitRecentResponse.from(results));
     }
 
 }

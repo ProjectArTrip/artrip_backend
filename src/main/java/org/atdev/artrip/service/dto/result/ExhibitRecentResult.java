@@ -11,6 +11,7 @@ public record ExhibitRecentResult(
 ) {
 
     public static ExhibitRecentResult from(Exhibit exhibit){
+
         return ExhibitRecentResult.builder()
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
