@@ -36,6 +36,7 @@ public class ExhibitService {
         );
 
         boolean isFavorite = false;
+
         if (command.userId() != null) {
             isFavorite = favoriteExhibitRepository.existsActive(command.userId(), command.exhibitId());
             userHistoryService.addRecentView(command.userId(), command.exhibitId());

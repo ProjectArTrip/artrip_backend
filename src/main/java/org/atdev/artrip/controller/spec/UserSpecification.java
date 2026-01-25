@@ -25,7 +25,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
     )
-    public ResponseEntity<ProfileImageResponse> getUpdateImage(
+    public ResponseEntity<ProfileImageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image);
 
@@ -35,7 +35,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
     )
-    public ResponseEntity<Void> getDeleteImage(
+    public ResponseEntity<Void> deleteUserImage(
             @LoginUser Long userId);
 
 

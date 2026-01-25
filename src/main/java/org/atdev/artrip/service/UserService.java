@@ -56,7 +56,7 @@ public class UserService {
         return new NicknameResult(newNick);
     }
 
-    public ProfileResult updateProfileImg(ProfileCommand command){
+    public ProfileResult updateUserImage(ProfileCommand command){
 
         User user = findUserOrThrow(command.userId());
 
@@ -85,7 +85,7 @@ public class UserService {
         return new ProfileResult(newUrl);
     }
 
-    public void deleteProfileImg(ProfileCommand command){
+    public void deleteUserImage(ProfileCommand command){
 
         User user = findUserOrThrow(command.userId());
 

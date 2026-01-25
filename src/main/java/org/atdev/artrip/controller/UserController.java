@@ -1,20 +1,14 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
 import org.atdev.artrip.controller.dto.response.ProfileImageResponse;
 import org.atdev.artrip.controller.spec.UserSpecification;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
 import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.command.UserReadCommand;
 import org.atdev.artrip.service.dto.command.NicknameCommand;
 import org.atdev.artrip.service.dto.command.ProfileCommand;
@@ -37,31 +31,31 @@ public class UserController implements UserSpecification {
     private final UserService userService;
 
     @Override
-    @PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProfileImageResponse> getUpdateImage(
+    @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProfileImageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image){
 
         ProfileCommand command = ProfileCommand.of(userId,image);
-        ProfileResult result = userService.updateProfileImg(command);
+        ProfileResult result = userService.updateUserImage(command);
 
         return ResponseEntity.ok(ProfileImageResponse.from(result));
     }
 
     @Override
-    @DeleteMapping("/profile-image")
-    public ResponseEntity<Void> getDeleteImage(
+    @DeleteMapping("/image")
+    public ResponseEntity<Void> deleteUserImage(
             @LoginUser Long userId){
 
         ProfileCommand command = ProfileCommand.of(userId);
 
-        userService.deleteProfileImg(command);
+        userService.deleteUserImage(command);
 
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    @PatchMapping()
+    @PatchMapping
     public ResponseEntity<NicknameResponse> updateNickname(
             @LoginUser Long userId,
             @RequestBody NicknameRequest request) {
@@ -73,7 +67,7 @@ public class UserController implements UserSpecification {
     }
 
     @Override
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<MypageResponse> getMypage(
             @LoginUser Long userId) {
 
