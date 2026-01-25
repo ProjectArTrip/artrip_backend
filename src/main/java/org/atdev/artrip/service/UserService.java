@@ -33,7 +33,7 @@ public class UserService {
     @Qualifier("recommendRedisTemplate")
     private final StringRedisTemplate recommendRedisTemplate;
     private final ExhibitRepository exhibitRepository;
-    private final TransactionTemplate transactionTemplate;
+    private final UserImageService userImageService;
 
     @Transactional
     public void updateNickName(Long userId, String newNickName){
@@ -53,40 +53,27 @@ public class UserService {
 
     public void updateUserImage(Long userId, MultipartFile image){
 
-        User user = findUserOrThrow(userId);
-
-
         if (image == null || image.isEmpty()) {
             throw new GeneralException(UserErrorCode._PROFILE_IMAGE_NOT_EXIST);
         }
 
-        String oldUrl = user.getProfileImageUrl();
         String newUrl = s3Service.uploadProfile(image);
 
         try {
-            transactionTemplate.executeWithoutResult(status -> {
-                User tUser = findUserOrThrow(userId);
-                tUser.updateProfileImage(newUrl);
-            });
+            String oldUrl = userImageService.updateProfilePath(userId, newUrl);
+
+            if (oldUrl != null && !oldUrl.isBlank()) {
+                s3Service.delete(oldUrl);
+            }
         } catch (Exception e) {
             s3Service.delete(newUrl);
             throw e;
-        }
-
-        if (oldUrl != null && !oldUrl.isBlank()) {
-            s3Service.delete(oldUrl);
         }
     }
 
     public void deleteUserImage(Long userId){
 
-        User user = findUserOrThrow(userId);
-        String oldUrl = user.getProfileImageUrl();
-
-        transactionTemplate.executeWithoutResult(status -> {
-            User tUser = findUserOrThrow(userId);
-            tUser.updateProfileImage(null);
-        });
+        String oldUrl = userImageService.deleteProfilePath(userId);
 
         if (oldUrl != null && !oldUrl.isBlank()) {
                 s3Service.delete(oldUrl);
