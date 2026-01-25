@@ -1,5 +1,6 @@
 package org.atdev.artrip.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
 import org.atdev.artrip.controller.dto.response.ProfileImageResponse;
@@ -9,13 +10,8 @@ import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
 import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.service.dto.command.UserReadCommand;
-import org.atdev.artrip.service.dto.command.NicknameCommand;
-import org.atdev.artrip.service.dto.command.ProfileCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
-import org.atdev.artrip.service.dto.result.NicknameResult;
-import org.atdev.artrip.service.dto.result.ProfileResult;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,10 +32,9 @@ public class UserController implements UserSpecification {
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image){
 
-        ProfileCommand command = ProfileCommand.of(userId,image);
-        ProfileResult result = userService.updateUserImage(command);
+        userService.updateUserImage(userId, image);
 
-        return ResponseEntity.ok(ProfileImageResponse.from(result));
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -47,9 +42,7 @@ public class UserController implements UserSpecification {
     public ResponseEntity<Void> deleteUserImage(
             @LoginUser Long userId){
 
-        ProfileCommand command = ProfileCommand.of(userId);
-
-        userService.deleteUserImage(command);
+        userService.deleteUserImage(userId);
 
         return ResponseEntity.noContent().build();
     }
@@ -58,12 +51,11 @@ public class UserController implements UserSpecification {
     @PatchMapping
     public ResponseEntity<NicknameResponse> updateNickname(
             @LoginUser Long userId,
-            @RequestBody NicknameRequest request) {
+            @RequestBody @Valid NicknameRequest request) {
 
-        NicknameCommand command = request.toCommand(request,userId);
-        NicknameResult response = userService.updateNickName(command);
+        userService.updateNickName(userId,request.NickName());
 
-        return ResponseEntity.ok(NicknameResponse.from(response));
+        return ResponseEntity.noContent().build();
     }
 
     @Override
@@ -71,8 +63,7 @@ public class UserController implements UserSpecification {
     public ResponseEntity<MypageResponse> getMypage(
             @LoginUser Long userId) {
 
-        UserReadCommand command = UserReadCommand.from(userId);
-        MypageResult response = userService.getMypage(command);
+        MypageResult response = userService.getMypage(userId);
 
         return ResponseEntity.ok(MypageResponse.from(response));
     }
@@ -82,8 +73,7 @@ public class UserController implements UserSpecification {
     public ResponseEntity<List<ExhibitRecentResponse>> getRecentExhibit(
             @LoginUser Long userId){
 
-        UserReadCommand command = UserReadCommand.from(userId);
-        List<ExhibitRecentResult> responses = userService.getRecentViews(command);
+        List<ExhibitRecentResult> responses = userService.getRecentViews(userId);
 
         return ResponseEntity.ok(ExhibitRecentResponse.from(responses));
     }
