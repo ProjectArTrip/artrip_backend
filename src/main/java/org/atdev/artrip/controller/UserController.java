@@ -60,9 +60,9 @@ public class UserController implements UserSpecification {
     public ResponseEntity<MypageResponse> getMypage(
             @LoginUser Long userId) {
 
-        MypageResult response = userService.getMypage(userId);
+        MypageResult result = userService.getMypage(userId);
 
-        return ResponseEntity.ok(MypageResponse.from(response));
+        return ResponseEntity.ok(MypageResponse.from(result));
     }
 
     @Override
