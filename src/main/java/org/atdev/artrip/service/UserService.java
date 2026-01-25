@@ -11,6 +11,7 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
+import org.atdev.artrip.utils.NicknameUtils;
 import org.atdev.artrip.utils.RedisUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -47,7 +48,7 @@ public class UserService {
             throw new GeneralException(UserErrorCode._DUPLICATE_NICKNAME);
         }
 
-        user.updateNickname(newNickName);
+        NicknameUtils.getValidatedNickname(newNickName);
     }
 
     public void updateUserImage(Long userId, MultipartFile image){
