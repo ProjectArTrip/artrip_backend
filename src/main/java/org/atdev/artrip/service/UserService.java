@@ -2,6 +2,7 @@ package org.atdev.artrip.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
@@ -66,7 +67,7 @@ public class UserService {
         }
 
         String oldUrl = user.getProfileImageUrl();
-        String newUrl = s3Service.uploadProfile(command.image());
+        String newUrl = s3Service.uploadFile(command.image(), FileFolder.PROFILES);
 
         try {
             transactionTemplate.executeWithoutResult(status -> {

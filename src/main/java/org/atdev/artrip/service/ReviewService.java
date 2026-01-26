@@ -80,24 +80,13 @@ public class ReviewService {
 
         reviewConverter.updateReviewFromDto(review, request);
 
-        //이미지 삭제
         if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
 
             List<ReviewImage> preImages = reviewImageRepository.findByReview_ReviewId(reviewId);
 
-            log.info("리뷰아이디:{}: 기존 이미지{}", reviewId, preImages.stream()
-                    .map(img -> img.getImageId() + ":" + img.getImageUrl())
-                    .toList());
-            log.info("삭제할 이미지 ID: {}", request.getDeleteImageIds());
-
-
             List<ReviewImage> imagesToDelete = preImages.stream()
                     .filter(img -> request.getDeleteImageIds().contains(img.getImageId()))
                     .toList();
-
-            log.info("삭제될 이미지: {}", imagesToDelete.stream()
-                    .map(img -> img.getImageId() + ":" + img.getImageUrl())
-                    .toList());
 
             if (!imagesToDelete.isEmpty()) {
                 List<String> urlsToDelete = imagesToDelete.stream()
@@ -110,9 +99,8 @@ public class ReviewService {
             }
         }
 
-        //이미지 추가
         if (images != null && !images.isEmpty()) {
-            List<String> s3Urls = s3Service.uploadPoster(images);
+            List<String> s3Urls = s3Service.uploadFiles(images,FileFolder.POSTERS);
             List<ReviewImage> newReviewImages = reviewConverter.toReviewImage(review, s3Urls);
             reviewImageRepository.saveAll(newReviewImages);
             review.getImages().addAll(newReviewImages);
