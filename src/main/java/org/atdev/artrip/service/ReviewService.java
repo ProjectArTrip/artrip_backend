@@ -2,6 +2,7 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.domain.review.ReviewImage;
 import org.atdev.artrip.domain.auth.User;
@@ -54,7 +55,7 @@ public class ReviewService {
 
         List<String> s3Urls = (images == null || images.isEmpty())
                 ? new ArrayList<>()
-                : s3Service.uploadReviews(images);
+                : s3Service.uploadFiles(images, FileFolder.REVIEWS);
 
         List<ReviewImage> reviewImages = reviewConverter.toReviewImage(review,s3Urls);
 

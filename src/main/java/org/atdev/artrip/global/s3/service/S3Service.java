@@ -1,6 +1,7 @@
 package org.atdev.artrip.global.s3.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,47 +44,62 @@ public class S3Service {
     private static final String FOLDER_REVIEWS = "reviews";
     private static final String FOLDER_PROFILES = "profiles";
 
-    public String uploadPoster(MultipartFile file) {
-        return uploadToFolder(file, FOLDER_POSTERS);
+
+    public String uploadFile(MultipartFile file, FileFolder folder) {
+        validateFile(file);
+        return uploadToS3(file, folder.getPath());
     }
 
-    // S3에 저장된 이미지 객체의 public url을 반환
-    public List<String> uploadPoster(List<MultipartFile> files) {
-        // 각 파일을 업로드하고 url을 리스트로 반환
+    public List<String> uploadFiles(List<MultipartFile> files, FileFolder folder) {
+
         return files.stream()
-                .map(this::uploadPoster)
+                .map(file -> uploadFile(file, folder))
                 .toList();
     }
+    //11111111111111111111111111111111111111111111111111111111
 
-    public String uploadReview(MultipartFile  file) {
-        return uploadToFolder(file, FOLDER_REVIEWS);
-    }
+//    public String uploadPoster(MultipartFile file) {
+//        return uploadToFolder(file, FOLDER_POSTERS);
+//    }
+//
+//    public List<String> uploadPoster(List<MultipartFile> files) {
+//        return files.stream()
+//                .map(this::uploadPoster)
+//                .toList();
+//    }
+//
+//    public String uploadReview(MultipartFile  file) {
+//        return uploadToFolder(file, FOLDER_REVIEWS);
+//    }
+//
+//    public List<String> uploadReviews(List<MultipartFile> files) {
+//        return files.stream()
+//                .map(this::uploadReview)
+//                .toList();
+//    }
+//
+//    public String uploadProfile(MultipartFile file) {
+//        return uploadToFolder(file, FOLDER_PROFILES);
+//    }
 
-    public List<String> uploadReviews(List<MultipartFile> files) {
-        return files.stream()
-                .map(this::uploadReview)
-                .toList();
-    }
 
-    public String uploadProfile(MultipartFile file) {
-        return uploadToFolder(file, FOLDER_PROFILES);
-    }
-
-    // 파일 유효성 검증
     private void validateFile(MultipartFile file) {
+
+        if (file == null || file.isEmpty()) {
+            throw new GeneralException(S3ErrorCode._NOT_EXIST_FILE);
+        }
+
         String filename = file.getOriginalFilename();
-        // 파일 존재 유무 검증
+
         if (filename == null || filename.isEmpty()) {
             throw new GeneralException(S3ErrorCode._NOT_EXIST_FILE);
         }
 
-        // 확장자 존재 유무 검증
         int lastDotIndex = filename.lastIndexOf(".");
         if (lastDotIndex == -1) {
             throw new GeneralException(S3ErrorCode._NOT_EXIST_FILE_EXTENSION);
         }
 
-        // 허용되지 않는 확장자 검증
         String fileExtension = filename.substring(filename.lastIndexOf(".") + 1).toLowerCase();
         List<String> allowedExtensions = Arrays.asList("jpg", "png", "jpeg", "webp");
 
@@ -97,37 +113,28 @@ public class S3Service {
         }
     }
 
-    // 직접적으로 S3에 업로드
     private String uploadToS3(MultipartFile file, String folder) {
-        // 원본 파일 명
         String originalFilename = file.getOriginalFilename();
-        // 확장자 명
         String extension = Objects.requireNonNull(originalFilename).substring(originalFilename.lastIndexOf(".") + 1);
-        // 변경된 파일
         String s3Key = String.format("%s/%s.%s", folder, UUID.randomUUID().toString().substring(0, 10), extension);
 
-        // 이미지 파일 -> InputStream 변환
         try (InputStream inputStream = file.getInputStream()) {
-            // PutObjectRequest 객체 생성
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName) // 버킷 이름
-                    .key(s3Key) // 저장할 파일 이름
-                    .contentType("image/" + extension) // 이미지 MIME 타입
-                    .contentLength(file.getSize()) // 파일 크기
+                    .bucket(bucketName)
+                    .key(s3Key)
+                    .contentType("image/" + extension)
+                    .contentLength(file.getSize())
                     .cacheControl("public, max-age=31536000")
                     .build();
-            // S3에 이미지 업로드
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
             throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
         }
 
-        // public url 반환
         return buildImageUrl(s3Key);
     }
 
-    // 이미지의 public url을 이용하여 S3에서 해당 이미지를 제거, getKeyFromImageAddress 메서드를 호출하여 삭제에 필요한 key 획득
     public void delete(List<String> imageUrls) {
         if (imageUrls == null || imageUrls.isEmpty()) {
             return;
@@ -143,24 +150,21 @@ public class S3Service {
         }
 
         try {
-            // S3에서 파일을 삭제하기 위한 요청 객체 생성
             DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
-                    .bucket(bucketName) // S3 버킷 이름 지정
+                    .bucket(bucketName)
                     .delete(delete -> delete.objects(
-                            // S3 객체들을 삭제할 객체 목록을 생성
                             keys.stream()
                                     .map(key -> ObjectIdentifier.builder().key(key).build())
                                     .toList()
                     ))
                     .build();
-            s3Client.deleteObjects(deleteObjectsRequest); // S3에서 객체 삭제
+            s3Client.deleteObjects(deleteObjectsRequest);
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
             throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
         }
     }
 
-//단일 delete
     public void delete(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) {
             return;
@@ -179,12 +183,11 @@ public class S3Service {
         }
     }
 
-    // 삭제에 필요한 key 반환
     private String getKeyFromImageUrls(String imageUrl) {
         try {
-            URL url = new URI(imageUrl).toURL(); // 인코딩된 주소를 URI 객체로 변환 후 URL 객체로 변환
-            String decodedKey = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8);// URI에서 경로 부분을 가져와 URL 디코딩을 통해 실제 키로 변환
-            return decodedKey.substring(1); // 경로 앞에 '/'가 있으므로 이를 제거한 뒤 반환
+            URL url = new URI(imageUrl).toURL();
+            String decodedKey = URLDecoder.decode(url.getPath(), StandardCharsets.UTF_8);
+            return decodedKey.substring(1);
         } catch (Exception exception) {
             log.error(exception.getMessage(), exception);
             throw new GeneralException(S3ErrorCode._INVALID_URL_FORMAT);
@@ -198,56 +201,56 @@ public class S3Service {
         return s3Client.utilities().getUrl(url -> url.bucket(bucketName).key(s3Key)).toString();
     }
 
-    private String generateSignature(String key, int w, int h, String f, long ts) {
-        try {
-            String data = String.format("%s:%d:%d:%s:%d", key, w, h, f, ts);
-            Mac mac = Mac.getInstance("HmacSHA256");
-            SecretKeySpec secretKeySpec = new SecretKeySpec(resizeSecretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-            mac.init(secretKeySpec);
-            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
-        } catch (Exception e) {
-            log.error("서명 생성 실패", e);
-            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
-        }
-    }
+//    private String generateSignature(String key, int w, int h, String f, long ts) {
+//        try {
+//            String data = String.format("%s:%d:%d:%s:%d", key, w, h, f, ts);
+//            Mac mac = Mac.getInstance("HmacSHA256");
+//            SecretKeySpec secretKeySpec = new SecretKeySpec(resizeSecretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+//            mac.init(secretKeySpec);
+//            byte[] hash = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+//            return HexFormat.of().formatHex(hash);
+//        } catch (Exception e) {
+//            log.error("서명 생성 실패", e);
+//            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
+//        }
+//    }
+//
+//    public String buildResizeUrl(String originalUrl, Integer width, Integer height, String format) {
+//        if (originalUrl == null || originalUrl.isEmpty()) {
+//            return originalUrl;
+//        }
+//
+//        if (cloudFrontDomain == null || cloudFrontDomain.isEmpty()) {
+//            return originalUrl;
+//        }
+//
+//        if (resizeSecretKey == null || resizeSecretKey.isEmpty()) {
+//            return null;
+//        }
+//
+//        try {
+//            String s3Key = getKeyFromImageUrls(originalUrl);
+//            int w = (width != null && width > 0) ? Math.min(width, 1200) : 1;
+//            int h = (height != null && height > 0) ? Math.min(height, 1200) : 1;
+//            String f = (format != null && !format.isEmpty()) ? format : "webp";
+//            long ts = System.currentTimeMillis() / 1000;
+//
+//            String sig = generateSignature(s3Key, w, h, f, ts);
+//
+//            return String.format("https://%s?key=%s&w=%d&h=%d&f=%s&ts=%d&sig=%s",
+//                    cloudFrontDomain,
+//                    URLEncoder.encode(s3Key, StandardCharsets.UTF_8),
+//                    w, h, f, ts, sig);
+//        } catch (Exception e) {
+//            log.warn("리사이징 URL 생성 실패: {}", originalUrl);
+//            return originalUrl;
+//        }
+//    }
 
-    public String buildResizeUrl(String originalUrl, Integer width, Integer height, String format) {
-        if (originalUrl == null || originalUrl.isEmpty()) {
-            return originalUrl;
-        }
-
-        if (cloudFrontDomain == null || cloudFrontDomain.isEmpty()) {
-            return originalUrl;
-        }
-
-        if (resizeSecretKey == null || resizeSecretKey.isEmpty()) {
-            return null;
-        }
-
-        try {
-            String s3Key = getKeyFromImageUrls(originalUrl);
-            int w = (width != null && width > 0) ? Math.min(width, 1200) : 1;
-            int h = (height != null && height > 0) ? Math.min(height, 1200) : 1;
-            String f = (format != null && !format.isEmpty()) ? format : "webp";
-            long ts = System.currentTimeMillis() / 1000;
-
-            String sig = generateSignature(s3Key, w, h, f, ts);
-
-            return String.format("https://%s?key=%s&w=%d&h=%d&f=%s&ts=%d&sig=%s",
-                    cloudFrontDomain,
-                    URLEncoder.encode(s3Key, StandardCharsets.UTF_8),
-                    w, h, f, ts, sig);
-        } catch (Exception e) {
-            log.warn("리사이징 URL 생성 실패: {}", originalUrl);
-            return originalUrl;
-        }
-    }
-
-    private String uploadToFolder(MultipartFile file, String folder) {
-        validateFile(file);
-        return uploadToS3(file, folder);
-    }
+//    private String uploadToFolder(MultipartFile file, String folder) {
+//        validateFile(file);
+//        return uploadToS3(file, folder);
+//    }
 
     public String uploadFromExternalUrl(String externalUrl, String folder){
         if (externalUrl == null || externalUrl.isBlank()) {

@@ -21,4 +21,5 @@ public record ExhibitFilterRequest (
         Set<String> styles,
 
         SortType sortType) {
+
 }
