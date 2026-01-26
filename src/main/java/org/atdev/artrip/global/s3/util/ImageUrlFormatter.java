@@ -16,7 +16,8 @@ public class ImageUrlFormatter {
     private final S3Service s3Service;
 
 public String getResizedUrl(String originalUrl, Integer w, Integer h, String f) {
-    return s3Service.buildResizeUrl(originalUrl, w, h, f);
+//    return s3Service.buildResizeUrl(originalUrl, w, h, f);
+    return null;
 }
     public List<ExhibitRandomResult> resizePosterUrls(List<ExhibitRandomResult> responses, Integer w, Integer h, String f) {
         if (responses == null || responses.isEmpty()) return List.of();

@@ -151,9 +151,6 @@ public class ReviewService {
                 .map(ReviewConverter::toSummary)
                 .toList();
 
-        summaries.forEach(r -> r.setThumbnailUrl(
-                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.w(), resize.h(), resize.f())
-        ));
 
         return new ReviewSliceResponse(summaries, nextCursor, slice.hasNext());
     }
@@ -180,9 +177,7 @@ public class ReviewService {
                 .map(ReviewConverter::toExhibitReviewSummary)
                 .toList();
 
-        summaries.forEach(r -> r.setThumbnailUrl(
-                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.w(), resize.h(), resize.f())
-        ));
+
 
         return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext(),totalCount);
     }
