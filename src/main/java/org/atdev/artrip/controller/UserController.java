@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.service.UserHistoryService;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
@@ -22,6 +23,7 @@ import java.util.List;
 public class UserController implements UserSpecification {
 
     private final UserService userService;
+    private final UserHistoryService userHistoryService;
 
     @Override
     @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -70,7 +72,7 @@ public class UserController implements UserSpecification {
     public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
             @LoginUser Long userId){
 
-        List<ExhibitRecentResult> results = userService.getRecentViews(userId);
+        List<ExhibitRecentResult> results = userHistoryService.getRecentViews(userId);
 
         return ResponseEntity.ok(ExhibitRecentResponse.from(results));
     }

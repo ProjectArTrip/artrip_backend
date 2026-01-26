@@ -88,30 +88,6 @@ public class UserService {
         return new MypageResult(user.getNickName(), profileImage, user.getEmail());
     }
 
-    public List<ExhibitRecentResult> getRecentViews(Long userId) {
-
-        String key = RedisUtils.getRecentViewKey(userId);
-        Set<String> result = recommendRedisTemplate.opsForZSet().reverseRange(key, 0, 19);
-        if (result == null || result.isEmpty())
-            return List.of();
-
-        List<Long> ids= result.stream()
-                .map(Long::valueOf)
-                .toList();
-
-        List<Exhibit> exhibits = exhibitRepository.findAllByIdWithHall(ids);
-        if (exhibits.isEmpty()) return List.of();
-
-        Map<Long, Exhibit> exhibitMap = exhibits.stream()
-                .collect(Collectors.toMap(Exhibit::getExhibitId, e -> e));
-
-        return ids.stream()
-                .map(exhibitMap::get)
-                .filter(Objects::nonNull)
-                .map(ExhibitRecentResult::from)
-                .toList();
-    }
-
     private User findUserOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
