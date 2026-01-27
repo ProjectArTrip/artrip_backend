@@ -59,7 +59,6 @@ dependencies {
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0'
 
     implementation 'com.auth0:java-jwt:4.4.0'
-
     implementation 'com.auth0:jwks-rsa:0.23.0'
 
     //QueryDSL

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -81,10 +83,6 @@ public class User {
         return String.valueOf(userId);
     }
 
-    public void updateNickname(String nickName) {
-        this.nickName=nickName.trim();
-    }
-
     public void updateProfileImage(String url){
         this.profileImageUrl=url;
     }
@@ -112,4 +110,6 @@ public class User {
             social.setUser(this);
         }
     }
+
+
 }

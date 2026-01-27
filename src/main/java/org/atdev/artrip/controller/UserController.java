@@ -1,20 +1,15 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.controller.dto.response.*;
+import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.service.UserHistoryService;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
-import org.atdev.artrip.controller.dto.response.MypageResponse;
-import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.springdoc.core.annotations.ParameterObject;
+import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
+import org.atdev.artrip.service.dto.result.MypageResult;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,83 +19,62 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/my")
-public class UserController {
+@RequestMapping("/me")
+public class UserController implements UserSpecification {
 
     private final UserService userService;
+    private final UserHistoryService userHistoryService;
 
-    @Operation(summary = "프로필 이미지 추가", description = "프로필 이미지를 추가합니다")
-    @PostMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
-    )
-    public ResponseEntity<CommonResponse<String>> getUpdateImage(
+    @Override
+    @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProfileImageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image){
 
-        userService.updateProfileImg(userId,image);
+        userService.updateUserImage(userId, image);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 생성"));
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "프로필 이미지 삭제", description = "기본 프로필 이미지로 변경됩니다")
-    @DeleteMapping("/profile")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
-    )
-    public ResponseEntity<CommonResponse<String>> getDeleteImage(
+    @Override
+    @DeleteMapping("/image")
+    public ResponseEntity<Void> deleteUserImage(
             @LoginUser Long userId){
 
-        userService.deleteProfileImg(userId);
+        userService.deleteUserImage(userId);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess("프로필 이미지 삭제"));
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "닉네임 설정", description = "공백 입력 불가")
-    @PatchMapping("/nickname")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._DUPLICATE_NICKNAME, UserErrorCode._USER_NOT_FOUND, UserErrorCode._NICKNAME_BAD_REQUEST}
-    )
-    public ResponseEntity<CommonResponse<NicknameResponse>> updateNickname(
+    @Override
+    @PatchMapping
+    public ResponseEntity<NicknameResponse> updateNickname(
             @LoginUser Long userId,
-            @RequestBody NicknameRequest dto) {
+            @RequestBody @Valid NicknameRequest request) {
 
-        NicknameResponse response = userService.updateNickName(userId, dto);
+        userService.updateNickName(userId,request.NickName());
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "마이페이지 조회", description = "닉네임, 프로필 이미지 조회")
-    @GetMapping("/mypage")
-//    @ApiErrorResponses(
-//            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-//            user = {UserErrorCode._USER_NOT_FOUND}
-//    )
-    public ResponseEntity<CommonResponse<MypageResponse>> getMypage(
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize) {
+    @Override
+    @GetMapping
+    public ResponseEntity<MypageResponse> getMypage(
+            @LoginUser Long userId) {
 
-        MypageResponse response = userService.getMypage(userId, resize);
+        MypageResult result = userService.getMypage(userId);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(MypageResponse.from(result));
     }
 
-    @Operation(summary = "최근 본 전시", description = "최근 본 전시 20개")
-    @GetMapping("/recent")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            user = {UserErrorCode._USER_NOT_FOUND},
-            exhibit = {ExhibitErrorCode._EXHIBIT_NOT_FOUND}
-    )
-    public ResponseEntity<CommonResponse<List<ExhibitRecentResponse>>> getRecentExhibit(
+    @Override
+    @GetMapping("/recent-exhibits")
+    public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
             @LoginUser Long userId){
 
-        List<ExhibitRecentResponse> responses = userService.getRecentViews(userId);
+        List<ExhibitRecentResult> results = userHistoryService.getRecentViews(userId);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(responses));
+        return ResponseEntity.ok(ExhibitRecentResponse.from(results));
     }
 
 }
