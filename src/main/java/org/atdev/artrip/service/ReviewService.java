@@ -6,6 +6,8 @@ import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.domain.review.ReviewImage;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
@@ -45,10 +47,10 @@ public class ReviewService {
     public ReviewResponse createReview(Long exhibitId, ReviewCreateRequest request, List<MultipartFile> images, Long userId){
 
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
         Review review = reviewConverter.toEntity(user,exhibit,request);
         reviewRepository.save(review);
