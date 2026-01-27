@@ -50,4 +50,12 @@ public class SocialAccounts {
                 .providerId(info.getProviderId())
                 .build();
     }
+
+    public static SocialAccounts of(User user, SocialUserInfo info) {
+        SocialAccounts social = new SocialAccounts();
+        social.user = user;
+        social.provider = info.getProvider();
+        social.providerId = info.getProviderId();
+        return social;
+    }
 }

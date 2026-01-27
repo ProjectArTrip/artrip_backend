@@ -5,17 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.service.dto.result.SearchHistoryResult;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Data
-@Builder
-@AllArgsConstructor
-public class SearchHistoryResponse {
+public record SearchHistoryResponse(
+        Long searchHistoryId,
+        String content,
+        LocalDate createdAt
+) {
 
-    @Id
-    private Long searchHistoryId;
-    private User user;
-    private LocalDateTime createdAt;
-    private String content;
+    public static SearchHistoryResponse from(SearchHistoryResult result) {
+        return new SearchHistoryResponse(
+                result.searchHistoryId(),
+                result.content(),
+                result.createdAt()
+        );
+    }
 }
