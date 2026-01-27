@@ -29,4 +29,13 @@ public class UserKeyword {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+
+    public static UserKeyword create(User user, Keyword keyword) {
+        return UserKeyword.builder()
+                .user(user)
+                .keyword(keyword)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }
