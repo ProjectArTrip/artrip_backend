@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
@@ -25,6 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+
+@AutoConfigureRestDocs
 @ExtendWith(MockitoExtension.class)
 public class SearchHistoryServiceTest {
 
@@ -99,7 +102,7 @@ public class SearchHistoryServiceTest {
     public void getRecentSearchHistory() {
         //given
         Long userId = 1L;
-        SearchHistoryCommand command = SearchHistoryCommand.of(userId);
+        SearchHistoryCommand command = new SearchHistoryCommand(userId, null);
 
         SearchHistory history = SearchHistory.of(2L, testUser, "과학적 미술", LocalDate.now());
         List<SearchHistory> histories = List.of(testSearchHistory,history);
@@ -124,7 +127,8 @@ public class SearchHistoryServiceTest {
         // given
         Long userId = 1L;
         Long searchHistoryId = 1L;
-        SearchHistoryCommand command = SearchHistoryCommand.forDelete(userId, searchHistoryId);
+        SearchHistoryCommand command = new SearchHistoryCommand(userId, searchHistoryId);
+
 
         when(searchHistoryRepository.findById(searchHistoryId))
                 .thenReturn(Optional.of(testSearchHistory));

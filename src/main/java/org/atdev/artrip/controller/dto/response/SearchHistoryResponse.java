@@ -24,10 +24,4 @@ public record SearchHistoryResponse(
                 result.createdAt()
         );
     }
-
-    public static List<SearchHistoryResponse> fromList(List<SearchHistoryResult> results) {
-        return results.stream()
-                .map(SearchHistoryResponse::from)
-                .toList();
-    }
 }

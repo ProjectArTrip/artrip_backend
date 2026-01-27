@@ -1,6 +1,7 @@
 package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
+import org.atdev.artrip.controller.dto.response.SearchHistoryListResponse;
 import org.atdev.artrip.controller.dto.response.SearchHistoryResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.SearchErrorCode;
@@ -19,7 +20,7 @@ public interface SearchHistorySpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._USER_NOT_FOUND}
     )
-    ResponseEntity<List<SearchHistoryResponse>> getRecentSearchHistory(@LoginUser Long userId);
+    ResponseEntity<SearchHistoryListResponse> getRecentSearchHistory(@LoginUser Long userId);
 
     @Operation(summary = "id별 검색어 삭제")
     @ApiErrorResponses(

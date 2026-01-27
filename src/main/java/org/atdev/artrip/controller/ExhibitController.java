@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.ExhibitSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.service.ExhibitSearchFacade;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
@@ -23,6 +24,7 @@ public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
+    private final ExhibitSearchFacade exhibitSearchFacade;
 
     @Override
     @GetMapping("/genre")
@@ -94,7 +96,7 @@ public class ExhibitController implements ExhibitSpecification {
                 .query(dto.query())
                 .build();
 
-        ExhibitFilterResult result = homeService.getFilterExhibit(command);
+        ExhibitFilterResult result = exhibitSearchFacade.searchAndSaveHistory(command);
 
         return ResponseEntity.ok(FilterResponse.from(result));
     }

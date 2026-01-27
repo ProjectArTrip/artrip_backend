@@ -61,10 +61,6 @@ public class HomeService {
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(command);
         Set<Long> favoriteIds = getFavoriteIds(command.userId());
 
-        if (command.userId() != null) {
-            saveSearchHistory(command);
-        }
-
         return ExhibitFilterResult.of(slice,favoriteIds);
     }
 
@@ -143,11 +139,4 @@ public class HomeService {
                 .map(r -> r.withFavorite(favoriteIds.contains(r.exhibitId())))
                 .toList();
     }
-
-    private void saveSearchHistory(ExhibitFilterCommand command) {
-
-        command.getValidSearch()
-                .forEach(keyword -> searchHistoryService.saveSearchHistory(command.userId(), keyword));
-    }
-
 }

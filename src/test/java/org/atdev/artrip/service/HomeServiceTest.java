@@ -20,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -147,27 +146,6 @@ public class HomeServiceTest {
                 () -> assertThat(result.items()).hasSize(1),
                 () -> assertThat(result.items().get(0).countryName()).contains("한국"),
                 () -> assertThat(result.items().get(0).countryName()).doesNotContain("대한민국")
-        );
-    }
-
-    @Test
-    @DisplayName("검색어 조회 시 키워드별 검색어 저장 호출")
-    void getFilterExhibit_savesKeyword() {
-        ExhibitFilterCommand command = ExhibitFilterCommand.builder()
-                .query("인터랙티브")
-                .userId(1L)
-                .size(10L)
-                .build();
-
-        when(exhibitRepository.findExhibitByFilters(any(ExhibitFilterCommand.class))).thenReturn(new SliceImpl<>(List.of(testExhibit)));
-        when(favoriteExhibitRepository.findActiveExhibitIds(anyLong())).thenReturn(Collections.emptySet());
-
-        //when
-        homeService.getFilterExhibit(command);
-
-        //then
-        assertAll(
-                () -> verify(searchHistoryService).saveSearchHistory(1L, "인터랙티브")
         );
     }
 }
