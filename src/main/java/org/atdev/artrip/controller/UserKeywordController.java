@@ -1,16 +1,11 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.response.KeywordListResponse;
 import org.atdev.artrip.controller.spec.KeywordSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
-import org.atdev.artrip.controller.dto.response.KeywordResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.KeywordErrorCode;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.command.KeywordCommand;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.http.ResponseEntity;
@@ -20,41 +15,41 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/keyword")
 public class UserKeywordController implements KeywordSpecification {
 
     private final KeywordService keywordService;
 
     @Override
-    @PostMapping("/keywords")
-    public ResponseEntity<Void> saveUserKeywords(
+    @PostMapping
+    public ResponseEntity<Void> saveKeywords(
             @LoginUser Long userId,
             @RequestBody KeywordRequest request) {
 
         KeywordCommand command= request.toCommand(userId);
 
-        keywordService.saveUserKeywords(command);
+        keywordService.saveKeywords(command);
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    @GetMapping("/allKeywords")
-    public ResponseEntity<List<KeywordResponse>> getAllKeywords() {
+    @GetMapping("/all")
+    public ResponseEntity<KeywordListResponse> getAllKeywords() {
 
         List<KeywordResult> keywords = keywordService.getAllKeywords();
-        List<KeywordResponse> responses = KeywordResponse.from(keywords);
+        KeywordListResponse response = KeywordListResponse.from(keywords);
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(response);
     }
 
     @Override
-    @GetMapping("/keywords")
-    public ResponseEntity<List<KeywordResponse>> getUserKeywords(@LoginUser Long userId) {
+    @GetMapping
+    public ResponseEntity<KeywordListResponse> getKeyword(@LoginUser Long userId) {
 
-        List<KeywordResult> keywords = keywordService.getUserKeywords(userId);
-        List<KeywordResponse> responses = KeywordResponse.from(keywords);
+        List<KeywordResult> keywords = keywordService.getKeyword(userId);
+        KeywordListResponse response = KeywordListResponse.from(keywords);
 
-        return ResponseEntity.ok(responses);
+        return ResponseEntity.ok(response);
     }
 
 
