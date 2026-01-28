@@ -24,23 +24,23 @@ public record ExhibitFilterRequest (
         SortType sortType
         ) {
 
-        public ExhibitFilterCommand toCommand(Long userId, Long cursor, Long size, Integer width, Integer height, String format){
-                return new ExhibitFilterCommand(
-                        query,
-                        startDate,
-                        endDate,
-                        isDomestic,
-                        country,
-                        region,
-                        genres,
-                        styles,
-                        sortType,
-                        size,
-                        cursor,
-                        userId,
-                        width,
-                        height,
-                        format
-                );
+        public ExhibitFilterCommand toCommand(Long userId, Long cursor, Long size, ImageResizeRequest resize) {
+                return ExhibitFilterCommand.builder()
+                        .query(this.query)
+                        .startDate(this.startDate)
+                        .endDate(this.endDate)
+                        .isDomestic(this.isDomestic)
+                        .country(this.country)
+                        .region(this.region)
+                        .genres(this.genres)
+                        .styles(this.styles)
+                        .sortType(this.sortType)
+                        .userId(userId)
+                        .cursor(cursor)
+                        .size(size)
+                        .width(resize.w())
+                        .height(resize.h())
+                        .format(resize.f())
+                        .build();
         }
 }

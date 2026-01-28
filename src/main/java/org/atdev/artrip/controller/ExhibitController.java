@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.ExhibitSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
-import org.atdev.artrip.service.ExhibitSearchFacade;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
@@ -24,7 +23,6 @@ public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
-    private final ExhibitSearchFacade exhibitSearchFacade;
 
     @Override
     @GetMapping("/genre")
@@ -76,27 +74,8 @@ public class ExhibitController implements ExhibitSpecification {
                                                             @LoginUser Long userId,
                                                             @ParameterObject ImageResizeRequest resize) {
 
-        ExhibitFilterCommand command = ExhibitFilterCommand.builder()
-                .isDomestic(dto.isDomestic())
-                .startDate(dto.startDate())
-                .endDate(dto.endDate())
-                .country(dto.country())
-                .region(dto.region())
-                .genres(dto.genres())
-                .styles(dto.styles())
-                .sortType(dto.sortType())
-
-                .userId(userId)
-                .cursor(cursor)
-                .size(size)
-
-                .width(resize.w())
-                .height(resize.h())
-                .format(resize.f())
-                .query(dto.query())
-                .build();
-
-        ExhibitFilterResult result = exhibitSearchFacade.searchAndSaveHistory(command);
+        ExhibitFilterCommand command = dto.toCommand(userId, cursor, size, resize);
+        ExhibitFilterResult result = homeService.getFilterExhibit(command);
 
         return ResponseEntity.ok(FilterResponse.from(result));
     }
