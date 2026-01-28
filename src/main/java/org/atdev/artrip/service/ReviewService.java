@@ -2,9 +2,12 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.domain.review.ReviewImage;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
@@ -44,17 +47,17 @@ public class ReviewService {
     public ReviewResponse createReview(Long exhibitId, ReviewCreateRequest request, List<MultipartFile> images, Long userId){
 
         User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
         Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
         Review review = reviewConverter.toEntity(user,exhibit,request);
         reviewRepository.save(review);
 
         List<String> s3Urls = (images == null || images.isEmpty())
                 ? new ArrayList<>()
-                : s3Service.uploadReviews(images);
+                : s3Service.uploadFiles(images, FileFolder.REVIEWS);
 
         List<ReviewImage> reviewImages = reviewConverter.toReviewImage(review,s3Urls);
 
@@ -79,24 +82,13 @@ public class ReviewService {
 
         reviewConverter.updateReviewFromDto(review, request);
 
-        //이미지 삭제
         if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
 
             List<ReviewImage> preImages = reviewImageRepository.findByReview_ReviewId(reviewId);
 
-            log.info("리뷰아이디:{}: 기존 이미지{}", reviewId, preImages.stream()
-                    .map(img -> img.getImageId() + ":" + img.getImageUrl())
-                    .toList());
-            log.info("삭제할 이미지 ID: {}", request.getDeleteImageIds());
-
-
             List<ReviewImage> imagesToDelete = preImages.stream()
                     .filter(img -> request.getDeleteImageIds().contains(img.getImageId()))
                     .toList();
-
-            log.info("삭제될 이미지: {}", imagesToDelete.stream()
-                    .map(img -> img.getImageId() + ":" + img.getImageUrl())
-                    .toList());
 
             if (!imagesToDelete.isEmpty()) {
                 List<String> urlsToDelete = imagesToDelete.stream()
@@ -109,9 +101,8 @@ public class ReviewService {
             }
         }
 
-        //이미지 추가
         if (images != null && !images.isEmpty()) {
-            List<String> s3Urls = s3Service.uploadPoster(images);
+            List<String> s3Urls = s3Service.uploadFiles(images,FileFolder.POSTERS);
             List<ReviewImage> newReviewImages = reviewConverter.toReviewImage(review, s3Urls);
             reviewImageRepository.saveAll(newReviewImages);
             review.getImages().addAll(newReviewImages);
@@ -162,9 +153,6 @@ public class ReviewService {
                 .map(ReviewConverter::toSummary)
                 .toList();
 
-        summaries.forEach(r -> r.setThumbnailUrl(
-                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.w(), resize.h(), resize.f())
-        ));
 
         return new ReviewSliceResponse(summaries, nextCursor, slice.hasNext());
     }
@@ -191,9 +179,7 @@ public class ReviewService {
                 .map(ReviewConverter::toExhibitReviewSummary)
                 .toList();
 
-        summaries.forEach(r -> r.setThumbnailUrl(
-                s3Service.buildResizeUrl(r.getThumbnailUrl(), resize.w(), resize.h(), resize.f())
-        ));
+
 
         return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext(),totalCount);
     }

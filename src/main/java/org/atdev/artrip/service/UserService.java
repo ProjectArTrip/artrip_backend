@@ -2,17 +2,15 @@ package org.atdev.artrip.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
 import org.atdev.artrip.utils.NicknameUtils;
-import org.atdev.artrip.utils.RedisUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -29,9 +26,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final S3Service s3Service;
-    @Qualifier("recommendRedisTemplate")
-    private final StringRedisTemplate recommendRedisTemplate;
-    private final ExhibitRepository exhibitRepository;
     private final UserImageService userImageService;
 
     @Transactional
@@ -56,7 +50,7 @@ public class UserService {
             throw new GeneralException(UserErrorCode._PROFILE_IMAGE_NOT_EXIST);
         }
 
-        String newUrl = s3Service.uploadProfile(image);
+        String newUrl = s3Service.uploadFile(image, FileFolder.PROFILES);
 
         try {
             String oldUrl = userImageService.updateProfilePath(userId, newUrl);
