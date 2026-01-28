@@ -26,22 +26,22 @@ public class SearchHistoryService {
     private static final int MAX_CONTENT_LENGTH = 10;
 
     @Transactional
-    public void saveSearchHistory(Long userId, String content) {
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+    public void saveSearchHistory(SearchHistoryCommand command) {
+        User user = userRepository.findByUserId(command.userId()).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        if (content == null || content.isBlank()) {
+        if (command.content() == null || command.content().isBlank()) {
             return;
         }
 
-        String trimmedContent = content.trim();
+        String trimmedContent = command.content().trim();
         if (trimmedContent.length() > MAX_CONTENT_LENGTH) {
             throw new GeneralException(SearchErrorCode._SEARCH_HISTORY_CONTENT_TOO_LONG);
         }
 
         try {
-            searchHistoryRepository.deleteDuplicate(userId, content);
+            searchHistoryRepository.deleteDuplicate(command.userId(), command.content());
 
-            SearchHistory searchHistory = SearchHistory.of(null, user, content, LocalDate.now());
+            SearchHistory searchHistory = SearchHistory.of(null, user, command.content(), LocalDate.now());
             searchHistoryRepository.save(searchHistory);
         } catch (Exception e) {
             throw new GeneralException(SearchErrorCode._SEARCH_HISTORY_SAVE_FAILED);

@@ -32,7 +32,6 @@ public class HomeService {
     private final RegionRepository regionRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final ImageUrlFormatter imageUrlFormatter;
-    private final SearchHistoryService searchHistoryService;
 
 
     public List<GenreResult> getAllGenres() {
@@ -60,10 +59,6 @@ public class HomeService {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(command);
         Set<Long> favoriteIds = getFavoriteIds(command.userId());
-
-        if (command.userId() != null && StringUtils.hasText(command.query())) {
-            saveSearchHistory(command);
-        }
 
         return ExhibitFilterResult.of(slice,favoriteIds);
     }
@@ -142,10 +137,5 @@ public class HomeService {
         return results.stream()
                 .map(r -> r.withFavorite(favoriteIds.contains(r.exhibitId())))
                 .toList();
-    }
-
-    private void saveSearchHistory(ExhibitFilterCommand command) {
-        command.getValidSearch()
-                .forEach(keyword -> searchHistoryService.saveSearchHistory(command.userId(), keyword));
     }
 }

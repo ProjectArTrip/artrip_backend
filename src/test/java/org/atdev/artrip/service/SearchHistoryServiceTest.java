@@ -64,17 +64,21 @@ public class SearchHistoryServiceTest {
     @DisplayName("검색어 저장")
     public void saveSearchHistory() {
         //given
-        Long userId = 1L;
-        String content = "나의 그림";
+        SearchHistoryCommand command = new SearchHistoryCommand(
+                1L,
+                1L,
+                "나의 그림"
+        );
 
-        when(userRepository.findByUserId(userId)).thenReturn(Optional.of(testUser));
+
+        when(userRepository.findByUserId(command.userId())).thenReturn(Optional.of(testUser));
 
         //when
-        assertDoesNotThrow(() -> historyService.saveSearchHistory(userId, content));
+        assertDoesNotThrow(() -> historyService.saveSearchHistory(command));
 
         //then
         assertAll(
-                () -> assertDoesNotThrow(() -> historyService.saveSearchHistory(userId, content))
+                () -> assertDoesNotThrow(() -> historyService.saveSearchHistory(command))
         );
     }
 
@@ -82,13 +86,16 @@ public class SearchHistoryServiceTest {
     @DisplayName("검색어 공백일 경우 저장하지 않음")
     public void saveSearchHistory_contentBlank_notSave() {
         //given
-        Long userId = 1L;
-        String content = "    ";
+        SearchHistoryCommand command = new SearchHistoryCommand(
+                1L,
+                1L,
+                "   "
+        );
 
-        when(userRepository.findByUserId(userId)).thenReturn(Optional.of(testUser));
+        when(userRepository.findByUserId(command.userId())).thenReturn(Optional.of(testUser));
 
         //when
-        historyService.saveSearchHistory(userId, content);
+        historyService.saveSearchHistory(command);
 
         //then
         assertAll(
@@ -102,7 +109,7 @@ public class SearchHistoryServiceTest {
     public void getRecentSearchHistory() {
         //given
         Long userId = 1L;
-        SearchHistoryCommand command = new SearchHistoryCommand(userId, null);
+        SearchHistoryCommand command = SearchHistoryCommand.from(userId);
 
         SearchHistory history = SearchHistory.of(2L, testUser, "과학적 미술", LocalDate.now());
         List<SearchHistory> histories = List.of(testSearchHistory,history);
@@ -127,7 +134,7 @@ public class SearchHistoryServiceTest {
         // given
         Long userId = 1L;
         Long searchHistoryId = 1L;
-        SearchHistoryCommand command = new SearchHistoryCommand(userId, searchHistoryId);
+        SearchHistoryCommand command = SearchHistoryCommand.of(userId, searchHistoryId);
 
 
         when(searchHistoryRepository.findById(searchHistoryId))
