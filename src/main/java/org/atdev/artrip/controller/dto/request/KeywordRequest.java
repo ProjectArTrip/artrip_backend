@@ -6,10 +6,9 @@ import java.util.List;
 
 public record KeywordRequest(
         List<String> keywords) {
+
     public KeywordCommand toCommand(Long userId) {
-        return KeywordCommand.builder()
-                .userId(userId)
-                .keywords(this.keywords)
-                .build();
+
+        return new KeywordCommand(keywords, userId);
     }
 }

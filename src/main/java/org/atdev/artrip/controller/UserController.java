@@ -1,21 +1,18 @@
 package org.atdev.artrip.controller;
 
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
-import org.atdev.artrip.controller.dto.response.ProfileImageResponse;
+import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.service.UserHistoryService;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
 import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.service.dto.command.UserReadCommand;
-import org.atdev.artrip.service.dto.command.NicknameCommand;
-import org.atdev.artrip.service.dto.command.ProfileCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
-import org.atdev.artrip.service.dto.result.NicknameResult;
-import org.atdev.artrip.service.dto.result.ProfileResult;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,63 +26,58 @@ import java.util.List;
 public class UserController implements UserSpecification {
 
     private final UserService userService;
+    private final UserHistoryService userHistoryService;
 
     @Override
-    @PostMapping(value = "/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProfileImageResponse> getUpdateImage(
+    @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProfileImageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image){
 
-        ProfileCommand command = ProfileCommand.of(userId,image);
-        ProfileResult result = userService.updateProfileImg(command);
-
-        return ResponseEntity.ok(ProfileImageResponse.from(result));
-    }
-
-    @Override
-    @DeleteMapping("/profile-image")
-    public ResponseEntity<Void> getDeleteImage(
-            @LoginUser Long userId){
-
-        ProfileCommand command = ProfileCommand.of(userId);
-
-        userService.deleteProfileImg(command);
+        userService.updateUserImage(userId, image);
 
         return ResponseEntity.noContent().build();
     }
 
     @Override
-    @PatchMapping()
-    public ResponseEntity<NicknameResponse> updateNickname(
-            @LoginUser Long userId,
-            @RequestBody NicknameRequest request) {
+    @DeleteMapping("/image")
+    public ResponseEntity<Void> deleteUserImage(
+            @LoginUser Long userId){
 
-        NicknameCommand command = request.toCommand(request,userId);
-        NicknameResult response = userService.updateNickName(command);
+        userService.deleteUserImage(userId);
 
-        return ResponseEntity.ok(NicknameResponse.from(response));
+        return ResponseEntity.noContent().build();
     }
 
     @Override
-    @GetMapping()
+    @PatchMapping
+    public ResponseEntity<NicknameResponse> updateNickname(
+            @LoginUser Long userId,
+            @RequestBody @Valid NicknameRequest request) {
+
+        userService.updateNickName(userId,request.NickName());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @GetMapping
     public ResponseEntity<MypageResponse> getMypage(
             @LoginUser Long userId) {
 
-        UserReadCommand command = UserReadCommand.from(userId);
-        MypageResult response = userService.getMypage(command);
+        MypageResult result = userService.getMypage(userId);
 
-        return ResponseEntity.ok(MypageResponse.from(response));
+        return ResponseEntity.ok(MypageResponse.from(result));
     }
 
     @Override
     @GetMapping("/recent-exhibits")
-    public ResponseEntity<List<ExhibitRecentResponse>> getRecentExhibit(
+    public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
             @LoginUser Long userId){
 
-        UserReadCommand command = UserReadCommand.from(userId);
-        List<ExhibitRecentResult> responses = userService.getRecentViews(command);
+        List<ExhibitRecentResult> results = userHistoryService.getRecentViews(userId);
 
-        return ResponseEntity.ok(ExhibitRecentResponse.from(responses));
+        return ResponseEntity.ok(ExhibitRecentResponse.from(results));
     }
 
 }

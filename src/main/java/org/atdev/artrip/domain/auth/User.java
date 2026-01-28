@@ -83,21 +83,6 @@ public class User {
         return String.valueOf(userId);
     }
 
-    public void updateNickname(String nickName) {
-
-        if (nickName == null || nickName.isBlank()) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        String trimmedNick = nickName.trim();
-
-        if (trimmedNick.contains(" ") || !trimmedNick.matches("^[a-zA-Z0-9가-힣]+$")) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        this.nickName = trimmedNick;
-    }
-
     public void updateProfileImage(String url){
         this.profileImageUrl=url;
     }

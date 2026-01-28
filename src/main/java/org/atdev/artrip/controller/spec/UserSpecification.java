@@ -2,10 +2,7 @@ package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
-import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
-import org.atdev.artrip.controller.dto.response.MypageResponse;
-import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.controller.dto.response.ProfileImageResponse;
+import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -25,7 +22,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
     )
-    public ResponseEntity<ProfileImageResponse> getUpdateImage(
+    public ResponseEntity<ProfileImageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image);
 
@@ -35,7 +32,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
     )
-    public ResponseEntity<Void> getDeleteImage(
+    public ResponseEntity<Void> deleteUserImage(
             @LoginUser Long userId);
 
 
@@ -62,6 +59,6 @@ public interface UserSpecification {
             user = {UserErrorCode._USER_NOT_FOUND},
             exhibit = {ExhibitErrorCode._EXHIBIT_NOT_FOUND}
     )
-    public ResponseEntity<List<ExhibitRecentResponse>> getRecentExhibit(
+    public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
             @LoginUser Long userId);
 }

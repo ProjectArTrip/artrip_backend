@@ -1,30 +1,45 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.repository.UserHistoryRedisRepository;
-import org.atdev.artrip.utils.RedisUtils;
-import org.springframework.scheduling.annotation.Async;
+import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.domain.exhibit.RecentExhibit;
+import org.atdev.artrip.repository.RecentExhibitRepository;
+import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserHistoryService {
 
-    private final UserHistoryRedisRepository userHistoryRepository;
+    private final RecentExhibitRepository recentExhibitRepository;
+    private final UserRepository userRepository;
 
-    private static final int RECENT_VIEW_LIMIT = 20;
-    private static final long RECENT_VIEW_TTL_SECONDS = 2592000L;
+    @Transactional
+    public void addRecentView(Long userId, Exhibit exhibit) {
+        User user = userRepository.getReferenceById(userId);
 
-    @Async("redisThreadPoolExecutor")
-    public void addRecentView(Long userId, Long exhibitId) {
-        String key = RedisUtils.getRecentViewKey(userId);
-
-        userHistoryRepository.saveWithLimit(
-                key,
-                String.valueOf(exhibitId),
-                System.currentTimeMillis(),
-                RECENT_VIEW_LIMIT,
-                RECENT_VIEW_TTL_SECONDS
-        );
+        recentExhibitRepository.findByUserAndExhibit(user, exhibit)
+                .ifPresentOrElse(
+                        RecentExhibit::updateViewAt,
+                        () -> recentExhibitRepository.save(new RecentExhibit(user, exhibit))
+                );
     }
+
+    @Transactional(readOnly = true)
+    public List<ExhibitRecentResult> getRecentViews(Long userId) {
+        User user = userRepository.getReferenceById(userId);
+
+        List<RecentExhibit> histories = recentExhibitRepository.findTop20ByUserOrderByViewAtDesc(user);
+
+        return histories.stream()
+                .map(history -> ExhibitRecentResult.from(history.getExhibit()))
+                .toList();
+    }
+
+
 }
