@@ -26,25 +26,16 @@ public class ReviewConverter {
                 : review.getContent();
     }
 
-    private static String createThumbnail(Review review) {
-        if (review.getImages() == null || review.getImages().isEmpty()) {
-            return null;
-        }
-        return review.getImages().get(0).getImageUrl();
-    }
+//    private static String createThumbnail(Review review) {
+//        if (review.getImages() == null || review.getImages().isEmpty()) {
+//            return null;
+//        }
+//        return review.getImages().get(0).getImageUrl();
+//    }
 
 
     // ----------------------------------------------------------------
 
-    public Review toEntity(User user, Exhibit exhibit, ReviewCreateRequest request) {
-        return Review.builder()
-                .user(user)
-                .exhibit(exhibit)
-                .content(request.getContent())
-                .visitDate(request.getDate())
-                .createdAt(LocalDateTime.now())
-                .build();
-    }
 
     public List<ReviewImage> toReviewImage(Review review, List<String> imageUrls) {
 

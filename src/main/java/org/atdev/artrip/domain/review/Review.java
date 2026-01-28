@@ -57,4 +57,17 @@ public class Review {
         this.content = newContent;
         this.updatedAt = updatedAt;
     }
+
+    public void addImages(List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) return;
+
+        int currentOrder = this.images.size() + 1;
+        for (String url : imageUrls) {
+            this.images.add(ReviewImage.builder()
+                    .review(this)
+                    .imageUrl(url)
+                    .displayOrder(currentOrder++)
+                    .build());
+        }
+    }
 }

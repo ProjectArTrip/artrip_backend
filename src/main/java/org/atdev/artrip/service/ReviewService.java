@@ -5,22 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.domain.review.ReviewImage;
-import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
-import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.converter.ReviewConverter;
 import org.atdev.artrip.domain.review.Review;
 import org.atdev.artrip.repository.ReviewImageRepository;
 import org.atdev.artrip.repository.ReviewRepository;
-import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.command.ReviewCommand;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -37,36 +31,27 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ReviewImageRepository reviewImageRepository;
-    private final UserRepository userRepository;
-    private final ExhibitRepository exhibitRepository;
     private final ReviewConverter reviewConverter;
     private final S3Service s3Service;
+    private final ReviewLogicService reviewLogicService;
 
+    public void createReview(ReviewCommand command){
 
-    @Transactional
-    public ReviewResponse createReview(Long exhibitId, ReviewCreateRequest request, List<MultipartFile> images, Long userId){
-
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
-        Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
-
-        Review review = reviewConverter.toEntity(user,exhibit,request);
-        reviewRepository.save(review);
-
-        List<String> s3Urls = (images == null || images.isEmpty())
-                ? new ArrayList<>()
-                : s3Service.uploadFiles(images, FileFolder.REVIEWS);
-
-        List<ReviewImage> reviewImages = reviewConverter.toReviewImage(review,s3Urls);
-
-        if (reviewImages!=null&&!reviewImages.isEmpty()){
-            reviewImageRepository.saveAll(reviewImages);
-            review.setImages(reviewImages);
+        if (command.images() != null && command.images().size() > 4) {
+            throw new GeneralException(ReviewErrorCode._TOO_MANY_REVIEW_IMAGES);
         }
 
-        return reviewConverter.toReviewResponse(review);
+        List<String> s3Urls = new ArrayList<>();
+        if (command.images() != null && !command.images().isEmpty()) {
+            s3Urls = s3Service.uploadFiles(command.images(), FileFolder.REVIEWS);
+        }
+
+        try {
+            reviewLogicService.saveReviewWithImages(command, s3Urls);
+        } catch (Exception e) {
+            s3Service.delete(s3Urls);
+            throw e;
+        }
     }
 
     @Transactional

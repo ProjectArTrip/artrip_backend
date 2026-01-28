@@ -15,6 +15,7 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.command.ReviewCommand;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,20 +30,16 @@ public class ReviewController implements ReviewSpecification {
 
     private final ReviewService reviewService;
 
-    @Operation(summary = "리뷰 생성")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND}
-    )
     @PostMapping("/{exhibitId}")
-    public ResponseEntity<CommonResponse<ReviewResponse>> CreateReview(@PathVariable Long exhibitId,
-                                                                       @RequestPart(value = "images",required = false) List<MultipartFile> images,
-                                                                       @RequestPart(value = "request") ReviewCreateRequest request,
-                                                                       @LoginUser Long userId){
+    public ResponseEntity<Void> CreateReview(@PathVariable Long exhibitId,
+                                             @RequestPart(value = "images",required = false) List<MultipartFile> images,
+                                             @RequestPart(value = "request") ReviewCreateRequest request,
+                                             @LoginUser Long userId){
 
-        ReviewResponse review = reviewService.createReview(exhibitId, request, images, userId);
+        ReviewCommand command = ReviewCreateRequest.toCommand(request.date(), request.content(),exhibitId, userId,images);
+        reviewService.createReview(command);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(review));
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "리뷰 수정")
