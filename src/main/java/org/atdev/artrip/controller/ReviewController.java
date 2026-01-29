@@ -71,7 +71,7 @@ public class ReviewController implements ReviewSpecification {
 
     @Override
     @GetMapping("/all")
-    public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllMyReview(
+    public ResponseEntity<ReviewSliceResponse> getAllMyReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @LoginUser Long userId) {
@@ -79,19 +79,19 @@ public class ReviewController implements ReviewSpecification {
         MyReviewResult result = reviewService.getAllReview(userId, cursor, size);
         ReviewSliceResponse response = ReviewSliceResponse.from(result);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(response);
     }
 
 
     @Override
     @GetMapping("/{exhibitId}/detail")
-    public ResponseEntity<CommonResponse<ExhibitReviewSliceResponse>> getExhibitReview(
+    public ResponseEntity<ExhibitReviewSliceResponse> getExhibitReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @PathVariable Long exhibitId) {
 
         ExhibitReviewSliceResponse response = reviewService.getExhibitReview(exhibitId, cursor, size);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(response));
+        return ResponseEntity.ok(response);
     }
 }

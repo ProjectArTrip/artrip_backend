@@ -55,7 +55,7 @@ public interface ReviewSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             review = {ReviewErrorCode._REVIEW_USER_NOT_ROLE}
     )
-    public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllMyReview(
+    public ResponseEntity<ReviewSliceResponse> getAllMyReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @LoginUser Long userId);
@@ -66,7 +66,7 @@ public interface ReviewSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             review = {ReviewErrorCode._REVIEW_NOT_FOUND}
     )
-    public ResponseEntity<CommonResponse<ExhibitReviewSliceResponse>> getExhibitReview(
+    public ResponseEntity<ExhibitReviewSliceResponse> getExhibitReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @PathVariable Long exhibitId);
