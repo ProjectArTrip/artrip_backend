@@ -97,13 +97,13 @@ public class ReviewService {
 
         long reviewTotalCount = reviewRepository.countByUserUserId(userId);
 
-        return MyReviewResult.from(slice,reviewTotalCount);
+        return MyReviewResult.of(slice,reviewTotalCount);
     }
 
     @Transactional
     public ExhibitReviewResult getExhibitReview(Long exhibitId, Long cursor, int size){
 
-        long totalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
+        long exhibitTotalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
 
         Slice<Review> slice;
 
@@ -120,6 +120,6 @@ public class ReviewService {
 //                .stream()
 //                .map(ReviewConverter::toExhibitReviewSummary)
 //                .toList();
-        return null;
+        return ExhibitReviewResult.from();
     }
 }

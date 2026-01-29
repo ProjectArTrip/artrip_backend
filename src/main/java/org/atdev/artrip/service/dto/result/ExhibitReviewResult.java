@@ -8,8 +8,11 @@ public record ExhibitReviewResult(
         List<ReviewExhibitResponse> reviews,
         Long nextCursor,
         boolean hasNext,
-        long reviewTotalCount
+        long totalCount
 ) {
+    public static ExhibitReviewResult of(){
+
+    }
 
 
 }

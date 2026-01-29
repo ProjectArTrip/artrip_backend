@@ -11,7 +11,7 @@ public record MyReviewResult(
         boolean hasNext,
         long totalCount
 ) {
-    public static MyReviewResult from(Slice<Review> slice, long totalCount) {
+    public static MyReviewResult of(Slice<Review> slice, long totalCount) {
 
         Long nextCursor = slice.hasNext()
                 ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
