@@ -3,24 +3,21 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.FileFolder;
+import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.domain.review.ReviewImage;
 import org.atdev.artrip.converter.ReviewConverter;
 import org.atdev.artrip.domain.review.Review;
-import org.atdev.artrip.repository.ReviewImageRepository;
 import org.atdev.artrip.repository.ReviewRepository;
-import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.service.dto.command.ReviewCommand;
+import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
+import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +27,10 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final ReviewImageRepository reviewImageRepository;
-    private final ReviewConverter reviewConverter;
     private final S3Service s3Service;
     private final ReviewLogicService reviewLogicService;
 
-    public void createReview(ReviewCommand command){
+    public void createReview(ReviewCreateCommand command){
 
         if (command.images() != null && command.images().size() > 4) {
             throw new GeneralException(ReviewErrorCode._TOO_MANY_REVIEW_IMAGES);
@@ -54,47 +49,25 @@ public class ReviewService {
         }
     }
 
-    @Transactional
-    public ReviewResponse updateReview(Long reviewId, ReviewUpdateRequest request, List<MultipartFile> images, Long userId){
+    public void updateReview(ReviewUpdateCommand command) {
 
+        List<String> urlsToDelete = reviewLogicService.getUrlsToDelete(command.reviewId(), command.deleteImageIds());
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+        List<String> newS3Urls = (command.images() != null && !command.images().isEmpty())
+                ? s3Service.uploadFiles(command.images(), FileFolder.REVIEWS)
+                : new ArrayList<>();
 
-        if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_FOUND);
+        try {
+            reviewLogicService.updateReviewData(command, newS3Urls);
+
+            s3Service.delete(urlsToDelete);
+        } catch (Exception e) {
+            s3Service.delete(newS3Urls);
+            throw e;
         }
 
-        reviewConverter.updateReviewFromDto(review, request);
-
-        if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
-
-            List<ReviewImage> preImages = reviewImageRepository.findByReview_ReviewId(reviewId);
-
-            List<ReviewImage> imagesToDelete = preImages.stream()
-                    .filter(img -> request.getDeleteImageIds().contains(img.getImageId()))
-                    .toList();
-
-            if (!imagesToDelete.isEmpty()) {
-                List<String> urlsToDelete = imagesToDelete.stream()
-                        .map(ReviewImage::getImageUrl)
-                        .toList();
-
-                s3Service.delete(urlsToDelete);
-
-                review.getImages().removeAll(imagesToDelete);
-            }
-        }
-
-        if (images != null && !images.isEmpty()) {
-            List<String> s3Urls = s3Service.uploadFiles(images,FileFolder.POSTERS);
-            List<ReviewImage> newReviewImages = reviewConverter.toReviewImage(review, s3Urls);
-            reviewImageRepository.saveAll(newReviewImages);
-            review.getImages().addAll(newReviewImages);
-        }
-
-        return reviewConverter.toReviewResponse(review);
     }
+
 
     @Transactional
     public void deleteReview(Long reviewId,Long userId){

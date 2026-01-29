@@ -7,7 +7,6 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.ReviewService;
 import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitReviewSliceResponse;
-import org.atdev.artrip.controller.dto.response.ReviewResponse;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.controller.dto.response.ReviewSliceResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
@@ -15,7 +14,8 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.atdev.artrip.service.dto.command.ReviewCommand;
+import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
+import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,32 +36,29 @@ public class ReviewController implements ReviewSpecification {
                                              @RequestPart(value = "request") ReviewCreateRequest request,
                                              @LoginUser Long userId){
 
-        ReviewCommand command = ReviewCreateRequest.toCommand(request.date(), request.content(),exhibitId, userId,images);
+        ReviewCreateCommand command = ReviewCreateRequest.toCommand(request.date(), request.content(),exhibitId, userId,images);
         reviewService.createReview(command);
 
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "리뷰 수정")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND, ReviewErrorCode._REVIEW_NOT_FOUND}
-    )
+
     @PutMapping("/{reviewId}")
-    public ResponseEntity<CommonResponse<ReviewResponse>> UpdateReview(@PathVariable Long reviewId,
-                                                                       @RequestPart(value = "images",required = false) List<MultipartFile> images,
-                                                                       @RequestPart("request") ReviewUpdateRequest request,
-                                                                       @LoginUser Long userId ){
+    public ResponseEntity<Void> UpdateReview(@PathVariable Long reviewId,
+                                             @RequestPart(value = "images",required = false) List<MultipartFile> images,
+                                             @RequestPart("request") ReviewUpdateRequest request,
+                                             @LoginUser Long userId ){
 
-        ReviewResponse review = reviewService.updateReview(reviewId, request, images, userId);
+        ReviewUpdateCommand command = ReviewUpdateRequest.toCommand(request.date(), request.content(),request.deleteImageIds(),reviewId, userId,images);
+        reviewService.updateReview(command);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(review));
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "리뷰 삭제")
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND, ReviewErrorCode._REVIEW_NOT_FOUND}
+            review = {ReviewErrorCode._REVIEW_USER_NOT_ROLE, ReviewErrorCode._REVIEW_NOT_FOUND}
     )
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<CommonResponse<String>> DeleteReview(@PathVariable Long reviewId,
@@ -75,7 +72,7 @@ public class ReviewController implements ReviewSpecification {
     @Operation(summary = "나의 리뷰 전체 조회 (무한스크롤)")
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            review = {ReviewErrorCode._REVIEW_USER_NOT_FOUND}
+            review = {ReviewErrorCode._REVIEW_USER_NOT_ROLE}
     )
     @GetMapping("/all")
     public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllReview(

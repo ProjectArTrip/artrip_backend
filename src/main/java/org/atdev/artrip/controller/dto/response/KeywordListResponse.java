@@ -9,6 +9,7 @@ public record KeywordListResponse(
 ) {
 
     public static KeywordListResponse from(List<KeywordResult> results) {
+
         return new KeywordListResponse(
                 results.stream().map(KeywordResponse::from).toList());
     }

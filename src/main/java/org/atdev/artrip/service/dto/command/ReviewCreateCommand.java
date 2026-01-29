@@ -7,14 +7,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-public record ReviewCommand(
+public record ReviewCreateCommand(
         LocalDate date,
         String content,
         Long exhibitId,
         Long userId,
-        java.util.List<MultipartFile> images) {
-
+        List<MultipartFile> images
+        ) {
 
     public Review toEntity(User user, Exhibit exhibit) {
 
