@@ -6,14 +6,14 @@ import org.atdev.artrip.service.dto.result.MyReviewResult;
 import java.util.List;
 
 public record ReviewSliceResponse(
-        List<ReviewListResponse> summaries,
+        List<ReviewListResponse> reviewList,
         Long nextCursor,
         boolean hasNext,
-        long totalCount
+        long reviewTotalCount
 ) {
     public static ReviewSliceResponse from(MyReviewResult result) {
         return new ReviewSliceResponse(
-                result.contents().stream()
+                result.reviews().stream()
                         .map(ReviewListResponse::from)
                         .toList(),
 

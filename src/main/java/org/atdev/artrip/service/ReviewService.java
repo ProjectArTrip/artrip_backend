@@ -113,13 +113,10 @@ public class ReviewService {
             slice = reviewRepository.findByExhibitIdAndIdLessThan(exhibitId, cursor, PageRequest.ofSize(size));
         }
 
-        Long nextCursor = slice.hasNext()
-                ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
-                : null;
 //        List<ReviewExhibitResponse> summaries = slice.getContent()
 //                .stream()
 //                .map(ReviewConverter::toExhibitReviewSummary)
 //                .toList();
-        return ExhibitReviewResult.from();
+        return ExhibitReviewResult.of(slice,exhibitTotalCount);
     }
 }

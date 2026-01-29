@@ -1,6 +1,5 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.spec.ReviewSpecification;
@@ -10,15 +9,10 @@ import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitReviewSliceResponse;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.controller.dto.response.ReviewSliceResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
 import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
+import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 import org.atdev.artrip.service.dto.result.MyReviewResult;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,13 +78,14 @@ public class ReviewController implements ReviewSpecification {
 
 
     @Override
-    @GetMapping("/{exhibitId}/detail")
+    @GetMapping("/{exhibitId}")
     public ResponseEntity<ExhibitReviewSliceResponse> getExhibitReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @PathVariable Long exhibitId) {
 
-        ExhibitReviewSliceResponse response = reviewService.getExhibitReview(exhibitId, cursor, size);
+        ExhibitReviewResult result = reviewService.getExhibitReview(exhibitId, cursor, size);
+        ExhibitReviewSliceResponse response = ExhibitReviewSliceResponse.from(result);
 
         return ResponseEntity.ok(response);
     }

@@ -6,7 +6,7 @@ import org.springframework.data.domain.Slice;
 import java.util.List;
 
 public record MyReviewResult(
-        List<Review> contents,
+        List<Review> reviews,
         Long nextCursor,
         boolean hasNext,
         long totalCount
