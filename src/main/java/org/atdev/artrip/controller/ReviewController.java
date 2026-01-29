@@ -55,18 +55,13 @@ public class ReviewController implements ReviewSpecification {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "리뷰 삭제")
-    @ApiErrorResponses(
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
-            review = {ReviewErrorCode._REVIEW_USER_NOT_ROLE, ReviewErrorCode._REVIEW_NOT_FOUND}
-    )
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<CommonResponse<String>> DeleteReview(@PathVariable Long reviewId,
-                                                               @LoginUser Long userId){
+    public ResponseEntity<Void> DeleteReview(@PathVariable Long reviewId,
+                                             @LoginUser Long userId){
 
         reviewService.deleteReview(reviewId, userId);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess("리뷰 삭제 완료"));
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "나의 리뷰 전체 조회 (무한스크롤)")

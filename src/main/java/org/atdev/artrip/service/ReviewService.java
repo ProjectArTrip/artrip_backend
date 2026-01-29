@@ -8,6 +8,7 @@ import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.domain.review.ReviewImage;
 import org.atdev.artrip.converter.ReviewConverter;
 import org.atdev.artrip.domain.review.Review;
+import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -69,26 +70,17 @@ public class ReviewService {
     }
 
 
-    @Transactional
     public void deleteReview(Long reviewId,Long userId){
 
+        List<String> s3Urls = reviewLogicService.deleteAndGetUrls(reviewId,userId);
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
-
-        if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_FOUND);
+        if (!s3Urls.isEmpty()) {
+            try {
+                s3Service.delete(s3Urls);
+            } catch (Exception e) {
+                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE,e);
+            }
         }
-
-
-        List<String> s3Urls = review.getImages() != null ?
-                review.getImages().stream()
-                        .map(ReviewImage::getImageUrl)
-                        .toList()
-                : List.of();
-
-        s3Service.delete(s3Urls);
-        reviewRepository.delete(review);
     }
 
     @Transactional

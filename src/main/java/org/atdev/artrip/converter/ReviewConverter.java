@@ -77,12 +77,6 @@ public class ReviewConverter {
     }
 
 
-    public void updateReviewFromDto(Review review, ReviewUpdateRequest request) {
-
-        if (request.getContent() != null) {
-            review.updateContent(request.getContent(), LocalDateTime.now());
-        }
-    }
 
     public static ReviewListResponse toSummary(Review review){
 
@@ -90,7 +84,7 @@ public class ReviewConverter {
                 .reviewId(review.getReviewId())
                 .reviewTitle(review.getExhibit().getTitle())
                 .content(createSummary(review,20))
-                .thumbnailUrl(createThumbnail(review))
+//                .thumbnailUrl(createThumbnail(review))
                 .visitDate(review.getVisitDate())
                 .createdAt(review.getCreatedAt())
                 .build();
@@ -104,7 +98,7 @@ public class ReviewConverter {
         return ReviewExhibitResponse.builder()
                 .reviewId(review.getReviewId())
                 .content(createSummary(review,20))
-                .thumbnailUrl(createThumbnail(review))
+//                .thumbnailUrl(createThumbnail(review))
                 .visitDate(review.getVisitDate())
                 .Nickname(user.getNickName())
                 .build();

@@ -99,4 +99,25 @@ public class ReviewLogicService {
             review.addImages(newS3Urls);
         }
     }
+
+    @Transactional
+    public List<String> deleteAndGetUrls(Long reviewId, Long userId) {
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+
+        if (!review.getUser().getUserId().equals(userId)) {
+            throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_ROLE);
+        }
+
+        if (review.getImages() == null || review.getImages().isEmpty()) {
+            return List.of();
+        }
+        reviewRepository.delete(review);
+
+        return review.getImages().stream()
+                .map(ReviewImage::getImageUrl)
+                .toList();
+    }
+
 }
