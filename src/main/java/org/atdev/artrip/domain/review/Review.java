@@ -33,7 +33,7 @@ public class Review {
     @JoinColumn(name = "exhibit_id", nullable = false)
     private Exhibit exhibit;
 
-    @Column(name = "content", nullable = false, length = 2000)
+    @Column(name = "content", nullable = false, length = 500)
     private String content;
 
     @Column(name = "visit_date")
