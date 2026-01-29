@@ -8,14 +8,15 @@ import java.util.List;
 public record MyReviewResult(
         List<Review> contents,
         Long nextCursor,
-        boolean hasNext
+        boolean hasNext,
+        long totalCount
 ) {
-    public static MyReviewResult from(Slice<Review> slice) {
+    public static MyReviewResult from(Slice<Review> slice, long totalCount) {
 
         Long nextCursor = slice.hasNext()
                 ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
                 : null;
 
-        return new MyReviewResult(slice.getContent(), nextCursor, slice.hasNext());
+        return new MyReviewResult(slice.getContent(), nextCursor, slice.hasNext(),totalCount);
     }
 }

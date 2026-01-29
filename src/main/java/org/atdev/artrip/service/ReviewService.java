@@ -15,6 +15,7 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
 import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
+import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 import org.atdev.artrip.service.dto.result.MyReviewResult;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -93,11 +94,14 @@ public class ReviewService {
         } else {
             slice = reviewRepository.findByUserIdAndIdLessThan(userId, cursor, PageRequest.ofSize(size));
         }
-        return MyReviewResult.from(slice);
+
+        long reviewTotalCount = reviewRepository.countByUserUserId(userId);
+
+        return MyReviewResult.from(slice,reviewTotalCount);
     }
 
     @Transactional
-    public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size){
+    public ExhibitReviewResult getExhibitReview(Long exhibitId, Long cursor, int size){
 
         long totalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
 
@@ -112,14 +116,10 @@ public class ReviewService {
         Long nextCursor = slice.hasNext()
                 ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
                 : null;
-
-        List<ReviewExhibitResponse> summaries = slice.getContent()
-                .stream()
-                .map(ReviewConverter::toExhibitReviewSummary)
-                .toList();
-
-
-
-        return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext(),totalCount);
+//        List<ReviewExhibitResponse> summaries = slice.getContent()
+//                .stream()
+//                .map(ReviewConverter::toExhibitReviewSummary)
+//                .toList();
+        return null;
     }
 }

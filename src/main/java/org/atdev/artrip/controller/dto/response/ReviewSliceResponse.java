@@ -8,7 +8,8 @@ import java.util.List;
 public record ReviewSliceResponse(
         List<ReviewListResponse> summaries,
         Long nextCursor,
-        boolean hasNext
+        boolean hasNext,
+        long totalCount
 ) {
     public static ReviewSliceResponse from(MyReviewResult result) {
         return new ReviewSliceResponse(
@@ -17,7 +18,8 @@ public record ReviewSliceResponse(
                         .toList(),
 
                 result.nextCursor(),
-                result.hasNext()
+                result.hasNext(),
+                result.totalCount()
         );
     }
 }
