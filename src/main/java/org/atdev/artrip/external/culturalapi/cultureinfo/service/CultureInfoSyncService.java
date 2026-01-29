@@ -3,12 +3,11 @@ package org.atdev.artrip.external.culturalapi.cultureinfo.service;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.domain.exhibit.data.Exhibit;
-import org.atdev.artrip.domain.exhibit.repository.ExhibitRepository;
-import org.atdev.artrip.domain.exhibitHall.data.ExhibitHall;
-import org.atdev.artrip.domain.exhibitHall.repository.ExhibitHallRepository;
-import org.atdev.artrip.domain.keyword.data.Keyword;
-import org.atdev.artrip.elastic.service.ExhibitIndexService;
+import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.repository.ExhibitRepository;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
+import org.atdev.artrip.repository.ExhibitHallRepository;
+import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.external.culturalapi.cultureinfo.client.CultureInfoApiClient;
 import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoDetailItem;
 import org.atdev.artrip.external.culturalapi.cultureinfo.web.dto.response.CultureInfoDetailResponse;
@@ -38,7 +37,6 @@ public class CultureInfoSyncService {
     private final ExhibitRepository exhibitRepository;
     private final ExhibitHallRepository exhibitHallRepository;
     private final KeywordMatchingService  keywordMatchingService;
-    private final ExhibitIndexService exhibitIndexService;
     private final S3Service s3Service;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -186,14 +184,12 @@ public class CultureInfoSyncService {
             updateExhibit(existing.get(), exhibit);
             matchAndSaveKeywords(existing.get(), item, detailItem);
 
-            exhibitIndexService.indexExhibit(existing.get());
             result.incrementUpdated();
         } else {
             Exhibit saved = exhibitRepository.save(exhibit);
             matchAndSaveKeywords(saved, item, detailItem);
             exhibitRepository.save(saved);
 
-            exhibitIndexService.indexExhibit(saved);
             result.incrementInserted();
         }
     }

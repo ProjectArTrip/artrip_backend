@@ -2,13 +2,10 @@ package org.atdev.artrip.external.culturalapi.cultureinfo.web.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.elastic.service.ExhibitIndexService;
 import org.atdev.artrip.external.culturalapi.cultureinfo.service.CultureInfoSyncService;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Slf4j
@@ -18,7 +15,6 @@ import java.util.Map;
 public class CultureInfoSyncController {
 
     private final CultureInfoSyncService CultureInfoSyncService;
-    private final ExhibitIndexService exhibitIndexService;
 
     @GetMapping("/exhibits")
     public CommonResponse<Map<String, Object>> syncByPeriod(
@@ -58,11 +54,5 @@ public class CultureInfoSyncController {
                 "skipped", result.getSkipped(),
                 "failed", result.getFailed()
         ));
-    }
-
-    @PostMapping("/reindex")
-    public CommonResponse<Integer> reindexES() {
-        int count = exhibitIndexService.indexAllExhibits();
-        return CommonResponse.onSuccess(count);
     }
 }

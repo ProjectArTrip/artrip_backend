@@ -18,39 +18,5 @@ public class Application {
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
-    @Bean
-    public CommandLineRunner testDb(DataSource dataSource) {
-        return args -> {
-            System.out.println("DB 연결 체크 시작");
-            try (var conn = dataSource.getConnection()) {
-                System.out.println("DB 연결 성공!");
-                System.out.println("JDBC URL: " + conn.getMetaData().getURL());
-                System.out.println("DB 제품: " + conn.getMetaData().getDatabaseProductName());
-                System.out.println("DB 버전: " + conn.getMetaData().getDatabaseProductVersion());
-                System.out.println("DB 사용자: " + conn.getMetaData().getUserName());
-            } catch (Exception e) {
-                System.err.println("DB 연결 실패!");
-                e.printStackTrace();
-            }
-        };
-    }
-
-    @Bean
-    public CommandLineRunner testRedis(StringRedisTemplate jwtRedisTemplate) {
-    return args -> {
-        System.out.println("Redis 연결 체크");
-
-        try {
-            jwtRedisTemplate.opsForValue().set("testKey", "greeting");
-
-            String value = jwtRedisTemplate.opsForValue().get("testKey");
-            System.out.println("Redis 연결 성공 : " + value);
-        } catch (Exception e) {
-            System.err.println("Redis 연결 실패");
-            e.printStackTrace();
-        }
-
-    };
-    }
 }
 
