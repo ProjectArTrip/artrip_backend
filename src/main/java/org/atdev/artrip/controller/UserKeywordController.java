@@ -6,7 +6,6 @@ import org.atdev.artrip.controller.spec.KeywordSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
-import org.atdev.artrip.service.dto.command.KeywordCommand;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

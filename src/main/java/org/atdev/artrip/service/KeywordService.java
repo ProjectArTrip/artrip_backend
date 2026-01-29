@@ -10,7 +10,6 @@ import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.repository.KeywordRepository;
 import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.service.dto.command.KeywordCommand;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
