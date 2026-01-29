@@ -6,18 +6,13 @@ import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
 import org.atdev.artrip.service.dto.result.MypageResult;
 import org.atdev.artrip.utils.NicknameUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.*;
 
 
 @Service
@@ -26,7 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final S3Service s3Service;
-    private final UserImageService userImageService;
+    private final UserCommandService userCommandService;
 
     @Transactional
     public void updateNickName(Long userId, String newNickName){
@@ -53,7 +48,7 @@ public class UserService {
         String newUrl = s3Service.uploadFile(image, FileFolder.PROFILES);
 
         try {
-            String oldUrl = userImageService.updateProfilePath(userId, newUrl);
+            String oldUrl = userCommandService.updateProfilePath(userId, newUrl);
 
             if (oldUrl != null && !oldUrl.isBlank()) {
                 s3Service.delete(oldUrl);
@@ -66,7 +61,7 @@ public class UserService {
 
     public void deleteUserImage(Long userId){
 
-        String oldUrl = userImageService.deleteProfilePath(userId);
+        String oldUrl = userCommandService.deleteProfilePath(userId);
 
         if (oldUrl != null && !oldUrl.isBlank()) {
                 s3Service.delete(oldUrl);

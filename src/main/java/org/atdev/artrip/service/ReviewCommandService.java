@@ -22,7 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ReviewLogicService {
+public class ReviewCommandService {
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
     private final ExhibitRepository exhibitRepository;

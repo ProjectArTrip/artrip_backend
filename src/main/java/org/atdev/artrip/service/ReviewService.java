@@ -27,7 +27,7 @@ public class ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final S3Service s3Service;
-    private final ReviewLogicService reviewLogicService;
+    private final ReviewCommandService reviewCommandService;
 
     public void createReview(ReviewCreateCommand command){
 
@@ -41,7 +41,7 @@ public class ReviewService {
         }
 
         try {
-            reviewLogicService.saveReviewWithImages(command, s3Urls);
+            reviewCommandService.saveReviewWithImages(command, s3Urls);
         } catch (Exception e) {
             s3Service.delete(s3Urls);
             throw e;
@@ -50,14 +50,14 @@ public class ReviewService {
 
     public void updateReview(ReviewUpdateCommand command) {
 
-        List<String> urlsToDelete = reviewLogicService.getUrlsToDelete(command.reviewId(), command.deleteImageIds());
+        List<String> urlsToDelete = reviewCommandService.getUrlsToDelete(command.reviewId(), command.deleteImageIds());
 
         List<String> newS3Urls = (command.images() != null && !command.images().isEmpty())
                 ? s3Service.uploadFiles(command.images(), FileFolder.REVIEWS)
                 : new ArrayList<>();
 
         try {
-            reviewLogicService.updateReviewData(command, newS3Urls);
+            reviewCommandService.updateReviewData(command, newS3Urls);
 
             s3Service.delete(urlsToDelete);
         } catch (Exception e) {
@@ -70,7 +70,7 @@ public class ReviewService {
 
     public void deleteReview(Long reviewId,Long userId){
 
-        List<String> s3Urls = reviewLogicService.deleteAndGetUrls(reviewId,userId);
+        List<String> s3Urls = reviewCommandService.deleteAndGetUrls(reviewId,userId);
 
         if (!s3Urls.isEmpty()) {
             try {
