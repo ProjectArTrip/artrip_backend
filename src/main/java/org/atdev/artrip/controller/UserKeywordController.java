@@ -6,6 +6,7 @@ import org.atdev.artrip.controller.spec.KeywordSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
+import org.atdev.artrip.service.dto.result.KeywordListResult;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +34,7 @@ public class UserKeywordController implements KeywordSpecification {
     @GetMapping("/all")
     public ResponseEntity<KeywordListResponse> getAllKeywords() {
 
-        List<KeywordResult> keywords = keywordService.getAllKeywords();
+        KeywordListResult keywords = keywordService.getAllKeywords();
         KeywordListResponse response = KeywordListResponse.from(keywords);
 
         return ResponseEntity.ok(response);
@@ -43,7 +44,7 @@ public class UserKeywordController implements KeywordSpecification {
     @GetMapping
     public ResponseEntity<KeywordListResponse> getKeyword(@LoginUser Long userId) {
 
-        List<KeywordResult> keywords = keywordService.getKeyword(userId);
+        KeywordListResult keywords = keywordService.getKeyword(userId);
         KeywordListResponse response = KeywordListResponse.from(keywords);
 
         return ResponseEntity.ok(response);

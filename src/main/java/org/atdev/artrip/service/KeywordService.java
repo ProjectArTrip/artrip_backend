@@ -10,6 +10,7 @@ import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.repository.KeywordRepository;
 import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
+import org.atdev.artrip.service.dto.result.KeywordListResult;
 import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,19 +50,16 @@ public class KeywordService {
     }
 
     @Transactional(readOnly = true)
-    public List<KeywordResult> getAllKeywords() {
+    public KeywordListResult getAllKeywords() {
 
-        return keywordRepository.findAll()
-                .stream()
-                .map(KeywordResult::from)
-                .toList();
+        List<Keyword> keywords = keywordRepository.findAll();
+        return KeywordListResult.fromKeywords(keywords);
     }
 
     @Transactional(readOnly = true)
-    public List<KeywordResult> getKeyword(Long userId) {
-        return userKeywordRepository.findAllByUserIdWithKeyword(userId)
-                .stream()
-                .map(KeywordResult::from)
-                .toList();
+    public KeywordListResult getKeyword(Long userId) {
+
+        List<UserKeyword> userKeywords = userKeywordRepository.findAllByUserIdWithKeyword(userId);
+        return KeywordListResult.fromUserKeywords(userKeywords);
     }
 }
