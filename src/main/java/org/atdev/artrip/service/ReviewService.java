@@ -103,20 +103,15 @@ public class ReviewService {
     @Transactional
     public ExhibitReviewResult getExhibitReview(Long exhibitId, Long cursor, int size){
 
-        long exhibitTotalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
-
         Slice<Review> slice;
-
         if (cursor == null) {
             slice = reviewRepository.findByExhibitId(exhibitId, PageRequest.ofSize(size));
         } else {
             slice = reviewRepository.findByExhibitIdAndIdLessThan(exhibitId, cursor, PageRequest.ofSize(size));
         }
 
-//        List<ReviewExhibitResponse> summaries = slice.getContent()
-//                .stream()
-//                .map(ReviewConverter::toExhibitReviewSummary)
-//                .toList();
+        long exhibitTotalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
+
         return ExhibitReviewResult.of(slice,exhibitTotalCount);
     }
 }

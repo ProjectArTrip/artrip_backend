@@ -29,18 +29,18 @@ public class KeywordService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void saveKeywords(KeywordCommand command) {
+    public void saveKeywords(Long userId, List<String> keywordNames) {
 
-        User user = userRepository.findById(command.userId())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        Set<String> uniqueNames = new HashSet<>(command.keywords());
+        Set<String> uniqueNames = new HashSet<>(keywordNames);
         List<Keyword> keywords = keywordRepository.findAllByNameIn(new ArrayList<>(uniqueNames));
 
-        if (keywords.size() != command.keywords().size())
+        if (keywords.size() != keywordNames.size())
             throw new GeneralException(KeywordErrorCode._KEYWORD_NOT_FOUND);
 
-        userKeywordRepository.deleteByUserId(command.userId());
+        userKeywordRepository.deleteByUserId(userId);
 
         List<UserKeyword> userKeywords = keywords.stream()
                 .map(keyword -> UserKeyword.create(user,keyword))
