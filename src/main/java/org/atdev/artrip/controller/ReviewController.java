@@ -40,7 +40,7 @@ public class ReviewController implements ReviewSpecification {
     }
 
     @Override
-    @PutMapping("/{reviewId}")
+    @PatchMapping("/{reviewId}")
     public ResponseEntity<Void> updateReview(@PathVariable Long reviewId,
                                              @RequestPart(value = "images",required = false) List<MultipartFile> images,
                                              @RequestPart("request") ReviewUpdateRequest request,
