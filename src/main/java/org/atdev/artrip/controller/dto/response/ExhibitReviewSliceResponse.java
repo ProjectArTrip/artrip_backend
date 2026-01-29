@@ -1,17 +1,27 @@
 package org.atdev.artrip.controller.dto.response;
 
-import lombok.*;
+import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ExhibitReviewSliceResponse {
-    private List<ReviewExhibitResponse> reviews;
-    private Long nextCursor;
-    private boolean hasNext;
-    private long reviewTotalCount;
+public record ExhibitReviewSliceResponse(
+        List<ReviewListResponse> reviews,
+        Long nextCursor,
+        boolean hasNext,
+        long reviewTotalCount
+) {
+
+    public static ExhibitReviewSliceResponse from(ExhibitReviewResult result){
+
+        return new ExhibitReviewSliceResponse(
+                result.reviews().stream()
+                        .map(ReviewListResponse::from)
+                        .toList(),
+
+                result.nextCursor(),
+                result.hasNext(),
+                result.totalCount()
+        );
+    }
+
 }
