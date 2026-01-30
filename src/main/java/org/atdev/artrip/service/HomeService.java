@@ -11,11 +11,13 @@ import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
-import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.command.SearchHistoryCommand;
 import org.atdev.artrip.service.dto.result.*;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ public class HomeService {
     private final RegionRepository regionRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
     private final ImageUrlFormatter imageUrlFormatter;
+    private final SearchHistoryService searchHistoryService;
 
 
     public List<GenreResult> getAllGenres() {
@@ -54,10 +57,15 @@ public class HomeService {
                 .toList();
     }
 
-    public ExhibitFilterResult getFilterExhibit(ExhibitFilterCommand command) {
+    public ExhibitFilterResult searchExhibit(ExhibitSearchCondition command) {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(command);
         Set<Long> favoriteIds = getFavoriteIds(command.userId());
+
+        if (StringUtils.hasText(command.query())) {
+            SearchHistoryCommand searchHistoryCommand = SearchHistoryCommand.create(command.userId(), command.query());
+            searchHistoryService.saveSearchHistory(searchHistoryCommand);
+        }
 
         return ExhibitFilterResult.of(slice,favoriteIds);
     }
@@ -137,6 +145,4 @@ public class HomeService {
                 .map(r -> r.withFavorite(favoriteIds.contains(r.exhibitId())))
                 .toList();
     }
-
-
 }

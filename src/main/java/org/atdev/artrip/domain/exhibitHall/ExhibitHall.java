@@ -45,8 +45,7 @@ public class ExhibitHall {
     private String homepageUrl;
 
     @Column(name = "is_domestic")
-    private Boolean isDomestic;  // Byte → Boolean으로 변경, JPA에서 매핑 가능
-    // true = 국내, false = 해외
+    private Boolean isDomestic;
 
     @Column(name = "latitude")
     private BigDecimal latitude;
@@ -59,4 +58,14 @@ public class ExhibitHall {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public static ExhibitHall of(Long exhibitHallId, String name, String country, String region, Boolean isDomestic) {
+        ExhibitHall exhibitHall = new ExhibitHall();
+        exhibitHall.exhibitHallId = exhibitHallId;
+        exhibitHall.name = name;
+        exhibitHall.country = country;
+        exhibitHall.region = region;
+        exhibitHall.isDomestic = isDomestic;
+        return exhibitHall;
+    }
 }
