@@ -1,6 +1,5 @@
 package org.atdev.artrip.config;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,18 +42,4 @@ public class RedisConfig {
     public StringRedisTemplate jwtRedisTemplate(RedisConnectionFactory connectionFactory) {
         return new StringRedisTemplate(connectionFactory);
     }
-
-    @Bean(name = "recommendRedisConnectionFactory")
-    public RedisConnectionFactory recommendRedisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
-        config.setDatabase(1);
-        return new LettuceConnectionFactory(config);
-    }
-
-    @Bean(name = "recommendRedisTemplate")
-    public StringRedisTemplate recommendStringRedisTemplate(@Qualifier("recommendRedisConnectionFactory")
-                                                            RedisConnectionFactory recommendRedisConnectionFactory) {
-        return new StringRedisTemplate(recommendRedisConnectionFactory);
-    }
-
 }
