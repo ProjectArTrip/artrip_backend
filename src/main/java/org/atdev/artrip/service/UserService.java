@@ -2,30 +2,22 @@ package org.atdev.artrip.service;
 
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.controller.dto.response.ExhibitRecentResponse;
-import org.atdev.artrip.converter.HomeConverter;
-import org.atdev.artrip.controller.dto.request.NicknameRequest;
-import org.atdev.artrip.controller.dto.response.MypageResponse;
-import org.atdev.artrip.controller.dto.response.NicknameResponse;
-import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
+import org.atdev.artrip.service.dto.result.MypageResult;
+import org.atdev.artrip.utils.NicknameUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Duration;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -34,140 +26,64 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final S3Service s3Service;
-    private static final String NICKNAME_REGEX = "^[a-zA-Z0-9가-힣]+$";
-
-    @Qualifier("recommendRedisTemplate")
-    private final StringRedisTemplate recommendRedisTemplate;
-
-    private final ExhibitRepository exhibitRepository;
-    private final HomeConverter homeConverter;
-
-    private static final String KEY_PREFIX = "recent:view:user:";
+    private final UserImageService userImageService;
 
     @Transactional
-    public NicknameResponse updateNickName(Long userId, NicknameRequest dto){
+    public void updateNickName(Long userId, String newNickName){
 
-        //1. 유저 검사
-        //2. 닉네임 유효성 검사 + 공백 금지
-        //3. 기존과 동일한지 체크
-        //4. 중복 검사
-        //5. 업뎃 후 반환
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+        User user = findUserOrThrow(userId);
 
-        String newNick = validateNickname(dto);
-
-        if (newNick.equals(user.getNickName())) {
-            return new NicknameResponse(newNick);
+        if (newNickName.equals(user.getNickName())) {
+            return;
         }
 
-        if (userRepository.existsByNickName(newNick)) {
+        if (userRepository.existsByNickName(newNickName)) {
             throw new GeneralException(UserErrorCode._DUPLICATE_NICKNAME);
         }
 
-        user.updateNickname(newNick);
-
-        return new NicknameResponse(newNick);
+        NicknameUtils.getValidatedNickname(newNickName);
     }
 
-    private String validateNickname(NicknameRequest dto) {
-
-        if (dto == null || dto.getNickName() == null) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        String nickname = dto.getNickName();
-
-        if (nickname.isBlank() || nickname.contains(" ")) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        if (!nickname.matches(NICKNAME_REGEX)) {
-            throw new GeneralException(UserErrorCode._NICKNAME_BAD_REQUEST);
-        }
-
-        return nickname;
-    }
-
-    @Transactional
-    public String updateProfileImg(Long userId, MultipartFile image){
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+    public void updateUserImage(Long userId, MultipartFile image){
 
         if (image == null || image.isEmpty()) {
             throw new GeneralException(UserErrorCode._PROFILE_IMAGE_NOT_EXIST);
         }
 
-        String oldUrl = user.getProfileImageUrl();
+        String newUrl = s3Service.uploadFile(image, FileFolder.PROFILES);
 
-        String newUrl;
         try {
-            newUrl = s3Service.uploadProfile(image);
-        } catch (Exception e) {
-            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
-        }
-        user.updateProfileImage(newUrl);
+            String oldUrl = userImageService.updateProfilePath(userId, newUrl);
 
-        if (oldUrl != null && !oldUrl.isBlank()) {
-            try {
+            if (oldUrl != null && !oldUrl.isBlank()) {
                 s3Service.delete(oldUrl);
-            } catch (Exception e) {
-                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
             }
+        } catch (Exception e) {
+            s3Service.delete(newUrl);
+            throw e;
         }
-        return newUrl;
     }
 
-    @Transactional
-    public void deleteProfileImg(Long userId){
+    public void deleteUserImage(Long userId){
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
-        String oldUrl = user.getProfileImageUrl();
+        String oldUrl = userImageService.deleteProfilePath(userId);
 
         if (oldUrl != null && !oldUrl.isBlank()) {
-            try {
                 s3Service.delete(oldUrl);
-            } catch (Exception e) {
-                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE);
-            }
         }
-        user.updateProfileImage(null);
     }
 
     @Transactional(readOnly = true)
-    public MypageResponse getMypage(Long userId, ImageResizeRequest resize){
+    public MypageResult getMypage(Long userId){
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(()-> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+        User user = findUserOrThrow(userId);
+        String profileImage = user.getProfileImageUrl();
 
-        String profileImage = s3Service.buildResizeUrl(user.getProfileImageUrl(), resize.w(), resize.h(), resize.f());
-
-        return new MypageResponse(user.getNickName(), profileImage, user.getEmail());
+        return new MypageResult(user.getNickName(), profileImage, user.getEmail());
     }
 
-    // 최근 본 전시 리스트 조회
-    public List<ExhibitRecentResponse> getRecentViews(Long userId) {
-
-        String key = KEY_PREFIX + userId;
-        Set<String> result = recommendRedisTemplate.opsForZSet().reverseRange(key, 0, 19);//시간 역순으로 가져옴
-
-        if (result == null || result.isEmpty())
-            return List.of();
-
-        List<Long> ids= result.stream()
-                .map(Long::valueOf)
-                .toList();
-
-        List<Exhibit> exhibits = exhibitRepository.findAllByIdWithHall(ids);
-
-        exhibits.sort(Comparator.comparingInt(exhibit -> ids.indexOf(exhibit.getExhibitId())));
-
-        return exhibits.stream()
-                .map(exhibit -> homeConverter.toExhibitRecentResponse(exhibit))
-                .toList();
+    private User findUserOrThrow(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
     }
-
 }

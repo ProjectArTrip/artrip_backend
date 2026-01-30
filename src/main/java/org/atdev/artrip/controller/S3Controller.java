@@ -1,6 +1,7 @@
 package org.atdev.artrip.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
@@ -24,7 +25,7 @@ public class S3Controller {
             s3 = {S3ErrorCode._NOT_EXIST_FILE, S3ErrorCode._NOT_EXIST_FILE_EXTENSION, S3ErrorCode._IO_EXCEPTION_UPLOAD_FILE, S3ErrorCode._INVALID_URL_FORMAT}
     )
     public CommonResponse<List<String>> s3Upload(@RequestPart(value = "image") List<MultipartFile> multipartFile) {
-        List<String> upload = s3Service.uploadPoster(multipartFile);
+        List<String> upload = s3Service.uploadFiles(multipartFile, FileFolder.POSTERS);
         return CommonResponse.onSuccess(upload);
     }
 

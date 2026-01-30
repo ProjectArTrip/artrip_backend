@@ -43,4 +43,3 @@ public record ExhibitFilterRequest (
                         .format(resize.f())
                         .build();
         }
-}
