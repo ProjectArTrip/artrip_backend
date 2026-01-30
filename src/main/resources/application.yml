@@ -81,35 +81,10 @@ spring:
         size: 5
       thread-name-prefix: scheduling-
 
-firebase:
-  credentials:
-    path: ${FIREBASE_CONFIG_PATH}
-
-external:
-  culturalapi:
-    base-url: https://apis.data.go.kr/B553457/cultureinfo
-    service-key: ${K_CULTURAL_INFO_CENTER_KEY}
-    connect-timeout: 5000
-    read-timeout: 60000
-    page-size: 50
-
-resilience4j:
-  retry:
-    instances:
-      publicDataApi:
-        max-attempts: 3
-        wait-duration: 2s
-        retry-exceptions:
-          - java.io.IOException
-          - java.util.concurrent.TimeoutException
-          - org.springframework.web.reactive.function.client.WebClientResponseException$ServiceUnavailable
-
 image:
   upload:
     max-size: 2097152
     allowed-extensions: jpg,jpeg,png,webp
-  resize:
-    secret-key: ${RESIZE_SECRET_KEY}
 ---
 spring:
   config:
@@ -138,8 +113,6 @@ logging:
   level:
     org.atdev.artrip: DEBUG
     io.lettuce: WARN
-    co.elastic: WARN # Elasticsearch 제외 후 제거 예정
-    org.hibernate.SQL: DEBUG
 
 server:
   port: 8080
