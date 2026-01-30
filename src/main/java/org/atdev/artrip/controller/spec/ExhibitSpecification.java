@@ -4,15 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.controller.dto.response.*;
-import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,10 +51,10 @@ public interface ExhibitSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_INVALID_DATE_RANGE, HomeErrorCode._HOME_UNRECOGNIZED_REGION, HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
-    public ResponseEntity<FilterResponse> getFilterExhibit(@ModelAttribute ExhibitFilterRequest dto,
-                                                            @RequestParam(required = false) Long cursor,
-                                                            @RequestParam(defaultValue = "20") Long size,
-                                                            @LoginUser Long userId,
-                                                            @ParameterObject ImageResizeRequest resize);
+    public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+                                                        @RequestParam(required = false) Long cursor,
+                                                        @RequestParam(defaultValue = "20") Long size,
+                                                        @LoginUser Long userId,
+                                                        @ParameterObject ImageResizeRequest resize);
 
 }

@@ -1,7 +1,7 @@
 package org.atdev.artrip.controller.dto.request;
 
 import org.atdev.artrip.constants.SortType;
-import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -24,8 +24,8 @@ public record ExhibitFilterRequest (
         SortType sortType
         ) {
 
-        public ExhibitFilterCommand toCommand(Long userId, Long cursor, Long size, ImageResizeRequest resize) {
-                return ExhibitFilterCommand.builder()
+        public ExhibitSearchCondition toCommand(Long userId, Long cursor, Long size, ImageResizeRequest resize) {
+                return ExhibitSearchCondition.builder()
                         .query(this.query)
                         .startDate(this.startDate)
                         .endDate(this.endDate)

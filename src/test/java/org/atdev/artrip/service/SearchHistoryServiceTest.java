@@ -4,6 +4,7 @@ import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.search.SearchHistory;
+import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.repository.SearchHistoryRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.SearchHistoryCommand;

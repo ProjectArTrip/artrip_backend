@@ -7,7 +7,7 @@ import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
-import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,10 +36,10 @@ public class HomeServiceTest {
     private ExhibitRepository exhibitRepository;
 
     @Mock
-    private FavoriteExhibitRepository favoriteExhibitRepository;
+    private SearchHistoryService searchHistoryService;
 
     @Mock
-    private SearchHistoryService searchHistoryService;
+    FavoriteExhibitRepository favoriteExhibitRepository;
 
     @InjectMocks
     private HomeService homeService;
@@ -68,25 +68,27 @@ public class HomeServiceTest {
 
     @Test
     @DisplayName("제목 검색어 입력 시 조회")
-        public void getFilterExhibit_byTitle() {
+        public void searchExhibit_byTitle() {
         //given
-        ExhibitFilterCommand defaultCommand = ExhibitFilterCommand.builder()
+        ExhibitSearchCondition defaultCommand = ExhibitSearchCondition.builder()
+                .userId(1L)
                 .query("모네")
                 .size(10L)
                 .build();
 
-        ExhibitFilterCommand nullCommand = ExhibitFilterCommand.builder()
+        ExhibitSearchCondition nullCommand = ExhibitSearchCondition.builder()
+                .userId(1L)
                 .query(null)
                 .size(0L)
                 .build();
 
-        when(exhibitRepository.findExhibitByFilters(any(ExhibitFilterCommand.class)))
+        when(exhibitRepository.findExhibitByFilters(any(ExhibitSearchCondition.class)))
                 .thenReturn(new SliceImpl<>(List.of(testExhibit)));
 
         // when
-        ExhibitFilterResult defaultResult = assertDoesNotThrow(() -> homeService.getFilterExhibit(defaultCommand));
+        ExhibitFilterResult defaultResult = assertDoesNotThrow(() -> homeService.searchExhibit(defaultCommand));
 
-        ExhibitFilterResult nullResult = assertDoesNotThrow(() -> homeService.getFilterExhibit(nullCommand));
+        ExhibitFilterResult nullResult = assertDoesNotThrow(() -> homeService.searchExhibit(nullCommand));
 
         // then
         assertAll(
@@ -99,22 +101,22 @@ public class HomeServiceTest {
 
     @Test
     @DisplayName("장르 및 스타일 필터링 조회")
-    public void getFilterExhibit_byGenres() {
+    public void searchExhibit_byGenres() {
         //given
         Set<String> genreNames = Set.of(genreKeyword.getName());
         Set<String> styleNames = Set.of(styleKeyword.getName());
 
-        ExhibitFilterCommand command = ExhibitFilterCommand.builder()
+        ExhibitSearchCondition command = ExhibitSearchCondition.builder()
                 .genres(genreNames)
                 .styles(styleNames)
                 .size(10L)
                 .build();
 
-        when(exhibitRepository.findExhibitByFilters(any(ExhibitFilterCommand.class)))
+        when(exhibitRepository.findExhibitByFilters(any(ExhibitSearchCondition.class)))
                 .thenReturn(new SliceImpl<>(List.of(testExhibit)));
 
         // when
-        ExhibitFilterResult result = assertDoesNotThrow(() -> homeService.getFilterExhibit(command));
+        ExhibitFilterResult result = assertDoesNotThrow(() -> homeService.searchExhibit(command));
 
         // then
         assertAll(
@@ -128,18 +130,18 @@ public class HomeServiceTest {
 
     @Test
     @DisplayName("국가 필터링 조회")
-    public void getFilterExhibit_byCountry() {
+    public void searchExhibit_byCountry() {
         //given
-        ExhibitFilterCommand command = ExhibitFilterCommand.builder()
+        ExhibitSearchCondition command = ExhibitSearchCondition.builder()
                 .country(testExhibitHall.getCountry())
                 .size(10L)
                 .build();
 
-        when(exhibitRepository.findExhibitByFilters(any(ExhibitFilterCommand.class)))
+        when(exhibitRepository.findExhibitByFilters(any(ExhibitSearchCondition.class)))
                 .thenReturn(new SliceImpl<>(List.of(testExhibit)));
 
         // when
-        ExhibitFilterResult result = assertDoesNotThrow(() -> homeService.getFilterExhibit(command));
+        ExhibitFilterResult result = assertDoesNotThrow(() -> homeService.searchExhibit(command));
 
         //then
         assertAll(

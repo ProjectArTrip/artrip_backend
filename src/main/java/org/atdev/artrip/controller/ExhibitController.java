@@ -8,14 +8,11 @@ import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.service.SearchHistoryService;
-import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
-import org.atdev.artrip.service.dto.command.SearchHistoryCommand;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -26,7 +23,6 @@ public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
     private final ExhibitService exhibitService;
-    private final SearchHistoryService searchHistoryService;
 
     @Override
     @GetMapping("/genre")
@@ -72,20 +68,15 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<FilterResponse> getFilterExhibit(@ModelAttribute ExhibitFilterRequest dto,
-                                                            @RequestParam(required = false) Long cursor,
-                                                            @RequestParam(defaultValue = "20") Long size,
-                                                            @LoginUser Long userId,
-                                                            @ParameterObject ImageResizeRequest resize) {
+    public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+                                                        @RequestParam(required = false) Long cursor,
+                                                        @RequestParam(defaultValue = "20") Long size,
+                                                        @LoginUser Long userId,
+                                                        @ParameterObject ImageResizeRequest resize) {
 
-        ExhibitFilterCommand command = dto.toCommand(userId, cursor, size, resize);
+        ExhibitSearchCondition command = dto.toCommand(userId, cursor, size, resize);
 
-        ExhibitFilterResult result = homeService.getFilterExhibit(command);
-
-        if (StringUtils.hasText(command.query())) {
-            SearchHistoryCommand searchHistoryCommand = SearchHistoryCommand.create(command.userId(), command.query());
-            searchHistoryService.saveSearchHistory(searchHistoryCommand);
-        }
+        ExhibitFilterResult result = homeService.searchExhibit(command);
 
         return ResponseEntity.ok(FilterResponse.from(result));
     }

@@ -1,7 +1,6 @@
 package org.atdev.artrip.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -14,7 +13,7 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.domain.keyword.QKeyword;
-import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
@@ -30,7 +29,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterCommand c) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitSearchCondition c) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -134,7 +133,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterCommand dto, QExhibit e) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitSearchCondition dto, QExhibit e) {
 
         if (dto.sortType() == null) {
             return new OrderSpecifier[]{e.startDate.desc(), e.exhibitId.desc()};
