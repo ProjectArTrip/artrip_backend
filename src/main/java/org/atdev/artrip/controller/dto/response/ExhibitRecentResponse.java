@@ -1,15 +1,17 @@
 package org.atdev.artrip.controller.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
+
+import java.util.List;
+
 
 @Builder
-@Getter
-@AllArgsConstructor
-public class ExhibitRecentResponse {
+public record ExhibitRecentResponse (
+        List<ExhibitRecentResult> exhibits
+) {
 
-    private Long exhibitId;
-    private String title;
-    private String exhibitHallName;
+    public static ExhibitRecentResponse from(List<ExhibitRecentResult> results) {
+        return new ExhibitRecentResponse(results);
+    }
 }

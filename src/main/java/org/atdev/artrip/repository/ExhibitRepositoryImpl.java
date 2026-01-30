@@ -13,7 +13,7 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.domain.keyword.QKeyword;
-import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
@@ -29,7 +29,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<Exhibit> findExhibitByFilters(ExhibitFilterCommand c) {
+    public Slice<Exhibit> findExhibitByFilters(ExhibitSearchCondition c) {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
@@ -46,7 +46,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         List<Exhibit> content = queryFactory
                 .selectDistinct(e)
                 .from(e)
-                .join(e.exhibitHall, h)
+                .join(e.exhibitHall, h).fetchJoin()
                 .leftJoin(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
@@ -56,7 +56,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         countryEq(c.country()),
                         regionEq(c.region()),
                         genreIn(c.genres()),
-                        styleIn(c.styles())
+                        styleIn(c.styles()),
+                        queryContain(c.query())
                 )
                 .orderBy(sortFilter(c, e))
                 .limit(c.size()+1)
@@ -132,7 +133,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         };
     }
 
-    private OrderSpecifier<?>[] sortFilter(ExhibitFilterCommand dto, QExhibit e) {
+    private OrderSpecifier<?>[] sortFilter(ExhibitSearchCondition dto, QExhibit e) {
 
         if (dto.sortType() == null) {
             return new OrderSpecifier[]{e.startDate.desc(), e.exhibitId.desc()};
@@ -189,14 +190,29 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
 
     private BooleanExpression genreIn(Set<String> genres) {
         if (genres == null || genres.isEmpty()) return null;
-        return QKeyword.keyword.type.eq(KeywordType.GENRE)
-                .and(QKeyword.keyword.name.in(genres));
+
+        BooleanExpression condition = QKeyword.keyword.type.eq(KeywordType.GENRE);
+
+        BooleanExpression genreCondition = null;
+        for (String genre : genres) {
+            BooleanExpression likeCondition = QKeyword.keyword.name.containsIgnoreCase(genre);
+            genreCondition = (genreCondition == null) ? likeCondition : genreCondition.or(likeCondition);
+        }
+
+        return condition.and(genreCondition);
     }
 
     private BooleanExpression styleIn(Set<String> styles) {
         if (styles == null || styles.isEmpty()) return null;
-        return QKeyword.keyword.type.eq(KeywordType.STYLE)
-                .and(QKeyword.keyword.name.in(styles));
+
+        BooleanExpression condition = QKeyword.keyword.type.eq(KeywordType.STYLE);
+
+        BooleanExpression styleCondition  = null;
+        for (String style : styles) {
+            BooleanExpression likeCondition = QKeyword.keyword.name.containsIgnoreCase(style);
+            styleCondition = (styleCondition == null) ? likeCondition : styleCondition.or(likeCondition);
+        }
+        return condition.and(styleCondition);
     }
 
     private BooleanExpression findDate(LocalDate date){
@@ -204,6 +220,23 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
 
         return QExhibit.exhibit.startDate.loe(date)
                 .and(QExhibit.exhibit.endDate.goe(date));
+    }
+
+    private BooleanExpression queryContain(String query) {
+        if (query == null || query.isBlank()) {
+            return null;
+        }
+
+        String trimmed = query.trim();
+        QExhibit e = QExhibit.exhibit;
+        QExhibitHall h = QExhibitHall.exhibitHall;
+        QKeyword k = QKeyword.keyword;
+
+        return e.title.containsIgnoreCase(trimmed)
+                .or(h.name.containsIgnoreCase(trimmed))
+                .or(k.name.containsIgnoreCase(trimmed))
+                .or(h.country.containsIgnoreCase(trimmed))
+                .or(h.region.containsIgnoreCase(trimmed));
     }
 
 }

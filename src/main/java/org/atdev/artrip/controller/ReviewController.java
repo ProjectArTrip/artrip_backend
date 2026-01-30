@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.spec.ReviewSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.ReviewService;
 import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
@@ -22,7 +23,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/reviews")
-public class ReviewController {
+public class ReviewController implements ReviewSpecification {
 
     private final ReviewService reviewService;
 

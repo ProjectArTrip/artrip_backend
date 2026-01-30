@@ -10,20 +10,18 @@ import java.util.List;
 
 public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Long> {
 
-    List<SearchHistory> findTop10ByUser_UserIdOrderByCreatedAtDesc(Long userId);
+    @Query(value = """
+            SELECT * FROM search_history 
+            WHERE user_id = :userId 
+            ORDER BY created_at DESC 
+            LIMIT 10
+            """, nativeQuery = true)
+    List<SearchHistory> findRecent(@Param("userId") Long userId);
 
     @Modifying
-    @Query("DELETE FROM SearchHistory sh WHERE sh.user.userId = :userId")
-    void deleteByUserId(@Param("userId") Long userId);
-
-    @Modifying
-    @Query("DELETE FROM SearchHistory sh WHERE sh.user.userId = :userId AND sh.content = :content")
-    void deleteByUserIdAndContent(@Param("userId") Long userId, @Param("content") String content);
-
-    @Query(
-            "SELECT sh.content " +
-                    "FROM SearchHistory sh " +
-                    "GROUP BY sh.content ORDER BY COUNT(sh) DESC LIMIT 5"
-    )
-    List<String> findPopularKeywords();
+    @Query(value = """
+            DELETE FROM search_history 
+            WHERE user_id = :userId AND content = :content
+            """, nativeQuery = true)
+    void deleteDuplicate(@Param("userId") Long userId, @Param("content") String content);
 }

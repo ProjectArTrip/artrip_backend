@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -19,6 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "users")
 public class User {
 
     @Id
@@ -36,7 +39,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING) // 여기서 STRING으로 매핑
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
 
@@ -81,10 +84,6 @@ public class User {
         return String.valueOf(userId);
     }
 
-    public void updateNickname(String nickName) {
-        this.nickName=nickName.trim();
-    }
-
     public void updateProfileImage(String url){
         this.profileImageUrl=url;
     }
@@ -112,4 +111,18 @@ public class User {
             social.setUser(this);
         }
     }
+
+    public static User of(SocialUserInfo info) {
+        User user = new User();
+        user.email = info.getEmail();
+        user.name = info.getNickname();
+        user.role = Role.USER;
+        user.onboardingCompleted = false;
+        user.socialAccounts = new ArrayList<>();
+
+        SocialAccounts social = SocialAccounts.of(user, info);
+        user.addSocialAccount(social);
+        return user;
+    }
+
 }

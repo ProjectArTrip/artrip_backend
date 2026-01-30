@@ -44,14 +44,14 @@ public interface ExhibitSpecification {
     )
     public ResponseEntity<List<RegionResponse>> getDomestic();
 
-    @Operation(summary = "전시 조건 필터 전체 조회",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택")
+    @Operation(summary = "전시 조건 필터 전체 조회",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택 + 검색하기 페이지 query로 입력")
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_INVALID_DATE_RANGE, HomeErrorCode._HOME_UNRECOGNIZED_REGION, HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
-    public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
-                                                            @RequestParam(required = false) Long cursor,
-                                                            @RequestParam(defaultValue = "20") Long size,
-                                                            @LoginUser Long userId);
+    public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+                                                        @RequestParam(required = false) Long cursor,
+                                                        @RequestParam(defaultValue = "20") Long size,
+                                                        @LoginUser Long userId);
 
 }

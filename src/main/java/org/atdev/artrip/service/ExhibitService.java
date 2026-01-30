@@ -27,9 +27,10 @@ public class ExhibitService {
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
         boolean isFavorite = false;
+
         if (command.userId() != null) {
             isFavorite = favoriteExhibitRepository.existsActive(command.userId(), command.exhibitId());
-            userHistoryService.addRecentView(command.userId(), command.exhibitId());
+            userHistoryService.addRecentView(command.userId(), exhibit);
         }
 
         return ExhibitDetailResult.of(exhibit, isFavorite);

@@ -1,14 +1,15 @@
 package org.atdev.artrip.controller.dto.request;
 
-import lombok.Builder;
-import lombok.Data;
 import org.atdev.artrip.constants.SortType;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-@Builder
 public record ExhibitFilterRequest (
+
+        String query,
+
         LocalDate startDate,
         LocalDate endDate,
 
@@ -20,5 +21,24 @@ public record ExhibitFilterRequest (
         Set<String> genres,
         Set<String> styles,
 
-        SortType sortType) {
+        SortType sortType
+        ) {
+
+        public ExhibitSearchCondition toCommand(Long userId, Long cursor, Long size) {
+                return ExhibitSearchCondition.builder()
+                        .query(this.query)
+                        .startDate(this.startDate)
+                        .endDate(this.endDate)
+                        .isDomestic(this.isDomestic)
+                        .country(this.country)
+                        .region(this.region)
+                        .genres(this.genres)
+                        .styles(this.styles)
+                        .sortType(this.sortType)
+                        .userId(userId)
+                        .cursor(cursor)
+                        .size(size)
+                        .build();
+
+        }
 }

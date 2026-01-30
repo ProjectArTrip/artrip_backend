@@ -80,4 +80,23 @@ public class Exhibit {
             inverseJoinColumns = @JoinColumn(name = "keyword_id")
     )
     private Set<Keyword> keywords = new HashSet<>();
+
+    public static Exhibit of(Long exhibitId, String title, ExhibitHall exhibitHall, Status status,
+                             LocalDate startDate, LocalDate endDate) {
+        Exhibit exhibit = new Exhibit();
+        exhibit.exhibitId = exhibitId;
+        exhibit.title = title;
+        exhibit.exhibitHall = exhibitHall;
+        exhibit.status = status;
+        exhibit.startDate = startDate;
+        exhibit.endDate = endDate;
+        exhibit.keywords = new HashSet<>();
+        exhibit.favoriteCount = 0L;
+        return exhibit;
+    }
+
+    public Exhibit withKeywords(Set<Keyword> keywords) {
+        this.keywords = keywords;
+        return this;
+    }
 }

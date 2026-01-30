@@ -7,7 +7,10 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Builder
-public record ExhibitFilterCommand (
+public record ExhibitSearchCondition(
+
+        String query,
+
         LocalDate startDate,
         LocalDate endDate,
         Boolean isDomestic,
@@ -21,6 +24,5 @@ public record ExhibitFilterCommand (
         Long size,
         Long cursor,
         Long userId
-
         ){
 }
