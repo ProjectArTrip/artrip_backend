@@ -24,7 +24,7 @@ public record ExhibitFilterRequest (
         SortType sortType
         ) {
 
-        public ExhibitSearchCondition toCommand(Long userId, Long cursor, Long size, ImageResizeRequest resize) {
+        public ExhibitSearchCondition toCommand(Long userId, Long cursor, Long size) {
                 return ExhibitSearchCondition.builder()
                         .query(this.query)
                         .startDate(this.startDate)
@@ -38,8 +38,7 @@ public record ExhibitFilterRequest (
                         .userId(userId)
                         .cursor(cursor)
                         .size(size)
-                        .width(resize.w())
-                        .height(resize.h())
-                        .format(resize.f())
                         .build();
+
         }
+}

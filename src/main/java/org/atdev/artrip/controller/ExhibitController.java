@@ -7,11 +7,9 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -37,11 +35,10 @@ public class ExhibitController implements ExhibitSpecification {
     @GetMapping("/{id}")
     public ResponseEntity<ExhibitDetailResponse> getExhibit(
             @PathVariable Long id,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize
+            @LoginUser Long userId
             ){
 
-        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, userId, resize.w(), resize.h(), resize.f());
+        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, userId);
         ExhibitDetailResult result = exhibitService.getExhibitDetail(query);
 
         return ResponseEntity.ok(ExhibitDetailResponse.from(result));
@@ -66,15 +63,13 @@ public class ExhibitController implements ExhibitSpecification {
     }
 
 
-    @Override
+
     @GetMapping
     public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
                                                         @RequestParam(required = false) Long cursor,
                                                         @RequestParam(defaultValue = "20") Long size,
-                                                        @LoginUser Long userId,
-                                                        @ParameterObject ImageResizeRequest resize) {
-
-        ExhibitSearchCondition command = dto.toCommand(userId, cursor, size, resize);
+                                                        @LoginUser Long userId) {
+        ExhibitSearchCondition command = dto.toCommand(userId, cursor, size);
 
         ExhibitFilterResult result = homeService.searchExhibit(command);
 

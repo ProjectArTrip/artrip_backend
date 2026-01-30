@@ -23,11 +23,6 @@ public record ExhibitSearchCondition(
 
         Long size,
         Long cursor,
-        Long userId,
-
-        Integer width,
-        Integer height,
-        String format
-
+        Long userId
         ){
 }

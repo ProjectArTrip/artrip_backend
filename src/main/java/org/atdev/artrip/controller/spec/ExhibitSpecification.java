@@ -2,7 +2,6 @@ package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
@@ -24,8 +23,7 @@ public interface ExhibitSpecification {
             home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
     ResponseEntity<ExhibitDetailResponse> getExhibit( @PathVariable Long id,
-                                                      @LoginUser Long userId,
-                                                      @ParameterObject ImageResizeRequest resize);
+                                                      @LoginUser Long userId);
 
     @Operation(summary = "장르 조회", description = "키워드 장르 데이터 전체 조회")
     @ApiErrorResponses(
@@ -54,7 +52,6 @@ public interface ExhibitSpecification {
     public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
                                                         @RequestParam(required = false) Long cursor,
                                                         @RequestParam(defaultValue = "20") Long size,
-                                                        @LoginUser Long userId,
-                                                        @ParameterObject ImageResizeRequest resize);
+                                                        @LoginUser Long userId);
 
 }
