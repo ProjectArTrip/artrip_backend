@@ -21,6 +21,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
+@Table(name = "users")
 public class User {
 
     @Id
@@ -38,7 +39,7 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Enumerated(EnumType.STRING) // 여기서 STRING으로 매핑
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Role role;
 
@@ -111,5 +112,17 @@ public class User {
         }
     }
 
+    public static User of(SocialUserInfo info) {
+        User user = new User();
+        user.email = info.getEmail();
+        user.name = info.getNickname();
+        user.role = Role.USER;
+        user.onboardingCompleted = false;
+        user.socialAccounts = new ArrayList<>();
+
+        SocialAccounts social = SocialAccounts.of(user, info);
+        user.addSocialAccount(social);
+        return user;
+    }
 
 }

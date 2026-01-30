@@ -10,10 +10,8 @@ import org.atdev.artrip.controller.dto.request.GenreRandomRequest;
 import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
 import org.atdev.artrip.controller.dto.request.ScheduleRandomRequest;
 import org.atdev.artrip.controller.dto.request.TodayRandomRequest;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,17 +29,13 @@ public class HomeController implements HomeSpecification {
     @GetMapping("/exhibits/personalized")
     public ResponseEntity<List<HomeListResponse>> getRandomPersonalized(
             @LoginUser Long userId,
-            @Valid @ModelAttribute PersonalizedRequest request,
-            @ParameterObject ImageResizeRequest resize){
+            @Valid @ModelAttribute PersonalizedRequest request){
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)
                 .isDomestic(request.getIsDomestic())
                 .region(request.getRegion())
                 .country(request.getCountry())
-                .width(resize.w())
-                .height(resize.h())
-                .format(resize.f())
                 .build();
 
         List<ExhibitRandomResult> exhibits= homeService.getRandomPersonalized(query);
@@ -55,8 +49,7 @@ public class HomeController implements HomeSpecification {
     @GetMapping("/exhibits/schedule")
     public ResponseEntity<List<HomeListResponse>> getRandomSchedule(
             @Valid @ModelAttribute ScheduleRandomRequest request,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize){
+            @LoginUser Long userId){
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)
@@ -64,9 +57,6 @@ public class HomeController implements HomeSpecification {
                 .region(request.getRegion())
                 .country(request.getCountry())
                 .date(request.getDate())
-                .width(resize.w())
-                .height(resize.h())
-                .format(resize.f())
                 .build();
 
         List<ExhibitRandomResult> exhibits= homeService.getRandomSchedule(query);
@@ -78,8 +68,7 @@ public class HomeController implements HomeSpecification {
     @GetMapping("/exhibits/genres")
     public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
             @Valid @ModelAttribute GenreRandomRequest request,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize){
+            @LoginUser Long userId){
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)
@@ -87,9 +76,6 @@ public class HomeController implements HomeSpecification {
                 .region(request.getRegion())
                 .country(request.getCountry())
                 .singleGenre(request.getSingleGenre())
-                .width(resize.w())
-                .height(resize.h())
-                .format(resize.f())
                 .build();
 
         List<ExhibitRandomResult> exhibits = homeService.getRandomGenre(query);
@@ -101,17 +87,13 @@ public class HomeController implements HomeSpecification {
     @GetMapping("/exhibits/today")
     public ResponseEntity<List<HomeListResponse>> getTodayRecommendations(
             @Valid @ModelAttribute TodayRandomRequest request,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize){
+            @LoginUser Long userId){
 
         ExhibitRandomCommand query = ExhibitRandomCommand.builder()
                 .userId(userId)
                 .isDomestic(request.getIsDomestic())
                 .region(request.getRegion())
                 .country(request.getCountry())
-                .width(resize.w())
-                .height(resize.h())
-                .format(resize.f())
                 .build();
         List<ExhibitRandomResult> exhibits = homeService.getRandomToday(query);
 

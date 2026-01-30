@@ -13,9 +13,7 @@ import org.atdev.artrip.controller.dto.response.ReviewSliceResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,10 +82,9 @@ public class ReviewController implements ReviewSpecification {
     public ResponseEntity<CommonResponse<ReviewSliceResponse>> getAllReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize) {
+            @LoginUser Long userId) {
 
-        ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size, resize);
+        ReviewSliceResponse response = reviewService.getAllReview(userId, cursor, size);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
@@ -101,10 +98,9 @@ public class ReviewController implements ReviewSpecification {
     public ResponseEntity<CommonResponse<ExhibitReviewSliceResponse>> getExhibitReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
-            @PathVariable Long exhibitId,
-            @ParameterObject ImageResizeRequest resize) {
+            @PathVariable Long exhibitId) {
 
-        ExhibitReviewSliceResponse response = reviewService.getExhibitReview(exhibitId, cursor, size, resize);
+        ExhibitReviewSliceResponse response = reviewService.getExhibitReview(exhibitId, cursor, size);
 
         return ResponseEntity.ok(CommonResponse.onSuccess(response));
     }
