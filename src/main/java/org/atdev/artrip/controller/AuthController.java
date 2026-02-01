@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
+import org.atdev.artrip.controller.dto.response.AppReissueResponse;
 import org.atdev.artrip.controller.spec.AuthSpecification;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
@@ -14,6 +16,8 @@ import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.result.AppReissueResult;
+import org.atdev.artrip.service.dto.result.SocialLoginResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,12 +42,14 @@ public class AuthController implements AuthSpecification {
 
 
     @PostMapping("/app/reissue")
-    public ResponseEntity<SocialLoginResponse> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
+    public ResponseEntity<AppReissueResponse> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
 
-        SocialLoginResponse jwt = authService.appReissueToken(refreshToken);
+        AppReissueResult result = authService.appReissueToken(refreshToken.refreshToken());
+        AppReissueResponse response = AppReissueResponse.from(result);
 
-        return ResponseEntity.ok(jwt);
+        return ResponseEntity.ok(response);
     }
+
 
     @PostMapping("/web/logout")
     public ResponseEntity<Void> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
@@ -55,18 +61,19 @@ public class AuthController implements AuthSpecification {
     }
 
     @PostMapping("/app/logout")
-    public void appLogout(@RequestBody(required = false) ReissueRequest token) {
+    public void appLogout(@RequestBody(required = false) LogoutRequest token) {
 
-        authService.appLogout(token);
+        authService.appLogout(token.accessToken(),token.refreshToken());
     }
 
 
     @PostMapping("/social")
     public ResponseEntity<SocialLoginResponse> socialLogin(@RequestBody SocialLoginRequest request) {
 
-        SocialLoginResponse jwt = authService.loginWithSocial(request.getProvider(), request.getIdToken());
+        SocialLoginResult result = authService.loginWithSocial(request.getProvider(), request.getIdToken());
+        SocialLoginResponse response = SocialLoginResponse.from(result);
 
-        return ResponseEntity.ok(jwt);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/complete")

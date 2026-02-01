@@ -3,8 +3,10 @@ package org.atdev.artrip.controller.spec;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
+import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
+import org.atdev.artrip.controller.dto.response.AppReissueResponse;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -38,7 +40,7 @@ public interface AuthSpecification {
             },
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
-    public ResponseEntity<SocialLoginResponse> appReissue(@RequestBody(required = false) ReissueRequest refreshToken);
+    public ResponseEntity<AppReissueResponse> appReissue(@RequestBody(required = false) ReissueRequest refreshToken);
 
 
     @PermitAll
@@ -56,7 +58,7 @@ public interface AuthSpecification {
             user = {UserErrorCode._INVALID_REFRESH_TOKEN},
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
-    public void appLogout(@RequestBody(required = false) ReissueRequest token);
+    public void appLogout(@RequestBody(required = false) LogoutRequest token);
 
 
     @PermitAll
