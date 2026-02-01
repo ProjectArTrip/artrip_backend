@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
+import org.atdev.artrip.controller.dto.response.HomeResponse;
 import org.atdev.artrip.controller.spec.HomeSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.HomeService;
@@ -11,6 +12,7 @@ import org.atdev.artrip.controller.dto.request.PersonalizedRequest;
 import org.atdev.artrip.controller.dto.request.ScheduleRandomRequest;
 import org.atdev.artrip.controller.dto.request.TodayRandomRequest;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.result.ExhibitRandomListResult;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,77 +29,52 @@ public class HomeController implements HomeSpecification {
 
     @Override
     @GetMapping("/exhibits/personalized")
-    public ResponseEntity<List<HomeListResponse>> getRandomPersonalized(
+    public ResponseEntity<HomeListResponse> getRandomPersonalized(
             @LoginUser Long userId,
             @Valid @ModelAttribute PersonalizedRequest request){
 
-        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
-                .userId(userId)
-                .isDomestic(request.getIsDomestic())
-                .region(request.getRegion())
-                .country(request.getCountry())
-                .build();
-
-        List<ExhibitRandomResult> exhibits= homeService.getRandomPersonalized(query);
+        ExhibitRandomCommand command = request.toCommand(userId);
+        ExhibitRandomListResult result= homeService.getRandomPersonalized(command);
 
 
-        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
+        return ResponseEntity.ok(HomeListResponse.from(result));
     }
 
 
     @Override
     @GetMapping("/exhibits/schedule")
-    public ResponseEntity<List<HomeListResponse>> getRandomSchedule(
+    public ResponseEntity<HomeListResponse> getRandomSchedule(
             @Valid @ModelAttribute ScheduleRandomRequest request,
             @LoginUser Long userId){
 
-        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
-                .userId(userId)
-                .isDomestic(request.getIsDomestic())
-                .region(request.getRegion())
-                .country(request.getCountry())
-                .date(request.getDate())
-                .build();
+        ExhibitRandomCommand command = request.toCommand(userId);
+        ExhibitRandomListResult result= homeService.getRandomSchedule(command);
 
-        List<ExhibitRandomResult> exhibits= homeService.getRandomSchedule(query);
-
-        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
+        return ResponseEntity.ok(HomeListResponse.from(result));
     }
 
 
     @GetMapping("/exhibits/genres")
-    public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
+    public ResponseEntity<HomeListResponse> getRandomExhibits(
             @Valid @ModelAttribute GenreRandomRequest request,
             @LoginUser Long userId){
 
-        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
-                .userId(userId)
-                .isDomestic(request.getIsDomestic())
-                .region(request.getRegion())
-                .country(request.getCountry())
-                .singleGenre(request.getSingleGenre())
-                .build();
+        ExhibitRandomCommand command = request.toCommand(userId);
+        ExhibitRandomListResult result = homeService.getRandomGenre(command);
 
-        List<ExhibitRandomResult> exhibits = homeService.getRandomGenre(query);
-
-        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
+        return ResponseEntity.ok(HomeListResponse.from(result));
     }
 
     @Override
     @GetMapping("/exhibits/today")
-    public ResponseEntity<List<HomeListResponse>> getTodayRecommendations(
+    public ResponseEntity<HomeListResponse> getTodayRecommendations(
             @Valid @ModelAttribute TodayRandomRequest request,
             @LoginUser Long userId){
 
-        ExhibitRandomCommand query = ExhibitRandomCommand.builder()
-                .userId(userId)
-                .isDomestic(request.getIsDomestic())
-                .region(request.getRegion())
-                .country(request.getCountry())
-                .build();
-        List<ExhibitRandomResult> exhibits = homeService.getRandomToday(query);
+        ExhibitRandomCommand command = request.toCommand(userId);
+        ExhibitRandomListResult result = homeService.getRandomToday(command);
 
-        return ResponseEntity.ok(HomeListResponse.fromList(exhibits));
+        return ResponseEntity.ok(HomeListResponse.from(result));
     }
 
 }

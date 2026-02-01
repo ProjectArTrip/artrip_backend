@@ -68,7 +68,7 @@ public class HomeService {
     }
 
 
-    public List<ExhibitRandomResult> getRandomPersonalized(ExhibitRandomCommand query){
+    public ExhibitRandomListResult getRandomPersonalized(ExhibitRandomCommand query){
 
         if (!userRepository.existsById(query.userId())) {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
@@ -90,29 +90,36 @@ public class HomeService {
                 .collect(Collectors.toSet());
 
         ExhibitRandomCommand command = query.withKeywords(genres, styles);
+        List<ExhibitRandomResult> results = processExhibits(command);
 
-        return processExhibits(command);
+        return ExhibitRandomListResult.from(results);
     }
 
-    public List<ExhibitRandomResult> getRandomSchedule(ExhibitRandomCommand query){
+    public ExhibitRandomListResult getRandomSchedule(ExhibitRandomCommand query){
 
         ExhibitRandomCommand command = query.withLimit(2);
-        return processExhibits(command);
+        List<ExhibitRandomResult> results = processExhibits(command);
+
+        return ExhibitRandomListResult.from(results);
     }
 
 
-    public List<ExhibitRandomResult> getRandomGenre(ExhibitRandomCommand query){
+    public ExhibitRandomListResult getRandomGenre(ExhibitRandomCommand query){
 
         ExhibitRandomCommand command = query.withGenre();
 
-        return processExhibits(command);
+        List<ExhibitRandomResult> results = processExhibits(command);
+        return ExhibitRandomListResult.from(results);
     }
 
-    public List<ExhibitRandomResult> getRandomToday(ExhibitRandomCommand query){
+    public ExhibitRandomListResult getRandomToday(ExhibitRandomCommand query){
 
         ExhibitRandomCommand command = query.withLimit(3);
-        return processExhibits(command);
+        List<ExhibitRandomResult> results = processExhibits(command);
+
+        return ExhibitRandomListResult.from(results);
     }
+
 
     private List<ExhibitRandomResult> processExhibits(ExhibitRandomCommand command) {
 
