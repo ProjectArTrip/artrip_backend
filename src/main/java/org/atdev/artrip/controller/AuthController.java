@@ -30,13 +30,13 @@ public class AuthController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/web/reissue")
-    public ResponseEntity<CommonResponse<String>> webReissue(
+    public ResponseEntity<String> webReissue(
             @CookieValue(value = "refreshToken", required = false) ReissueRequest refreshToken,
             HttpServletResponse response) {
 
         String newAccessToken = authService.webReissueToken(refreshToken, response);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(newAccessToken));
+        return ResponseEntity.ok(newAccessToken);
     }
 
     @PermitAll
@@ -51,11 +51,11 @@ public class AuthController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/app/reissue")
-    public ResponseEntity<CommonResponse<SocialLoginResponse>> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
+    public ResponseEntity<SocialLoginResponse> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
 
         SocialLoginResponse jwt = authService.appReissueToken(refreshToken);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
+        return ResponseEntity.ok(jwt);
     }
 
     @PermitAll
@@ -65,12 +65,12 @@ public class AuthController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/web/logout")
-    public ResponseEntity<CommonResponse<Void>> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+    public ResponseEntity<Void> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                        HttpServletResponse response) {
 
         authService.webLogout(refreshToken, response);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(null));
+        return ResponseEntity.noContent().build();
     }
 
     @PermitAll
@@ -99,16 +99,16 @@ public class AuthController {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     @PostMapping("/social")
-    public ResponseEntity<CommonResponse<SocialLoginResponse>> socialLogin(@RequestBody SocialLoginRequest request) {
+    public ResponseEntity<SocialLoginResponse> socialLogin(@RequestBody SocialLoginRequest request) {
 
         SocialLoginResponse jwt = authService.loginWithSocial(request.getProvider(), request.getIdToken());
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
+        return ResponseEntity.ok(jwt);
     }
 
     @Operation(summary = "isFirstLogin값 반전 api")
     @PostMapping("/complete")
-    public ResponseEntity<String> completeOnboarding(
+    public ResponseEntity<Void> completeOnboarding(
             @LoginUser Long userId) {
 
         authService.completeOnboarding(userId);
