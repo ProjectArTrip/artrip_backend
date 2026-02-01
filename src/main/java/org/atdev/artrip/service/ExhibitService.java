@@ -2,7 +2,6 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.global.s3.util.ImageUrlFormatter;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
@@ -18,7 +17,6 @@ public class ExhibitService {
 
     private final ExhibitRepository exhibitRepository;
     private final FavoriteExhibitRepository favoriteExhibitRepository;
-    private final ImageUrlFormatter imageUrlFormatter;
     private final UserHistoryService userHistoryService;
 
 
@@ -28,13 +26,6 @@ public class ExhibitService {
         Exhibit exhibit = exhibitRepository.findByIdWithHall(command.exhibitId())
                 .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
-        String resizedPosterUrl = imageUrlFormatter.getResizedUrl(
-                exhibit.getPosterUrl(),
-                command.width(),
-                command.height(),
-                command.format()
-        );
-
         boolean isFavorite = false;
 
         if (command.userId() != null) {
@@ -42,7 +33,7 @@ public class ExhibitService {
             userHistoryService.addRecentView(command.userId(), exhibit);
         }
 
-        return ExhibitDetailResult.of(exhibit, isFavorite, resizedPosterUrl);
+        return ExhibitDetailResult.of(exhibit, isFavorite);
     }
 
 

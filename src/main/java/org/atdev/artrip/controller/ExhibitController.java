@@ -7,18 +7,16 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
-import org.atdev.artrip.controller.dto.request.ImageResizeRequest;
-import org.atdev.artrip.service.dto.command.ExhibitFilterCommand;
+import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/exhibit")
+@RequestMapping("/exhibits")
 public class ExhibitController implements ExhibitSpecification {
 
     private final HomeService homeService;
@@ -37,11 +35,10 @@ public class ExhibitController implements ExhibitSpecification {
     @GetMapping("/{id}")
     public ResponseEntity<ExhibitDetailResponse> getExhibit(
             @PathVariable Long id,
-            @LoginUser Long userId,
-            @ParameterObject ImageResizeRequest resize
+            @LoginUser Long userId
             ){
 
-        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, userId, resize.w(), resize.h(), resize.f());
+        ExhibitDetailCommand query = ExhibitDetailCommand.of(id, userId);
         ExhibitDetailResult result = exhibitService.getExhibitDetail(query);
 
         return ResponseEntity.ok(ExhibitDetailResponse.from(result));
@@ -66,35 +63,15 @@ public class ExhibitController implements ExhibitSpecification {
     }
 
 
-    @Override
-    @GetMapping("/filter")
-    public ResponseEntity<FilterResponse> getDomesticFilter(@ModelAttribute ExhibitFilterRequest dto,
-                                                            @RequestParam(required = false) Long cursor,
-                                                            @RequestParam(defaultValue = "20") Long size,
-                                                            @LoginUser Long userId,
-                                                            @ParameterObject ImageResizeRequest resize) {
 
-        ExhibitFilterCommand command = ExhibitFilterCommand.builder()
-                .isDomestic(dto.isDomestic())
-                .startDate(dto.startDate())
-                .endDate(dto.endDate())
-                .country(dto.country())
-                .region(dto.region())
-                .genres(dto.genres())
-                .styles(dto.styles())
-                .sortType(dto.sortType())
+    @GetMapping
+    public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+                                                        @RequestParam(required = false) Long cursor,
+                                                        @RequestParam(defaultValue = "20") Long size,
+                                                        @LoginUser Long userId) {
+        ExhibitSearchCondition command = dto.toCommand(userId, cursor, size);
 
-                .userId(userId)
-                .cursor(cursor)
-                .size(size)
-
-                .width(resize.w())
-                .height(resize.h())
-                .format(resize.f())
-                .build();
-
-
-        ExhibitFilterResult result = homeService.getFilterExhibit(command);
+        ExhibitFilterResult result = homeService.searchExhibit(command);
 
         return ResponseEntity.ok(FilterResponse.from(result));
     }

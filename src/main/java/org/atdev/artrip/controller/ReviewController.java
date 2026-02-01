@@ -87,6 +87,7 @@ public class ReviewController implements ReviewSpecification {
         ExhibitReviewResult result = reviewService.getExhibitReview(exhibitId, cursor, size);
         ExhibitReviewSliceResponse response = ExhibitReviewSliceResponse.from(result);
 
+
         return ResponseEntity.ok(response);
     }
 }

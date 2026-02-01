@@ -182,7 +182,6 @@ public class S3Service {
             return externalUrl;
         }
 
-
         try {
             URL url = new URI(externalUrl).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -201,7 +200,6 @@ public class S3Service {
                 String redirectUrl = connection.getHeaderField("Location");
 
                 if (redirectUrl != null && !redirectUrl.isBlank()) {
-                    // 리다이렉트 URL로 재귀 호출
                     return uploadFromExternalUrl(redirectUrl, folder);
                 }
             }

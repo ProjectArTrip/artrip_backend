@@ -84,6 +84,7 @@ public class ReviewService {
     @Transactional
     public MyReviewResult getAllReview(Long userId, Long cursor, int size){
 
+
         Slice<Review> slice;
         if (cursor == null) {
             slice = reviewRepository.findTopByUserId(userId, PageRequest.ofSize(size));
@@ -109,5 +110,6 @@ public class ReviewService {
         long exhibitTotalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
 
         return ExhibitReviewResult.of(slice,exhibitTotalCount);
+
     }
 }
