@@ -12,7 +12,6 @@ import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,11 +23,11 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping("/genre")
-    public ResponseEntity<List<GenreResponse>> getGenres(){
+    public ResponseEntity<GenreListResponse> getGenres(){
 
-        List<GenreResult> genres = homeService.getAllGenres();
+        GenreListResult result = homeService.getAllGenres();
 
-        return ResponseEntity.ok(GenreResponse.from(genres));
+        return ResponseEntity.ok(GenreListResponse.from(result));
     }
 
     @Override
@@ -46,24 +45,24 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping("/overseas")
-    public ResponseEntity<List<CountryResponse>> getOverseas() {
+    public ResponseEntity<CountryListResponse> getOverseas() {
 
-        List<CountryResult> OverseasList = homeService.getOverseas();
+        CountryListResult result = homeService.getOverseas();
 
-        return ResponseEntity.ok(CountryResponse.from(OverseasList));
+        return ResponseEntity.ok(CountryListResponse.from(result));
     }
 
     @Override
     @GetMapping("/domestic")
-    public ResponseEntity<List<RegionResponse>> getDomestic(){
+    public ResponseEntity<RegionListResponse> getDomestic(){
 
-        List<RegionResult> results = homeService.getRegions();
+        RegionListResult results = homeService.getRegions();
 
-        return ResponseEntity.ok(RegionResponse.from(results));
+        return ResponseEntity.ok(RegionListResponse.from(results));
     }
 
 
-
+    @Override
     @GetMapping
     public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
                                                         @RequestParam(required = false) Long cursor,

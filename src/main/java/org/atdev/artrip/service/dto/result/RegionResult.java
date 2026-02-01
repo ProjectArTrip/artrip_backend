@@ -8,7 +8,7 @@ public record RegionResult(
         String region,
         String imageUrl
 ) {
-    public static RegionResult from(Region entity) {
-        return new RegionResult(entity.getName(), entity.getImageUrl());
+    public static RegionResult from(Region region) {
+        return new RegionResult(region.getName(), region.getImageUrl());
     }
 }

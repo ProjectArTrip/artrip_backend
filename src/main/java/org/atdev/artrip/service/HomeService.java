@@ -3,6 +3,7 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.KeywordType;
+import org.atdev.artrip.domain.exhibit.Region;
 import org.atdev.artrip.repository.*;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.keyword.Keyword;
@@ -34,25 +35,23 @@ public class HomeService {
     private final SearchHistoryService searchHistoryService;
 
 
-    public List<GenreResult> getAllGenres() {
+    public GenreListResult getAllGenres() {
         List<String> genreNames = exhibitRepository.findAllGenres();
 
-        if (genreNames == null) {return List.of();}
+        if (genreNames == null) {
+            return new GenreListResult(List.of());
+        }
 
-        return genreNames.stream()
-                .map(GenreResult::from)
-                .toList();
+        return GenreListResult.from(genreNames);
     }
 
-    public List<CountryResult> getOverseas() {
-        return CountryResult.from();
+    public CountryListResult getOverseas() {
+        return CountryListResult.from();
     }
 
-    public List<RegionResult> getRegions() {
-
-        return regionRepository.findAll().stream()
-                .map(RegionResult::from)
-                .toList();
+    public RegionListResult getRegions() {
+        List<Region> regions = regionRepository.findAll();
+        return RegionListResult.from(regions);
     }
 
     public ExhibitFilterResult searchExhibit(ExhibitSearchCondition command) {
