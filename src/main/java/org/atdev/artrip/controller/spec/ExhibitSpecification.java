@@ -7,13 +7,10 @@ import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 public interface ExhibitSpecification {
 
@@ -30,19 +27,19 @@ public interface ExhibitSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
     )
-    ResponseEntity<List<GenreResponse>> getGenres();
+    ResponseEntity<GenreListResponse> getGenres();
 
     @Operation(summary = "해외 국가 목록 조회")
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
-    public ResponseEntity<List<CountryResponse>> getOverseas();
+    public ResponseEntity<CountryListResponse> getOverseas();
 
     @Operation(summary = "국내 지역 목록 조회")
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
-    public ResponseEntity<List<RegionResponse>> getDomestic();
+    public ResponseEntity<RegionListResponse> getDomestic();
 
     @Operation(summary = "전시 조건 필터 전체 조회",description = "기간, 지역, 장르, 전시 스타일 필터 조회 - null 시 전체선택 + 검색하기 페이지 query로 입력")
     @ApiErrorResponses(

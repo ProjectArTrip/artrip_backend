@@ -1,6 +1,7 @@
 package org.atdev.artrip.controller.dto.request;
 
-public record ReissueRequest(
+public record LogoutRequest(
+        String accessToken,
         String refreshToken
 ) {
 }

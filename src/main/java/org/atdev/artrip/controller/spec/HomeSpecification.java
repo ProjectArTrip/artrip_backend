@@ -4,15 +4,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.atdev.artrip.controller.dto.request.*;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
+import org.atdev.artrip.controller.dto.response.HomeResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.util.List;
@@ -38,7 +35,7 @@ public interface HomeSpecification {
     @ApiErrorResponses(
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED}
     )
-    public ResponseEntity<List<HomeListResponse>> getRandomPersonalized(
+    public ResponseEntity<HomeListResponse> getRandomPersonalized(
             @LoginUser Long userId,
             @Valid @ModelAttribute PersonalizedRequest request);
 
@@ -63,7 +60,7 @@ public interface HomeSpecification {
       }
     """
     )
-    public ResponseEntity<List<HomeListResponse>> getRandomSchedule(
+    public ResponseEntity<HomeListResponse> getRandomSchedule(
             @Valid @ModelAttribute ScheduleRandomRequest request,
             @LoginUser Long userId);
 
@@ -89,7 +86,7 @@ public interface HomeSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_GENRE_NOT_FOUND}
     )
-    public ResponseEntity<List<HomeListResponse>> getRandomExhibits(
+    public ResponseEntity<HomeListResponse> getRandomExhibits(
             @Valid @ModelAttribute GenreRandomRequest request,
             @LoginUser Long userId);
 
@@ -113,7 +110,7 @@ public interface HomeSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
-    public ResponseEntity<List<HomeListResponse>> getTodayRecommendations(
+    public ResponseEntity<HomeListResponse> getTodayRecommendations(
             @Valid @ModelAttribute TodayRandomRequest request,
             @LoginUser Long userId);
 }

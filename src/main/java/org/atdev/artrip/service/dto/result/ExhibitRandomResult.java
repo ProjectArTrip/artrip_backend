@@ -39,21 +39,6 @@ public record ExhibitRandomResult(
                 .build();
     }
 
-    public ExhibitRandomResult withResizeUrl(String newResizeUrl) {
-        return ExhibitRandomResult.builder()
-                .exhibitId(this.exhibitId)
-                .title(this.title)
-                .posterUrl(this.posterUrl)
-                .status(this.status)
-                .exhibitPeriod(this.exhibitPeriod)
-                .hallName(this.hallName)
-                .countryName(this.countryName)
-                .regionName(this.regionName)
-                .isFavorite(this.isFavorite)
-                .resizeUrl(newResizeUrl)
-                .build();
-    }
-
     public ExhibitRandomResult withFavorite(boolean favorite) {
         return ExhibitRandomResult.builder()
                 .exhibitId(this.exhibitId)
