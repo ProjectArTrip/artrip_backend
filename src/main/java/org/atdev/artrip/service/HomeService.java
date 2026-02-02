@@ -30,7 +30,7 @@ public class HomeService {
     private final UserKeywordRepository userkeywordRepository;
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
-    private final FavoriteExhibitRepository favoriteExhibitRepository;
+    private final FavoriteRepository favoriteRepository;
     private final SearchHistoryService searchHistoryService;
 
 
@@ -131,7 +131,7 @@ public class HomeService {
         if (userId == null) {
             return Collections.emptySet();
         }
-        return favoriteExhibitRepository.findActiveExhibitIds(userId);
+        return favoriteRepository.findActiveExhibitIds(userId);
     }
 
     private List<ExhibitRandomResult> setFavorites(List<ExhibitRandomResult> results, Set<Long> favoriteIds) {

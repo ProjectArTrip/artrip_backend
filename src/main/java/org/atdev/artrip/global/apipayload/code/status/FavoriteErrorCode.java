@@ -10,10 +10,10 @@ import org.springframework.http.HttpStatus;
 public enum FavoriteErrorCode implements BaseErrorCode {
 
     _FAVORITE_NOT_FOUND(HttpStatus.NOT_FOUND, "FAVORITE404-NOT_FOUND", "즐겨찾기를 찾을 수 없습니다."),
-    _FAVORITE_ALREADY_EXISTS(HttpStatus.CONFLICT, "FAVORITE409-ALREADY_EXISTS", "이미 즐겨찾기에 추가된 전시입니다."),
-    _FAVORITE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "FAVORITE400-LIMIT_EXCEEDED", "즐겨찾기는 최대 100개까지 추가할 수 있습니다."),
-    _EXHIBIT_NOT_FOUND_FOR_FAVORITE(HttpStatus.NOT_FOUND, "FAVORITE404-EXHIBIT_NOT_FOUND", "즐겨찾기하려는 전시를 찾을 수 없습니다."),
-    _FAVORITE_UNAUTHORIZED(HttpStatus.FORBIDDEN, "FAVORITE403-UNAUTHORIZED", "다른 사용자의 즐겨찾기에 접근할 수 없습니다.");
+    _INVALID_SORT_TYPE(HttpStatus.BAD_REQUEST, "FAVORITE400-INVALID_SORT", "유효하지 않은 정렬 타입입니다. (latest, ending_soon만 가능)"),
+    _REGION_REQUIRES_DOMESTIC(HttpStatus.BAD_REQUEST, "FAVORITE400-REGION_REQ_DOMESTIC", "지역 필터는 국내 전시(isDomestic=true)일 때만 사용 가능합니다."),
+    _COUNTRY_REQUIRES_OVERSEAS(HttpStatus.BAD_REQUEST, "FAVORITE400-COUNTRY_REQ_OVERSEAS", "국가 필터는 해외 전시(isDomestic=false)일 때만 사용 가능합니다."),
+    _REQUIRES_DOMESTIC(HttpStatus.BAD_REQUEST, "FAVORITE400-DOMESTIC_FILTER", "지역 및 국사 필터는 isDomestic 입력값 필수 입니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -62,8 +62,7 @@ public class ExhibitController implements ExhibitSpecification {
         return ResponseEntity.ok(RegionResponse.from(results));
     }
 
-
-
+    @Override
     @GetMapping
     public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
                                                         @RequestParam(required = false) Long cursor,
