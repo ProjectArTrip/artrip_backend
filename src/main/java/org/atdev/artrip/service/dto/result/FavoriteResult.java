@@ -2,6 +2,7 @@ package org.atdev.artrip.service.dto.result;
 
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.favorite.Favorite;
+import org.atdev.artrip.utils.DateTimeUtils;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
@@ -26,14 +27,16 @@ public record FavoriteResult(
             String region,
             LocalDate createdAt
     ) {}
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 
     public static FavoriteResult of(Slice<Favorite> slice) {
 
         List<FavoriteItem> items = slice.getContent()
                 .stream()
                 .map(e ->{
-                    String period = e.getExhibit().getStartDate().format(FORMATTER) + " - " + e.getExhibit().getEndDate().format(FORMATTER);
+                    String period = DateTimeUtils.convertDate(
+                            e.getExhibit().getStartDate(),
+                            e.getExhibit().getEndDate()
+                    );
 
                     return new FavoriteItem(
                             e.getFavoriteId(),
