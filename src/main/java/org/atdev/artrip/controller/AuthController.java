@@ -61,9 +61,11 @@ public class AuthController implements AuthSpecification {
     }
 
     @PostMapping("/app/logout")
-    public void appLogout(@RequestBody(required = false) LogoutRequest token) {
+    public ResponseEntity<Void> appLogout(@RequestBody(required = false) LogoutRequest token) {
 
         authService.appLogout(token.accessToken(),token.refreshToken());
+
+        return ResponseEntity.noContent().build();
     }
 
 
