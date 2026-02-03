@@ -8,7 +8,7 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 @Builder
 public record FavoriteCondition(
         Long userId,
-        SortType sortType,
+        String sortType,
         Boolean isDomestic,
         String region,
         String country,

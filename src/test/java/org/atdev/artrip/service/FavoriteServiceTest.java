@@ -8,11 +8,14 @@ import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.favorite.Favorite;
+import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.FavoriteCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
+import org.atdev.artrip.service.strategy.favorite.FavoriteSortStrategy;
+import org.atdev.artrip.service.strategy.favorite.FavoriteStrategyFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +40,10 @@ import java.util.List;
 public class FavoriteServiceTest {
 
     @Mock
-    private FavoriteRepository favoriteRepository;
+    private FavoriteStrategyFactory favoriteStrategyFactory;
+
+    @Mock
+    private FavoriteSortStrategy favoriteSortStrategy;
 
     @Mock
     private UserRepository userRepository;
@@ -125,9 +131,12 @@ public class FavoriteServiceTest {
         Exhibit exhibit = Exhibit.of(6L, "프랑스 전시", hall, Status.ONGOING, LocalDate.now().minusDays(5), LocalDate.now().plusDays(10));
         Favorite favorite = new Favorite(6L, testUser, true, exhibit, LocalDate.now().minusDays(1));
 
+        List<Favorite> favorites = List.of(favorite);
+        SliceImpl<Favorite> slice = new SliceImpl<>(favorites, PageRequest.ofSize(20), false);
+
         FavoriteCondition condition = FavoriteCondition.builder()
                 .userId(userId)
-                .sortType(SortType.LATEST)
+                .sortType("latest")
                 .isDomestic(false)
                 .country("프랑")
                 .region("파리")
@@ -135,25 +144,19 @@ public class FavoriteServiceTest {
                 .size(20L)
                 .build();
 
-        List<Favorite> favorites = List.of(favorite);
-        SliceImpl<Favorite> slice = new SliceImpl<>(favorites, PageRequest.ofSize(20), false);
         when(userRepository.existsById(userId)).thenReturn(true);
-        when(favoriteRepository.findOverseasByCountry(
-                eq(userId),
-                eq("프랑"),
-                eq("파리"),
-                eq(false),
-                isNull(),
-                eq(Status.FINISHED),
-                any(Pageable.class))).thenReturn(slice);
+        when(favoriteStrategyFactory.getStrategy(false)).thenReturn(favoriteSortStrategy);
+        when(favoriteSortStrategy.sortLatest(any(), any())).thenReturn(slice);
 
         //when
-        FavoriteResult result = assertDoesNotThrow(() ->
-                favoriteService.getFavorites(condition));
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(condition));
 
         //then
         assertAll(
-                () -> assertThat(result.items().get(0).country()).contains("프")
+                () -> assertThat(result.items().get(0).country()).contains("프"),
+                () -> verify(favoriteStrategyFactory).getStrategy(false),
+                () -> verify(favoriteSortStrategy).sortLatest(any(), any())
+
         );
     }
 
@@ -168,7 +171,7 @@ public class FavoriteServiceTest {
                     .userId(1L)
                     .region("경기")
                     .isDomestic(null)
-                    .sortType(SortType.LATEST)
+                    .sortType("latest")
                     .size(20L)
                     .build();
         });
@@ -183,11 +186,60 @@ public class FavoriteServiceTest {
         assertThrows(GeneralException.class, () ->
                 FavoriteCondition.builder()
                         .userId(1L)
-                        .sortType(SortType.LATEST)
+                        .sortType("latest")
                         .isDomestic(true)
                         .country("프랑스")
                         .size(20L)
                         .build()
                 );
+    }
+
+    @Test
+    @DisplayName("SortType이 인기순 요청일 경우 예외")
+    public void getFavorite_popular_sort_type() {
+        //given
+        FavoriteCondition condition = FavoriteCondition.builder()
+                .userId(1L)
+                .sortType("popular")
+                .isDomestic(true)
+                .size(20L)
+                .build();
+
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(favoriteStrategyFactory.getStrategy(true)).thenReturn(favoriteSortStrategy);
+        //when
+        //then
+        GeneralException exception = assertThrows(GeneralException.class, () -> favoriteService.getFavorites(condition));
+
+        assertThat(exception.getErrorReason().getCode()).isEqualTo(FavoriteErrorCode._INVALID_SORT_TYPE.getCode());
+    }
+
+    @Test
+    @DisplayName("sortType이 null 일경우 latest로 기본 조회")
+    public void getFavorite_sortType_null_defaults() {
+        //given
+        Long userId = 1L;
+
+        FavoriteCondition condition = FavoriteCondition.builder()
+                .userId(userId)
+                .sortType(null)
+                .isDomestic(false)
+                .size(20L)
+                .build();
+
+        SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(favoriteStrategyFactory.getStrategy(false)).thenReturn(favoriteSortStrategy);
+        when(favoriteSortStrategy.sortLatest(any(), any())).thenReturn(slice);
+
+        //when
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(condition));
+
+        //then
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> verify(favoriteSortStrategy).sortLatest(any(), any())
+        );
     }
 }

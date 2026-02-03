@@ -27,6 +27,7 @@ public interface FavoriteSpecification {
                     - isDomestic=true : 국내전시
                     - isDomestic=false : 해외전시
                     - isDomestic: 빈값일 경우 전체 조회
+                    - isDomestic가 true일 경우 나라 조회 시 예외 발생
                     """
     )
     @ApiErrorResponses(

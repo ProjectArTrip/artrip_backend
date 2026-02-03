@@ -1,6 +1,7 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.favorite.Favorite;
 import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
@@ -10,6 +11,8 @@ import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.FavoriteCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
+import org.atdev.artrip.service.strategy.favorite.FavoriteSortStrategy;
+import org.atdev.artrip.service.strategy.favorite.FavoriteStrategyFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -18,76 +21,25 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FavoriteService {
 
-    private final FavoriteRepository favoriteRepository;
     private final UserRepository userRepository;
+    private final FavoriteStrategyFactory favoriteStrategyFactory;
 
     public FavoriteResult getFavorites(FavoriteCondition condition) {
         if (!userRepository.existsById(condition.userId())) {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
-        Slice<Favorite> slice;
+        SortType type = SortType.from(condition.sortType());
+
         PageRequest pageRequest = PageRequest.ofSize(condition.size().intValue());
 
-        if(Boolean.TRUE.equals(condition.isDomestic())) {
-            slice = switch (condition.sortType()) {
-                case ENDING_SOON -> favoriteRepository.findDomesticByRegion(
-                        condition.userId(),
-                        condition.region(),
-                        condition.isDomestic(),
-                        condition.cursor(),
-                        Status.FINISHED,
-                        pageRequest
-                );
-                case LATEST -> favoriteRepository.findDomesticByRegionEndingSoon(
-                        condition.userId(),
-                        condition.region(),
-                        condition.isDomestic(),
-                        condition.cursor(),
-                        Status.FINISHED,
-                        pageRequest
-                );
-                case POPULAR -> throw new GeneralException(FavoriteErrorCode._INVALID_SORT_TYPE);
-            };
-    } else if (Boolean.FALSE.equals(condition.isDomestic())) {
-            slice = switch (condition.sortType()) {
-                case ENDING_SOON -> favoriteRepository.findOverseasByCountryEndingSoon(
-                        condition.userId(),
-                        condition.country(),
-                        condition.region(),
-                        condition.isDomestic(),
-                        condition.cursor(),
-                        Status.FINISHED,
-                        pageRequest
-                );
-                case LATEST -> favoriteRepository.findOverseasByCountry(
-                        condition.userId(),
-                        condition.country(),
-                        condition.region(),
-                        condition.isDomestic(),
-                        condition.cursor(),
-                        Status.FINISHED,
-                        pageRequest
-                );
-                case POPULAR -> throw new GeneralException(FavoriteErrorCode._INVALID_SORT_TYPE);
-            };
-        } else {
-            slice = switch (condition.sortType()) {
-                case ENDING_SOON -> favoriteRepository.findAllActiveByEndDate(
-                        condition.userId(),
-                        condition.cursor(),
-                        Status.FINISHED,
-                        pageRequest
-                );
-                case LATEST -> favoriteRepository.findAllActive(
-                        condition.userId(),
-                        condition.cursor(),
-                        Status.FINISHED,
-                        pageRequest
-                );
-                case POPULAR -> throw new GeneralException(FavoriteErrorCode._INVALID_SORT_TYPE);
-            };
-        }
+        FavoriteSortStrategy strategy = favoriteStrategyFactory.getStrategy(condition.isDomestic());
+
+        Slice<Favorite> slice = switch (type){
+            case LATEST -> strategy.sortLatest(condition, pageRequest);
+            case ENDING_SOON -> strategy.sortEndingSoon(condition, pageRequest);
+            case POPULAR -> throw new GeneralException(FavoriteErrorCode._INVALID_SORT_TYPE);
+        };
         return FavoriteResult.of(slice);
     }
 }
