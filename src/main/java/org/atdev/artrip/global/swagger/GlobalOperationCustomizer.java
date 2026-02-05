@@ -117,10 +117,8 @@ public class GlobalOperationCustomizer implements OperationCustomizer {
 
     private Map<String, Object> createErrorExample(BaseErrorCode error) {
         Map<String, Object> example = new LinkedHashMap<>();
-        example.put("isSuccess", false);
         example.put("code", error.getCode());
         example.put("message", error.getMessage());
-        example.put("result", null);
         return example;
     }
 

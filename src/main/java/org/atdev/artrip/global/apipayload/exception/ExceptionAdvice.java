@@ -64,19 +64,19 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> exception(Exception e, WebRequest request) {
         log.error("Unhandled exception", e);
         // 내부 상세 메시지는 노출하지 않음
-        return handleExceptionInternalFalse(e, CommonErrorCode._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, CommonErrorCode._INTERNAL_SERVER_ERROR.getHttpStatus(),request, null);
+        return handleExceptionInternalFalse(e, CommonErrorCode._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, CommonErrorCode._INTERNAL_SERVER_ERROR.getHttpStatus(), request, null);
     }
 
     @ExceptionHandler(value = GeneralException.class)
     public ResponseEntity<Object> onThrowException(GeneralException generalException, HttpServletRequest request) {
         ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
-        return handleExceptionInternal(generalException,errorReasonHttpStatus,null,request);
+        return handleExceptionInternal(generalException, errorReasonHttpStatus, null, request);
     }
 
     private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReasonDTO reason,
                                                            HttpHeaders headers, HttpServletRequest request) {
 
-        CommonResponse<Object> body = CommonResponse.onFailure(reason.getCode(),reason.getMessage(),null);
+        CommonResponse<Object> body = CommonResponse.onFailure(reason.getCode(), reason.getMessage(), null);
 //        e.printStackTrace();
 
         WebRequest webRequest = new ServletWebRequest(request);
@@ -91,7 +91,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<Object> handleExceptionInternalFalse(Exception e, CommonErrorCode errorCommonStatus,
                                                                 HttpHeaders headers, HttpStatus status, WebRequest request, String errorPoint) {
-        CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorPoint);
+        CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(), errorCommonStatus.getMessage(), errorPoint);
         return super.handleExceptionInternal(
                 e,
                 body,
@@ -103,7 +103,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<Object> handleExceptionInternalArgs(Exception e, HttpHeaders headers, CommonErrorCode errorCommonStatus,
                                                                WebRequest request, Map<String, String> errorArgs) {
-        CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(),errorCommonStatus.getMessage(),errorArgs);
+        CommonResponse<Object> body = CommonResponse.onFailure(errorCommonStatus.getCode(), errorCommonStatus.getMessage(), errorArgs);
         return super.handleExceptionInternal(
                 e,
                 body,
