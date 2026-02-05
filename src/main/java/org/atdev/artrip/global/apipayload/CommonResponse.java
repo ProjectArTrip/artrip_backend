@@ -16,16 +16,16 @@ public class CommonResponse<T> {
     private final String code;
     private final String message;
 
-    public static <T> CommonResponse<T> onSuccess(T result){
-        return new CommonResponse<>(SuccessStatusCode._OK.getCode() , SuccessStatusCode._OK.getMessage());
+    public static <T> CommonResponse<T> onSuccess(T result) {
+        return new CommonResponse<>(SuccessStatusCode._OK.getCode(), SuccessStatusCode._OK.getMessage());
     }
 
-    public static <T> CommonResponse<T> of(BaseCode code, T result){
-        return new CommonResponse<>(code.getReasonHttpStatus().getCode() , code.getReasonHttpStatus().getMessage());
+    public static <T> CommonResponse<T> of(BaseCode code, T result) {
+        return new CommonResponse<>(code.getReasonHttpStatus().getCode(), code.getReasonHttpStatus().getMessage());
     }
 
 
-    public static <T> CommonResponse<T> onFailure(String code, String message, T data){
+    public static <T> CommonResponse<T> onFailure(String code, String message, T data) {
         return new CommonResponse<>(code, message);
     }
 }

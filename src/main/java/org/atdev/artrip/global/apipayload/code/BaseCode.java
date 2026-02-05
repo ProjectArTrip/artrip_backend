@@ -5,7 +5,9 @@ import org.springframework.http.HttpStatus;
 public interface BaseCode {
 
     HttpStatus getHttpStatus();
+
     String getCode();
+
     String getMessage();
 
     default ReasonDTO getReason() {
@@ -22,7 +24,6 @@ public interface BaseCode {
                 .httpStatus(getHttpStatus())
                 .build();
     }
-
 
 
 }
