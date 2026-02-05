@@ -12,7 +12,6 @@ public interface BaseErrorCode {
         return ErrorReasonDTO.builder()
                 .message(getMessage())
                 .code(getCode())
-                .isSuccess(false)
                 .build();
     }
 
@@ -20,7 +19,6 @@ public interface BaseErrorCode {
         return ErrorReasonDTO.builder()
                 .message(getMessage())
                 .code(getCode())
-                .isSuccess(false)
                 .httpStatus(getHttpStatus())
                 .build();
     }
