@@ -1,6 +1,7 @@
 package org.atdev.artrip.repository;
 
 import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.repository.dto.ExhibitLocationDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -59,9 +60,13 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
 
     Optional<Exhibit> findByTitleAndStartDate(String title, LocalDate startDate);
 
-    @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId in :ids")
-    List<Exhibit> findAllByIdWithHall(@Param("ids") List<Long> ids);
+
 
     @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId = :id")
     Optional<Exhibit> findByIdWithHall(@Param("id") Long id);
+
+
+    @Query("SELECT new org.atdev.artrip.repository.dto.ExhibitLocationDto(e.exhibitId, h.longitude, h.latitude) " +
+            "FROM Exhibit e " + "JOIN e.exhibitHall h")
+    List<ExhibitLocationDto> findAllLocationsForCache();
 }
