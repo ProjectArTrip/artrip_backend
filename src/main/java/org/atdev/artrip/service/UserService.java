@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
-
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final S3Service s3Service;
-    private final UserImageService userImageService;
+    private final UserCommandService userCommandService;
 
     @Transactional
     public void updateNickName(Long userId, String newNickName){
@@ -50,7 +48,7 @@ public class UserService {
         String newUrl = s3Service.uploadFile(image, FileFolder.PROFILES);
 
         try {
-            String oldUrl = userImageService.updateProfilePath(userId, newUrl);
+            String oldUrl = userCommandService.updateProfilePath(userId, newUrl);
 
             if (oldUrl != null && !oldUrl.isBlank()) {
                 s3Service.delete(oldUrl);
@@ -63,7 +61,7 @@ public class UserService {
 
     public void deleteUserImage(Long userId){
 
-        String oldUrl = userImageService.deleteProfilePath(userId);
+        String oldUrl = userCommandService.deleteProfilePath(userId);
 
         if (oldUrl != null && !oldUrl.isBlank()) {
                 s3Service.delete(oldUrl);

@@ -22,7 +22,7 @@ public interface KeywordSpecification {
             keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST, KeywordErrorCode._KEYWORD_SELECTION_LIMIT_EXCEEDED, KeywordErrorCode._KEYWORD_NOT_FOUND}
     )
     public ResponseEntity<Void> saveKeywords( @LoginUser Long userId,
-                                                                  @RequestBody KeywordRequest request);
+                                              @RequestBody KeywordRequest request);
 
     @Operation(summary = "모든 키워드 조회", description = "전체 조회")
     @ApiErrorResponses(

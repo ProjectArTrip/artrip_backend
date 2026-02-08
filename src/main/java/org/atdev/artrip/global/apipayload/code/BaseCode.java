@@ -5,14 +5,15 @@ import org.springframework.http.HttpStatus;
 public interface BaseCode {
 
     HttpStatus getHttpStatus();
+
     String getCode();
+
     String getMessage();
 
     default ReasonDTO getReason() {
         return ReasonDTO.builder()
                 .message(getMessage())
                 .code(getCode())
-                .isSuccess(true)
                 .build();
     }
 
@@ -20,11 +21,9 @@ public interface BaseCode {
         return ReasonDTO.builder()
                 .message(getMessage())
                 .code(getCode())
-                .isSuccess(true)
                 .httpStatus(getHttpStatus())
                 .build();
     }
-
 
 
 }

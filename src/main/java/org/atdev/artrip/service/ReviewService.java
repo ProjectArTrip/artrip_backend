@@ -3,29 +3,20 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.FileFolder;
-import org.atdev.artrip.controller.dto.response.*;
-import org.atdev.artrip.domain.review.ReviewImage;
-import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
-import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.converter.ReviewConverter;
 import org.atdev.artrip.domain.review.Review;
-import org.atdev.artrip.repository.ReviewImageRepository;
+import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.repository.ReviewRepository;
-import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
-import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
+import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
+import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
+import org.atdev.artrip.service.dto.result.MyReviewResult;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,149 +26,90 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final ReviewImageRepository reviewImageRepository;
-    private final UserRepository userRepository;
-    private final ExhibitRepository exhibitRepository;
-    private final ReviewConverter reviewConverter;
     private final S3Service s3Service;
+    private final ReviewCommandService reviewCommandService;
 
+    public void createReview(ReviewCreateCommand command){
 
-    @Transactional
-    public ReviewResponse createReview(Long exhibitId, ReviewCreateRequest request, List<MultipartFile> images, Long userId){
-
-        User user = userRepository.findByUserId(userId)
-                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
-        Exhibit exhibit = exhibitRepository.findById(exhibitId)
-                .orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
-
-        Review review = reviewConverter.toEntity(user,exhibit,request);
-        reviewRepository.save(review);
-
-        List<String> s3Urls = (images == null || images.isEmpty())
-                ? new ArrayList<>()
-                : s3Service.uploadFiles(images, FileFolder.REVIEWS);
-
-        List<ReviewImage> reviewImages = reviewConverter.toReviewImage(review,s3Urls);
-
-        if (reviewImages!=null&&!reviewImages.isEmpty()){
-            reviewImageRepository.saveAll(reviewImages);
-            review.setImages(reviewImages);
+        if (command.images() != null && command.images().size() > 4) {
+            throw new GeneralException(ReviewErrorCode._TOO_MANY_REVIEW_IMAGES);
         }
 
-        return reviewConverter.toReviewResponse(review);
+        List<String> s3Urls = new ArrayList<>();
+        if (command.images() != null && !command.images().isEmpty()) {
+            s3Urls = s3Service.uploadFiles(command.images(), FileFolder.REVIEWS);
+        }
+
+        try {
+            reviewCommandService.saveReviewWithImages(command, s3Urls);
+        } catch (Exception e) {
+            s3Service.delete(s3Urls);
+            throw e;
+        }
     }
 
-    @Transactional
-    public ReviewResponse updateReview(Long reviewId, ReviewUpdateRequest request, List<MultipartFile> images, Long userId){
+    public void updateReview(ReviewUpdateCommand command) {
 
+        List<String> urlsToDelete = reviewCommandService.getUrlsToDelete(command.reviewId(), command.deleteImageIds());
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+        List<String> newS3Urls = (command.images() != null && !command.images().isEmpty())
+                ? s3Service.uploadFiles(command.images(), FileFolder.REVIEWS)
+                : new ArrayList<>();
 
-        if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_FOUND);
+        try {
+            reviewCommandService.updateReviewData(command, newS3Urls);
+
+            s3Service.delete(urlsToDelete);
+        } catch (Exception e) {
+            s3Service.delete(newS3Urls);
+            throw e;
         }
 
-        reviewConverter.updateReviewFromDto(review, request);
-
-        if (request.getDeleteImageIds() != null && !request.getDeleteImageIds().isEmpty()) {
-
-            List<ReviewImage> preImages = reviewImageRepository.findByReview_ReviewId(reviewId);
-
-            List<ReviewImage> imagesToDelete = preImages.stream()
-                    .filter(img -> request.getDeleteImageIds().contains(img.getImageId()))
-                    .toList();
-
-            if (!imagesToDelete.isEmpty()) {
-                List<String> urlsToDelete = imagesToDelete.stream()
-                        .map(ReviewImage::getImageUrl)
-                        .toList();
-
-                s3Service.delete(urlsToDelete);
-
-                review.getImages().removeAll(imagesToDelete);
-            }
-        }
-
-        if (images != null && !images.isEmpty()) {
-            List<String> s3Urls = s3Service.uploadFiles(images,FileFolder.POSTERS);
-            List<ReviewImage> newReviewImages = reviewConverter.toReviewImage(review, s3Urls);
-            reviewImageRepository.saveAll(newReviewImages);
-            review.getImages().addAll(newReviewImages);
-        }
-
-        return reviewConverter.toReviewResponse(review);
     }
 
-    @Transactional
+
     public void deleteReview(Long reviewId,Long userId){
 
+        List<String> s3Urls = reviewCommandService.deleteAndGetUrls(reviewId,userId);
 
-        Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(()-> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
-
-        if (!review.getUser().getUserId().equals(userId)){
-            throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_FOUND);
+        if (!s3Urls.isEmpty()) {
+            try {
+                s3Service.delete(s3Urls);
+            } catch (Exception e) {
+                throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE,e);
+            }
         }
-
-
-        List<String> s3Urls = review.getImages() != null ?
-                review.getImages().stream()
-                        .map(ReviewImage::getImageUrl)
-                        .toList()
-                : List.of();
-
-        s3Service.delete(s3Urls);
-        reviewRepository.delete(review);
     }
 
     @Transactional
-    public ReviewSliceResponse getAllReview(Long userId, Long cursor, int size){
+    public MyReviewResult getAllReview(Long userId, Long cursor, int size){
+
 
         Slice<Review> slice;
-
         if (cursor == null) {
             slice = reviewRepository.findTopByUserId(userId, PageRequest.ofSize(size));
         } else {
             slice = reviewRepository.findByUserIdAndIdLessThan(userId, cursor, PageRequest.ofSize(size));
         }
 
-        Long nextCursor = slice.hasNext()
-                ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
-                : null;
+        long reviewTotalCount = reviewRepository.countByUserUserId(userId);
 
-        List<ReviewListResponse> summaries = slice.getContent()
-                .stream()
-                .map(ReviewConverter::toSummary)
-                .toList();
-
-
-        return new ReviewSliceResponse(summaries, nextCursor, slice.hasNext());
+        return MyReviewResult.of(slice,reviewTotalCount);
     }
 
     @Transactional
-    public ExhibitReviewSliceResponse getExhibitReview(Long exhibitId, Long cursor, int size){
-
-        long totalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
+    public ExhibitReviewResult getExhibitReview(Long exhibitId, Long cursor, int size){
 
         Slice<Review> slice;
-
         if (cursor == null) {
             slice = reviewRepository.findByExhibitId(exhibitId, PageRequest.ofSize(size));
         } else {
             slice = reviewRepository.findByExhibitIdAndIdLessThan(exhibitId, cursor, PageRequest.ofSize(size));
         }
 
-        Long nextCursor = slice.hasNext()
-                ? slice.getContent().get(slice.getContent().size() - 1).getReviewId()
-                : null;
+        long exhibitTotalCount = reviewRepository.countByExhibit_ExhibitId(exhibitId);
 
-        List<ReviewExhibitResponse> summaries = slice.getContent()
-                .stream()
-                .map(ReviewConverter::toExhibitReviewSummary)
-                .toList();
+        return ExhibitReviewResult.of(slice,exhibitTotalCount);
 
-        return new ExhibitReviewSliceResponse(summaries, nextCursor, slice.hasNext(),totalCount);
     }
 }

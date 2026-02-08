@@ -7,7 +7,7 @@ import java.util.List;
 
 @Builder
 public record FilterResponse(
-        List<HomeListResponse> exhibits,
+        List<HomeResponse> exhibits,
         boolean hasNext,
         Long nextCursor
 ) {
@@ -15,7 +15,7 @@ public record FilterResponse(
 
         return FilterResponse.builder()
                 .exhibits(result.items().stream()
-                        .map(HomeListResponse::from)
+                        .map(HomeResponse::from)
                         .toList())
                 .hasNext(result.hasNext())
                 .nextCursor(result.nextCursor())

@@ -12,11 +12,12 @@ import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.JwtToken;
 import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.security.utill.CookieUtils;
+import org.atdev.artrip.service.dto.result.AppReissueResult;
+import org.atdev.artrip.service.dto.result.SocialLoginResult;
 import org.atdev.artrip.service.redis.RedisService;
 import org.atdev.artrip.validator.social.SocialVerifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,7 +48,7 @@ public class AuthService {
     @Transactional
     public String webReissueToken(ReissueRequest request, HttpServletResponse response) {
 
-        User user = getUserFromRefreshToken(request);
+        User user = getUserFromRefreshToken(request.refreshToken());
         String newAccessToken = jwtGenerator.createAccessToken(user, user.getRole());
 
         Cookie accessCookie = new Cookie("accessToken", newAccessToken);
@@ -62,25 +63,20 @@ public class AuthService {
     }
 
     @Transactional
-    public SocialLoginResponse appReissueToken(ReissueRequest request) {
+    public AppReissueResult appReissueToken(String refreshToken) {
 
-        User user = getUserFromRefreshToken(request);
+        User user = getUserFromRefreshToken(refreshToken);
         String newAccessToken = jwtGenerator.createAccessToken(user, user.getRole());
 
-        return new SocialLoginResponse(
-                newAccessToken,
-                request.refreshToken(),
-                false
-        );
+        return AppReissueResult.of(newAccessToken,refreshToken);
     }
 
-    private User getUserFromRefreshToken(ReissueRequest request) {
+    private User getUserFromRefreshToken(String refreshToken) {
 
-        if (request == null || request.refreshToken() == null) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
             throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN);
         }
 
-        String refreshToken = request.refreshToken();
         jwtProvider.validateRefreshToken(refreshToken);
         String userId = redisService.getValue(refreshToken);
 
@@ -104,12 +100,11 @@ public class AuthService {
     }
 
     @Transactional
-    public void appLogout(ReissueRequest request) {
+    public void appLogout(String accessToken,String refreshToken) {
 
-        if (request == null || request.refreshToken() == null) return;
-
-        String refreshToken = request.refreshToken();
-        String accessToken = request.accessToken();
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN);
+        }
 
         if (accessToken != null) {
             long remainTime = jwtProvider.getExpiration(accessToken);
@@ -121,7 +116,7 @@ public class AuthService {
     }
 
     @Transactional
-    public SocialLoginResponse loginWithSocial(String providerName, String idToken) {
+    public SocialLoginResult loginWithSocial(String providerName, String idToken) {
 
         Provider provider = Provider.from(providerName);
 
@@ -146,11 +141,7 @@ public class AuthService {
 
         redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
 
-        return new SocialLoginResponse(
-                jwt.getAccessToken(),
-                jwt.getRefreshToken(),
-                isFirstLogin
-        );
+        return SocialLoginResult.of(jwt.getAccessToken(), jwt.getRefreshToken(), isFirstLogin);
     }
 
     @Transactional
