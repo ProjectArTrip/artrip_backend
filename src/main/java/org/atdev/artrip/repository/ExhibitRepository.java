@@ -3,6 +3,7 @@ package org.atdev.artrip.repository;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.dto.ExhibitLocationDto;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -69,4 +70,15 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     @Query("SELECT new org.atdev.artrip.repository.dto.ExhibitLocationDto(e.exhibitId, h.longitude, h.latitude) " +
             "FROM Exhibit e " + "JOIN e.exhibitHall h")
     List<ExhibitLocationDto> findAllLocationsForCache();
+
+    @Query("select e from Exhibit e where e.exhibitId in :ids order by e.startDate desc,e.exhibitId desc")
+    Slice<Exhibit> findByIdInOrderByIdDesc(@Param("ids") List<Long> ids, Pageable pageable);
+
+    @Query("select e from Exhibit e " + "where e.exhibitId in :ids " +
+            "and (e.startDate < :cursorDate or (e.startDate = :cursorDate and e.exhibitId < :cursorId)) " +
+            "order by e.startDate desc, e.exhibitId desc")
+    Slice<Exhibit> findByIdInAndIdLessThanOrderByIdDesc(@Param("ids") List<Long> ids,
+                                                        @Param("cursorDate") LocalDate cursorDate,
+                                                        @Param("cursor") Long cursor,
+                                                        Pageable pageable);
 }
