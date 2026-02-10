@@ -146,7 +146,7 @@ public class FavoriteServiceTest {
 
         when(userRepository.existsById(userId)).thenReturn(true);
         when(favoriteStrategyFactory.getStrategy(false)).thenReturn(favoriteSortStrategy);
-        when(favoriteSortStrategy.sortLatest(any(), any())).thenReturn(slice);
+        when(favoriteSortStrategy.sort(any())).thenReturn(slice);
 
         //when
         FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(condition));
@@ -155,7 +155,7 @@ public class FavoriteServiceTest {
         assertAll(
                 () -> assertThat(result.items().get(0).country()).contains("프"),
                 () -> verify(favoriteStrategyFactory).getStrategy(false),
-                () -> verify(favoriteSortStrategy).sortLatest(any(), any())
+                () -> verify(favoriteSortStrategy).sort(any())
 
         );
     }
@@ -207,11 +207,12 @@ public class FavoriteServiceTest {
 
         when(userRepository.existsById(1L)).thenReturn(true);
         when(favoriteStrategyFactory.getStrategy(true)).thenReturn(favoriteSortStrategy);
+        when(favoriteSortStrategy.sort(any())).thenThrow(new GeneralException(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE));
         //when
         //then
         GeneralException exception = assertThrows(GeneralException.class, () -> favoriteService.getFavorites(condition));
 
-        assertThat(exception.getErrorReason().getCode()).isEqualTo(FavoriteErrorCode._INVALID_SORT_TYPE.getCode());
+        assertThat(exception.getErrorReason().getCode()).isEqualTo(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE.getCode());
     }
 
     @Test
@@ -231,7 +232,7 @@ public class FavoriteServiceTest {
 
         when(userRepository.existsById(userId)).thenReturn(true);
         when(favoriteStrategyFactory.getStrategy(false)).thenReturn(favoriteSortStrategy);
-        when(favoriteSortStrategy.sortLatest(any(), any())).thenReturn(slice);
+        when(favoriteSortStrategy.sort(any())).thenReturn(slice);
 
         //when
         FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(condition));
@@ -239,7 +240,7 @@ public class FavoriteServiceTest {
         //then
         assertAll(
                 () -> assertThat(result).isNotNull(),
-                () -> verify(favoriteSortStrategy).sortLatest(any(), any())
+                () -> verify(favoriteSortStrategy).sort(any())
         );
     }
 }

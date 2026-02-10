@@ -6,6 +6,5 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 public interface FavoriteSortStrategy {
-    Slice<Favorite> sortLatest (FavoriteCondition condition, Pageable pageable);
-    Slice<Favorite> sortEndingSoon (FavoriteCondition condition, Pageable pageable);
+    Slice<Favorite> sort (FavoriteCondition condition);
 }

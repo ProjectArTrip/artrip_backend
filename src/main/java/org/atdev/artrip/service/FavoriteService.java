@@ -29,17 +29,11 @@ public class FavoriteService {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
-        SortType type = SortType.from(condition.sortType());
-
-        PageRequest pageRequest = PageRequest.ofSize(condition.size().intValue());
-
         FavoriteSortStrategy strategy = favoriteStrategyFactory.getStrategy(condition.isDomestic());
 
-        Slice<Favorite> slice = switch (type){
-            case LATEST -> strategy.sortLatest(condition, pageRequest);
-            case ENDING_SOON -> strategy.sortEndingSoon(condition, pageRequest);
-            case POPULAR -> throw new GeneralException(FavoriteErrorCode._INVALID_SORT_TYPE);
-        };
+        Slice<Favorite> slice = strategy.sort(condition);
+
         return FavoriteResult.of(slice);
+
     }
 }

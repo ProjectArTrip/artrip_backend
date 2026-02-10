@@ -1,21 +1,27 @@
 package org.atdev.artrip.constants;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
+@Getter
+@RequiredArgsConstructor
 public enum SortType {
-    POPULAR,
-    LATEST,
-    ENDING_SOON;
+    NONE("", "없음"),
+    POPULAR("POPULAR", "인기순"),
+    LATEST("LATEST", "최신순"),
+    ENDING_SOON("ENDING_SOON", "마감순");
 
-    public static SortType from (String type) {
-        if (type == null || type.isBlank()){
-            return SortType.LATEST;
+    private final String code;
+    private final String description;
+
+    public static SortType fromCode(String code) {
+        for (SortType type : SortType.values()) {
+            if (type.getCode().equals(code)) {
+                return type;
+            }
         }
-        try {
-            return SortType.valueOf(type.toUpperCase());
-        } catch (IllegalArgumentException e){
-            throw new GeneralException(FavoriteErrorCode._INVALID_SORT_TYPE);
-        }
+        throw new GeneralException(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE);
     }
 }
