@@ -6,7 +6,7 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.repository.FavoriteExhibitRepository;
+import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +39,7 @@ public class HomeServiceTest {
     private SearchHistoryService searchHistoryService;
 
     @Mock
-    FavoriteExhibitRepository favoriteExhibitRepository;
+    FavoriteRepository favoriteRepository;
 
     @InjectMocks
     private HomeService homeService;

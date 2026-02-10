@@ -5,16 +5,14 @@ import lombok.*;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "favorite_exhibit")
+@Table(name = "favorite")
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class FavoriteExhibit {
+public class Favorite {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +24,6 @@ public class FavoriteExhibit {
     private User user;
 
     @Column(nullable = false)
-    @Builder.Default
     private boolean status = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,5 +31,16 @@ public class FavoriteExhibit {
     private Exhibit exhibit;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
+
+    public static Favorite of(Long favoriteId, User user, Exhibit exhibit, boolean status, LocalDate createdAt){
+        Favorite favorite = new Favorite();
+        favorite.favoriteId = favoriteId;
+        favorite.user = user;
+        favorite.exhibit = exhibit;
+        favorite.status = status;
+        favorite.createdAt = createdAt;
+        return favorite;
+
+    }
 }

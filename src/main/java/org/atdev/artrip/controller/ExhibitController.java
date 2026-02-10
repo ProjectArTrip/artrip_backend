@@ -61,7 +61,6 @@ public class ExhibitController implements ExhibitSpecification {
         return ResponseEntity.ok(RegionListResponse.from(results));
     }
 
-
     @Override
     @GetMapping
     public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
