@@ -51,7 +51,7 @@ public class UserKeywordController implements KeywordSpecification {
     }
 
     @Override
-    @GetMapping("/recommaned")
+    @GetMapping("/recommanded")
     public ResponseEntity<KeywordListResponse> getRecommandedSearchs(@LoginUser Long userId) {
         KeywordListResult keywords = keywordService.getRecommandedSearchs(userId);
         KeywordListResponse response = KeywordListResponse.from(keywords);
