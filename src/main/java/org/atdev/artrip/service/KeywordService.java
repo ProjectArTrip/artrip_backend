@@ -11,14 +11,10 @@ import org.atdev.artrip.repository.KeywordRepository;
 import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.result.KeywordListResult;
-import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +57,24 @@ public class KeywordService {
 
         List<UserKeyword> userKeywords = userKeywordRepository.findAllByUserIdWithKeyword(userId);
         return KeywordListResult.fromUserKeywords(userKeywords);
+    }
+
+    @Transactional(readOnly = true)
+    public KeywordListResult getRecommandedSearchs(Long userId) {
+        List<UserKeyword> userKeywords = userKeywordRepository.findAllByUserIdWithKeyword(userId);
+
+        if (userKeywords.isEmpty()) {
+            return new KeywordListResult(List.of());
+        }
+
+        List<UserKeyword> shuffled = new ArrayList<>(userKeywords);
+        Collections.shuffle(shuffled);
+
+        int limit = Math.min(5, shuffled.size());
+
+        List<UserKeyword> selected = shuffled.subList(0, limit);
+
+        return KeywordListResult.fromUserKeywords(selected);
+
     }
 }

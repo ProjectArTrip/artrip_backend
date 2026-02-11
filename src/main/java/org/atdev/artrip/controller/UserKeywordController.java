@@ -26,7 +26,7 @@ public class UserKeywordController implements KeywordSpecification {
             @LoginUser Long userId,
             @RequestBody KeywordRequest request) {
 
-        keywordService.saveKeywords(userId,request.keywords());
+        keywordService.saveKeywords(userId, request.keywords());
         return ResponseEntity.noContent().build();
     }
 
@@ -45,6 +45,15 @@ public class UserKeywordController implements KeywordSpecification {
     public ResponseEntity<KeywordListResponse> getKeyword(@LoginUser Long userId) {
 
         KeywordListResult keywords = keywordService.getKeyword(userId);
+        KeywordListResponse response = KeywordListResponse.from(keywords);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping("/recommaned")
+    public ResponseEntity<KeywordListResponse> getRecommandedSearchs(@LoginUser Long userId) {
+        KeywordListResult keywords = keywordService.getRecommandedSearchs(userId);
         KeywordListResponse response = KeywordListResponse.from(keywords);
 
         return ResponseEntity.ok(response);

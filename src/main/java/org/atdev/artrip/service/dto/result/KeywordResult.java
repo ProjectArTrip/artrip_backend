@@ -19,5 +19,4 @@ public record KeywordResult(
         Keyword k = userKeyword.getKeyword();
         return new KeywordResult(k.getKeywordId(), k.getName(), k.getType());
     }
-
 }
