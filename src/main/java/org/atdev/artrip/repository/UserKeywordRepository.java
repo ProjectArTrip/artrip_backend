@@ -1,6 +1,7 @@
 package org.atdev.artrip.repository;
 
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

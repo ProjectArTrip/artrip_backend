@@ -3,16 +3,12 @@ package org.atdev.artrip.controller.spec;
 import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
 import org.atdev.artrip.controller.dto.response.KeywordListResponse;
-import org.atdev.artrip.controller.dto.response.KeywordResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.KeywordErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import java.util.List;
 
 public interface KeywordSpecification {
 
@@ -21,8 +17,8 @@ public interface KeywordSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             keyword = {KeywordErrorCode._KEYWORD_INVALID_REQUEST, KeywordErrorCode._KEYWORD_SELECTION_LIMIT_EXCEEDED, KeywordErrorCode._KEYWORD_NOT_FOUND}
     )
-    public ResponseEntity<Void> saveKeywords( @LoginUser Long userId,
-                                              @RequestBody KeywordRequest request);
+    public ResponseEntity<Void> saveKeywords(@LoginUser Long userId,
+                                             @RequestBody KeywordRequest request);
 
     @Operation(summary = "모든 키워드 조회", description = "전체 조회")
     @ApiErrorResponses(
@@ -38,4 +34,10 @@ public interface KeywordSpecification {
     )
     public ResponseEntity<KeywordListResponse> getKeyword(
             @LoginUser Long userId);
+
+    @Operation(summary = "추천 검색어 조회", description = "유저가 등록한 관심 키워드 기준으로 추천검색어를 추출해줍니다.")
+    @ApiErrorResponses(
+            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED}
+    )
+    public ResponseEntity<KeywordListResponse> getRecommandedSearchs(@LoginUser Long userId);
 }
