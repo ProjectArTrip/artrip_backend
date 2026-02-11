@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserCommandService {
     private final UserRepository userRepository;
-    private final UserKeywordRepository userKeywordRepository;
 
     @Transactional
     public String updateProfilePath(Long userId, String newUrl) {
