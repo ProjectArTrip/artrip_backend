@@ -1,13 +1,14 @@
 package org.atdev.artrip.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.request.FavoriteRequest;
 import org.atdev.artrip.controller.dto.response.FavoriteListResponse;
 import org.atdev.artrip.controller.spec.FavoriteSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.FavoriteService;
-import org.atdev.artrip.service.dto.command.FavoriteCondition;
+import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
+import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,18 +20,15 @@ public class FavoriteController implements FavoriteSpecification {
     private final FavoriteService favoriteService;
 
     @Override
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<FavoriteListResponse> getFavorites(
-            @ModelAttribute FavoriteRequest request,
-            @RequestParam(required = false) Long cursor,
-            @RequestParam(defaultValue = "20") Long size,
-            @LoginUser Long userId) {
+            @Valid @RequestBody FavoriteSearchCondition condition,
+            @Valid CursorPagination cursorPagination,
+            @LoginUser Long userId
+    ) {
 
-        FavoriteCondition condition = request.toCommand(userId, cursor, size);
-        FavoriteResult result = favoriteService.getFavorites(condition);
+        FavoriteResult result = favoriteService.getFavorites(userId, condition, cursorPagination);
 
         return ResponseEntity.ok(FavoriteListResponse.from(result));
-
     }
-
 }

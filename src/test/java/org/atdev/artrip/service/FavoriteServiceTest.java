@@ -10,12 +10,11 @@ import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.favorite.Favorite;
 import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.repository.FavoriteRepository;
+import org.atdev.artrip.repository.FavoriteRepositoryCustom;
 import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.service.dto.command.FavoriteCondition;
+import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
-import org.atdev.artrip.service.strategy.favorite.FavoriteSortStrategy;
-import org.atdev.artrip.service.strategy.favorite.FavoriteStrategyFactory;
+import org.atdev.artrip.utils.CursorPagination;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.SliceImpl;
 
 import static org.mockito.Mockito.*;
@@ -40,10 +38,7 @@ import java.util.List;
 public class FavoriteServiceTest {
 
     @Mock
-    private FavoriteStrategyFactory favoriteStrategyFactory;
-
-    @Mock
-    private FavoriteSortStrategy favoriteSortStrategy;
+    private FavoriteRepositoryCustom favoriteRepositoryCustom;
 
     @Mock
     private UserRepository userRepository;
@@ -123,7 +118,7 @@ public class FavoriteServiceTest {
 
     @Test
     @DisplayName("해외 필터 검색")
-    public void getFavorite_overseas(){
+    public void getFavorite_overseas() {
         //given
         Long userId = 1L;
 
@@ -134,113 +129,97 @@ public class FavoriteServiceTest {
         List<Favorite> favorites = List.of(favorite);
         SliceImpl<Favorite> slice = new SliceImpl<>(favorites, PageRequest.ofSize(20), false);
 
-        FavoriteCondition condition = FavoriteCondition.builder()
-                .userId(userId)
-                .sortType("latest")
-                .isDomestic(false)
-                .country("프랑")
-                .region("파리")
-                .cursor(null)
-                .size(20L)
-                .build();
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.LATEST,
+                null,
+                List.of("프랑스")
+        );
+        CursorPagination pagination = new CursorPagination(null, 20L);
 
-        when(userRepository.existsById(userId)).thenReturn(true);
-        when(favoriteStrategyFactory.getStrategy(false)).thenReturn(favoriteSortStrategy);
-        when(favoriteSortStrategy.sort(any())).thenReturn(slice);
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(favoriteRepositoryCustom.findFavorites(any(),any(),any())).thenReturn(slice);
 
         //when
-        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(condition));
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
 
         //then
         assertAll(
-                () -> assertThat(result.items().get(0).country()).contains("프"),
-                () -> verify(favoriteStrategyFactory).getStrategy(false),
-                () -> verify(favoriteSortStrategy).sort(any())
-
+                () -> assertThat(result.items().get(0).country()).contains("프")
         );
-    }
-
-    @Test
-    @DisplayName("지역필터 조회 시 isDomestic 없을 시 예외")
-    public void getFavorite_region_filter_empty_isDomestic() {
-        //given
-        //when
-        //then
-        assertThrows(GeneralException.class, () -> {
-            FavoriteCondition.builder()
-                    .userId(1L)
-                    .region("경기")
-                    .isDomestic(null)
-                    .sortType("latest")
-                    .size(20L)
-                    .build();
-        });
-    }
-
-    @Test
-    @DisplayName("국내 조회 필드에 country 입력 시 예외")
-    public void getFavorite_domesticField_searchDomestic() {
-        //given
-        //when
-        //then
-        assertThrows(GeneralException.class, () ->
-                FavoriteCondition.builder()
-                        .userId(1L)
-                        .sortType("latest")
-                        .isDomestic(true)
-                        .country("프랑스")
-                        .size(20L)
-                        .build()
-                );
     }
 
     @Test
     @DisplayName("SortType이 인기순 요청일 경우 예외")
     public void getFavorite_popular_sort_type() {
         //given
-        FavoriteCondition condition = FavoriteCondition.builder()
-                .userId(1L)
-                .sortType("popular")
-                .isDomestic(true)
-                .size(20L)
-                .build();
+        Long userId = 1L;
+        CursorPagination pagination = new CursorPagination(null, 20L);
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.POPULAR,
+                null,
+                null
+        );
 
         when(userRepository.existsById(1L)).thenReturn(true);
-        when(favoriteStrategyFactory.getStrategy(true)).thenReturn(favoriteSortStrategy);
-        when(favoriteSortStrategy.sort(any())).thenThrow(new GeneralException(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE));
         //when
         //then
-        GeneralException exception = assertThrows(GeneralException.class, () -> favoriteService.getFavorites(condition));
+        GeneralException exception = assertThrows(GeneralException.class, () -> favoriteService.getFavorites(userId, condition, pagination));
 
         assertThat(exception.getErrorReason().getCode()).isEqualTo(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE.getCode());
     }
 
     @Test
-    @DisplayName("sortType이 null 일경우 latest로 기본 조회")
-    public void getFavorite_sortType_null_defaults() {
+    @DisplayName("sortType이 NONE 일경우 latest로 기본 조회")
+    public void getFavorite_sortType_none_defaults() {
         //given
         Long userId = 1L;
+        CursorPagination pagination = new CursorPagination(null, 20L);
 
-        FavoriteCondition condition = FavoriteCondition.builder()
-                .userId(userId)
-                .sortType(null)
-                .isDomestic(false)
-                .size(20L)
-                .build();
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.NONE,
+                null,
+                null
+        );
 
         SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
 
         when(userRepository.existsById(userId)).thenReturn(true);
-        when(favoriteStrategyFactory.getStrategy(false)).thenReturn(favoriteSortStrategy);
-        when(favoriteSortStrategy.sort(any())).thenReturn(slice);
+        when(favoriteRepositoryCustom.findFavorites(any(), any(), any())).thenReturn(slice);
 
         //when
-        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(condition));
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
 
         //then
         assertAll(
                 () -> assertThat(result).isNotNull(),
-                () -> verify(favoriteSortStrategy).sort(any())
+                () -> verify(favoriteRepositoryCustom).findFavorites(any(), any(), any())
+        );
+    }
+
+    @Test
+    @DisplayName("국내/해외 혼합 조회")
+    public void getFavorite_mixed_search() {
+        // given
+        Long userId = 1L;
+        CursorPagination pagination = new CursorPagination(null, 20L);
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.LATEST,
+                List.of("서울"),
+                List.of("프랑스")
+        );
+
+        SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(favoriteRepositoryCustom.findFavorites(any(), any(), any())).thenReturn(slice);
+
+        //when
+        //then
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition,pagination));
+
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(result.items()).isEmpty()
         );
     }
 }

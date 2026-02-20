@@ -1,4 +1,5 @@
 package org.atdev.artrip.controller.dto.response;
+
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
 
@@ -9,7 +10,7 @@ public record FavoriteResponse(
         Long exhibitId,
         String title,
         String posterUrl,
-        Status status,
+        Status exhibitStatus,
         boolean active,
         String exhibitPeriod,
         String exhibitHallName,

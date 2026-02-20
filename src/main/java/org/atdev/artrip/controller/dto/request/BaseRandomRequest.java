@@ -21,7 +21,7 @@ public class BaseRandomRequest {
     protected String country;
 
     @Schema(hidden = true)
-    @AssertTrue(message = "국내 전시는 region 필수(전체 가능), 국외 전시는 country 필수(전체 가능)이며 둘을 동시에 보낼 수 없습니다.")
+    @AssertTrue(message = "국내 전시는 regions 필수(전체 가능), 국외 전시는 countries 필수(전체 가능)이며 둘을 동시에 보낼 수 없습니다.")
     public boolean isDomesticRegionCountryValid() {
         if (isDomestic == null) return true;
 

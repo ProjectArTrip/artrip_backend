@@ -2,18 +2,15 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.SortType;
-import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.favorite.Favorite;
 import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.repository.FavoriteRepository;
+import org.atdev.artrip.repository.FavoriteRepositoryCustom;
 import org.atdev.artrip.repository.UserRepository;
-import org.atdev.artrip.service.dto.command.FavoriteCondition;
+import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
-import org.atdev.artrip.service.strategy.favorite.FavoriteSortStrategy;
-import org.atdev.artrip.service.strategy.favorite.FavoriteStrategyFactory;
-import org.springframework.data.domain.PageRequest;
+import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +19,23 @@ import org.springframework.stereotype.Service;
 public class FavoriteService {
 
     private final UserRepository userRepository;
-    private final FavoriteStrategyFactory favoriteStrategyFactory;
+    private final FavoriteRepositoryCustom favoriteRepositoryCustom;
 
-    public FavoriteResult getFavorites(FavoriteCondition condition) {
-        if (!userRepository.existsById(condition.userId())) {
+    public FavoriteResult getFavorites(Long userId, FavoriteSearchCondition condition, CursorPagination cursorPagination) {
+
+        if (!userRepository.existsById(userId)) {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
-        FavoriteSortStrategy strategy = favoriteStrategyFactory.getStrategy(condition.isDomestic());
+        SortType type = SortType.fromCode(condition.sortType().getCode());
 
-        Slice<Favorite> slice = strategy.sort(condition);
+        if (type == SortType.POPULAR) {
+            throw new GeneralException(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE);
+        }
 
-        return FavoriteResult.of(slice);
+        Slice<Favorite> slice = favoriteRepositoryCustom.findFavorites(userId, condition, cursorPagination);
 
+        return FavoriteResult.from(slice);
     }
+
 }

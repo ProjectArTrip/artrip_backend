@@ -8,7 +8,7 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 @Getter
 @RequiredArgsConstructor
 public enum SortType {
-    NONE("", "없음"),
+    NONE("NONE", "없음"),
     POPULAR("POPULAR", "인기순"),
     LATEST("LATEST", "최신순"),
     ENDING_SOON("ENDING_SOON", "마감순");
@@ -17,8 +17,11 @@ public enum SortType {
     private final String description;
 
     public static SortType fromCode(String code) {
+
+        if (code == null) return NONE;
+
         for (SortType type : SortType.values()) {
-            if (type.getCode().equals(code)) {
+            if (type.getCode().equalsIgnoreCase(code)) {
                 return type;
             }
         }

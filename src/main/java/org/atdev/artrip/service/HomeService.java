@@ -11,7 +11,7 @@ import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
-import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
+import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.command.SearchHistoryCommand;
 import org.atdev.artrip.service.dto.result.*;
@@ -31,7 +31,7 @@ public class HomeService {
     private final UserKeywordRepository userkeywordRepository;
     private final UserRepository userRepository;
     private final RegionRepository regionRepository;
-    private final FavoriteRepository favoriteRepository;
+    private final FavoriteRepositoryCustom favoriteRepositoryCustom;
     private final SearchHistoryService searchHistoryService;
 
 
@@ -137,7 +137,7 @@ public class HomeService {
         if (userId == null) {
             return Collections.emptySet();
         }
-        return favoriteRepository.findActiveExhibitIds(userId);
+        return favoriteRepositoryCustom.findActiveExhibitIds(userId);
     }
 
     private List<ExhibitRandomResult> setFavorites(List<ExhibitRandomResult> results, Set<Long> favoriteIds) {

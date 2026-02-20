@@ -6,7 +6,6 @@ import org.atdev.artrip.utils.DateTimeUtils;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record FavoriteResult(
@@ -28,7 +27,7 @@ public record FavoriteResult(
             LocalDate createdAt
     ) {}
 
-    public static FavoriteResult of(Slice<Favorite> slice) {
+    public static FavoriteResult from(Slice<Favorite> slice) {
 
         List<FavoriteItem> items = slice.getContent()
                 .stream()
