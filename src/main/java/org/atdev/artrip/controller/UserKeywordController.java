@@ -7,11 +7,8 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.KeywordService;
 import org.atdev.artrip.controller.dto.request.KeywordRequest;
 import org.atdev.artrip.service.dto.result.KeywordListResult;
-import org.atdev.artrip.service.dto.result.KeywordResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,14 +48,13 @@ public class UserKeywordController implements KeywordSpecification {
     }
 
     @Override
-    @GetMapping("/recommanded")
-    public ResponseEntity<KeywordListResponse> getRecommandedSearchs(@LoginUser Long userId) {
-        KeywordListResult keywords = keywordService.getRecommandedSearchs(userId);
+    @GetMapping("/recommand")
+    public ResponseEntity<KeywordListResponse> getSearchRecommand(@LoginUser Long userId) {
+        KeywordListResult keywords = keywordService.getSearchRecommand(userId);
         KeywordListResponse response = KeywordListResponse.from(keywords);
 
         return ResponseEntity.ok(response);
     }
-
 
 }
 

@@ -39,5 +39,5 @@ public interface KeywordSpecification {
     @ApiErrorResponses(
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED}
     )
-    public ResponseEntity<KeywordListResponse> getRecommandedSearchs(@LoginUser Long userId);
+    public ResponseEntity<KeywordListResponse> getSearchRecommand(@LoginUser Long userId);
 }
