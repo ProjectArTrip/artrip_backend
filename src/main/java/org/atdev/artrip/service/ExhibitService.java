@@ -3,7 +3,7 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.repository.FavoriteExhibitRepository;
+import org.atdev.artrip.repository.FavoriteRepositoryCustom;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExhibitService {
 
     private final ExhibitRepository exhibitRepository;
-    private final FavoriteExhibitRepository favoriteExhibitRepository;
+    private final FavoriteRepositoryCustom favoriteRepositoryCustom;
     private final UserHistoryService userHistoryService;
 
 
@@ -29,7 +29,7 @@ public class ExhibitService {
         boolean isFavorite = false;
 
         if (command.userId() != null) {
-            isFavorite = favoriteExhibitRepository.existsActive(command.userId(), command.exhibitId());
+            isFavorite = favoriteRepositoryCustom.existsActive(command.userId(), command.exhibitId());
             userHistoryService.addRecentView(command.userId(), exhibit);
         }
 

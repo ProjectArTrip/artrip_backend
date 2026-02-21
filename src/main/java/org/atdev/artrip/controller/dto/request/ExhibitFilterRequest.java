@@ -1,7 +1,7 @@
 package org.atdev.artrip.controller.dto.request;
 
 import org.atdev.artrip.constants.SortType;
-import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
+import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 
 import java.time.LocalDate;
 import java.util.Set;

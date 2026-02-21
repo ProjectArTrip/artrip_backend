@@ -13,7 +13,7 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.domain.keyword.QKeyword;
-import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
+import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
@@ -22,9 +22,10 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+
 @Repository
 @RequiredArgsConstructor
-public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
+public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
@@ -51,7 +52,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 .where(
                         e.status.ne(Status.FINISHED),
                         isDomesticEq(c.isDomestic()),
-                        dateFilter(c.startDate(), c.endDate(),e),
+                        dateFilter(c.startDate(), c.endDate(), e),
                         cursorCondition(cursor, c.sortType(), e),
                         countryEq(c.country()),
                         regionEq(c.region()),
@@ -60,7 +61,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                         queryContain(c.query())
                 )
                 .orderBy(sortFilter(c, e))
-                .limit(c.size()+1)
+                .limit(c.size() + 1)
                 .fetch();
 
         boolean hasNext = content.size() > c.size();
@@ -153,10 +154,9 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
                 };
 
             default:
-                return new OrderSpecifier[]{e.startDate.desc(),e.exhibitId.desc()};
+                return new OrderSpecifier[]{e.startDate.desc(), e.exhibitId.desc()};
         }
     }
-
 
     private BooleanExpression dateFilter(LocalDate startDate, LocalDate endDate, QExhibit e) {
 
@@ -207,7 +207,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
 
         BooleanExpression condition = QKeyword.keyword.type.eq(KeywordType.STYLE);
 
-        BooleanExpression styleCondition  = null;
+        BooleanExpression styleCondition = null;
         for (String style : styles) {
             BooleanExpression likeCondition = QKeyword.keyword.name.containsIgnoreCase(style);
             styleCondition = (styleCondition == null) ? likeCondition : styleCondition.or(likeCondition);
@@ -215,7 +215,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom{
         return condition.and(styleCondition);
     }
 
-    private BooleanExpression findDate(LocalDate date){
+    private BooleanExpression findDate(LocalDate date) {
         if (date == null) return null;
 
         return QExhibit.exhibit.startDate.loe(date)

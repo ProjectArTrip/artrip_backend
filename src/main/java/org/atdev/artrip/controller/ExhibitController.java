@@ -7,7 +7,7 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.service.HomeService;
-import org.atdev.artrip.service.dto.command.ExhibitSearchCondition;
+import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +60,6 @@ public class ExhibitController implements ExhibitSpecification {
 
         return ResponseEntity.ok(RegionListResponse.from(results));
     }
-
 
     @Override
     @GetMapping

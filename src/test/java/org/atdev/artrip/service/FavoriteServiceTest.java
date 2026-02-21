@@ -1,0 +1,225 @@
+package org.atdev.artrip.service;
+
+import org.atdev.artrip.constants.Provider;
+import org.atdev.artrip.constants.SortType;
+import org.atdev.artrip.constants.Status;
+import org.atdev.artrip.controller.dto.response.SocialUserInfo;
+import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
+import org.atdev.artrip.domain.favorite.Favorite;
+import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
+import org.atdev.artrip.repository.FavoriteRepositoryCustom;
+import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
+import org.atdev.artrip.service.dto.result.FavoriteResult;
+import org.atdev.artrip.utils.CursorPagination;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.SliceImpl;
+
+import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@AutoConfigureRestDocs
+@ExtendWith(MockitoExtension.class)
+public class FavoriteServiceTest {
+
+    @Mock
+    private FavoriteRepositoryCustom favoriteRepositoryCustom;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private FavoriteService favoriteService;
+
+    private User testUser;
+    private ExhibitHall domesticHall;
+    private ExhibitHall overseasHall;
+    private Exhibit ongoingExhibit;
+    private Exhibit endingSoonExhibit;
+    private Favorite firstFavorite;
+    private Favorite secondFavorite;
+
+    @BeforeEach
+    void favoriteExhibitInfos() {
+        SocialUserInfo socialUserInfo = new SocialUserInfo(
+                "test@test.com",
+                "testUser",
+                "123444",
+                Provider.KAKAO
+        );
+
+        testUser = User.of(socialUserInfo);
+
+        domesticHall = ExhibitHall.of(
+                1L,
+                "은수 공간",
+                "한국",
+                "서울",
+                true
+        );
+
+        overseasHall = ExhibitHall.of(
+                2L,
+                "루브르 박물관",
+                "프랑스",
+                "파리",
+                false
+        );
+
+        ongoingExhibit = Exhibit.of(
+                1L,
+                "일차(근본적이고 원초적인 것)",
+                domesticHall,
+                Status.ONGOING,
+                LocalDate.now().minusDays(10),
+                LocalDate.now().plusDays(30)
+        );
+
+        endingSoonExhibit = Exhibit.of(
+                2L,
+                "모나리자스폐셜",
+                overseasHall,
+                Status.ONGOING,
+                LocalDate.now().minusDays(20),
+                LocalDate.now().plusDays(2)
+        );
+
+        firstFavorite = new Favorite(
+                1L,
+                testUser,
+                true,
+                ongoingExhibit,
+                LocalDate.now().minusDays(5)
+        );
+
+        secondFavorite = new Favorite(
+                2L,
+                testUser,
+                true,
+                endingSoonExhibit,
+                LocalDate.now().minusDays(3)
+        );
+    }
+
+    @Test
+    @DisplayName("해외 필터 검색")
+    public void getFavorite_overseas() {
+        //given
+        Long userId = 1L;
+
+        ExhibitHall hall = ExhibitHall.of(6L, "루브르", "프랑스", "파리", false);
+        Exhibit exhibit = Exhibit.of(6L, "프랑스 전시", hall, Status.ONGOING, LocalDate.now().minusDays(5), LocalDate.now().plusDays(10));
+        Favorite favorite = new Favorite(6L, testUser, true, exhibit, LocalDate.now().minusDays(1));
+
+        List<Favorite> favorites = List.of(favorite);
+        SliceImpl<Favorite> slice = new SliceImpl<>(favorites, PageRequest.ofSize(20), false);
+
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.LATEST,
+                null,
+                List.of("프랑스")
+        );
+        CursorPagination pagination = new CursorPagination(null, 20L);
+
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(favoriteRepositoryCustom.findFavorites(any(),any(),any())).thenReturn(slice);
+
+        //when
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
+
+        //then
+        assertAll(
+                () -> assertThat(result.items().get(0).country()).contains("프")
+        );
+    }
+
+    @Test
+    @DisplayName("SortType이 인기순 요청일 경우 예외")
+    public void getFavorite_popular_sort_type() {
+        //given
+        Long userId = 1L;
+        CursorPagination pagination = new CursorPagination(null, 20L);
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.POPULAR,
+                null,
+                null
+        );
+
+        when(userRepository.existsById(1L)).thenReturn(true);
+        //when
+        //then
+        GeneralException exception = assertThrows(GeneralException.class, () -> favoriteService.getFavorites(userId, condition, pagination));
+
+        assertThat(exception.getErrorReason().getCode()).isEqualTo(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE.getCode());
+    }
+
+    @Test
+    @DisplayName("sortType이 NONE 일경우 latest로 기본 조회")
+    public void getFavorite_sortType_none_defaults() {
+        //given
+        Long userId = 1L;
+        CursorPagination pagination = new CursorPagination(null, 20L);
+
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.NONE,
+                null,
+                null
+        );
+
+        SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(favoriteRepositoryCustom.findFavorites(any(), any(), any())).thenReturn(slice);
+
+        //when
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
+
+        //then
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> verify(favoriteRepositoryCustom).findFavorites(any(), any(), any())
+        );
+    }
+
+    @Test
+    @DisplayName("국내/해외 혼합 조회")
+    public void getFavorite_mixed_search() {
+        // given
+        Long userId = 1L;
+        CursorPagination pagination = new CursorPagination(null, 20L);
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.LATEST,
+                List.of("서울"),
+                List.of("프랑스")
+        );
+
+        SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(favoriteRepositoryCustom.findFavorites(any(), any(), any())).thenReturn(slice);
+
+        //when
+        //then
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition,pagination));
+
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(result.items()).isEmpty()
+        );
+    }
+}
