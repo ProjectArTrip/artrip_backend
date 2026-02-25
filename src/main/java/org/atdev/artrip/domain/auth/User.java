@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
-import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -59,6 +57,13 @@ public class User {
     @Email
     @Column(name = "email",nullable = true)
     private String email;
+
+    @Column(name = "fcm_token")
+    private String fcmToken;
+
+    @Builder.Default
+    @Column(name = "push_enabled")
+    private boolean pushEnabled = true;
 
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
