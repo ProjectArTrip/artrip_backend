@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -49,17 +50,25 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException e, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-        Map<String, String> errors = new LinkedHashMap<>();
+        FieldError firstError = e.getBindingResult().getFieldErrors().stream()
+                .findFirst()
+                .orElse(null);
 
-        e.getBindingResult().getFieldErrors().forEach(fieldError -> {
-            String fieldName = fieldError.getField();
-            String errorMessage = Optional.ofNullable(fieldError.getDefaultMessage()).orElse("");
-            errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
-        });
+        String errorMessage;
 
+        if (firstError == null || (firstError.getCode() != null && firstError.getCode().contains("typeMismatch"))) {
+            errorMessage = CommonErrorCode._BAD_REQUEST.getMessage();
+        } else {
+            errorMessage = firstError.getDefaultMessage();
+        }
 
+        CommonResponse<Object> body = CommonResponse.onFailure(
+                CommonErrorCode._BAD_REQUEST.getCode(),
+                errorMessage,
+                null
+        );
 
-        return handleExceptionInternalArgs(e, HttpHeaders.EMPTY, CommonErrorCode._BAD_REQUEST, request, errors);
+        return super.handleExceptionInternal(e, body, headers, status, request);
     }
 
     @ExceptionHandler
