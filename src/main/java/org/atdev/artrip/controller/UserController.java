@@ -54,7 +54,7 @@ public class UserController implements UserSpecification {
             @LoginUser Long userId,
             @RequestBody @Valid NicknameRequest request) {
 
-        userService.updateNickName(userId,request.NickName());
+        userService.updateNickName(userId,request.nickName());
 
         return ResponseEntity.noContent().build();
     }
