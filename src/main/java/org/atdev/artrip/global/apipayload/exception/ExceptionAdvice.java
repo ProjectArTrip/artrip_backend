@@ -56,8 +56,10 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
 
         String errorMessage;
 
-        if (firstError == null || (firstError.getCode() != null && firstError.getCode().contains("typeMismatch"))) {
+        if (firstError == null) {
             errorMessage = CommonErrorCode._BAD_REQUEST.getMessage();
+        } else if (firstError.getCode() != null && firstError.getCode().contains("typeMismatch")) {
+            errorMessage = String.format("%s 필드의 형식이 올바르지 않습니다.", firstError.getField());
         } else {
             errorMessage = firstError.getDefaultMessage();
         }
