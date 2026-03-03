@@ -4,7 +4,6 @@ package org.atdev.artrip.security;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.oauth.OAuth2UserInfo;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtToken;
@@ -23,7 +22,6 @@ import java.io.IOException;
 
 @RequiredArgsConstructor
 @Component
-@Slf4j
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtGenerator jwtGenerator;
@@ -34,8 +32,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
-
-        log.info("들어옴.");
 
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
@@ -124,8 +120,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         response.addHeader("Set-Cookie", refreshCookie.toString());
         response.addHeader("Set-Cookie", accessCookie.toString());
-
-        log.info("로그인성공 실행됨");
 
     }
 }

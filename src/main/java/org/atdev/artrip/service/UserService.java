@@ -7,7 +7,7 @@ import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.infra.s3.service.S3Service;
 import org.atdev.artrip.service.dto.result.MypageResult;
 import org.atdev.artrip.utils.NicknameUtils;
 import org.springframework.stereotype.Service;
@@ -80,5 +80,22 @@ public class UserService {
     private User findUserOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+    }
+
+    @Transactional
+    public void updateFcmToken(Long userId, String token) {
+
+        User user = findUserOrThrow(userId);
+
+        if (token.equals(user.getFcmToken())) {
+            return;
+        }
+        userRepository.findByFcmToken(token).ifPresent(otherUser -> {
+            if (!otherUser.getUserId().equals(userId)) {
+                otherUser.clearFcmToken();
+            }
+        });
+
+        user.updateFcmToken(token);
     }
 }

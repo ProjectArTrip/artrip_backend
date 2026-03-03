@@ -5,10 +5,9 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.infra.fcm.service.FcmNotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,6 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestApiController {
 
     private final FcmNotificationService fcmNotificationService;
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/fcm-token")
+    public String receiveFCMToken(@RequestBody String token) {
+        System.out.println("received FCM Token : " + token);
+        return "Token received success";
+    }
 
 
     @ResponseStatus(HttpStatus.OK)
@@ -26,7 +32,8 @@ public class TestApiController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @GetMapping("/alarm")
-    public ResponseEntity<?> pushAlarm(@LoginUser Long userId) {
+    public ResponseEntity<?> pushAlarm(@LoginUser Long userId, Principal principal) {
+
         fcmNotificationService.test(userId);
         return ResponseEntity.ok("성공");
     }

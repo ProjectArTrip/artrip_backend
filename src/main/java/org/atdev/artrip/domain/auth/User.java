@@ -52,10 +52,10 @@ public class User {
 
     @Builder.Default
     @Column(nullable = false)
-    private boolean onboardingCompleted=false;
+    private boolean onboardingCompleted = false;
 
     @Email
-    @Column(name = "email",nullable = true)
+    @Column(name = "email", nullable = true)
     private String email;
 
     @Column(name = "fcm_token")
@@ -89,8 +89,8 @@ public class User {
         return String.valueOf(userId);
     }
 
-    public void updateProfileImage(String url){
-        this.profileImageUrl=url;
+    public void updateProfileImage(String url) {
+        this.profileImageUrl = url;
     }
 
     public static User createUser(SocialUserInfo info) {
@@ -109,7 +109,7 @@ public class User {
         return user;
     }
 
-    public void addSocialAccount(SocialAccounts social){
+    public void addSocialAccount(SocialAccounts social) {
         this.socialAccounts.add(social);
 
         if (social.getUser() != this) {
@@ -128,6 +128,14 @@ public class User {
         SocialAccounts social = SocialAccounts.of(user, info);
         user.addSocialAccount(social);
         return user;
+    }
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public void clearFcmToken() {
+        this.fcmToken = null;
     }
 
 }

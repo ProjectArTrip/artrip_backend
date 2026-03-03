@@ -29,4 +29,6 @@ public @interface ApiErrorResponses {
     KeywordErrorCode[] keyword() default {};
 
     HomeErrorCode[] home() default {};
+
+    FcmErrorCode[] fcmToken() default {};
 }

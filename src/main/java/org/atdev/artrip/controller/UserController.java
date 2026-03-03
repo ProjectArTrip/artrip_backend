@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.request.DeviceTokenRequest;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
@@ -31,7 +32,7 @@ public class UserController implements UserSpecification {
     @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProfileImageResponse> updateUserImage(
             @LoginUser Long userId,
-            @RequestPart("image") MultipartFile image){
+            @RequestPart("image") MultipartFile image) {
 
         userService.updateUserImage(userId, image);
 
@@ -41,7 +42,7 @@ public class UserController implements UserSpecification {
     @Override
     @DeleteMapping("/image")
     public ResponseEntity<Void> deleteUserImage(
-            @LoginUser Long userId){
+            @LoginUser Long userId) {
 
         userService.deleteUserImage(userId);
 
@@ -54,7 +55,7 @@ public class UserController implements UserSpecification {
             @LoginUser Long userId,
             @RequestBody @Valid NicknameRequest request) {
 
-        userService.updateNickName(userId,request.NickName());
+        userService.updateNickName(userId, request.NickName());
 
         return ResponseEntity.noContent().build();
     }
@@ -72,11 +73,22 @@ public class UserController implements UserSpecification {
     @Override
     @GetMapping("/recent-exhibits")
     public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
-            @LoginUser Long userId){
+            @LoginUser Long userId) {
 
         List<ExhibitRecentResult> results = userHistoryService.getRecentViews(userId);
 
         return ResponseEntity.ok(ExhibitRecentResponse.from(results));
+    }
+
+    @PostMapping("/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(
+            @LoginUser Long userId,
+            @RequestBody @Valid DeviceTokenRequest request) {
+
+        userService.updateFcmToken(userId, request.token());
+
+        return ResponseEntity.noContent().build();
+
     }
 
 }

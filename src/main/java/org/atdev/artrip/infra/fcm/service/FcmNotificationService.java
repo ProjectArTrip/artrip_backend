@@ -20,7 +20,6 @@ public class FcmNotificationService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-
     public void test(Long userId) {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
