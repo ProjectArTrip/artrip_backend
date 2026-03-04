@@ -6,7 +6,7 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.repository.FavoriteRepositoryCustom;
+import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.data.domain.SliceImpl;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public class HomeServiceTest {
     private SearchHistoryService searchHistoryService;
 
     @Mock
-    FavoriteRepositoryCustom favoriteRepositoryCustom;
+    FavoriteRepository favoriteRepository;
 
     @InjectMocks
     private HomeService homeService;
@@ -84,6 +85,7 @@ public class HomeServiceTest {
 
         when(exhibitRepository.findExhibitByFilters(any(ExhibitSearchCondition.class)))
                 .thenReturn(new SliceImpl<>(List.of(testExhibit)));
+        when(favoriteRepository.findActiveExhibitIds(anyLong())).thenReturn(Collections.emptySet());
 
         // when
         ExhibitFilterResult defaultResult = assertDoesNotThrow(() -> homeService.searchExhibit(defaultCommand));

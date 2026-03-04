@@ -31,4 +31,27 @@ public class FavoriteController implements FavoriteSpecification {
 
         return ResponseEntity.ok(FavoriteListResponse.from(result));
     }
+
+    @Override
+    @PostMapping("/{exhibitId}")
+    public ResponseEntity<Void> createFavorite(
+            @LoginUser Long userId,
+            @PathVariable Long exhibitId
+    ) {
+
+        favoriteService.create(userId, exhibitId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/{exhibitId}")
+    public ResponseEntity<Void> removeFavorite(
+            @LoginUser Long userId,
+            @PathVariable Long exhibitId
+    ) {
+        favoriteService.delete(userId, exhibitId);
+
+        return ResponseEntity.noContent().build();
+    }
 }
