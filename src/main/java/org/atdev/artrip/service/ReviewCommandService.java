@@ -43,11 +43,7 @@ public class ReviewCommandService {
         User user = findUserById(command.userId());
         Exhibit exhibit = findExhibitById(command.exhibitId());
 
-        Review review = command.toEntity(user, exhibit);
-
-        if (s3Urls != null && !s3Urls.isEmpty()) {
-            review.addImages(s3Urls);
-        }
+        Review review = Review.create(user, exhibit, command.content(), command.date(), s3Urls);
 
         reviewRepository.save(review);
     }
