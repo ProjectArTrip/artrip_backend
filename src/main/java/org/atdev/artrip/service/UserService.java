@@ -36,7 +36,10 @@ public class UserService {
             throw new GeneralException(UserErrorCode._DUPLICATE_NICKNAME);
         }
 
-        NicknameUtils.getValidatedNickname(newNickName);
+        String validatedNickName = NicknameUtils.getValidatedNickname(newNickName);
+
+        user.updateNickName(validatedNickName);
+
     }
 
     public void updateUserImage(Long userId, MultipartFile image){

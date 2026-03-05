@@ -112,6 +112,12 @@ public class User {
         }
     }
 
+    public void updateNickName(String newNickname) {
+        this.nickName  = newNickname ;
+    }
+
+
+
     public static User of(SocialUserInfo info) {
         User user = new User();
         user.email = info.getEmail();
