@@ -9,7 +9,6 @@ import org.atdev.artrip.service.UserHistoryService;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
-import org.atdev.artrip.controller.dto.response.NicknameResponse;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
 import org.springframework.http.MediaType;
