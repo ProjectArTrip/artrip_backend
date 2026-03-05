@@ -29,13 +29,13 @@ public class UserController implements UserSpecification {
 
     @Override
     @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProfileImageResponse> updateUserImage(
+    public ResponseEntity<MypageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image){
 
-        userService.updateUserImage(userId, image);
+        MypageResult result =userService.updateUserImage(userId, image);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(MypageResponse.from(result));
     }
 
     @Override
@@ -50,13 +50,13 @@ public class UserController implements UserSpecification {
 
     @Override
     @PatchMapping
-    public ResponseEntity<NicknameResponse> updateNickname(
+    public ResponseEntity<MypageResponse> updateNickname(
             @LoginUser Long userId,
             @RequestBody @Valid NicknameRequest request) {
 
-        userService.updateNickName(userId,request.nickName());
+        MypageResult result =userService.updateNickName(userId,request.nickName());
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(MypageResponse.from(result));
     }
 
     @Override

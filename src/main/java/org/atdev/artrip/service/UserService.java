@@ -24,31 +24,28 @@ public class UserService {
     private final UserCommandService userCommandService;
 
     @Transactional
-    public void updateNickName(Long userId, String newNickName){
+    public MypageResult updateNickName(Long userId, String newNickName){
 
         User user = findUserOrThrow(userId);
 
-        if (newNickName.equals(user.getNickName())) {
-            return;
-        }
-
-        if (userRepository.existsByNickName(newNickName)) {
+        if (newNickName.equals(user.getNickName())||userRepository.existsByNickName(newNickName)) {
             throw new GeneralException(UserErrorCode._DUPLICATE_NICKNAME);
         }
 
         String validatedNickName = NicknameUtils.getValidatedNickname(newNickName);
 
         user.updateNickName(validatedNickName);
-
+        return new MypageResult(user.getNickName(), user.getProfileImageUrl(), user.getEmail());
     }
 
-    public void updateUserImage(Long userId, MultipartFile image){
+    public MypageResult updateUserImage(Long userId, MultipartFile image){
 
         if (image == null || image.isEmpty()) {
             throw new GeneralException(UserErrorCode._PROFILE_IMAGE_NOT_EXIST);
         }
 
         String newUrl = s3Service.uploadFile(image, FileFolder.PROFILES);
+        User user = findUserOrThrow(userId);
 
         try {
             String oldUrl = userCommandService.updateProfilePath(userId, newUrl);
@@ -60,6 +57,8 @@ public class UserService {
             s3Service.delete(newUrl);
             throw e;
         }
+
+        return new MypageResult(user.getNickName(), user.getProfileImageUrl(), user.getEmail());
     }
 
     public void deleteUserImage(Long userId){
