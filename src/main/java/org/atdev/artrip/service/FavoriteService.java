@@ -60,14 +60,15 @@ public class FavoriteService {
         }, () -> favoriteRepository.save(Favorite.create(user, exhibit)));
     }
 
+    @Transactional
     public void delete(Long userId, Long exhibitId) {
         userRepository.findByUserId(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
         Favorite favorite = favoriteRepository.findFavorite(userId, exhibitId).orElseThrow(() -> new GeneralException(FavoriteErrorCode._FAVORITE_NOT_FOUND));
 
         if (!favorite.isStatus()){
-            throw new GeneralException(FavoriteErrorCode._ALREADY_CANCELED);
+            throw new GeneralException(FavoriteErrorCode._FAVORITE_NOT_FOUND);
         }
 
-        favoriteRepository.delete(favorite);
+        favorite.deactivate();
     }
 }

@@ -53,7 +53,7 @@ public interface FavoriteSpecification {
     @Operation(summary = "즐겨찾기 제거")
     @ApiErrorResponses(
             user = {UserErrorCode._USER_NOT_FOUND},
-            favorite = {FavoriteErrorCode._ALREADY_CANCELED}
+            favorite = {FavoriteErrorCode._FAVORITE_NOT_FOUND}
     )
     public ResponseEntity<Void> removeFavorite(
             @LoginUser Long userId,
