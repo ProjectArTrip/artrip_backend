@@ -1,21 +1,20 @@
 package org.atdev.artrip.controller.dto.response;
 
-import lombok.*;
 import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 import org.atdev.artrip.service.dto.result.MyReviewResult;
 
 import java.util.List;
 
-public record ReviewSliceResponse(
-        List<ReviewListResponse> reviews,
+public record MyReviewSliceResponse(
+        List<MyReviewResponse> reviews,
         Long nextCursor,
         boolean hasNext,
         long reviewTotalCount
 ) {
-    public static ReviewSliceResponse from(MyReviewResult result) {
-        return new ReviewSliceResponse(
+    public static MyReviewSliceResponse from(MyReviewResult result) {
+        return new MyReviewSliceResponse(
                 result.reviews().stream()
-                        .map(ReviewListResponse::from)
+                        .map(MyReviewResponse::from)
                         .toList(),
 
                 result.nextCursor(),
@@ -24,9 +23,9 @@ public record ReviewSliceResponse(
         );
     }
 
-    public static ReviewSliceResponse from(ExhibitReviewResult result) {
-        return new ReviewSliceResponse(
-                result.reviews().stream().map(ReviewListResponse::from).toList(),
+    public static MyReviewSliceResponse from(ExhibitReviewResult result) {
+        return new MyReviewSliceResponse(
+                result.reviews().stream().map(MyReviewResponse::from).toList(),
                 result.nextCursor(),
                 result.hasNext(),
                 result.totalCount()
