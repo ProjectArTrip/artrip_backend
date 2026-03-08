@@ -11,6 +11,7 @@ import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
 import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 public interface FavoriteSpecification {
 
