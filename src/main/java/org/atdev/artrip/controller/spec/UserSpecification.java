@@ -22,7 +22,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
     )
-    public ResponseEntity<ProfileImageResponse> updateUserImage(
+    public ResponseEntity<MypageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image);
 
@@ -41,7 +41,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._DUPLICATE_NICKNAME, UserErrorCode._USER_NOT_FOUND, UserErrorCode._NICKNAME_BAD_REQUEST}
     )
-    public ResponseEntity<NicknameResponse> updateNickname(
+    public ResponseEntity<MypageResponse> updateNickname(
             @LoginUser Long userId,
             @RequestBody NicknameRequest dto);
 

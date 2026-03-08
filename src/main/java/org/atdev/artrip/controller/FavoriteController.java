@@ -2,7 +2,7 @@ package org.atdev.artrip.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.controller.dto.response.FavoriteListResponse;
+import org.atdev.artrip.controller.dto.response.FavoriteCursorResponse;
 import org.atdev.artrip.controller.spec.FavoriteSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.FavoriteService;
@@ -30,7 +30,7 @@ public class FavoriteController implements FavoriteSpecification {
 
         FavoriteResult result = favoriteService.getFavorites(userId, condition, cursorPagination);
 
-        return ResponseEntity.ok(FavoriteListResponse.from(result));
+        return ResponseEntity.ok(FavoriteCursorResponse.from(result));
     }
 
     @Override

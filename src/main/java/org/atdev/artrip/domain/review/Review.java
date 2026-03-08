@@ -70,4 +70,20 @@ public class Review {
                     .build());
         }
     }
+
+    public static Review create(User user, Exhibit exhibit, String content, LocalDate date, List<String> s3Urls) {
+        Review review = Review.builder()
+                .user(user)
+                .exhibit(exhibit)
+                .content(content)
+                .visitDate(date)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        if (s3Urls != null && !s3Urls.isEmpty()) {
+            review.addImages(s3Urls);
+        }
+
+        return review;
+    }
 }
