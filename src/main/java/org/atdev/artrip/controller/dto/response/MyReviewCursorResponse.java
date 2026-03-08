@@ -5,14 +5,14 @@ import org.atdev.artrip.service.dto.result.MyReviewResult;
 
 import java.util.List;
 
-public record MyReviewSliceResponse(
+public record MyReviewCursorResponse(
         List<MyReviewResponse> reviews,
         Long nextCursor,
         boolean hasNext,
         long reviewTotalCount
 ) {
-    public static MyReviewSliceResponse from(MyReviewResult result) {
-        return new MyReviewSliceResponse(
+    public static MyReviewCursorResponse from(MyReviewResult result) {
+        return new MyReviewCursorResponse(
                 result.reviews().stream()
                         .map(MyReviewResponse::from)
                         .toList(),
@@ -23,8 +23,8 @@ public record MyReviewSliceResponse(
         );
     }
 
-    public static MyReviewSliceResponse from(ExhibitReviewResult result) {
-        return new MyReviewSliceResponse(
+    public static MyReviewCursorResponse from(ExhibitReviewResult result) {
+        return new MyReviewCursorResponse(
                 result.reviews().stream().map(MyReviewResponse::from).toList(),
                 result.nextCursor(),
                 result.hasNext(),

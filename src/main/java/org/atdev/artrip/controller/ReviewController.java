@@ -8,7 +8,7 @@ import org.atdev.artrip.service.ReviewService;
 import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitReviewSliceResponse;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
-import org.atdev.artrip.controller.dto.response.MyReviewSliceResponse;
+import org.atdev.artrip.controller.dto.response.MyReviewCursorResponse;
 import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
 import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
 import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
@@ -65,13 +65,13 @@ public class ReviewController implements ReviewSpecification {
 
     @Override
     @GetMapping("/all")
-    public ResponseEntity<MyReviewSliceResponse> getMyReviews(
+    public ResponseEntity<MyReviewCursorResponse> getMyReviews(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @LoginUser Long userId) {
 
         MyReviewResult result = reviewService.getAllReview(userId, cursor, size);
-        MyReviewSliceResponse response = MyReviewSliceResponse.from(result);
+        MyReviewCursorResponse response = MyReviewCursorResponse.from(result);
 
         return ResponseEntity.ok(response);
     }
