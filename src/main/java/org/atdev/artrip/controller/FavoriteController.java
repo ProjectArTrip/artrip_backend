@@ -9,6 +9,7 @@ import org.atdev.artrip.service.FavoriteService;
 import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
 import org.atdev.artrip.utils.CursorPagination;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +22,37 @@ public class FavoriteController implements FavoriteSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<FavoriteCursorResponse> getFavorites(
-            @Valid @RequestBody FavoriteSearchCondition condition,
-            @Valid CursorPagination cursorPagination,
+    public ResponseEntity<FavoriteListResponse> getFavorites(
+            @Valid @ParameterObject FavoriteSearchCondition condition,
+            @Valid @ParameterObject CursorPagination cursorPagination,
             @LoginUser Long userId
     ) {
 
         FavoriteResult result = favoriteService.getFavorites(userId, condition, cursorPagination);
 
         return ResponseEntity.ok(FavoriteCursorResponse.from(result));
+    }
+
+    @Override
+    @PostMapping("/{exhibitId}")
+    public ResponseEntity<Void> createFavorite(
+            @LoginUser Long userId,
+            @PathVariable Long exhibitId
+    ) {
+
+        favoriteService.create(userId, exhibitId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/{exhibitId}")
+    public ResponseEntity<Void> removeFavorite(
+            @LoginUser Long userId,
+            @PathVariable Long exhibitId
+    ) {
+        favoriteService.delete(userId, exhibitId);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -10,7 +10,7 @@ import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.favorite.Favorite;
 import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.repository.FavoriteRepositoryCustom;
+import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
@@ -38,7 +38,7 @@ import java.util.List;
 public class FavoriteServiceTest {
 
     @Mock
-    private FavoriteRepositoryCustom favoriteRepositoryCustom;
+    private FavoriteRepository favoriteRepository;
 
     @Mock
     private UserRepository userRepository;
@@ -99,19 +99,19 @@ public class FavoriteServiceTest {
                 LocalDate.now().plusDays(2)
         );
 
-        firstFavorite = new Favorite(
+        firstFavorite = Favorite.of(
                 1L,
                 testUser,
-                true,
                 ongoingExhibit,
+                true,
                 LocalDate.now().minusDays(5)
         );
 
-        secondFavorite = new Favorite(
+        secondFavorite = Favorite.of(
                 2L,
                 testUser,
-                true,
                 endingSoonExhibit,
+                true,
                 LocalDate.now().minusDays(3)
         );
     }
@@ -124,7 +124,7 @@ public class FavoriteServiceTest {
 
         ExhibitHall hall = ExhibitHall.of(6L, "루브르", "프랑스", "파리", false);
         Exhibit exhibit = Exhibit.of(6L, "프랑스 전시", hall, Status.ONGOING, LocalDate.now().minusDays(5), LocalDate.now().plusDays(10));
-        Favorite favorite = new Favorite(6L, testUser, true, exhibit, LocalDate.now().minusDays(1));
+        Favorite favorite = Favorite.of(6L, testUser, exhibit, true, LocalDate.now().minusDays(1));
 
         List<Favorite> favorites = List.of(favorite);
         SliceImpl<Favorite> slice = new SliceImpl<>(favorites, PageRequest.ofSize(20), false);
@@ -137,7 +137,7 @@ public class FavoriteServiceTest {
         CursorPagination pagination = new CursorPagination(null, 20L);
 
         when(userRepository.existsById(1L)).thenReturn(true);
-        when(favoriteRepositoryCustom.findFavorites(any(),any(),any())).thenReturn(slice);
+        when(favoriteRepository.findFavorites(any(), any(), any())).thenReturn(slice);
 
         //when
         FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
@@ -184,7 +184,7 @@ public class FavoriteServiceTest {
         SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
 
         when(userRepository.existsById(userId)).thenReturn(true);
-        when(favoriteRepositoryCustom.findFavorites(any(), any(), any())).thenReturn(slice);
+        when(favoriteRepository.findFavorites(any(), any(), any())).thenReturn(slice);
 
         //when
         FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
@@ -192,7 +192,7 @@ public class FavoriteServiceTest {
         //then
         assertAll(
                 () -> assertThat(result).isNotNull(),
-                () -> verify(favoriteRepositoryCustom).findFavorites(any(), any(), any())
+                () -> verify(favoriteRepository).findFavorites(any(), any(), any())
         );
     }
 
@@ -211,11 +211,11 @@ public class FavoriteServiceTest {
         SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
 
         when(userRepository.existsById(userId)).thenReturn(true);
-        when(favoriteRepositoryCustom.findFavorites(any(), any(), any())).thenReturn(slice);
+        when(favoriteRepository.findFavorites(any(), any(), any())).thenReturn(slice);
 
         //when
         //then
-        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition,pagination));
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
 
         assertAll(
                 () -> assertThat(result).isNotNull(),

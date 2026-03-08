@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Table(name = "favorite")
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class Favorite {
 
     @Id
@@ -33,7 +32,7 @@ public class Favorite {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDate createdAt;
 
-    public static Favorite of(Long favoriteId, User user, Exhibit exhibit, boolean status, LocalDate createdAt){
+    public static Favorite of(Long favoriteId, User user, Exhibit exhibit, boolean status, LocalDate createdAt) {
         Favorite favorite = new Favorite();
         favorite.favoriteId = favoriteId;
         favorite.user = user;
@@ -42,5 +41,29 @@ public class Favorite {
         favorite.createdAt = createdAt;
         return favorite;
 
+    }
+
+    private Favorite(User user, Exhibit exhibit, boolean status, LocalDate createdAt) {
+        this.user = user;
+        this.exhibit = exhibit;
+        this.status = status;
+        this.createdAt = createdAt;
+    }
+
+    public static Favorite create(User user, Exhibit exhibit) {
+        return new Favorite(
+                user,
+                exhibit,
+                true,
+                LocalDate.now()
+        );
+    }
+
+    public void deactivate() {
+        this.status = false;
+    }
+
+    public void activate() {
+        this.status = true;
     }
 }
