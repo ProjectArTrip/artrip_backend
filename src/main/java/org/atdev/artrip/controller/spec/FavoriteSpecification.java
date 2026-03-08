@@ -25,8 +25,6 @@ public interface FavoriteSpecification {
                     **정렬 옵션**
                     - LATEST : 최신순
                     - ENDING_SOON: 마감순
-                    
-                    **필터옵션**
                     """
     )
     @ApiErrorResponses(

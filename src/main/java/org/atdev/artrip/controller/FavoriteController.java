@@ -9,6 +9,7 @@ import org.atdev.artrip.service.FavoriteService;
 import org.atdev.artrip.service.dto.condition.FavoriteSearchCondition;
 import org.atdev.artrip.service.dto.result.FavoriteResult;
 import org.atdev.artrip.utils.CursorPagination;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,8 @@ public class FavoriteController implements FavoriteSpecification {
     @Override
     @GetMapping
     public ResponseEntity<FavoriteListResponse> getFavorites(
-            @Valid @RequestBody FavoriteSearchCondition condition,
-            @Valid CursorPagination cursorPagination,
+            @Valid @ParameterObject FavoriteSearchCondition condition,
+            @Valid @ParameterObject CursorPagination cursorPagination,
             @LoginUser Long userId
     ) {
 
