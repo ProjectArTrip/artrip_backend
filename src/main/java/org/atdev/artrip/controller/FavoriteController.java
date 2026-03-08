@@ -22,7 +22,7 @@ public class FavoriteController implements FavoriteSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<FavoriteListResponse> getFavorites(
+    public ResponseEntity<FavoriteCursorResponse> getFavorites(
             @Valid @ParameterObject FavoriteSearchCondition condition,
             @Valid @ParameterObject CursorPagination cursorPagination,
             @LoginUser Long userId
