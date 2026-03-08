@@ -8,7 +8,7 @@ import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.infra.s3.service.S3Service;
 import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
 import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
 import org.atdev.artrip.service.dto.result.ExhibitReviewResult;

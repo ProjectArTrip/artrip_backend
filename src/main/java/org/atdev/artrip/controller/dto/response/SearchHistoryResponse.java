@@ -1,15 +1,8 @@
 package org.atdev.artrip.controller.dto.response;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.service.dto.result.SearchHistoryResult;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 public record SearchHistoryResponse(
         Long searchHistoryId,
