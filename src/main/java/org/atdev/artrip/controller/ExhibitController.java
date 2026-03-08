@@ -63,15 +63,15 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<FilterResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
-                                                        @RequestParam(required = false) Long cursor,
-                                                        @RequestParam(defaultValue = "20") Long size,
-                                                        @LoginUser Long userId) {
+    public ResponseEntity<FilterCursorResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+                                                              @RequestParam(required = false) Long cursor,
+                                                              @RequestParam(defaultValue = "20") Long size,
+                                                              @LoginUser Long userId) {
         ExhibitSearchCondition command = dto.toCommand(userId, cursor, size);
 
         ExhibitFilterResult result = homeService.searchExhibit(command);
 
-        return ResponseEntity.ok(FilterResponse.from(result));
+        return ResponseEntity.ok(FilterCursorResponse.from(result));
     }
 
 }

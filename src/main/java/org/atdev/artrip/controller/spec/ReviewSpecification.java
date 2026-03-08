@@ -4,9 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitReviewSliceResponse;
-import org.atdev.artrip.controller.dto.response.ReviewResponse;
-import org.atdev.artrip.controller.dto.response.ReviewSliceResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
+import org.atdev.artrip.controller.dto.response.MyReviewCursorResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
@@ -55,7 +53,7 @@ public interface ReviewSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             review = {ReviewErrorCode._REVIEW_USER_NOT_ROLE}
     )
-    public ResponseEntity<ReviewSliceResponse> getAllMyReview(
+    public ResponseEntity<MyReviewCursorResponse> getMyReviews(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,
             @LoginUser Long userId);

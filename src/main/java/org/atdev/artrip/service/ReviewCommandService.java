@@ -43,11 +43,7 @@ public class ReviewCommandService {
         User user = findUserById(command.userId());
         Exhibit exhibit = findExhibitById(command.exhibitId());
 
-        Review review = command.toEntity(user, exhibit);
-
-        if (s3Urls != null && !s3Urls.isEmpty()) {
-            review.addImages(s3Urls);
-        }
+        Review review = Review.create(user, exhibit, command.content(), command.date(), s3Urls);
 
         reviewRepository.save(review);
     }
@@ -110,14 +106,15 @@ public class ReviewCommandService {
             throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_ROLE);
         }
 
-        if (review.getImages() == null || review.getImages().isEmpty()) {
-            return List.of();
-        }
-        reviewRepository.delete(review);
-
-        return review.getImages().stream()
+        List<String> urls = review.getImages() == null
+                ? List.of()
+                : review.getImages().stream()
                 .map(ReviewImage::getImageUrl)
                 .toList();
+
+        reviewRepository.delete(review);
+
+        return urls;
     }
 
 }

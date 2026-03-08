@@ -159,9 +159,9 @@ public class S3Service {
 
             return decodedPath.startsWith("/") ? decodedPath.substring(1) : decodedPath;
         } catch (URISyntaxException e) {
-            throw new GeneralException(S3ErrorCode._INVALID_URL_FORMAT);
+            throw new GeneralException(S3ErrorCode._INVALID_URL_FORMAT,e);
         } catch (Exception e) {
-            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
+            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE,e);
         }
     }
 

@@ -6,13 +6,13 @@ import org.atdev.artrip.service.dto.result.FavoriteResult;
 import java.util.List;
 
 @Builder
-public record FavoriteListResponse(
+public record FavoriteCursorResponse(
         List<FavoriteResponse> favorites,
         boolean hasNext,
         Long nextCursor
 ) {
-    public static FavoriteListResponse from(FavoriteResult result) {
-        return FavoriteListResponse.builder()
+    public static FavoriteCursorResponse from(FavoriteResult result) {
+        return FavoriteCursorResponse.builder()
                 .favorites(result.items().stream()
                                 .map(FavoriteResponse::from)
                                 .toList())
