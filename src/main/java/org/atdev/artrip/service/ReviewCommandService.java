@@ -106,14 +106,15 @@ public class ReviewCommandService {
             throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_ROLE);
         }
 
-        if (review.getImages() == null || review.getImages().isEmpty()) {
-            return List.of();
-        }
-        reviewRepository.delete(review);
-
-        return review.getImages().stream()
+        List<String> urls = review.getImages() == null
+                ? List.of()
+                : review.getImages().stream()
                 .map(ReviewImage::getImageUrl)
                 .toList();
+
+        reviewRepository.delete(review);
+
+        return urls;
     }
 
 }

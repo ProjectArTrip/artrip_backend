@@ -76,6 +76,7 @@ public class ReviewService {
             try {
                 s3Service.delete(s3Urls);
             } catch (Exception e) {
+                log.error("S3 삭제 실패: {}", s3Urls, e);
                 throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE,e);
             }
         }
