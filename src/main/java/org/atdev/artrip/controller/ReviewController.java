@@ -2,6 +2,7 @@ package org.atdev.artrip.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.response.ReviewResponse;
 import org.atdev.artrip.controller.spec.ReviewSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.ReviewService;
@@ -13,6 +14,7 @@ import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
 import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
 import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 import org.atdev.artrip.service.dto.result.MyReviewResult;
+import org.atdev.artrip.service.dto.result.ReviewResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,15 +30,24 @@ public class ReviewController implements ReviewSpecification {
 
     @Override
     @PostMapping("/{exhibitId}")
-    public ResponseEntity<Void> createReview(@PathVariable Long exhibitId,
+    public ResponseEntity<ReviewResponse> createReview(@PathVariable Long exhibitId,
                                              @RequestPart(value = "images",required = false) List<MultipartFile> images,
                                              @Valid @RequestPart(value = "request") ReviewCreateRequest request,
                                              @LoginUser Long userId){
 
         ReviewCreateCommand command = ReviewCreateRequest.toCommand(request.date(), request.content(),exhibitId, userId,images);
-        reviewService.createReview(command);
+        ReviewResult result = reviewService.createReview(command);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ReviewResponse.from(result));
+    }
+
+    @Override
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<ReviewResponse> getReview(@PathVariable Long reviewId){
+
+        ReviewResult result = reviewService.getReview(reviewId);
+
+        return ResponseEntity.ok(ReviewResponse.from(result));
     }
 
     @Override
@@ -78,7 +89,7 @@ public class ReviewController implements ReviewSpecification {
 
 
     @Override
-    @GetMapping("/{exhibitId}")
+    @GetMapping("/exhibit/{exhibitId}")
     public ResponseEntity<ExhibitReviewSliceResponse> getExhibitReview(
             @RequestParam(required = false) Long cursor,
             @RequestParam(defaultValue = "10") int size,

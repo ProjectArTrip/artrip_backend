@@ -38,14 +38,14 @@ public class ReviewCommandService {
     }
 
     @Transactional
-    public void saveReviewWithImages(ReviewCreateCommand command, List<String> s3Urls) {
+    public Review saveReviewWithImages(ReviewCreateCommand command, List<String> s3Urls) {
 
         User user = findUserById(command.userId());
         Exhibit exhibit = findExhibitById(command.exhibitId());
 
         Review review = Review.create(user, exhibit, command.content(), command.date(), s3Urls);
 
-        reviewRepository.save(review);
+        return reviewRepository.save(review);
     }
 
     @Transactional(readOnly = true)

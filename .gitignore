@@ -51,3 +51,5 @@ elasticsearch/
 ## FCM
 src/main/resources/firebase/
 **/arttrip_fcm.json/
+**/arttrip_fcm.json
+secrets/firebasesdk.json
