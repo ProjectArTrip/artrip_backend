@@ -13,12 +13,22 @@ import java.lang.annotation.Target;
 public @interface ApiErrorResponses {
 
     CommonErrorCode[] common() default {};
+
     ExhibitErrorCode[] exhibit() default {};
+
     FavoriteErrorCode[] favorite() default {};
+
     UserErrorCode[] user() default {};
+
     ReviewErrorCode[] review() default {};
+
     S3ErrorCode[] s3() default {};
+
     SearchErrorCode[] search() default {};
+
     KeywordErrorCode[] keyword() default {};
+
     HomeErrorCode[] home() default {};
+
+    FcmErrorCode[] fcmToken() default {};
 }

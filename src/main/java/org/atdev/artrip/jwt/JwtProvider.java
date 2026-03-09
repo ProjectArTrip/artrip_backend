@@ -99,7 +99,7 @@ public class JwtProvider {
         } catch (ExpiredJwtException e) {
             return 0;
         } catch (Exception e) {
-            throw  new GeneralException(UserErrorCode._JWT_INVALID_TOKEN,e);
+            throw  new GeneralException(UserErrorCode._JWT_INVALID_ACCESS_TOKEN,e);
         }
     }
 }

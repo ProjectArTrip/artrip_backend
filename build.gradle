@@ -40,12 +40,10 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
     implementation 'io.github.resilience4j:resilience4j-reactor:2.2.0'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
-    implementation 'org.modelmapper:modelmapper:3.1.1'
+    implementation 'com.google.firebase:firebase-admin:9.7.1'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9'
 
@@ -55,22 +53,15 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    //S3
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0'
 
     implementation 'com.auth0:java-jwt:4.4.0'
     implementation 'com.auth0:jwks-rsa:0.23.0'
 
-    //QueryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-
-    //FCM
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
-
-
 }
 
 tasks.named('test') {

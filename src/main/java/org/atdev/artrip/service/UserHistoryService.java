@@ -8,6 +8,7 @@ import org.atdev.artrip.repository.RecentExhibitRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -19,7 +20,7 @@ public class UserHistoryService {
     private final RecentExhibitRepository recentExhibitRepository;
     private final UserRepository userRepository;
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void addRecentView(Long userId, Exhibit exhibit) {
         User user = userRepository.getReferenceById(userId);
 

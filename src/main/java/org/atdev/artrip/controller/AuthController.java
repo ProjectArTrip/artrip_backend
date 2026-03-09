@@ -4,7 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
+import org.atdev.artrip.controller.dto.response.AppReissueResponse;
+import org.atdev.artrip.controller.spec.AuthSpecification;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AuthService;
@@ -13,102 +16,68 @@ import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.result.AppReissueResult;
+import org.atdev.artrip.service.dto.result.SocialLoginResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController implements AuthSpecification {
 
     private final AuthService authService;
 
-    @PermitAll
-    @Operation(summary = "토큰 재발행 (웹 전용)", description = "refresh토큰으로 access토큰을 재발행합니다")
-    @ApiErrorResponses(
-            user = {UserErrorCode._USER_NOT_FOUND, UserErrorCode._INVALID_REFRESH_TOKEN, UserErrorCode._INVALID_USER_REFRESH_TOKEN},
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
-    )
+
+    @Override
     @PostMapping("/web/reissue")
-    public ResponseEntity<CommonResponse<String>> webReissue(
+    public ResponseEntity<String> webReissue(
             @CookieValue(value = "refreshToken", required = false) ReissueRequest refreshToken,
             HttpServletResponse response) {
 
         String newAccessToken = authService.webReissueToken(refreshToken, response);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(newAccessToken));
+        return ResponseEntity.ok(newAccessToken);
     }
 
-    @PermitAll
-    @Operation(summary = "토큰 재발행 (앱 전용)", description = "refresh토큰으로 access토큰을 재발행합니다")
-    @ApiErrorResponses(
-            user = {
-                    UserErrorCode._USER_NOT_FOUND,
-                    UserErrorCode._INVALID_REFRESH_TOKEN,
-                    UserErrorCode._INVALID_USER_REFRESH_TOKEN,
-                    UserErrorCode._JWT_EXPIRED_REFRESH_TOKEN,
-            },
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
-    )
+
     @PostMapping("/app/reissue")
-    public ResponseEntity<CommonResponse<SocialLoginResponse>> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
+    public ResponseEntity<AppReissueResponse> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
 
-        SocialLoginResponse jwt = authService.appReissueToken(refreshToken);
+        AppReissueResult result = authService.appReissueToken(refreshToken.refreshToken());
+        AppReissueResponse response = AppReissueResponse.from(result);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
+        return ResponseEntity.ok(response);
     }
 
-    @PermitAll
-    @Operation(summary = "로그아웃 (웹 전용)", description = "refresh, access 토큰을 제거합니다.")
-    @ApiErrorResponses(
-            user = {UserErrorCode._INVALID_REFRESH_TOKEN},
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
-    )
+
     @PostMapping("/web/logout")
-    public ResponseEntity<CommonResponse<Void>> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+    public ResponseEntity<Void> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                        HttpServletResponse response) {
 
         authService.webLogout(refreshToken, response);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(null));
+        return ResponseEntity.noContent().build();
     }
 
-    @PermitAll
-    @Operation(summary = "로그아웃 (앱 전용)", description = "refresh, access 토큰을 제거합니다.")
-    @ApiErrorResponses(
-            user = {UserErrorCode._INVALID_REFRESH_TOKEN},
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
-    )
     @PostMapping("/app/logout")
-    public void appLogout(@RequestBody(required = false) ReissueRequest token) {
+    public void appLogout(@RequestBody(required = false) LogoutRequest token) {
 
-        authService.appLogout(token);
+        authService.appLogout(token.accessToken(),token.refreshToken());
     }
 
-    @PermitAll
-    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분 ,isFirstLogin true:회원가입 false:로그인")
-    @ApiErrorResponses(
-            user = {
-                    UserErrorCode._SOCIAL_ID_TOKEN_INVALID,
-                    UserErrorCode._USER_NOT_FOUND,
-                    UserErrorCode._SOCIAL_VERIFICATION_FAILED,
-                    UserErrorCode._SOCIAL_TOKEN_EXPIRED,
-                    UserErrorCode._SOCIAL_TOKEN_INVALID_SIGNATURE,
-                    UserErrorCode._SOCIAL_TOKEN_INVALID_AUDIENCE,
-            },
-            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
-    )
+
     @PostMapping("/social")
-    public ResponseEntity<CommonResponse<SocialLoginResponse>> socialLogin(@RequestBody SocialLoginRequest request) {
+    public ResponseEntity<SocialLoginResponse> socialLogin(@RequestBody SocialLoginRequest request) {
 
-        SocialLoginResponse jwt = authService.loginWithSocial(request.getProvider(), request.getIdToken());
+        SocialLoginResult result = authService.loginWithSocial(request.getProvider(), request.getIdToken());
+        SocialLoginResponse response = SocialLoginResponse.from(result);
 
-        return ResponseEntity.ok(CommonResponse.onSuccess(jwt));
+        return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "isFirstLogin값 반전 api")
     @PostMapping("/complete")
-    public ResponseEntity<String> completeOnboarding(
+    public ResponseEntity<Void> completeOnboarding(
             @LoginUser Long userId) {
 
         authService.completeOnboarding(userId);

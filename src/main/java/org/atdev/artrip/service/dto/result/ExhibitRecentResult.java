@@ -7,7 +7,8 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 public record ExhibitRecentResult(
         Long exhibitId,
         String title,
-        String exhibitHallName
+        String exhibitHallName,
+        String exhibitImage
 ) {
 
     public static ExhibitRecentResult from(Exhibit exhibit){
@@ -16,6 +17,7 @@ public record ExhibitRecentResult(
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
                 .exhibitHallName(exhibit.getExhibitHall().getName())
+                .exhibitImage(exhibit.getPosterUrl())
                 .build();
     }
 

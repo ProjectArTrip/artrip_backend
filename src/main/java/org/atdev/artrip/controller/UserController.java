@@ -1,8 +1,8 @@
 package org.atdev.artrip.controller;
 
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.request.DeviceTokenRequest;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
@@ -10,7 +10,6 @@ import org.atdev.artrip.service.UserHistoryService;
 import org.atdev.artrip.service.UserService;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
-import org.atdev.artrip.controller.dto.response.NicknameResponse;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
 import org.springframework.http.MediaType;
@@ -30,19 +29,19 @@ public class UserController implements UserSpecification {
 
     @Override
     @PatchMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProfileImageResponse> updateUserImage(
+    public ResponseEntity<MypageResponse> updateUserImage(
             @LoginUser Long userId,
-            @RequestPart("image") MultipartFile image){
+            @RequestPart("image") MultipartFile image) {
 
-        userService.updateUserImage(userId, image);
+        MypageResult result =userService.updateUserImage(userId, image);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(MypageResponse.from(result));
     }
 
     @Override
     @DeleteMapping("/image")
     public ResponseEntity<Void> deleteUserImage(
-            @LoginUser Long userId){
+            @LoginUser Long userId) {
 
         userService.deleteUserImage(userId);
 
@@ -51,13 +50,13 @@ public class UserController implements UserSpecification {
 
     @Override
     @PatchMapping
-    public ResponseEntity<NicknameResponse> updateNickname(
+    public ResponseEntity<MypageResponse> updateNickname(
             @LoginUser Long userId,
             @RequestBody @Valid NicknameRequest request) {
 
-        userService.updateNickName(userId,request.NickName());
+        MypageResult result =userService.updateNickName(userId,request.nickName());
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(MypageResponse.from(result));
     }
 
     @Override
@@ -73,11 +72,22 @@ public class UserController implements UserSpecification {
     @Override
     @GetMapping("/recent-exhibits")
     public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
-            @LoginUser Long userId){
+            @LoginUser Long userId) {
 
         List<ExhibitRecentResult> results = userHistoryService.getRecentViews(userId);
 
         return ResponseEntity.ok(ExhibitRecentResponse.from(results));
+    }
+
+    @PostMapping("/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(
+            @LoginUser Long userId,
+            @RequestBody @Valid DeviceTokenRequest request) {
+
+        userService.updateFcmToken(userId, request.token());
+
+        return ResponseEntity.noContent().build();
+
     }
 
 }
