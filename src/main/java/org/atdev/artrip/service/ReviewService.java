@@ -3,16 +3,24 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.FileFolder;
+import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.review.Review;
+import org.atdev.artrip.domain.review.ReviewImage;
+import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.s3.service.S3Service;
+import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
 import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
 import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 import org.atdev.artrip.service.dto.result.MyReviewResult;
+import org.atdev.artrip.service.dto.result.ReviewResult;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -28,8 +36,9 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final S3Service s3Service;
     private final ReviewCommandService reviewCommandService;
+    private final UserRepository userRepository;
 
-    public void createReview(ReviewCreateCommand command){
+    public ReviewResult createReview(ReviewCreateCommand command){
 
         if (command.images() != null && command.images().size() > 4) {
             throw new GeneralException(ReviewErrorCode._TOO_MANY_REVIEW_IMAGES);
@@ -41,11 +50,20 @@ public class ReviewService {
         }
 
         try {
-            reviewCommandService.saveReviewWithImages(command, s3Urls);
+            Review review = reviewCommandService.saveReviewWithImages(command, s3Urls);
+            return ReviewResult.from(review);
         } catch (Exception e) {
             s3Service.delete(s3Urls);
             throw e;
         }
+    }
+
+    public ReviewResult getReview(Long reviewId){
+
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+
+        return ReviewResult.from(review);
     }
 
     public void updateReview(ReviewUpdateCommand command) {
