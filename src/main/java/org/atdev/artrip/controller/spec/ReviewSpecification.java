@@ -5,6 +5,7 @@ import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.request.ReviewUpdateRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitReviewSliceResponse;
 import org.atdev.artrip.controller.dto.response.MyReviewCursorResponse;
+import org.atdev.artrip.controller.dto.response.ReviewResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
@@ -23,10 +24,17 @@ public interface ReviewSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             review = {ReviewErrorCode._REVIEW_USER_NOT_ROLE}
     )
-    public ResponseEntity<Void> createReview(@PathVariable Long exhibitId,
+    public ResponseEntity<ReviewResponse> createReview(@PathVariable Long exhibitId,
                                              @RequestPart(value = "images",required = false) List<MultipartFile> images,
                                              @RequestPart(value = "request") ReviewCreateRequest request,
                                              @LoginUser Long userId);
+
+    @Operation(summary = "리뷰 단건 조회")
+    @ApiErrorResponses(
+            common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
+            review = {ReviewErrorCode._REVIEW_USER_NOT_ROLE}
+    )
+    public ResponseEntity<ReviewResponse> getReview(@PathVariable Long exhibitId);
 
     @Operation(summary = "리뷰 수정")
     @ApiErrorResponses(

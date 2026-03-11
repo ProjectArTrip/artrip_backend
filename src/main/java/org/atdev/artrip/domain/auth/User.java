@@ -62,8 +62,8 @@ public class User {
     private String fcmToken;
 
     @Builder.Default
-    @Column(name = "push_enabled")
-    private boolean pushEnabled = true;
+    @Column(name = "push_enabled", nullable = false)
+    private Boolean pushEnabled = true;
 
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

@@ -13,6 +13,7 @@ public record ExhibitReviewListResponse(
         Long reviewId,
         String reviewTitle,
         String content,
+        String reviewer,
         List<String> photoUrls,
         LocalDate visitDate,
         LocalDateTime createdAt
@@ -22,6 +23,7 @@ public record ExhibitReviewListResponse(
                 .reviewId(review.getReviewId())
                 .reviewTitle(review.getExhibit().getTitle())
                 .content(review.getContent())
+                .reviewer(review.getUser().getNickName())
                 .photoUrls(review.getImages().stream()
                         .map(ReviewImage::getImageUrl)
                         .toList())
