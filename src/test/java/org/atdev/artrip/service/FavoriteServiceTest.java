@@ -63,7 +63,7 @@ public class FavoriteServiceTest {
                 Provider.KAKAO
         );
 
-        testUser = User.of(socialUserInfo);
+        testUser = User.createUser(socialUserInfo);
 
         domesticHall = ExhibitHall.of(
                 1L,

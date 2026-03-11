@@ -31,4 +31,6 @@ public @interface ApiErrorResponses {
     HomeErrorCode[] home() default {};
 
     FcmErrorCode[] fcmToken() default {};
+
+    NoticeErrorCode[] notis() default {};
 }

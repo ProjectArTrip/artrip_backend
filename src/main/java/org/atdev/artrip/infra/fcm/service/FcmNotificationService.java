@@ -1,7 +1,9 @@
 package org.atdev.artrip.infra.fcm.service;
 
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -12,6 +14,9 @@ import org.atdev.artrip.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FcmNotificationService {
@@ -38,15 +43,15 @@ public class FcmNotificationService {
 
     public void sendMessage(final NotificationSingleCommand command) {
         try {
-
             Message message = command.builderMessage()
                             .setApnsConfig(getApnsConfig(command))
                             .build();
 
             firebaseMessaging.sendAsync(message);
 
-        } catch (RuntimeException e) {
-            throw new GeneralException(FcmErrorCode._FCM_SERVICE_UNAVAILABLE);
+        } catch (Exception e) {
+            log.error("FCM 예외 발생 : exception : {}", e.getMessage(), e);
+            throw new GeneralException(FcmErrorCode._FCM_SERVER_ERROR, e);
         }
     }
 
@@ -61,5 +66,21 @@ public class FcmNotificationService {
                 .setSound("default").build();
 
         return ApnsConfig.builder().setAps(aps).build();
+    }
+
+    @Transactional
+    public void sendNoticeMessage(String title, String content) {
+        List<User> users = userRepository.findValidPushUsers();
+
+        for (User user : users) {
+            if (user.getFcmToken() == null || user.getFcmToken().isBlank()) {
+                continue;
+            }
+            sendMessage(NotificationSingleCommand.of(
+                    user.getFcmToken(),
+                    "[Artrip] 공지 사항",
+                    title
+            ));
+        }
     }
 }

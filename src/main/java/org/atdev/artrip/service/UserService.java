@@ -4,6 +4,7 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -89,10 +90,17 @@ public class UserService {
 
         User user = findUserOrThrow(userId);
 
-        if (token.equals(user.getFcmToken())) {
+        if (token == null || token.isBlank()) {
+            throw new GeneralException(FcmErrorCode._INVALID_REQUEST_PATTERN);
+        }
+
+        String trimmedToken = token.trim();
+
+        if(trimmedToken.equals(user.getFcmToken())) {
             return;
         }
-        userRepository.findByFcmToken(token).ifPresent(otherUser -> {
+
+        userRepository.findByFcmToken(trimmedToken).ifPresent(otherUser -> {
             if (!otherUser.getUserId().equals(userId)) {
                 otherUser.clearFcmToken();
             }
