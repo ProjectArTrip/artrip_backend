@@ -20,7 +20,7 @@ public class AdminNoticeController implements AdminNoticeSpecification {
 
     private final AdminNoticeService noticeService;
 
-    //    @Override
+    @Override
     @PostMapping
     public ResponseEntity<Void> createNotice(
             @LoginUser Long userId,
@@ -33,7 +33,7 @@ public class AdminNoticeController implements AdminNoticeSpecification {
         return ResponseEntity.noContent().build();
     }
 
-    //    @Override
+    @Override
     @PatchMapping("/{noticeId}")
     public ResponseEntity<Void> updateNotice(
             @LoginUser Long userId,
@@ -46,6 +46,7 @@ public class AdminNoticeController implements AdminNoticeSpecification {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @DeleteMapping("/{noticeId}")
     public ResponseEntity<Void> deleteNotice(
             @PathVariable Long noticeId,

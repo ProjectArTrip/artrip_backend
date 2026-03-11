@@ -79,6 +79,7 @@ public class UserController implements UserSpecification {
         return ResponseEntity.ok(ExhibitRecentResponse.from(results));
     }
 
+    @Override
     @PostMapping("/fcm-token")
     public ResponseEntity<Void> updateFcmToken(
             @LoginUser Long userId,
