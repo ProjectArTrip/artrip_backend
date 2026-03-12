@@ -6,14 +6,14 @@ import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 import java.util.List;
 
 @Builder
-public record FilterResponse(
+public record FilterCursorResponse(
         List<HomeResponse> exhibits,
         boolean hasNext,
         Long nextCursor
 ) {
-    public static FilterResponse from(ExhibitFilterResult result) {
+    public static FilterCursorResponse from(ExhibitFilterResult result) {
 
-        return FilterResponse.builder()
+        return FilterCursorResponse.builder()
                 .exhibits(result.items().stream()
                         .map(HomeResponse::from)
                         .toList())

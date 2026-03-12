@@ -1,23 +1,24 @@
 package org.atdev.artrip.controller.dto.response;
 
-import lombok.*;
+import org.atdev.artrip.domain.review.Review;
+import org.atdev.artrip.service.dto.result.ReviewImageResult;
+import org.atdev.artrip.service.dto.result.ReviewResult;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ReviewResponse {
-
-    private Long reviewId;
-    private Long exhibitId;
-    private LocalDate visitDate;
-    private String content;
-    private List<ReviewImageResponse> images;
-    private LocalDateTime createdAt;
-
+public record ReviewResponse(
+        Long reviewId,
+        String content,
+        LocalDate date,
+        List<ReviewImageResult> images
+) {
+    public static ReviewResponse from(ReviewResult result){
+        return new ReviewResponse(
+                result.reviewId(),
+                result.content(),
+                result.date(),
+                result.images()
+        );
+    }
 }

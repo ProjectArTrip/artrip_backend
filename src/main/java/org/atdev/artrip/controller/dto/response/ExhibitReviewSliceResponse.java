@@ -5,7 +5,7 @@ import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 import java.util.List;
 
 public record ExhibitReviewSliceResponse(
-        List<ReviewListResponse> reviews,
+        List<ExhibitReviewListResponse> reviews,
         Long nextCursor,
         boolean hasNext,
         long reviewTotalCount
@@ -15,7 +15,7 @@ public record ExhibitReviewSliceResponse(
 
         return new ExhibitReviewSliceResponse(
                 result.reviews().stream()
-                        .map(ReviewListResponse::from)
+                        .map(ExhibitReviewListResponse::from)
                         .toList(),
 
                 result.nextCursor(),

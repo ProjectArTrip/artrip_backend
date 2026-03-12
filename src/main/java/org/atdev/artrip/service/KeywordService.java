@@ -11,14 +11,12 @@ import org.atdev.artrip.repository.KeywordRepository;
 import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.result.KeywordListResult;
-import org.atdev.artrip.service.dto.result.KeywordResult;
+import org.atdev.artrip.service.dto.result.UserKeywordListResult;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +25,7 @@ public class KeywordService {
     private final KeywordRepository keywordRepository;
     private final UserKeywordRepository userKeywordRepository;
     private final UserRepository userRepository;
+    private final int RECOMMEND_KEYWORD_LIMIT = 5;
 
     @Transactional
     public void saveKeywords(Long userId, List<String> keywordNames) {
@@ -43,7 +42,7 @@ public class KeywordService {
         userKeywordRepository.deleteByUserId(userId);
 
         List<UserKeyword> userKeywords = keywords.stream()
-                .map(keyword -> UserKeyword.create(user,keyword))
+                .map(keyword -> UserKeyword.create(user, keyword))
                 .toList();
 
         userKeywordRepository.saveAll(userKeywords);
@@ -60,6 +59,18 @@ public class KeywordService {
     public KeywordListResult getKeyword(Long userId) {
 
         List<UserKeyword> userKeywords = userKeywordRepository.findAllByUserIdWithKeyword(userId);
-        return KeywordListResult.fromUserKeywords(userKeywords);
+        return UserKeywordListResult.fromUserKeywords(userKeywords);
+    }
+
+    @Transactional(readOnly = true)
+    public KeywordListResult getSearchRecommand(Long userId) {
+
+        List<UserKeyword> selected = userKeywordRepository.findRandomKeywordByUserId(userId, PageRequest.of(0, RECOMMEND_KEYWORD_LIMIT));
+
+        if (selected.isEmpty()) {
+            return new KeywordListResult(List.of());
+        }
+
+        return UserKeywordListResult.fromUserKeywords(selected);
     }
 }

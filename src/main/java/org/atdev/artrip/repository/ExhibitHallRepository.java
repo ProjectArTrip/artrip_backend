@@ -17,11 +17,11 @@ public interface ExhibitHallRepository extends JpaRepository<ExhibitHall, Long> 
     List<String> findAllOverseasCountries();
 
 //    @Query("""
-//    select distinct e.region
+//    select distinct e.regions
 //    from ExhibitHall e
 //    where (e.isDomestic = true
-//        or e.country in ('한국', '대한민국'))
-//      and e.region is not null
+//        or e.countries in ('한국', '대한민국'))
+//      and e.regions is not null
 //    """)
 //    List<String> findAllDomesticRegions();
 

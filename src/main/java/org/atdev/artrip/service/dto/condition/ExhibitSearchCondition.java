@@ -1,4 +1,4 @@
-package org.atdev.artrip.service.dto.command;
+package org.atdev.artrip.service.dto.condition;
 
 import lombok.Builder;
 import org.atdev.artrip.constants.SortType;

@@ -42,7 +42,7 @@ public class Exhibit {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Enumerated(EnumType.STRING) // DB가 CHAR/VARCHAR이면 STRING
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status;
 

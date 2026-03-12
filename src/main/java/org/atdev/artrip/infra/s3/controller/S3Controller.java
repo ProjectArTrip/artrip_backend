@@ -1,11 +1,11 @@
-package org.atdev.artrip.controller;
+package org.atdev.artrip.infra.s3.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
-import org.atdev.artrip.global.s3.service.S3Service;
+import org.atdev.artrip.infra.s3.service.S3Service;
 import org.atdev.artrip.controller.dto.request.ImageDeleteRequest;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.web.bind.annotation.*;

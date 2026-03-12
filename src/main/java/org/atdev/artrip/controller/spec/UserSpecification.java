@@ -1,10 +1,13 @@
 package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
+import org.atdev.artrip.controller.dto.request.DeviceTokenRequest;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
@@ -13,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 public interface UserSpecification {
 
     @Operation(summary = "프로필 이미지 추가", description = "프로필 이미지를 추가합니다")
@@ -22,7 +23,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._PROFILE_IMAGE_NOT_EXIST, UserErrorCode._USER_NOT_FOUND}
     )
-    public ResponseEntity<ProfileImageResponse> updateUserImage(
+    public ResponseEntity<MypageResponse> updateUserImage(
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image);
 
@@ -41,7 +42,7 @@ public interface UserSpecification {
             common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._DUPLICATE_NICKNAME, UserErrorCode._USER_NOT_FOUND, UserErrorCode._NICKNAME_BAD_REQUEST}
     )
-    public ResponseEntity<NicknameResponse> updateNickname(
+    public ResponseEntity<MypageResponse> updateNickname(
             @LoginUser Long userId,
             @RequestBody NicknameRequest dto);
 
@@ -61,4 +62,14 @@ public interface UserSpecification {
     )
     public ResponseEntity<ExhibitRecentResponse> getRecentExhibit(
             @LoginUser Long userId);
+
+    @Operation(summary = "FCM-TOKEN", description = "클라이언트 디바이스에서 토큰을 받아 저장합니다.")
+    @ApiErrorResponses(
+            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
+            fcmToken = {FcmErrorCode._INVALID_REQUEST_MESSAGE, FcmErrorCode._INVALID_REQUEST_MESSAGE}
+    )
+    public ResponseEntity<Void> updateFcmToken(
+            @LoginUser Long userId,
+            @RequestBody @Valid DeviceTokenRequest request
+            );
 }

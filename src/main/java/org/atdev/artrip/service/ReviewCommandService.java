@@ -38,18 +38,14 @@ public class ReviewCommandService {
     }
 
     @Transactional
-    public void saveReviewWithImages(ReviewCreateCommand command, List<String> s3Urls) {
+    public Review saveReviewWithImages(ReviewCreateCommand command, List<String> s3Urls) {
 
         User user = findUserById(command.userId());
         Exhibit exhibit = findExhibitById(command.exhibitId());
 
-        Review review = command.toEntity(user, exhibit);
+        Review review = Review.create(user, exhibit, command.content(), command.date(), s3Urls);
 
-        if (s3Urls != null && !s3Urls.isEmpty()) {
-            review.addImages(s3Urls);
-        }
-
-        reviewRepository.save(review);
+        return reviewRepository.save(review);
     }
 
     @Transactional(readOnly = true)
@@ -110,14 +106,15 @@ public class ReviewCommandService {
             throw new GeneralException(ReviewErrorCode._REVIEW_USER_NOT_ROLE);
         }
 
-        if (review.getImages() == null || review.getImages().isEmpty()) {
-            return List.of();
-        }
-        reviewRepository.delete(review);
-
-        return review.getImages().stream()
+        List<String> urls = review.getImages() == null
+                ? List.of()
+                : review.getImages().stream()
                 .map(ReviewImage::getImageUrl)
                 .toList();
+
+        reviewRepository.delete(review);
+
+        return urls;
     }
 
 }

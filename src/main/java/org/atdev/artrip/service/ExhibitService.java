@@ -5,7 +5,7 @@ import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitMarkerMeta;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.repository.FavoriteExhibitRepository;
+import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
@@ -29,9 +29,8 @@ import java.util.Set;
 public class ExhibitService {
 
     private final ExhibitRepository exhibitRepository;
-    private final FavoriteExhibitRepository favoriteExhibitRepository;
+    private final FavoriteRepository favoriteRepository;
     private final UserHistoryService userHistoryService;
-
 
     @Transactional(readOnly = true)
     public ExhibitDetailResult getExhibitDetail(ExhibitDetailCommand command) {
@@ -42,7 +41,7 @@ public class ExhibitService {
         boolean isFavorite = false;
 
         if (command.userId() != null) {
-            isFavorite = favoriteExhibitRepository.existsActive(command.userId(), command.exhibitId());
+            isFavorite = favoriteRepository.existsActive(command.userId(), command.exhibitId());
             userHistoryService.addRecentView(command.userId(), exhibit);
         }
 

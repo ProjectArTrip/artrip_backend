@@ -1,4 +1,4 @@
-package org.atdev.artrip.global.s3.service;
+package org.atdev.artrip.infra.s3.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.FileFolder;
@@ -159,9 +159,9 @@ public class S3Service {
 
             return decodedPath.startsWith("/") ? decodedPath.substring(1) : decodedPath;
         } catch (URISyntaxException e) {
-            throw new GeneralException(S3ErrorCode._INVALID_URL_FORMAT);
+            throw new GeneralException(S3ErrorCode._INVALID_URL_FORMAT,e);
         } catch (Exception e) {
-            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE);
+            throw new GeneralException(S3ErrorCode._IO_EXCEPTION_DELETE_FILE,e);
         }
     }
 
