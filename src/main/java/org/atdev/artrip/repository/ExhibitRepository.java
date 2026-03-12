@@ -99,9 +99,11 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
 
 
     @Query("""
-            SELECT MAX(e.updatedAt)
-            FROM Exhibit e
-            WHERE e.status IN :statuses
-            """)
-    LocalDateTime findMarkerLastUpdated(List<Status> statuses);
+    SELECT COUNT(e) AS count, MAX(e.updatedAt) AS lastUpdated
+    FROM Exhibit e
+    WHERE e.status IN :statuses
+    """)
+    ExhibitMarkerMeta findMarkerMeta(@Param("statuses") List<Status> statuses);
+
+//    LocalDateTime findMarkerLastUpdated(List<Status> statuses);
 }

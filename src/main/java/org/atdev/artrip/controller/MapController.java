@@ -42,7 +42,9 @@ public class MapController {
         String currentEtag = exhibitService.getMarkerEtag();
 
         if (currentEtag.equals(etag)) {
-            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                    .eTag(currentEtag)
+                    .build();
         }
 
         List<ExhibitMarkerDto> markers = exhibitService.getMarkers();

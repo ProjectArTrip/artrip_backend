@@ -3,6 +3,7 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.repository.ExhibitMarkerMeta;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
@@ -74,27 +75,29 @@ public class ExhibitService {
         return favoriteExhibitRepository.findActiveExhibitIds(userId);
     }
 
+    @Transactional(readOnly = true)
     public List<ExhibitMarkerDto> getMarkers() {
 
-        List<Status> statuses = List.of(
-                Status.ONGOING,
-                Status.ENDING_SOON
-        );
-
-        return exhibitRepository.findMarkersByStatus(statuses);
+        return exhibitRepository.findMarkersByStatus(markerStatuses());
     }
 
+    @Transactional(readOnly = true)
     public String getMarkerEtag() {
 
-        List<Status> statuses = List.of(
-                Status.ONGOING,
-                Status.ENDING_SOON
-        );
+        ExhibitMarkerMeta meta = exhibitRepository.findMarkerMeta(markerStatuses());
 
-        LocalDateTime lastUpdate =
-                exhibitRepository.findMarkerLastUpdated(statuses);
+        long count = 0L;
+        LocalDateTime lastUpdated = null;
 
-        return "\"" + lastUpdate.hashCode() + "\"";
+        if (meta != null) {
+            count = meta.getCount();
+            lastUpdated = meta.getLastUpdated();
+        }
+
+        return "\"" + count + ":" + (lastUpdated != null ? lastUpdated : "empty") + "\"";
     }
 
+    private List<Status> markerStatuses() {
+        return List.of(Status.ONGOING, Status.ENDING_SOON);
+    }
 }
