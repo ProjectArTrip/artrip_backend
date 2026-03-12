@@ -1,7 +1,8 @@
 package org.atdev.artrip.repository;
 
+import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.repository.dto.ExhibitLocationDto;
+import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,9 +69,9 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     Optional<Exhibit> findByIdWithHall(@Param("id") Long id);
 
 
-    @Query("SELECT new org.atdev.artrip.repository.dto.ExhibitLocationDto(e.exhibitId, h.longitude, h.latitude) " +
-            "FROM Exhibit e " + "JOIN e.exhibitHall h")
-    List<ExhibitLocationDto> findAllLocationsForCache();
+//    @Query("SELECT new org.atdev.artrip.repository.dto.ExhibitMarkerDto(e.exhibitId, h.longitude, h.latitude) " +
+//            "FROM Exhibit e " + "JOIN e.exhibitHall h")
+//    List<ExhibitMarkerDto> findAllLocationsForCache();
 
     @Query("select e from Exhibit e where e.exhibitId in :ids order by e.startDate desc,e.exhibitId desc")
     Slice<Exhibit> findByIdInOrderByIdDesc(@Param("ids") List<Long> ids, Pageable pageable);
@@ -81,4 +83,25 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
                                                         @Param("cursorDate") LocalDate cursorDate,
                                                         @Param("cursor") Long cursor,
                                                         Pageable pageable);
+
+
+    @Query("""
+        SELECT new org.atdev.artrip.repository.dto.ExhibitMarkerDto(
+            e.exhibitId,
+            h.latitude,
+            h.longitude
+        )
+        FROM Exhibit e
+        JOIN e.exhibitHall h
+        WHERE e.status IN :statuses
+    """)
+    List<ExhibitMarkerDto> findMarkersByStatus(@Param("statuses") List<Status> statuses);
+
+
+    @Query("""
+            SELECT MAX(e.updatedAt)
+            FROM Exhibit e
+            WHERE e.status IN :statuses
+            """)
+    LocalDateTime findMarkerLastUpdated(List<Status> statuses);
 }

@@ -4,7 +4,7 @@ package org.atdev.artrip.global.loader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.repository.ExhibitRepository;
-import org.atdev.artrip.repository.dto.ExhibitLocationDto;
+import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.atdev.artrip.service.redis.RedisService;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -35,7 +35,7 @@ public class RedisGeoDataLoader {
             return;
         }
 
-        List<ExhibitLocationDto> locations = exhibitRepository.findAllLocationsForCache();
+        List<ExhibitMarkerDto> locations = exhibitRepository.findAllLocationsForCache();
         if (locations.isEmpty()) {
             log.warn(">>> 로드할 데이터가 DB에 없습니다.");
             return;
@@ -55,7 +55,7 @@ public class RedisGeoDataLoader {
         }
     }
 
-    private boolean hasCoordinates(ExhibitLocationDto dto) {
+    private boolean hasCoordinates(ExhibitMarkerDto dto) {
         return dto.longitude() != null && dto.latitude() != null;
     }
 }

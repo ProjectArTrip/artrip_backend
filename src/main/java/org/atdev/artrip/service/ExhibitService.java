@@ -1,11 +1,13 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteExhibitRepository;
 import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
+import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -69,6 +72,29 @@ public class ExhibitService {
             return Collections.emptySet();
         }
         return favoriteExhibitRepository.findActiveExhibitIds(userId);
+    }
+
+    public List<ExhibitMarkerDto> getMarkers() {
+
+        List<Status> statuses = List.of(
+                Status.ONGOING,
+                Status.ENDING_SOON
+        );
+
+        return exhibitRepository.findMarkersByStatus(statuses);
+    }
+
+    public String getMarkerEtag() {
+
+        List<Status> statuses = List.of(
+                Status.ONGOING,
+                Status.ENDING_SOON
+        );
+
+        LocalDateTime lastUpdate =
+                exhibitRepository.findMarkerLastUpdated(statuses);
+
+        return "\"" + lastUpdate.hashCode() + "\"";
     }
 
 }
