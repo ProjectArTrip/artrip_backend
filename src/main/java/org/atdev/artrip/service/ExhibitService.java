@@ -71,19 +71,19 @@ public class ExhibitService {
         if (userId == null) {
             return Collections.emptySet();
         }
-        return favoriteExhibitRepository.findActiveExhibitIds(userId);
+        return favoriteRepository.findActiveExhibitIds(userId);
     }
 
     @Transactional(readOnly = true)
     public List<ExhibitMarkerDto> getMarkers() {
 
-        return exhibitRepository.findMarkersByStatus(markerStatuses());
+        return exhibitRepository.findMarkersByStatus(MARKER_STATUSES);
     }
 
     @Transactional(readOnly = true)
     public String getMarkerEtag() {
 
-        ExhibitMarkerMeta meta = exhibitRepository.findMarkerMeta(markerStatuses());
+        ExhibitMarkerMeta meta = exhibitRepository.findMarkerMeta(MARKER_STATUSES);
 
         long count = 0L;
         LocalDateTime lastUpdated = null;
@@ -96,7 +96,6 @@ public class ExhibitService {
         return "\"" + count + ":" + (lastUpdated != null ? lastUpdated : "empty") + "\"";
     }
 
-    private List<Status> markerStatuses() {
-        return List.of(Status.ONGOING, Status.ENDING_SOON);
-    }
+    private static final List<Status> MARKER_STATUSES =
+            List.of(Status.ONGOING, Status.ENDING_SOON);
 }
