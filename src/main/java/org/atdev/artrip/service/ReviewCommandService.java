@@ -84,9 +84,8 @@ public class ReviewCommandService {
         }
 
         if (command.content() != null) {
-            review.updateContent(command.content(), LocalDateTime.now());
+            review.updateData(command.content(),command.date(), LocalDateTime.now());
         }
-
         if (command.deleteImageIds() != null && !command.deleteImageIds().isEmpty()) {
             review.getImages().removeIf(img -> command.deleteImageIds().contains(img.getImageId()));
         }

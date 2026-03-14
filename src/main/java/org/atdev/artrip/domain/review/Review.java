@@ -53,8 +53,9 @@ public class Review {
     @Builder.Default
     private List<ReviewImage> images= new ArrayList<>();
 
-    public void updateContent(String newContent, LocalDateTime updatedAt) {
-        this.content = newContent;
+    public void updateData(String content, LocalDate visitDate, LocalDateTime updatedAt) {
+        if (content != null) this.content = content;
+        if (visitDate != null) this.visitDate = visitDate;
         this.updatedAt = updatedAt;
     }
 
