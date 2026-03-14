@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.FilterCursorResponse;
+import org.atdev.artrip.controller.spec.MapSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.atdev.artrip.service.ExhibitService;
@@ -16,11 +17,10 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/map")
-public class MapController {
+public class MapController implements MapSpecification {
 
     private final ExhibitService exhibitService;
 
-    @Operation(summary = "클러스터링 전시 조회", description = "")
     @GetMapping("/cluster")
     public ResponseEntity<FilterCursorResponse> clusterExhibit(@RequestParam List<Long> ids,
                                                                @LoginUser Long userId,
@@ -32,7 +32,6 @@ public class MapController {
         return ResponseEntity.ok(FilterCursorResponse.from(result));
     }
 
-    @Operation(summary = "마커용 전시 일괄 조회", description = "etag 동일 시 - 304 , 다르면 - 다시 조회")
     @GetMapping("/exhibits/markers")
     public ResponseEntity<List<ExhibitMarkerDto>> getMarkers(
             @RequestHeader(value = "If-None-Match", required = false) String etag) {
