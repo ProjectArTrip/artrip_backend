@@ -69,19 +69,17 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     Optional<Exhibit> findByIdWithHall(@Param("id") Long id);
 
 
-//    @Query("SELECT new org.atdev.artrip.repository.dto.ExhibitMarkerDto(e.exhibitId, h.longitude, h.latitude) " +
-//            "FROM Exhibit e " + "JOIN e.exhibitHall h")
-//    List<ExhibitMarkerDto> findAllLocationsForCache();
-
-    @Query("select e from Exhibit e where e.exhibitId in :ids order by e.startDate desc,e.exhibitId desc")
+    @Query("select e from Exhibit e where e.exhibitId in :ids order by e.exhibitId desc")
     Slice<Exhibit> findByIdInOrderByIdDesc(@Param("ids") List<Long> ids, Pageable pageable);
 
-    @Query("select e from Exhibit e " + "where e.exhibitId in :ids " +
-            "and (e.startDate < :cursorDate or (e.startDate = :cursorDate and e.exhibitId < :cursorId)) " +
-            "order by e.startDate desc, e.exhibitId desc")
+    @Query("""
+            select e from Exhibit e
+            where e.exhibitId in :ids
+              and e.exhibitId < :cursorId
+            order by e.exhibitId desc
+            """)
     Slice<Exhibit> findByIdInAndIdLessThanOrderByIdDesc(@Param("ids") List<Long> ids,
-                                                        @Param("cursorDate") LocalDate cursorDate,
-                                                        @Param("cursor") Long cursor,
+                                                        @Param("cursorId") Long cursorId,
                                                         Pageable pageable);
 
 

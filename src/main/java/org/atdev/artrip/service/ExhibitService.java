@@ -49,17 +49,17 @@ public class ExhibitService {
     }
 
     @Transactional(readOnly = true)
-    public ExhibitFilterResult getClusterExhibit(List<Long> ids, LocalDate cursorDate, Long cursor, int size, Long userId){
+    public ExhibitFilterResult getClusterExhibit(List<Long> ids, Long cursorId, int size, Long userId){
 
         if (ids == null || ids.isEmpty()) {
             return ExhibitFilterResult.of(null,null);
         }
 
         Slice<Exhibit> slice;
-        if (cursor == null) {
+        if (cursorId == null) {
             slice = exhibitRepository.findByIdInOrderByIdDesc(ids, PageRequest.ofSize(size));
         } else {
-            slice = exhibitRepository.findByIdInAndIdLessThanOrderByIdDesc(ids, cursorDate,cursor, PageRequest.ofSize(size));
+            slice = exhibitRepository.findByIdInAndIdLessThanOrderByIdDesc(ids, cursorId, PageRequest.ofSize(size));
         }
 
         Set<Long> favoriteIds = (userId != null) ? getFavoriteIds(userId) : Set.of();
