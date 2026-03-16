@@ -50,10 +50,6 @@ public record ExhibitFilterResult(
                 ))
                 .toList();
 
-//        Long nextCursor = slice.hasNext() && !items.isEmpty()
-//                ? items.get(items.size() - 1).exhibitId()
-//                : null;
-
         Long nextCursorId = null;
         LocalDate nextCursorDate = null;
         if (slice.hasNext() && !items.isEmpty()) {
