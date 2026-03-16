@@ -74,13 +74,37 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
 
     @Override
     public List<ExhibitRandomResult> findRandomExhibits(ExhibitRandomCommand c) {
+        double pivot = Math.random();
+        long limit = c.limit();
 
+        List<ExhibitRandomResult> first = findRandomExhibitsByPivot(c, pivot, true, limit);
+
+        if (first.size() == limit) {
+            return first;
+        }
+
+        long remain = limit - first.size();
+        List<ExhibitRandomResult> second = findRandomExhibitsByPivot(c, pivot, false, remain);
+
+        first.addAll(second);
+        return first;
+    }
+
+    private List<ExhibitRandomResult> findRandomExhibitsByPivot(
+            ExhibitRandomCommand c,
+            double pivot,
+            boolean greaterOrEqual,
+            long limit
+    ) {
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
-        QKeyword k = QKeyword.keyword;
+
+        BooleanExpression randomCondition = greaterOrEqual
+                ? e.randomKey.goe(pivot)
+                : e.randomKey.lt(pivot);
 
         return queryFactory
-                .selectDistinct(Projections.constructor(
+                .select(Projections.constructor(
                         ExhibitRandomResult.class,
                         e.exhibitId,
                         e.title,
@@ -99,18 +123,18 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 ))
                 .from(e)
                 .join(e.exhibitHall, h)
-                .join(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
                         isDomesticEq(c.isDomestic()),
                         countryEq(c.country()),
                         regionEq(c.region()),
-                        genreIn(c.genres()),
-                        styleIn(c.styles()),
-                        findDate(c.date())
+                        genreExists(c.genres()),
+                        styleExists(c.styles()),
+                        findDate(c.date()),
+                        randomCondition
                 )
-                .orderBy(Expressions.numberTemplate(Double.class, "RAND()").asc())
-                .limit(c.limit())
+                .orderBy(e.randomKey.asc())
+                .limit(limit)
                 .fetch();
     }
 
@@ -186,6 +210,56 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
 
     private BooleanExpression regionEq(String region) {
         return region == null ? null : QExhibitHall.exhibitHall.region.eq(region);
+    }
+
+    private BooleanExpression genreExists(Set<String> genres) {
+        if (genres == null || genres.isEmpty()) {
+            return null;
+        }
+
+        QKeyword genreKeyword = new QKeyword("genreKeyword");
+        QExhibit exhibit = QExhibit.exhibit;
+
+        BooleanExpression nameCondition = null;
+        for (String genre : genres) {
+            BooleanExpression likeCondition = genreKeyword.name.containsIgnoreCase(genre);
+            nameCondition = (nameCondition == null) ? likeCondition : nameCondition.or(likeCondition);
+        }
+
+        return com.querydsl.jpa.JPAExpressions
+                .selectOne()
+                .from(genreKeyword)
+                .where(
+                        genreKeyword.type.eq(KeywordType.GENRE),
+                        nameCondition,
+                        exhibit.keywords.contains(genreKeyword)
+                )
+                .exists();
+    }
+
+    private BooleanExpression styleExists(Set<String> styles) {
+        if (styles == null || styles.isEmpty()) {
+            return null;
+        }
+
+        QKeyword styleKeyword = new QKeyword("styleKeyword");
+        QExhibit exhibit = QExhibit.exhibit;
+
+        BooleanExpression nameCondition = null;
+        for (String style : styles) {
+            BooleanExpression likeCondition = styleKeyword.name.containsIgnoreCase(style);
+            nameCondition = (nameCondition == null) ? likeCondition : nameCondition.or(likeCondition);
+        }
+
+        return com.querydsl.jpa.JPAExpressions
+                .selectOne()
+                .from(styleKeyword)
+                .where(
+                        styleKeyword.type.eq(KeywordType.STYLE),
+                        nameCondition,
+                        exhibit.keywords.contains(styleKeyword)
+                )
+                .exists();
     }
 
     private BooleanExpression genreIn(Set<String> genres) {

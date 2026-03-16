@@ -72,6 +72,16 @@ public class Exhibit {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "random_key", nullable = false)
+    private Double randomKey;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.randomKey == null || this.randomKey == 0.0) {
+            this.randomKey = Math.random();
+        }
+    }
+
     @ManyToMany
     @Builder.Default
     @JoinTable(
