@@ -102,6 +102,4 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     WHERE e.status IN :statuses
     """)
     ExhibitMarkerMeta findMarkerMeta(@Param("statuses") List<Status> statuses);
-
-//    LocalDateTime findMarkerLastUpdated(List<Status> statuses);
 }

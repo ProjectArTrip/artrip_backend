@@ -31,17 +31,4 @@ public class RedisService {
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 
-    public void saveGeoLocationBulk(String key, List<GeoLocation<String>> locations) {
-        if (locations != null && !locations.isEmpty()) {
-            redisTemplate.opsForGeo().add(key, locations);
-        }
-    }
-    /**
-     * 반경 내 멤버 조회 (나중에 주변 전시회 찾을 때 사용)
-     */
-//    public GeoResults<RedisGeoCommands.GeoLocation<String>> getNearby(String key, double lon, double lat, double distanceKm) {
-//        Circle circle = new Circle(new Point(lon, lat), new Distance(distanceKm, Metrics.KILOMETERS));
-//        return redisTemplate.opsForGeo().radius(key, circle);
-//    }
-
 }
