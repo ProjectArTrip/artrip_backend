@@ -13,6 +13,7 @@ import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
+import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -49,11 +50,14 @@ public class ExhibitService {
     }
 
     @Transactional(readOnly = true)
-    public ExhibitFilterResult getClusterExhibit(List<Long> ids, Long cursorId, int size, Long userId){
+    public ExhibitFilterResult getClusterExhibit(List<Long> ids, CursorPagination pagination, Long userId){
 
         if (ids == null || ids.isEmpty()) {
             return ExhibitFilterResult.of(null,null);
         }
+
+        Long cursorId = pagination.getCursor();
+        int size = pagination.getSize().intValue();
 
         Slice<Exhibit> slice;
         if (cursorId == null) {
