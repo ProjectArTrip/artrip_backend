@@ -58,7 +58,7 @@ public interface AuthSpecification {
             user = {UserErrorCode._INVALID_REFRESH_TOKEN},
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
-    public void appLogout(@RequestBody(required = false) LogoutRequest token);
+    public ResponseEntity<Void> appLogout(@RequestBody(required = false) LogoutRequest token);
 
 
     @PermitAll
