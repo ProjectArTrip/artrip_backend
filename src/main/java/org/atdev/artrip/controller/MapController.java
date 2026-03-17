@@ -1,0 +1,55 @@
+package org.atdev.artrip.controller;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.response.ExhibitMarkerListResponse;
+import org.atdev.artrip.controller.dto.response.FilterCursorResponse;
+import org.atdev.artrip.controller.spec.MapSpecification;
+import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.service.ExhibitService;
+import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
+import org.atdev.artrip.service.dto.result.ExhibitMarkerListResult;
+import org.atdev.artrip.utils.CursorPagination;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/map")
+public class MapController implements MapSpecification {
+
+    private final ExhibitService exhibitService;
+
+    @GetMapping("/cluster")
+    public ResponseEntity<FilterCursorResponse> clusterExhibit(@RequestParam List<Long> ids,
+                                                               @LoginUser Long userId,
+                                                               @Valid @ParameterObject CursorPagination cursorPagination){
+
+        ExhibitFilterResult result = exhibitService.getClusterExhibit(ids,cursorPagination,userId);
+
+        return ResponseEntity.ok(FilterCursorResponse.from(result));
+    }
+
+    @GetMapping("/exhibits/markers")
+    public ResponseEntity<ExhibitMarkerListResponse> getMarkers(
+            @RequestHeader(value = "If-None-Match", required = false) String etag) {
+
+        String currentEtag = exhibitService.getMarkerEtag();
+
+        if (currentEtag.equals(etag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                    .eTag(currentEtag)
+                    .build();
+        }
+
+        ExhibitMarkerListResult result = exhibitService.getMarkers();
+
+        return ResponseEntity.ok()
+                .eTag(currentEtag)
+                .body(ExhibitMarkerListResponse.from(result));
+    }
+}

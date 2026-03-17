@@ -17,7 +17,4 @@ public class CursorPagination {
     @Max(value = 20, message = "최대값 20")
     private Long size = 20L;
 
-    public static CursorPagination of(Long cursor, Long size) {
-        return new CursorPagination(cursor, size);
-    }
 }

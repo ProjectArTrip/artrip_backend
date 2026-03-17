@@ -1,5 +1,6 @@
 package org.atdev.artrip.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.ExhibitSpecification;
@@ -10,6 +11,8 @@ import org.atdev.artrip.service.HomeService;
 import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
+import org.atdev.artrip.utils.CursorPagination;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,10 +67,9 @@ public class ExhibitController implements ExhibitSpecification {
     @Override
     @GetMapping
     public ResponseEntity<FilterCursorResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
-                                                              @RequestParam(required = false) Long cursor,
-                                                              @RequestParam(defaultValue = "20") Long size,
+                                                              @Valid @ParameterObject CursorPagination cursorPagination,
                                                               @LoginUser Long userId) {
-        ExhibitSearchCondition command = dto.toCommand(userId, cursor, size);
+        ExhibitSearchCondition command = dto.toCommand(userId, cursorPagination);
 
         ExhibitFilterResult result = homeService.searchExhibit(command);
 

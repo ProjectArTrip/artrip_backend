@@ -1,8 +1,10 @@
 package org.atdev.artrip.repository;
 
+import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
+import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,4 +67,37 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId = :id")
     Optional<Exhibit> findByIdWithHall(@Param("id") Long id);
 
+    @Query("select e from Exhibit e where e.exhibitId in :ids order by e.exhibitId desc")
+    Slice<Exhibit> findByIdInOrderByIdDesc(@Param("ids") List<Long> ids, Pageable pageable);
+
+    @Query("""
+            select e from Exhibit e
+            where e.exhibitId in :ids
+              and e.exhibitId < :cursorId
+            order by e.exhibitId desc
+            """)
+    Slice<Exhibit> findByIdInAndIdLessThanOrderByIdDesc(@Param("ids") List<Long> ids,
+                                                        @Param("cursorId") Long cursorId,
+                                                        Pageable pageable);
+
+
+    @Query("""
+        SELECT new org.atdev.artrip.repository.dto.ExhibitMarkerDto(
+            e.exhibitId,
+            h.latitude,
+            h.longitude
+        )
+        FROM Exhibit e
+        JOIN e.exhibitHall h
+        WHERE e.status IN :statuses
+    """)
+    List<ExhibitMarkerDto> findMarkersByStatus(@Param("statuses") List<Status> statuses);
+
+
+    @Query("""
+    SELECT COUNT(e) AS count, MAX(e.updatedAt) AS lastUpdated
+    FROM Exhibit e
+    WHERE e.status IN :statuses
+    """)
+    ExhibitMarkerMeta findMarkerMeta(@Param("statuses") List<Status> statuses);
 }
