@@ -10,6 +10,7 @@ import java.util.List;
 
 public record FavoriteResult(
         List<FavoriteItem> items,
+        long totalCount,
         boolean hasNext,
         Long nextCursor
 ) {
@@ -27,7 +28,7 @@ public record FavoriteResult(
             LocalDate createdAt
     ) {}
 
-    public static FavoriteResult from(Slice<Favorite> slice) {
+    public static FavoriteResult of(Slice<Favorite> slice, long totalCount) {
 
         List<FavoriteItem> items = slice.getContent()
                 .stream()
@@ -58,6 +59,7 @@ public record FavoriteResult(
 
         return new FavoriteResult(
                 items,
+                totalCount,
                 slice.hasNext(),
                 nextCursor
         );

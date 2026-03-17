@@ -42,7 +42,9 @@ public class FavoriteService {
 
         Slice<Favorite> slice = favoriteRepository.findFavorites(userId, condition, cursorPagination);
 
-        return FavoriteResult.from(slice);
+        long totalCount = favoriteRepository.countFavorites(userId, condition);
+
+        return FavoriteResult.of(slice, totalCount);
     }
 
     @Transactional

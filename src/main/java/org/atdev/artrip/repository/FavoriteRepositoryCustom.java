@@ -16,5 +16,7 @@ public interface FavoriteRepositoryCustom {
     Set<Long> findActiveExhibitIds(Long userId);
 
     Slice<Favorite> findFavorites(Long userId, FavoriteSearchCondition condition, CursorPagination cursorPagination);
+
+    long countFavorites(Long userId, FavoriteSearchCondition condition);
 }
 

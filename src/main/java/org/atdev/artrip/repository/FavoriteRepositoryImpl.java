@@ -59,6 +59,26 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
     }
 
     @Override
+    public long countFavorites(Long userId, FavoriteSearchCondition c) {
+        QFavorite f = QFavorite.favorite;
+        QExhibit e = QExhibit.exhibit;
+        QExhibitHall h = QExhibitHall.exhibitHall;
+
+        Long count = queryFactory
+                .select(f.count())
+                .from(f)
+                .join(f.exhibit, e)
+                .join(e.exhibitHall, h)
+                .where(
+                        f.user.userId.eq(userId),
+                        f.status.eq(true),
+                        e.status.ne(Status.FINISHED),
+                        locationFilter(normalize(c.regions()), normalize(c.countries()), h)
+                ).fetchOne();
+        return count == null ? 0L : count;
+    }
+
+    @Override
     public boolean existsActive(Long userId, Long exhibitId) {
         QFavorite f = QFavorite.favorite;
 
