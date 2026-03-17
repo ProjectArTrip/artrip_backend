@@ -20,6 +20,7 @@ public record HomeResponse(
         String countryName,
         String regionName,
 
+
         boolean isFavorite) {
 
 

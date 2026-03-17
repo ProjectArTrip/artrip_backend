@@ -12,7 +12,8 @@ import java.util.Set;
 public record ExhibitFilterResult(
         List<ExhibitItem> items,
         boolean hasNext,
-        Long nextCursor
+        Long nextCursor,
+        long totalCount
 ) {
     public record ExhibitItem(
             Long exhibitId,
@@ -27,7 +28,7 @@ public record ExhibitFilterResult(
             String regionName
     ) {}
 
-    public static ExhibitFilterResult of(Slice<Exhibit> slice, Set<Long> favorites) {
+    public static ExhibitFilterResult of(Slice<Exhibit> slice, Set<Long> favorites, long totalCount) {
 
         List<ExhibitItem> items = slice.getContent()
                 .stream()
@@ -51,7 +52,8 @@ public record ExhibitFilterResult(
         return new ExhibitFilterResult(
                 items,
                 slice.hasNext(),
-                nextCursor
+                nextCursor,
+                totalCount
         );
     }
 }

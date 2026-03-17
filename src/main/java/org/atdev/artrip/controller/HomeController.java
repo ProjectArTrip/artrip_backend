@@ -3,7 +3,6 @@ package org.atdev.artrip.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.HomeListResponse;
-import org.atdev.artrip.controller.dto.response.HomeResponse;
 import org.atdev.artrip.controller.spec.HomeSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.HomeService;
@@ -13,11 +12,8 @@ import org.atdev.artrip.controller.dto.request.ScheduleRandomRequest;
 import org.atdev.artrip.controller.dto.request.TodayRandomRequest;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.result.ExhibitRandomListResult;
-import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @RestController
