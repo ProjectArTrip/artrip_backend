@@ -3,6 +3,7 @@ package org.atdev.artrip.controller.dto.response;
 import lombok.Builder;
 import org.atdev.artrip.domain.review.Review;
 import org.atdev.artrip.domain.review.ReviewImage;
+import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ public record ExhibitReviewListResponse(
         LocalDate visitDate,
         LocalDateTime createdAt
 ) {
-    public static ExhibitReviewListResponse from(Review review) {
+        public static ExhibitReviewListResponse from(Review review) {
         return ExhibitReviewListResponse.builder()
                 .reviewId(review.getReviewId())
                 .reviewTitle(review.getExhibit().getTitle())
