@@ -2,12 +2,13 @@ package org.atdev.artrip.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.response.ExhibitMarkerListResponse;
 import org.atdev.artrip.controller.dto.response.FilterCursorResponse;
 import org.atdev.artrip.controller.spec.MapSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
-import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.atdev.artrip.service.ExhibitService;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
+import org.atdev.artrip.service.dto.result.ExhibitMarkerListResult;
 import org.atdev.artrip.utils.CursorPagination;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,7 @@ public class MapController implements MapSpecification {
     }
 
     @GetMapping("/exhibits/markers")
-    public ResponseEntity<List<ExhibitMarkerDto>> getMarkers(
+    public ResponseEntity<ExhibitMarkerListResponse> getMarkers(
             @RequestHeader(value = "If-None-Match", required = false) String etag) {
 
         String currentEtag = exhibitService.getMarkerEtag();
@@ -45,10 +46,10 @@ public class MapController implements MapSpecification {
                     .build();
         }
 
-        List<ExhibitMarkerDto> markers = exhibitService.getMarkers();
+        ExhibitMarkerListResult result = exhibitService.getMarkers();
 
         return ResponseEntity.ok()
                 .eTag(currentEtag)
-                .body(markers);
+                .body(ExhibitMarkerListResponse.from(result));
     }
 }

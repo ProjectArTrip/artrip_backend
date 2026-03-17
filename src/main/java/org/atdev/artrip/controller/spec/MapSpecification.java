@@ -2,6 +2,7 @@ package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import org.atdev.artrip.controller.dto.response.ExhibitMarkerListResponse;
 import org.atdev.artrip.controller.dto.response.FilterCursorResponse;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
@@ -23,7 +24,7 @@ public interface MapSpecification {
 
 
     @Operation(summary = "마커용 전시 일괄 조회", description = "etag 동일 시 - 304 , 다르면 - 다시 조회")
-    public ResponseEntity<List<ExhibitMarkerDto>> getMarkers(
+    public ResponseEntity<ExhibitMarkerListResponse> getMarkers(
             @RequestHeader(value = "If-None-Match", required = false) String etag);
 
     }

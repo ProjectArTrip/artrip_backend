@@ -4,6 +4,6 @@ import java.math.BigDecimal;
 
 public record ExhibitMarkerDto(
         Long exhibitId,
-        BigDecimal longitude,
-        BigDecimal latitude
+        BigDecimal latitude,
+        BigDecimal longitude
 ) {}

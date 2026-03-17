@@ -12,6 +12,7 @@ import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
 import org.atdev.artrip.service.dto.command.ExhibitDetailCommand;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
+import org.atdev.artrip.service.dto.result.ExhibitMarkerListResult;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.data.domain.PageRequest;
@@ -79,9 +80,11 @@ public class ExhibitService {
     }
 
     @Transactional(readOnly = true)
-    public List<ExhibitMarkerDto> getMarkers() {
+    public ExhibitMarkerListResult getMarkers() {
 
-        return exhibitRepository.findMarkersByStatus(MARKER_STATUSES);
+        List<ExhibitMarkerDto> dtos = exhibitRepository.findMarkersByStatus(MARKER_STATUSES);
+
+        return ExhibitMarkerListResult.from(dtos);
     }
 
     @Transactional(readOnly = true)
