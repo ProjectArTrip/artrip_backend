@@ -7,11 +7,12 @@ import org.atdev.artrip.domain.notice.Notice;
 import org.atdev.artrip.global.apipayload.code.status.NoticeErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.infra.fcm.service.FcmNotificationService;
+import org.atdev.artrip.infra.fcm.service.dto.NoticeCreatedEvent;
 import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.AdminNoticeCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminNoticeUpdateCommand;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public class AdminNoticeService {
 
     private final NoticeRepository noticeRepository;
     private final UserRepository userRepository;
-    private final FcmNotificationService fcmNotificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void createNotice(AdminNoticeCreateCommand command) {
@@ -35,7 +36,7 @@ public class AdminNoticeService {
         Notice notice = Notice.create(admin, command.title(), command.content());
         noticeRepository.save(notice);
 
-        fcmNotificationService.sendNoticeMessage(command.title(), command.content());
+        eventPublisher.publishEvent(new NoticeCreatedEvent(command.title(), command.content()));
     }
 
     @Transactional
@@ -61,6 +62,8 @@ public class AdminNoticeService {
 
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new GeneralException(NoticeErrorCode._NOTICE_NOT_FOUND));
 
-        noticeRepository.deleteById(notice.getNoticeId());
+        noticeRepository.delete(notice);
     }
+
+
 }

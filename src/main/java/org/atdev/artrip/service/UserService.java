@@ -106,6 +106,6 @@ public class UserService {
             }
         });
 
-        user.updateFcmToken(token);
+        user.updateFcmToken(trimmedToken);
     }
 }
