@@ -2,10 +2,12 @@ package org.atdev.artrip.service.redis;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
