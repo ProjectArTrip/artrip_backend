@@ -27,11 +27,7 @@ public class AdminNoticeService {
     @Transactional
     public void createNotice(AdminNoticeCreateCommand command) {
 
-        User admin = userRepository.findById(command.userId()).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
-        if (admin.getRole() != Role.ADMIN) {
-            throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
-        }
+        User admin = validUser(command.userId());
 
         Notice notice = Notice.create(admin, command.title(), command.content());
         noticeRepository.save(notice);
@@ -41,11 +37,7 @@ public class AdminNoticeService {
 
     @Transactional
     public void updateNotice(AdminNoticeUpdateCommand command) {
-        User admin = userRepository.findById(command.userId()).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
-        if (admin.getRole() != Role.ADMIN) {
-            throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
-        }
+        validUser(command.userId());
 
         Notice notice = noticeRepository.findById(command.noticeId()).orElseThrow(() -> new GeneralException(NoticeErrorCode._NOTICE_NOT_FOUND));
 
@@ -54,16 +46,21 @@ public class AdminNoticeService {
 
     @Transactional
     public void deleteNotice(Long userId, Long noticeId) {
-        User admin = userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
-        if (admin.getRole() != Role.ADMIN) {
-            throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
-        }
+        validUser(userId);
 
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(() -> new GeneralException(NoticeErrorCode._NOTICE_NOT_FOUND));
 
         noticeRepository.delete(notice);
     }
 
+    private User validUser(Long userId) {
+        User admin = userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+
+        if (admin.getRole() != Role.ADMIN) {
+            throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
+        }
+
+        return admin;
+    }
 
 }
