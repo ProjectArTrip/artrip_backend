@@ -73,6 +73,31 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
     }
 
     @Override
+    public long countBySearchCondition(ExhibitSearchCondition c) {
+        QExhibit e = QExhibit.exhibit;
+        QExhibitHall h = QExhibitHall.exhibitHall;
+        QKeyword k = QKeyword.keyword;
+
+        Long count = queryFactory
+                .select(e.countDistinct())
+                .from(e)
+                .leftJoin(e.exhibitHall, h)
+                .leftJoin(e.keywords, k)
+                .where(
+                        e.status.ne(Status.FINISHED),
+                        isDomesticEq(c.isDomestic()),
+                        dateFilter(c.startDate(), c.endDate(), e),
+                        countryEq(c.country()),
+                        regionEq(c.region()),
+                        genreIn(c.genres()),
+                        styleIn(c.styles()),
+                        queryContain(c.query())
+                )
+                .fetchOne();
+        return count != null ? count : 0L;
+    }
+
+    @Override
     public List<ExhibitRandomResult> findRandomExhibits(ExhibitRandomCommand c) {
         double pivot = Math.random();
         long limit = c.limit();

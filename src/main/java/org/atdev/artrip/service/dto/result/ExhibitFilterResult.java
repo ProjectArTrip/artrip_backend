@@ -14,7 +14,8 @@ public record ExhibitFilterResult(
         List<ExhibitItem> items,
         boolean hasNext,
         Long nextCursor,
-        LocalDate nextCursorDate
+        LocalDate nextCursorDate,
+        long totalCount
 ) {
     public record ExhibitItem(
             Long exhibitId,
@@ -29,10 +30,10 @@ public record ExhibitFilterResult(
             String regionName
     ) {}
 
-    public static ExhibitFilterResult of(Slice<Exhibit> slice, Set<Long> favorites) {
+    public static ExhibitFilterResult of(Slice<Exhibit> slice, Set<Long> favorites, long totalCount) {
 
         if (slice == null || slice.isEmpty()) {
-            return new ExhibitFilterResult(List.of(), false, null, null);
+            return new ExhibitFilterResult(List.of(), false, null, null, 0L);
         }
 
         List<ExhibitItem> items = slice.getContent()
@@ -62,7 +63,8 @@ public record ExhibitFilterResult(
                 items,
                 slice.hasNext(),
                 nextCursorId,
-                nextCursorDate
+                nextCursorDate,
+                totalCount
         );
     }
 }

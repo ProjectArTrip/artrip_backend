@@ -54,7 +54,7 @@ public class ExhibitService {
     public ExhibitFilterResult getClusterExhibit(List<Long> ids, CursorPagination pagination, Long userId){
 
         if (ids == null || ids.isEmpty()) {
-            return ExhibitFilterResult.of(null,null);
+            return ExhibitFilterResult.of(null, Set.of(), 0L);
         }
 
         Long cursorId = pagination.getCursor();
@@ -69,7 +69,7 @@ public class ExhibitService {
 
         Set<Long> favoriteIds = (userId != null) ? getFavoriteIds(userId) : Set.of();
 
-        return ExhibitFilterResult.of(slice,favoriteIds);
+        return ExhibitFilterResult.of(slice,favoriteIds, 0L);
     }
 
     private Set<Long> getFavoriteIds(Long userId) {
