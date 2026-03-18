@@ -2,6 +2,7 @@ package org.atdev.artrip.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.SortType;
@@ -15,11 +16,9 @@ import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
-import org.springframework.stereotype.Repository;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -30,7 +29,7 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
     @Override
     public Slice<Favorite> findFavorites(Long userId, FavoriteSearchCondition c, CursorPagination cp) {
 
-        Long cursor = c.sortType() == SortType.ENDING_SOON ? null : cp.getCursor();
+        Long cursor = cp.cursor();
 
         QFavorite f = QFavorite.favorite;
         QExhibit e = QExhibit.exhibit;
@@ -45,16 +44,16 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
                         f.status.eq(true),
                         e.status.ne(Status.FINISHED),
                         locationFilter(normalize(c.regions()), normalize(c.countries()), h),
-                        cursorCondition(cursor, c.sortType(), f)
+                        cursorCondition(cursor, c.sortOption(), f, e)
                 )
-                .orderBy(sortOrder(c.sortType(), f, e))
-                .limit(cp.getSize() + 1)
+                .orderBy(sortOrder(c.sortOption(), f, e))
+                .limit(cp.size() + 1)
                 .fetch();
 
-        boolean hasNext = content.size() > cp.getSize();
-        if (hasNext) content.remove(cp.getSize().intValue());
+        boolean hasNext = content.size() > cp.size();
+        if (hasNext) content.remove(cp.size().intValue());
 
-        return new SliceImpl<>(content, PageRequest.of(0, cp.getSize().intValue()), hasNext);
+        return new SliceImpl<>(content, PageRequest.of(0, cp.size().intValue()), hasNext);
 
     }
 
@@ -143,11 +142,54 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
         return overseasExpr;
     }
 
-    private BooleanExpression cursorCondition(Long cursor, SortType sortType, QFavorite f) {
+    private BooleanExpression cursorCondition(Long cursor, SortType sortType, QFavorite f, QExhibit e) {
         if (cursor == null) return null;
-        if (sortType == SortType.ENDING_SOON) return null;
 
-        return f.favoriteId.lt(cursor);
+        if (sortType == SortType.ENDING_SOON) {
+            return endingSoonCursorCondition(cursor, f, e);
+        }
+
+        return latestCursorCondition(cursor, f);
+    }
+
+    private BooleanExpression latestCursorCondition(Long cursor, QFavorite f) {
+        QFavorite subFavorite = new QFavorite("subFavorite");
+
+        return f.createdAt.lt(
+                JPAExpressions
+                        .select(subFavorite.createdAt)
+                        .from(subFavorite)
+                        .where(subFavorite.favoriteId.eq(cursor))
+        ).or(
+                f.createdAt.eq(
+                        JPAExpressions
+                                .select(subFavorite.createdAt)
+                                .from(subFavorite)
+                                .where(subFavorite.favoriteId.eq(cursor))
+                ).and(f.favoriteId.lt(cursor))
+        );
+    }
+
+    private BooleanExpression endingSoonCursorCondition(Long cursor, QFavorite f, QExhibit e) {
+        QFavorite subFavorite = new QFavorite("subFavorite");
+        QExhibit subExhibit = new QExhibit("subExhibit");
+
+        return e.endDate.gt(
+                JPAExpressions
+                        .select(subExhibit.endDate)
+                        .from(subFavorite)
+                        .join(subFavorite.exhibit, subExhibit)
+                        .where(subFavorite.favoriteId.eq(cursor))
+        ).or(
+                e.endDate.eq(
+                        JPAExpressions
+                                .select(subExhibit.endDate)
+                                .from(subFavorite)
+                                .join(subFavorite.exhibit, subExhibit)
+                                .where(subFavorite.favoriteId.eq(cursor))
+
+                ).and(f.favoriteId.lt(cursor))
+        );
     }
 
     private OrderSpecifier<?>[] sortOrder(SortType sortType, QFavorite f, QExhibit e) {
