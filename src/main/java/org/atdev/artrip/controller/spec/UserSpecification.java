@@ -65,8 +65,8 @@ public interface UserSpecification {
 
     @Operation(summary = "FCM-TOKEN", description = "클라이언트 디바이스에서 토큰을 받아 저장합니다.")
     @ApiErrorResponses(
-            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
-            fcmToken = {FcmErrorCode._INVALID_REQUEST_MESSAGE, FcmErrorCode._INVALID_REQUEST_MESSAGE}
+            user = {UserErrorCode._USER_NOT_FOUND},
+            fcmToken = {FcmErrorCode._INVALID_REQUEST_MESSAGE}
     )
     public ResponseEntity<Void> updateFcmToken(
             @LoginUser Long userId,
