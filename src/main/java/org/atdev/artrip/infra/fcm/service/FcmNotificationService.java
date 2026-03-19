@@ -12,6 +12,7 @@ import org.atdev.artrip.infra.fcm.service.dto.NotificationCommand;
 import org.atdev.artrip.infra.fcm.service.dto.NotificationMulticastCommand;
 import org.atdev.artrip.infra.fcm.service.dto.NotificationSingleCommand;
 import org.atdev.artrip.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +27,9 @@ public class FcmNotificationService {
 
     private final FirebaseMessaging firebaseMessaging;
     private final UserRepository userRepository;
-    private final Executor executor = Executors.newFixedThreadPool(4);
 
+    @Qualifier("fcmExecutor")
+    private final Executor executor;
 
     public void sendMessage(final NotificationSingleCommand command) {
         try {
