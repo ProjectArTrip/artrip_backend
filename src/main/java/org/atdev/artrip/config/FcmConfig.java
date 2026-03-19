@@ -48,7 +48,7 @@ public class FcmConfig {
         return FirebaseApp.getInstance();
     }
 
-    @Bean(name = "FcmExecutor")
+    @Bean(name = "fcmExecutor")
     public Executor executor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4);

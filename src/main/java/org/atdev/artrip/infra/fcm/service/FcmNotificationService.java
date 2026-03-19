@@ -3,7 +3,6 @@ package org.atdev.artrip.infra.fcm.service;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.firebase.messaging.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
@@ -18,18 +17,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class FcmNotificationService {
 
     private final FirebaseMessaging firebaseMessaging;
     private final UserRepository userRepository;
-
-    @Qualifier("fcmExecutor")
     private final Executor executor;
+
+    public FcmNotificationService(
+            FirebaseMessaging firebaseMessaging,
+            UserRepository userRepository,
+            @Qualifier("fcmExecutor") Executor executor) {
+        this.firebaseMessaging = firebaseMessaging;
+        this.userRepository = userRepository;
+        this.executor = executor;
+    }
 
     public void sendMessage(final NotificationSingleCommand command) {
         try {
