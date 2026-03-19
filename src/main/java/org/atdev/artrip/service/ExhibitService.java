@@ -57,8 +57,8 @@ public class ExhibitService {
             return ExhibitFilterResult.of(null,null);
         }
 
-        Long cursorId = pagination.getCursor();
-        int size = pagination.getSize().intValue();
+        Long cursorId = pagination.cursor();
+        int size = pagination.size().intValue();
 
         Slice<Exhibit> slice;
         if (cursorId == null) {
