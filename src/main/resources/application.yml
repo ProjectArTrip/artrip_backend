@@ -145,16 +145,16 @@ spring:
   data:
     redis:
       host: localhost
-      port: 63799
+      port: 6379
 
   security:
     oauth2:
       client:
         registration:
           kakao:
-            redirect-uri: https://dev.coffit.today/login/oauth2/code/kakao
+            redirect-uri: ${KAKAO_REDIRECT_URI}
           google:
-            redirect-uri: https://dev.coffit.today/login/oauth2/code/google
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
 
 logging:
   level:
