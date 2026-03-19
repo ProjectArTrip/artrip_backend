@@ -44,7 +44,7 @@ public class Notice {
     private String title;
     private String content;
 
-    public static Notice create(User user, String title, String contetn) {
+    public static Notice create(User user, String title, String content) {
         LocalDateTime now =  LocalDateTime.now();
 
         return new Notice(
@@ -54,7 +54,7 @@ public class Notice {
                 now,
                 now,
                 title,
-                contetn
+                content
         );
     }
 
