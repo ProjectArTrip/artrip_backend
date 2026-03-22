@@ -29,4 +29,11 @@ public interface SearchHistorySpecification {
     )
     ResponseEntity<Void> deleteSearchHistory(@LoginUser Long userId, @PathVariable Long searchHistoryId);
 
+    @Operation(summary = "최근검색어 전체 삭제")
+    @ApiErrorResponses(
+            common = {CommonErrorCode._BAD_REQUEST},
+            user = {UserErrorCode._USER_NOT_FOUND}
+    )
+    ResponseEntity<Void> deleteAllSearchHistory(@LoginUser Long userId);
+
 }

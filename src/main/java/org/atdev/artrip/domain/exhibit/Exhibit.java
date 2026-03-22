@@ -46,7 +46,7 @@ public class Exhibit {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @Column(name = "poster_url")
+    @Column(name = "poster_url", length = 512)
     private String posterUrl;
 
     @Column(name = "ticket_url")
