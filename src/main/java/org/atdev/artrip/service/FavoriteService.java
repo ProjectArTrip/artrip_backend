@@ -56,7 +56,7 @@ public class FavoriteService {
 
         favoriteRepository.findFavorite(userId, exhibitId).ifPresentOrElse(favorite -> {
             if (favorite.isStatus()) {
-                throw new GeneralException(FavoriteErrorCode._ALREADY_FAVORITED);
+                throw new GeneralException(FavoriteErrorCode._FAVORITE_ALREADY_EXISTS);
             }
             favorite.activate();
         }, () -> favoriteRepository.save(Favorite.create(user, exhibit)));
