@@ -12,6 +12,7 @@ import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,4 +73,10 @@ public interface UserSpecification {
             @LoginUser Long userId,
             @RequestBody @Valid DeviceTokenRequest request
             );
+
+    @Operation(summary = "회원 탈퇴", description = "리뷰,즐찾,키워드 전부 Hard Delete")
+    @ApiErrorResponses(
+            user = {UserErrorCode._USER_NOT_FOUND, UserErrorCode._WITHDRAW_FAILED}
+    )
+    public ResponseEntity<Void> withdraw(@LoginUser Long userId);
 }
