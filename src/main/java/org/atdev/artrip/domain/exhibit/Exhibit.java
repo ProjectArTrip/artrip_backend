@@ -27,7 +27,7 @@ public class Exhibit {
     private Long exhibitId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exhibit_hall_id")
+    @JoinColumn(name = "exhibit_hall_id", nullable = false)
     private ExhibitHall exhibitHall;
 
     @Column(name = "title")

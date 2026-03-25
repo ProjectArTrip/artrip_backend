@@ -2,6 +2,7 @@ package org.atdev.artrip.controller.dto.request;
 
 import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
+import org.atdev.artrip.utils.CursorPagination;
 
 import java.time.LocalDate;
 import java.util.Set;
@@ -24,7 +25,7 @@ public record ExhibitFilterRequest (
         SortType sortType
         ) {
 
-        public ExhibitSearchCondition toCommand(Long userId, Long cursor, Long size) {
+        public ExhibitSearchCondition toCommand(Long userId, CursorPagination cursorPagination) {
                 return ExhibitSearchCondition.builder()
                         .query(this.query)
                         .startDate(this.startDate)
@@ -36,8 +37,8 @@ public record ExhibitFilterRequest (
                         .styles(this.styles)
                         .sortType(this.sortType)
                         .userId(userId)
-                        .cursor(cursor)
-                        .size(size)
+                        .cursor(cursorPagination.getCursor())
+                        .size(cursorPagination.getSize())
                         .build();
 
         }
