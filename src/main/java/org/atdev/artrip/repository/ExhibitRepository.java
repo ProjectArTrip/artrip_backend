@@ -63,7 +63,6 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
 
     Optional<Exhibit> findByTitleAndStartDate(String title, LocalDate startDate);
 
-
     @Query("select e from Exhibit e join fetch e.exhibitHall where e.exhibitId = :id")
     Optional<Exhibit> findByIdWithHall(@Param("id") Long id);
 

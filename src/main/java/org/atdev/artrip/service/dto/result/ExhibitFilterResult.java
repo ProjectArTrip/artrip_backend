@@ -36,6 +36,10 @@ public record ExhibitFilterResult(
             return new ExhibitFilterResult(List.of(), false, null, null, 0L);
         }
 
+        if (slice == null || slice.isEmpty()) {
+            return new ExhibitFilterResult(List.of(), false, null, null);
+        }
+
         List<ExhibitItem> items = slice.getContent()
                 .stream()
                 .map(e -> new ExhibitItem(
