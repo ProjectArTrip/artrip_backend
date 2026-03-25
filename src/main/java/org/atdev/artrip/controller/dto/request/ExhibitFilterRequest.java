@@ -37,8 +37,8 @@ public record ExhibitFilterRequest (
                         .styles(this.styles)
                         .sortType(this.sortType)
                         .userId(userId)
-                        .cursor(cursorPagination.getCursor())
-                        .size(cursorPagination.getSize())
+                        .cursor(cursorPagination.cursor())
+                        .size(cursorPagination.size())
                         .build();
 
         }

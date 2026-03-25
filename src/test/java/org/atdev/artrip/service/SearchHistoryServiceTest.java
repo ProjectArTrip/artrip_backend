@@ -54,7 +54,7 @@ public class SearchHistoryServiceTest {
                 Provider.KAKAO
         );
 
-        testUser = User.of(socialUserInfo);
+        testUser = User.createUser(socialUserInfo);
         ReflectionTestUtils.setField(testUser, "userId", 1L);
 
         testSearchHistory = SearchHistory.of(1L, testUser, "VR/AR", LocalDate.now());

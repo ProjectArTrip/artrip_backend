@@ -7,10 +7,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User,Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
@@ -22,4 +23,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     boolean existsByNickName(String nickname);
 
     Optional<User> findByFcmToken(String token);
+
+    @Query("select u from User u where u.pushEnabled = true and u.fcmToken is not null and u.fcmToken != ''")
+    List<User> findValidPushUsers();
 }

@@ -9,7 +9,8 @@ import java.util.List;
 public record FilterCursorResponse(
         List<HomeResponse> exhibits,
         boolean hasNext,
-        Long nextCursor
+        Long nextCursor,
+        long exhibitTotalCount
 ) {
     public static FilterCursorResponse from(ExhibitFilterResult result) {
 
@@ -19,6 +20,7 @@ public record FilterCursorResponse(
                         .toList())
                 .hasNext(result.hasNext())
                 .nextCursor(result.nextCursor())
+                .exhibitTotalCount(result.totalCount())
                 .build();
     }
 }

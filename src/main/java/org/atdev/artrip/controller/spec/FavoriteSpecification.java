@@ -23,6 +23,12 @@ public interface FavoriteSpecification {
                     **정렬 옵션**
                     - LATEST : 최신순
                     - ENDING_SOON: 마감순
+                    
+                    **입력 옵션**
+                    - regions, countries :
+                     - **'전체'** 입력 시 추가 된 즐겨찾기 전체 조회
+                     - 전체 조회 시 나라 및 지역 **각각 따로 조회**. 
+                     - **한글** 입력만 가능합니다.
                     """
     )
     @ApiErrorResponses(

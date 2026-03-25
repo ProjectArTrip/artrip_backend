@@ -121,21 +121,6 @@ public class User {
         this.nickName  = newNickname ;
     }
 
-
-
-    public static User of(SocialUserInfo info) {
-        User user = new User();
-        user.email = info.getEmail();
-        user.name = info.getNickname();
-        user.role = Role.USER;
-        user.onboardingCompleted = false;
-        user.socialAccounts = new ArrayList<>();
-
-        SocialAccounts social = SocialAccounts.of(user, info);
-        user.addSocialAccount(social);
-        return user;
-    }
-
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
