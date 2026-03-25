@@ -72,4 +72,11 @@ public class SearchHistoryService {
 
         searchHistoryRepository.delete(history);
     }
+
+    @Transactional
+    public void deleteAllSearchHistory(Long userId) {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+        searchHistoryRepository.deleteAllByUser(user);
+    }
 }

@@ -1,5 +1,6 @@
 package org.atdev.artrip.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.SearchHistoryListResponse;
 import org.atdev.artrip.controller.spec.SearchHistorySpecification;
@@ -19,6 +20,7 @@ public class SearchHistoryController implements SearchHistorySpecification {
 
     private final SearchHistoryService searchHistoryService;
 
+    @Override
     @GetMapping
     public ResponseEntity<SearchHistoryListResponse> getRecentSearchHistory(@LoginUser Long userId) {
 
@@ -29,10 +31,20 @@ public class SearchHistoryController implements SearchHistorySpecification {
         return ResponseEntity.ok(SearchHistoryListResponse.from(results));
     }
 
+    @Override
     @DeleteMapping("/{searchHistoryId}")
-    public ResponseEntity<Void> deleteSearchHistory(@LoginUser Long userId, @PathVariable Long searchHistoryId) {
+    public ResponseEntity<Void> deleteSearchHistory(@LoginUser Long userId, @Valid @PathVariable Long searchHistoryId) {
         SearchHistoryCommand command = SearchHistoryCommand.of(userId,searchHistoryId);
         searchHistoryService.deleteSearchHistory(command);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllSearchHistory(@LoginUser Long userId) {
+
+        searchHistoryService.deleteAllSearchHistory(userId);
 
         return ResponseEntity.noContent().build();
     }
