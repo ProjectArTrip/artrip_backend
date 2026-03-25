@@ -1,5 +1,6 @@
 package org.atdev.artrip.repository;
 
+import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.search.SearchHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,4 +25,6 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
             WHERE user_id = :userId AND content = :content
             """, nativeQuery = true)
     void deleteDuplicate(@Param("userId") Long userId, @Param("content") String content);
+
+    void deleteAllByUser(User user);
 }
