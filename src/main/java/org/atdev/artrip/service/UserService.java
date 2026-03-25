@@ -6,6 +6,9 @@ import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.repository.FavoriteRepository;
+import org.atdev.artrip.repository.ReviewRepository;
+import org.atdev.artrip.repository.UserKeywordRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.s3.service.S3Service;
@@ -23,6 +26,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private final UserCommandService userCommandService;
+    private final FavoriteRepository favoriteRepository;
+    private final UserKeywordRepository userKeywordRepository;
+    private final ReviewRepository reviewRepository;
 
     @Transactional
     public MypageResult updateNickName(Long userId, String newNickName){
@@ -108,4 +114,19 @@ public class UserService {
 
         user.updateFcmToken(trimmedToken);
     }
+
+    @Transactional
+    public void withdraw(Long userId) {
+        User user = findUserOrThrow(userId);
+
+        try {
+            favoriteRepository.deleteAllByUser(user);
+            userKeywordRepository.deleteAllByUser(user);
+            reviewRepository.deleteAllByUser(user);
+            userRepository.delete(user);
+        } catch (Exception e) {
+            throw new GeneralException(UserErrorCode._WITHDRAW_FAILED);
+        }
+    }
+
 }
