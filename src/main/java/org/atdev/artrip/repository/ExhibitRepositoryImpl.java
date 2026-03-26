@@ -4,6 +4,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.KeywordType;
@@ -45,10 +46,9 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         }
 
         List<Exhibit> content = queryFactory
-                .selectDistinct(e)
+                .selectFrom(e)
                 .from(e)
                 .join(e.exhibitHall, h).fetchJoin()
-                .leftJoin(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
                         isDomesticEq(c.isDomestic()),
@@ -56,8 +56,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                         cursorCondition(cursor, c.sortType(), e),
                         countryEq(c.country()),
                         regionEq(c.region()),
-                        genreIn(c.genres()),
-                        styleIn(c.styles()),
+                        genreExists(c.genres()),
+                        styleExists(c.styles()),
                         queryContain(c.query())
                 )
                 .orderBy(sortFilter(c, e))
@@ -79,18 +79,17 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         QKeyword k = QKeyword.keyword;
 
         Long count = queryFactory
-                .select(e.countDistinct())
+                .select(e.count())
                 .from(e)
-                .leftJoin(e.exhibitHall, h)
-                .leftJoin(e.keywords, k)
+                .join(e.exhibitHall, h)
                 .where(
                         e.status.ne(Status.FINISHED),
                         isDomesticEq(c.isDomestic()),
                         dateFilter(c.startDate(), c.endDate(), e),
                         countryEq(c.country()),
                         regionEq(c.region()),
-                        genreIn(c.genres()),
-                        styleIn(c.styles()),
+                        genreExists(c.genres()),
+                        styleExists(c.styles()),
                         queryContain(c.query())
                 )
                 .fetchOne();
@@ -287,33 +286,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 .exists();
     }
 
-    private BooleanExpression genreIn(Set<String> genres) {
-        if (genres == null || genres.isEmpty()) return null;
-
-        BooleanExpression condition = QKeyword.keyword.type.eq(KeywordType.GENRE);
-
-        BooleanExpression genreCondition = null;
-        for (String genre : genres) {
-            BooleanExpression likeCondition = QKeyword.keyword.name.containsIgnoreCase(genre);
-            genreCondition = (genreCondition == null) ? likeCondition : genreCondition.or(likeCondition);
-        }
-
-        return condition.and(genreCondition);
-    }
-
-    private BooleanExpression styleIn(Set<String> styles) {
-        if (styles == null || styles.isEmpty()) return null;
-
-        BooleanExpression condition = QKeyword.keyword.type.eq(KeywordType.STYLE);
-
-        BooleanExpression styleCondition = null;
-        for (String style : styles) {
-            BooleanExpression likeCondition = QKeyword.keyword.name.containsIgnoreCase(style);
-            styleCondition = (styleCondition == null) ? likeCondition : styleCondition.or(likeCondition);
-        }
-        return condition.and(styleCondition);
-    }
-
     private BooleanExpression findDate(LocalDate date) {
         if (date == null) return null;
 
@@ -329,13 +301,22 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         String trimmed = query.trim();
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
-        QKeyword k = QKeyword.keyword;
+        QKeyword k = new QKeyword("searchKeyword");
+
+        BooleanExpression keywordExists = JPAExpressions
+                .selectOne()
+                .from(k)
+                .where(
+                        e.keywords.contains(k),
+                        k.name.containsIgnoreCase(trimmed)
+                )
+                .exists();
 
         return e.title.containsIgnoreCase(trimmed)
                 .or(h.name.containsIgnoreCase(trimmed))
-                .or(k.name.containsIgnoreCase(trimmed))
                 .or(h.country.containsIgnoreCase(trimmed))
-                .or(h.region.containsIgnoreCase(trimmed));
+                .or(h.region.containsIgnoreCase(trimmed))
+                .or(keywordExists);
     }
 
 }
