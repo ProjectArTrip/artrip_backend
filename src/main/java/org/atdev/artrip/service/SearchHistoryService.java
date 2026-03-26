@@ -10,10 +10,10 @@ import org.atdev.artrip.repository.SearchHistoryRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.SearchHistoryCommand;
 import org.atdev.artrip.service.dto.result.SearchHistoryResult;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -24,6 +24,7 @@ public class SearchHistoryService {
     private final UserRepository userRepository;
 
     private static final int MAX_CONTENT_LENGTH = 10;
+    private static final int SEARCH_HISTORY_COUNT = 10;
 
     @Transactional
     public void saveSearchHistory(SearchHistoryCommand command) {
@@ -39,10 +40,17 @@ public class SearchHistoryService {
         }
 
         try {
-            searchHistoryRepository.deleteDuplicate(command.userId(), command.content());
+            searchHistoryRepository.deleteDuplicate(command.userId(), trimmedContent);
+            searchHistoryRepository.save(SearchHistory.create(user, trimmedContent));
 
-            SearchHistory searchHistory = SearchHistory.of(null, user, command.content(), LocalDate.now());
-            searchHistoryRepository.save(searchHistory);
+            long count = searchHistoryRepository.countByUser_UserId(command.userId());
+            if (count > SEARCH_HISTORY_COUNT) {
+                SearchHistory oldest = searchHistoryRepository.findOldestSearchHistory(command.userId()).orElseThrow(() -> new GeneralException(SearchErrorCode._SEARCH_HISTORY_NOT_FOUND));
+                searchHistoryRepository.delete(oldest);
+            }
+
+        } catch (DataIntegrityViolationException e) {
+            throw new GeneralException(SearchErrorCode._SEARCH_HISTORY_DUPLICATED);
         } catch (Exception e) {
             throw new GeneralException(SearchErrorCode._SEARCH_HISTORY_SAVE_FAILED);
         }
