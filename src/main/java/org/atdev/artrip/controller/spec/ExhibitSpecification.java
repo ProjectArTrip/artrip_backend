@@ -49,7 +49,7 @@ public interface ExhibitSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED},
             home = {HomeErrorCode._HOME_INVALID_DATE_RANGE, HomeErrorCode._HOME_UNRECOGNIZED_REGION, HomeErrorCode._HOME_EXHIBIT_NOT_FOUND}
     )
-    public ResponseEntity<FilterCursorResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+    public ResponseEntity<FilterCursorResponse> searchExhibit(@ParameterObject @ModelAttribute ExhibitFilterRequest dto,
                                                               @Valid @ParameterObject CursorPagination cursorPagination,
                                                               @LoginUser Long userId);
 
