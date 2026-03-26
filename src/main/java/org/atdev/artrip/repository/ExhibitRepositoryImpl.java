@@ -76,7 +76,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
     public long countBySearchCondition(ExhibitSearchCondition c) {
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
-        QKeyword k = QKeyword.keyword;
 
         Long count = queryFactory
                 .select(e.count())
