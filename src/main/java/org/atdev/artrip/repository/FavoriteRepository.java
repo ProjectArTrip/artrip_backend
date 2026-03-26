@@ -1,5 +1,6 @@
 package org.atdev.artrip.repository;
 
+import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.favorite.Favorite;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,4 +21,6 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long>, Favor
             """
     )
     Optional<Favorite> findFavorite(@Param("userId") Long userId, @Param("exhibitId") Long exhibitId);
+
+    void deleteAllByUser(User user);
 }

@@ -34,7 +34,7 @@ public class FavoriteService {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
-        SortType type = SortType.fromCode(condition.sortType().getCode());
+        SortType type = SortType.fromCode(condition.sortOption().getCode());
 
         if (type == SortType.POPULAR) {
             throw new GeneralException(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE);
@@ -42,7 +42,9 @@ public class FavoriteService {
 
         Slice<Favorite> slice = favoriteRepository.findFavorites(userId, condition, cursorPagination);
 
-        return FavoriteResult.from(slice);
+        long totalCount = favoriteRepository.countFavorites(userId, condition);
+
+        return FavoriteResult.of(slice, totalCount);
     }
 
     @Transactional
@@ -54,7 +56,7 @@ public class FavoriteService {
 
         favoriteRepository.findFavorite(userId, exhibitId).ifPresentOrElse(favorite -> {
             if (favorite.isStatus()) {
-                throw new GeneralException(FavoriteErrorCode._ALREADY_FAVORITED);
+                throw new GeneralException(FavoriteErrorCode._FAVORITE_ALREADY_EXISTS);
             }
             favorite.activate();
         }, () -> favoriteRepository.save(Favorite.create(user, exhibit)));

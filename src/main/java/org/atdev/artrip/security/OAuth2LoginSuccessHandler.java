@@ -121,5 +121,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader("Set-Cookie", refreshCookie.toString());
         response.addHeader("Set-Cookie", accessCookie.toString());
 
+        String targetUrl = "http://localhost:5173/?token=" + jwtToken.getAccessToken();
+        response.sendRedirect(targetUrl);
+
     }
 }

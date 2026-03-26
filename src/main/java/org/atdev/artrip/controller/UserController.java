@@ -79,6 +79,7 @@ public class UserController implements UserSpecification {
         return ResponseEntity.ok(ExhibitRecentResponse.from(results));
     }
 
+    @Override
     @PostMapping("/fcm-token")
     public ResponseEntity<Void> updateFcmToken(
             @LoginUser Long userId,
@@ -88,6 +89,12 @@ public class UserController implements UserSpecification {
 
         return ResponseEntity.noContent().build();
 
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> withdraw(@LoginUser Long userId) {
+        userService.withdraw(userId);
+        return ResponseEntity.noContent().build();
     }
 
 }

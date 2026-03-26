@@ -15,6 +15,7 @@ public enum UserErrorCode implements BaseErrorCode {
     _DUPLICATE_NICKNAME(HttpStatus.CONFLICT,"USER409-CONFLICT","닉네임이 중복되었습니다."),
     _PROFILE_IMAGE_NOT_EXIST(HttpStatus.NOT_FOUND,"USER404-NOT_FOUND","프로필 이미지가 존재하지 않습니다."),
     _NICKNAME_BAD_REQUEST(HttpStatus.BAD_REQUEST,"USER400-BAD_REQUEST","닉네임 형식이 올바르지 않습니다."),
+    _WITHDRAW_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "USER500-WITHDRAW_FAILED", "회원 탈퇴 처리 중 오류가 발생했습니다."),
 
     // JWT Errors
     _JWT_EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "JWT401-EXPIRED_ACCESS", "만료된 엑세스 토큰입니다."),

@@ -6,13 +6,16 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.utils.DateTimeUtils;
 import org.springframework.data.domain.Slice;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
 public record ExhibitFilterResult(
         List<ExhibitItem> items,
         boolean hasNext,
-        Long nextCursor
+        Long nextCursor,
+        LocalDate nextCursorDate,
+        long totalCount
 ) {
     public record ExhibitItem(
             Long exhibitId,
@@ -27,7 +30,11 @@ public record ExhibitFilterResult(
             String regionName
     ) {}
 
-    public static ExhibitFilterResult of(Slice<Exhibit> slice, Set<Long> favorites) {
+    public static ExhibitFilterResult of(Slice<Exhibit> slice, Set<Long> favorites, long totalCount) {
+
+        if (slice == null || slice.isEmpty()) {
+            return new ExhibitFilterResult(List.of(), false, null, null, 0L);
+        }
 
         List<ExhibitItem> items = slice.getContent()
                 .stream()
@@ -44,14 +51,20 @@ public record ExhibitFilterResult(
                 ))
                 .toList();
 
-        Long nextCursor = slice.hasNext() && !items.isEmpty()
-                ? items.get(items.size() - 1).exhibitId()
-                : null;
+        Long nextCursorId = null;
+        LocalDate nextCursorDate = null;
+        if (slice.hasNext() && !items.isEmpty()) {
+            Exhibit lastExhibit = slice.getContent().get(slice.getContent().size() - 1);
+            nextCursorId = lastExhibit.getExhibitId();
+            nextCursorDate = lastExhibit.getStartDate();
+        }
 
         return new ExhibitFilterResult(
                 items,
                 slice.hasNext(),
-                nextCursor
+                nextCursorId,
+                nextCursorDate,
+                totalCount
         );
     }
 }

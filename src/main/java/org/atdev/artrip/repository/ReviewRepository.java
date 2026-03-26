@@ -1,5 +1,6 @@
 package org.atdev.artrip.repository;
 
+import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.review.Review;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -30,4 +31,6 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     long countByExhibit_ExhibitId(Long exhibitId);
 
     long countByUserUserId(Long userId);
+
+    void deleteAllByUser(User user);
 }

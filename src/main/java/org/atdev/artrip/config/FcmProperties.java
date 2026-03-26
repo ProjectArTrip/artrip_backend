@@ -2,7 +2,7 @@ package org.atdev.artrip.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "spring")
+@ConfigurationProperties(prefix = "notification")
 public record FcmProperties(
         String title,
         String body,
@@ -10,8 +10,8 @@ public record FcmProperties(
 ) {
 
     public record Fcm(
-            String file_path,
-            String project_id
+            String filePath,
+            String projectId
     ) {
     }
 }

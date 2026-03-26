@@ -15,4 +15,6 @@ public interface ExhibitRepositoryCustom {
     Slice<Exhibit> findExhibitByFilters(ExhibitSearchCondition command);
 
     List<ExhibitRandomResult> findRandomExhibits(ExhibitRandomCommand condition);
+
+    long countBySearchCondition(ExhibitSearchCondition command);
 }

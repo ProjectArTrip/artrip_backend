@@ -5,14 +5,19 @@ import lombok.*;
 import org.atdev.artrip.domain.auth.User;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "search_history")
+@Table(name = "search_history",
+uniqueConstraints = {
+         @UniqueConstraint(
+                 name = "uk_search_history_user_content",
+                 columnNames = {"user_id", "content"}
+         )
+})
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class SearchHistory {
 
     @Id
@@ -26,17 +31,17 @@ public class SearchHistory {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "content", nullable = false)
     private String content;
 
-    public static SearchHistory of(Long searchHistoryId, User user, String content, LocalDate createdAt){
-        SearchHistory searchHistory = new SearchHistory();
-        searchHistory.searchHistoryId = searchHistoryId;
-        searchHistory.user = user;
-        searchHistory.content = content;
-        searchHistory.createdAt = createdAt;
-        return searchHistory;
+    private SearchHistory(User user, String content) {
+        this.user = user;
+        this.content = content;
+    }
+
+    public static SearchHistory create(User user, String content) {
+        return new SearchHistory(user, content);
     }
 }

@@ -44,7 +44,7 @@ mongodb
 
 .DS_Store
 elasticsearch/
-.cursorrules
+AGENTS.md
 !/docker/elasticsearch
 /src/main/resources/firebase/
 

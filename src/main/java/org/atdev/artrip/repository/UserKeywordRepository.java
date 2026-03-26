@@ -31,4 +31,5 @@ public interface UserKeywordRepository extends JpaRepository<UserKeyword, Long> 
             """ ,nativeQuery = true)
     List<UserKeyword> findRandomKeywordByUserId(@Param("userId") Long userId, Pageable pageable);
 
+    void deleteAllByUser(User user);
 }

@@ -1,52 +1,91 @@
 package org.atdev.artrip.infra.fcm.service;
 
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
 import com.google.firebase.messaging.*;
-import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.fcm.service.dto.NotificationCommand;
+import org.atdev.artrip.infra.fcm.service.dto.NotificationMulticastCommand;
 import org.atdev.artrip.infra.fcm.service.dto.NotificationSingleCommand;
 import org.atdev.artrip.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.concurrent.Executor;
+
+@Slf4j
 @Service
-@RequiredArgsConstructor
 public class FcmNotificationService {
 
     private final FirebaseMessaging firebaseMessaging;
     private final UserRepository userRepository;
+    private final Executor executor;
 
-    @Transactional(readOnly = true)
-    public void test(Long userId) {
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-
-        if (user.getFcmToken() == null || user.getFcmToken().isBlank()) {
-            throw new GeneralException(FcmErrorCode._INVALID_REQUEST_MESSAGE);
-        }
-
-        NotificationSingleCommand command = new NotificationSingleCommand(
-                user.getFcmToken(),
-                "title = 푸시 알림 테스트",
-                "body = 푸시 알림 테스트 입니다."
-        );
-
-        sendMessage(command);
+    public FcmNotificationService(
+            FirebaseMessaging firebaseMessaging,
+            UserRepository userRepository,
+            @Qualifier("fcmExecutor") Executor executor) {
+        this.firebaseMessaging = firebaseMessaging;
+        this.userRepository = userRepository;
+        this.executor = executor;
     }
 
     public void sendMessage(final NotificationSingleCommand command) {
         try {
-
             Message message = command.builderMessage()
-                            .setApnsConfig(getApnsConfig(command))
-                            .build();
+                    .setApnsConfig(getApnsConfig(command))
+                    .build();
 
-            firebaseMessaging.sendAsync(message);
+            ApiFutures.addCallback(
+                    firebaseMessaging.sendAsync(message),
+                    new ApiFutureCallback<>() {
+                        public void onSuccess(String msgId) {
+                            log.debug("FCM sent: {}", msgId);
+                        }
 
-        } catch (RuntimeException e) {
-            throw new GeneralException(FcmErrorCode._FCM_SERVICE_UNAVAILABLE);
+                        public void onFailure(Throwable t) {
+                            log.warn("FCM failed: {}", command.targetToken(), t);
+                        }
+                    },
+                    executor
+            );
+
+
+        } catch (Exception e) {
+            log.error("FCM 예외 발생 : exception : {}", e.getMessage(), e);
+            throw new GeneralException(FcmErrorCode._FCM_SERVER_ERROR, e);
+        }
+    }
+
+    public void sendMessage(NotificationMulticastCommand command) {
+        try {
+            MulticastMessage message = command.buildSendMessage()
+                    .setApnsConfig(getApnsConfig(command))
+                    .build();
+
+            ApiFutures.addCallback(
+                    firebaseMessaging.sendEachForMulticastAsync(message),
+                    new ApiFutureCallback<>() {
+                        public void onSuccess(BatchResponse response) {
+                            log.debug("FCM multicast sent: success={}, fail={}", response.getSuccessCount(), response.getFailureCount());
+                        }
+
+                        public void onFailure(Throwable t) {
+                            log.warn("FCM failed: {}", command.targetToken(), t);
+                        }
+                    },
+                    executor
+            );
+
+
+        } catch (Exception e) {
+            log.error("FCM 예외 발생 : exception : {}", e.getMessage(), e);
+            throw new GeneralException(FcmErrorCode._FCM_SERVER_ERROR, e);
         }
     }
 
@@ -62,4 +101,19 @@ public class FcmNotificationService {
 
         return ApnsConfig.builder().setAps(aps).build();
     }
+
+    @Transactional(readOnly = true)
+    public void sendNoticeMessage(String title, String content) {
+        List<String> tokens = userRepository.findValidPushUsers().stream()
+                .map(User::getFcmToken)
+                .filter(token -> token != null && !token.isBlank())
+                .distinct()
+                .toList();
+        if (tokens.isEmpty()) {
+            return;
+        }
+
+        sendMessage(NotificationMulticastCommand.of(tokens, title, content));
+    }
+
 }

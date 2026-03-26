@@ -47,10 +47,10 @@ public class ExhibitHall {
     @Column(name = "is_domestic")
     private Boolean isDomestic;
 
-    @Column(name = "latitude")
+    @Column(name = "latitude", nullable = false)
     private BigDecimal latitude;
 
-    @Column(name = "longitude")
+    @Column(name = "longitude", nullable = false)
     private BigDecimal longitude;
 
     @Column(name = "created_at", updatable = false)

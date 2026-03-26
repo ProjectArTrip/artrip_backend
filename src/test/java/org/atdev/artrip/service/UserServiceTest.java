@@ -3,6 +3,9 @@ package org.atdev.artrip.service;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +15,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,28 +31,39 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    private User testUser;
+    @Test
+    @DisplayName("FCM 토큰 저장 - 존재하지 않는 유저")
+    public void fcmTokenSaveUserNotFound(){
+        //given
+        Long userId = 1L;
+        String newToken = "token1234";
 
-    @BeforeEach
-    void FcmTokenInfos() {
-        SocialUserInfo socialUserInfo = new SocialUserInfo(
-                "test@test.com",
-                "testUser",
-                "123444",
-                Provider.KAKAO
-        );
+        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
-        testUser = User.of(socialUserInfo);
+        //when
+        //then
+        assertThatThrownBy(() -> userService.updateFcmToken(userId, newToken))
+                .isInstanceOf(GeneralException.class)
+                .extracting("code")
+                .isEqualTo(UserErrorCode._USER_NOT_FOUND);
     }
 
+    @Test
+    @DisplayName("FCM 토큰 저장 실패 - 잘못된 토큰 형식")
+    public void fcmTokenSaveInvalidToken(){
+        //given
+        Long userId = 1L;
+        String token = "    ";
 
-//
-//    @Test
-//    @DisplayName("FCM 토큰 업데이트")
-//    //given
-//    Long userId = 1L;
-//    String newToken = "token1234";
-//    User user = User.builder().userId(userId).fcmToken("old_token").build();
-//
-//    given
+        User user = User.builder().userId(userId).build();
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        //when
+        //then
+        assertThatThrownBy(() -> userService.updateFcmToken(userId, token))
+                .isInstanceOf(GeneralException.class)
+                .extracting("code")
+                .isEqualTo(FcmErrorCode._INVALID_REQUEST_PATTERN);
+    }
+
 }

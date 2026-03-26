@@ -27,7 +27,7 @@ public class Exhibit {
     private Long exhibitId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "exhibit_hall_id")
+    @JoinColumn(name = "exhibit_hall_id", nullable = false)
     private ExhibitHall exhibitHall;
 
     @Column(name = "title")
@@ -46,7 +46,7 @@ public class Exhibit {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @Column(name = "poster_url")
+    @Column(name = "poster_url", length = 512)
     private String posterUrl;
 
     @Column(name = "ticket_url")
@@ -71,6 +71,16 @@ public class Exhibit {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "random_key", nullable = false)
+    private Double randomKey;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.randomKey == null || this.randomKey == 0.0) {
+            this.randomKey = Math.random();
+        }
+    }
 
     @ManyToMany
     @Builder.Default

@@ -58,13 +58,16 @@ public class HomeService {
 
         Slice<Exhibit> slice = exhibitRepository.findExhibitByFilters(command);
         Set<Long> favoriteIds = getFavoriteIds(command.userId());
+        long totalCount = exhibitRepository.countBySearchCondition(command);
+
 
         if (StringUtils.hasText(command.query())) {
             SearchHistoryCommand searchHistoryCommand = SearchHistoryCommand.create(command.userId(), command.query());
             searchHistoryService.saveSearchHistory(searchHistoryCommand);
         }
 
-        return ExhibitFilterResult.of(slice,favoriteIds);
+
+        return ExhibitFilterResult.of(slice,favoriteIds,totalCount);
     }
 
 
