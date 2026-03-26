@@ -10,6 +10,7 @@ import org.atdev.artrip.repository.SearchHistoryRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.SearchHistoryCommand;
 import org.atdev.artrip.service.dto.result.SearchHistoryResult;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +49,8 @@ public class SearchHistoryService {
                 searchHistoryRepository.delete(oldest);
             }
 
+        } catch (DataIntegrityViolationException e) {
+            throw new GeneralException(SearchErrorCode._SEARCH_HISTORY_DUPLICATED);
         } catch (Exception e) {
             throw new GeneralException(SearchErrorCode._SEARCH_HISTORY_SAVE_FAILED);
         }

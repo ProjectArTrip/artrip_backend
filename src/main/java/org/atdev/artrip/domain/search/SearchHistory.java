@@ -9,7 +9,13 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "search_history")
+@Table(name = "search_history",
+uniqueConstraints = {
+         @UniqueConstraint(
+                 name = "uk_search_history_user_content",
+                 columnNames = {"user_id", "content"}
+         )
+})
 @Getter
 @NoArgsConstructor
 public class SearchHistory {
