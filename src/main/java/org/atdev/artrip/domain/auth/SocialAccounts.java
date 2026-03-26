@@ -23,7 +23,9 @@ public class SocialAccounts {
     private Long socialId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false,
+            foreignKey = @ForeignKey(name = "FK_social_accounts_to_users")
+    )
     private User user;
 
     @Enumerated(EnumType.STRING)

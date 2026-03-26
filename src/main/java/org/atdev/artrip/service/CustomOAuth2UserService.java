@@ -47,7 +47,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
 
     @Transactional
-    protected User saveOrUpdateUser(Provider provider, String providerId, OAuth2UserInfo userInfo) {
+    public User saveOrUpdateUser(Provider provider, String providerId, OAuth2UserInfo userInfo) {
 
         Optional<User> userOpt = userRepository.findBySocialAccountsProviderAndProviderId(provider, providerId);
 
