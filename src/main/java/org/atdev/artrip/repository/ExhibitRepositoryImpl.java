@@ -4,6 +4,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.KeywordType;
@@ -34,7 +35,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
 
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
-        QKeyword k = QKeyword.keyword;
 
         Exhibit cursor = null;
 
@@ -45,20 +45,18 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         }
 
         List<Exhibit> content = queryFactory
-                .selectDistinct(e)
-                .from(e)
+                .selectFrom(e)
                 .join(e.exhibitHall, h).fetchJoin()
-                .leftJoin(e.keywords, k)
                 .where(
                         e.status.ne(Status.FINISHED),
-                        isDomesticEq(c.isDomestic()),
+                        isDomesticEq(h, c.isDomestic()),
                         dateFilter(c.startDate(), c.endDate(), e),
                         cursorCondition(cursor, c.sortType(), e),
-                        countryEq(c.country()),
-                        regionEq(c.region()),
-                        genreIn(c.genres()),
-                        styleIn(c.styles()),
-                        queryContain(c.query())
+                        countryEq(h, c.country()),
+                        regionEq(h, c.region()),
+                        keywordExists(e, KeywordType.GENRE, c.genres()),
+                        keywordExists(e, KeywordType.STYLE, c.styles()),
+                        queryContain(e,h,c.query())
                 )
                 .orderBy(sortFilter(c, e))
                 .limit(c.size() + 1)
@@ -76,22 +74,20 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
     public long countBySearchCondition(ExhibitSearchCondition c) {
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
-        QKeyword k = QKeyword.keyword;
 
         Long count = queryFactory
-                .select(e.countDistinct())
+                .select(e.count())
                 .from(e)
-                .leftJoin(e.exhibitHall, h)
-                .leftJoin(e.keywords, k)
+                .join(e.exhibitHall, h)
                 .where(
                         e.status.ne(Status.FINISHED),
-                        isDomesticEq(c.isDomestic()),
+                        isDomesticEq(h, c.isDomestic()),
                         dateFilter(c.startDate(), c.endDate(), e),
-                        countryEq(c.country()),
-                        regionEq(c.region()),
-                        genreIn(c.genres()),
-                        styleIn(c.styles()),
-                        queryContain(c.query())
+                        countryEq(h, c.country()),
+                        regionEq(h, c.region()),
+                        keywordExists(e, KeywordType.GENRE, c.genres()),
+                        keywordExists(e, KeywordType.STYLE, c.styles()),
+                        queryContain(e, h, c.query())
                 )
                 .fetchOne();
         return count != null ? count : 0L;
@@ -150,12 +146,12 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 .join(e.exhibitHall, h)
                 .where(
                         e.status.ne(Status.FINISHED),
-                        isDomesticEq(c.isDomestic()),
-                        countryEq(c.country()),
-                        regionEq(c.region()),
-                        genreExists(c.genres()),
-                        styleExists(c.styles()),
-                        findDate(c.date()),
+                        isDomesticEq(h, c.isDomestic()),
+                        countryEq(h, c.country()),
+                        regionEq(h, c.region()),
+                        keywordExists(e, KeywordType.GENRE, c.genres()),
+                        keywordExists(e, KeywordType.STYLE, c.styles()),
+                        findDate(e, c.date()),
                         randomCondition
                 )
                 .orderBy(e.randomKey.asc())
@@ -225,117 +221,69 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         return condition;
     }
 
-    private BooleanExpression isDomesticEq(Boolean isDomestic) {
-        return isDomestic == null ? null : QExhibitHall.exhibitHall.isDomestic.eq(isDomestic);
+    private BooleanExpression isDomesticEq(QExhibitHall h, Boolean isDomestic) {
+        return isDomestic == null ? null : h.isDomestic.eq(isDomestic);
     }
 
-    private BooleanExpression countryEq(String country) {
-        return country == null ? null : QExhibitHall.exhibitHall.country.eq(country);
+    private BooleanExpression countryEq(QExhibitHall h, String country) {
+        return country == null ? null : h.country.eq(country);
     }
 
-    private BooleanExpression regionEq(String region) {
-        return region == null ? null : QExhibitHall.exhibitHall.region.eq(region);
+    private BooleanExpression regionEq(QExhibitHall h, String region) {
+        return region == null ? null : h.region.eq(region);
     }
 
-    private BooleanExpression genreExists(Set<String> genres) {
-        if (genres == null || genres.isEmpty()) {
-            return null;
-        }
+    private BooleanExpression keywordExists(QExhibit exhibit, KeywordType type, Set<String> keywords) {
+        if (keywords == null || keywords.isEmpty()) return null;
 
-        QKeyword genreKeyword = new QKeyword("genreKeyword");
-        QExhibit exhibit = QExhibit.exhibit;
+        QKeyword keyword = new QKeyword(type.name().toLowerCase() + "Keyword");
 
         BooleanExpression nameCondition = null;
-        for (String genre : genres) {
-            BooleanExpression likeCondition = genreKeyword.name.containsIgnoreCase(genre);
-            nameCondition = (nameCondition == null) ? likeCondition : nameCondition.or(likeCondition);
+        for (String kw : keywords) {
+            BooleanExpression like = keyword.name.containsIgnoreCase(kw);
+            nameCondition = (nameCondition == null) ? like : nameCondition.or(like);
         }
 
-        return com.querydsl.jpa.JPAExpressions
+        return JPAExpressions
                 .selectOne()
-                .from(genreKeyword)
+                .from(keyword)
                 .where(
-                        genreKeyword.type.eq(KeywordType.GENRE),
+                        keyword.type.eq(type),
                         nameCondition,
-                        exhibit.keywords.contains(genreKeyword)
+                        exhibit.keywords.contains(keyword)
                 )
                 .exists();
     }
 
-    private BooleanExpression styleExists(Set<String> styles) {
-        if (styles == null || styles.isEmpty()) {
-            return null;
-        }
 
-        QKeyword styleKeyword = new QKeyword("styleKeyword");
-        QExhibit exhibit = QExhibit.exhibit;
-
-        BooleanExpression nameCondition = null;
-        for (String style : styles) {
-            BooleanExpression likeCondition = styleKeyword.name.containsIgnoreCase(style);
-            nameCondition = (nameCondition == null) ? likeCondition : nameCondition.or(likeCondition);
-        }
-
-        return com.querydsl.jpa.JPAExpressions
-                .selectOne()
-                .from(styleKeyword)
-                .where(
-                        styleKeyword.type.eq(KeywordType.STYLE),
-                        nameCondition,
-                        exhibit.keywords.contains(styleKeyword)
-                )
-                .exists();
-    }
-
-    private BooleanExpression genreIn(Set<String> genres) {
-        if (genres == null || genres.isEmpty()) return null;
-
-        BooleanExpression condition = QKeyword.keyword.type.eq(KeywordType.GENRE);
-
-        BooleanExpression genreCondition = null;
-        for (String genre : genres) {
-            BooleanExpression likeCondition = QKeyword.keyword.name.containsIgnoreCase(genre);
-            genreCondition = (genreCondition == null) ? likeCondition : genreCondition.or(likeCondition);
-        }
-
-        return condition.and(genreCondition);
-    }
-
-    private BooleanExpression styleIn(Set<String> styles) {
-        if (styles == null || styles.isEmpty()) return null;
-
-        BooleanExpression condition = QKeyword.keyword.type.eq(KeywordType.STYLE);
-
-        BooleanExpression styleCondition = null;
-        for (String style : styles) {
-            BooleanExpression likeCondition = QKeyword.keyword.name.containsIgnoreCase(style);
-            styleCondition = (styleCondition == null) ? likeCondition : styleCondition.or(likeCondition);
-        }
-        return condition.and(styleCondition);
-    }
-
-    private BooleanExpression findDate(LocalDate date) {
+    private BooleanExpression findDate(QExhibit e, LocalDate date) {
         if (date == null) return null;
 
-        return QExhibit.exhibit.startDate.loe(date)
-                .and(QExhibit.exhibit.endDate.goe(date));
+        return e.startDate.loe(date).and(e.endDate.goe(date));
     }
 
-    private BooleanExpression queryContain(String query) {
+    private BooleanExpression queryContain(QExhibit e, QExhibitHall h,String query) {
         if (query == null || query.isBlank()) {
             return null;
         }
 
         String trimmed = query.trim();
-        QExhibit e = QExhibit.exhibit;
-        QExhibitHall h = QExhibitHall.exhibitHall;
-        QKeyword k = QKeyword.keyword;
+        QKeyword k = new QKeyword("searchKeyword");
+
+        BooleanExpression keywordExists = JPAExpressions
+                .selectOne()
+                .from(k)
+                .where(
+                        e.keywords.contains(k),
+                        k.name.containsIgnoreCase(trimmed)
+                )
+                .exists();
 
         return e.title.containsIgnoreCase(trimmed)
                 .or(h.name.containsIgnoreCase(trimmed))
-                .or(k.name.containsIgnoreCase(trimmed))
                 .or(h.country.containsIgnoreCase(trimmed))
-                .or(h.region.containsIgnoreCase(trimmed));
+                .or(h.region.containsIgnoreCase(trimmed))
+                .or(keywordExists);
     }
 
 }
