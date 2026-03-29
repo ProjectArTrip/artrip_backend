@@ -24,6 +24,9 @@ repositories {
     mavenCentral()
 }
 
+ext['spring-framework.version'] = '6.2.11'
+ext['jackson.version'] = '2.19.2'
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -39,7 +42,10 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.2.0'
     implementation 'io.github.resilience4j:resilience4j-reactor:2.2.0'
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
@@ -49,17 +55,20 @@ dependencies {
 
     implementation 'com.mysql:mysql-connector-j'
 
+    // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.3.0'
+    //aws s3
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3:3.4.1'
 
     implementation 'com.auth0:java-jwt:4.4.0'
     implementation 'com.auth0:jwks-rsa:0.23.0'
 
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
