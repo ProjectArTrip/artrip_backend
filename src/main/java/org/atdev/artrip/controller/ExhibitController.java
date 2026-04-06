@@ -66,7 +66,7 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<FilterCursorResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+    public ResponseEntity<FilterCursorResponse> searchExhibit(@Valid @ModelAttribute ExhibitFilterRequest dto,
                                                               @Valid CursorPagination cursorPagination,
                                                               @LoginUser Long userId) {
         ExhibitSearchCondition command = dto.toCommand(userId, cursorPagination);
