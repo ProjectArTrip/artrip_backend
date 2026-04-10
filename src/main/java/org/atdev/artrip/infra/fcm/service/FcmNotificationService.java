@@ -4,6 +4,7 @@ import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.NotificationAction;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 @Slf4j
@@ -97,7 +99,9 @@ public class FcmNotificationService {
 
         Aps aps = Aps.builder()
                 .setAlert(alert)
-                .setSound("default").build();
+                .setSound("default")
+                .setBadge(1)
+                .build();
 
         return ApnsConfig.builder().setAps(aps).build();
     }
@@ -113,7 +117,7 @@ public class FcmNotificationService {
             return;
         }
 
-        sendMessage(NotificationMulticastCommand.of(tokens, title, content));
+        sendMessage(NotificationMulticastCommand.of(tokens, title, content, Map.of("action", NotificationAction.MOVE_NOTICE_DETAIL.getAction())));
     }
 
 }
