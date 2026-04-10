@@ -6,7 +6,7 @@ public record CurationSummaryListResult(
         List<CurationSummaryResult> curations
 
 ) {
-    public static CurationSummaryListResult from(List<CurationSummaryResult> exhibits) {
-        return new CurationSummaryListResult(exhibits);
+    public static CurationSummaryListResult from(List<CurationSummaryResult> curations) {
+        return new CurationSummaryListResult(curations);
     }
 }

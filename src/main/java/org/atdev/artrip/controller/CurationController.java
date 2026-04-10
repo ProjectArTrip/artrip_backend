@@ -1,6 +1,7 @@
 package org.atdev.artrip.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.Country;
 import org.atdev.artrip.controller.dto.response.CurationDetailCursorResponse;
 import org.atdev.artrip.controller.dto.response.CurationSummaryListResponse;
 import org.atdev.artrip.controller.spec.CurationSpecification;
@@ -20,17 +21,17 @@ public class CurationController implements CurationSpecification {
     private final CurationService curationService;
 
     @Override
-    @GetMapping("/home")
+    @GetMapping
     public ResponseEntity<CurationSummaryListResponse> getSummary(
             @LoginUser Long userId,
-            @RequestParam(required = false) String country) {
+            @RequestParam(required = false) Country country) {
 
         CurationSummaryListResult result = curationService.getSummaryCuration(userId, country);
         return ResponseEntity.ok(CurationSummaryListResponse.from(result));
     }
 
     @Override
-    @GetMapping("/detail/{curationId}")
+    @GetMapping("/{curationId}")
     public ResponseEntity<CurationDetailCursorResponse> getDetail(
             @LoginUser Long userId,
             @PathVariable Long curationId,

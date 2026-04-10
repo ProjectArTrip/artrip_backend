@@ -1,5 +1,6 @@
 package org.atdev.artrip.service;
 
+import org.atdev.artrip.constants.Country;
 import org.atdev.artrip.constants.RefreshCycle;
 import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.domain.curation.Curation;
@@ -21,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -60,6 +62,8 @@ public class CurationServiceTest {
                 3
         );
 
+        ReflectionTestUtils.setField(curation, "curationId", 1L);
+
         domesticHall = ExhibitHall.of(1L, "서울 전시관", "대한민국", "서울", true);
         foreignHall = ExhibitHall.of(2L, "프랑스 전시관", "프랑스", "파리", false);
     }
@@ -69,11 +73,11 @@ public class CurationServiceTest {
     void summaryCuration_filtersExhibitsByCountry() {
         //given
         Long user = 1L;
-        when(curationRepository.findVisibleCurationsByCountry("독일", LocalDate.now())).thenReturn(List.of(curation));
+        when(curationRepository.findVisibleCurationsByCountry(Country.GERMANY, LocalDate.now())).thenReturn(List.of(curation));
         when(favoriteRepository.findActiveExhibitIds(user)).thenReturn(Set.of());
 
         //when
-        CurationSummaryListResult result = curationService.getSummaryCuration(user, "독일");
+        CurationSummaryListResult result = curationService.getSummaryCuration(user, Country.GERMANY);
 
         //then
         assertThat(result.curations()).isEmpty();
@@ -107,6 +111,7 @@ public class CurationServiceTest {
                 SortType.LATEST,
                 3
         );
+        ReflectionTestUtils.setField(curation, "curationId", 99L);
 
         when(curationRepository.findById(curation.getCurationId())).thenReturn(Optional.of(curation));
 

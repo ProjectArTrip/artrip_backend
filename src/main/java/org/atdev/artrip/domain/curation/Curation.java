@@ -84,4 +84,8 @@ public class Curation {
                 displayCount
         );
     }
+
+    public boolean isVisibleOn(LocalDate today) {
+        return active && !visibleFrom.isAfter(today) && !visibleTo.isBefore(today);
+    }
 }

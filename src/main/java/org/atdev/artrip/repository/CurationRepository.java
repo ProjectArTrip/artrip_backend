@@ -1,5 +1,6 @@
 package org.atdev.artrip.repository;
 
+import org.atdev.artrip.constants.Country;
 import org.atdev.artrip.domain.curation.Curation;
 import org.atdev.artrip.domain.curation.CurationExhibit;
 import org.springframework.data.domain.Pageable;
@@ -29,15 +30,15 @@ public interface CurationRepository extends JpaRepository<Curation, Long> {
     @Query(value = """
             select distinct c
                 from Curation c
-                    left join fetch c.curationExhibits ce
-                    left join fetch ce.exhibit e
-                    left join fetch e.exhibitHall eh
+                    join fetch c.curationExhibits ce
+                    join fetch ce.exhibit e
+                    join fetch e.exhibitHall eh
                 where c.active = true
                     and c.visibleFrom <= :today
                     and c.visibleTo >= :today
                     and eh.country = :country
             """)
-    List<Curation> findVisibleCurationsByCountry(@Param("country") String country, @Param("today") LocalDate today);
+    List<Curation> findVisibleCurationsByCountry(@Param("country") Country country, @Param("today") LocalDate today);
 
     @Query(value = """
           select ce

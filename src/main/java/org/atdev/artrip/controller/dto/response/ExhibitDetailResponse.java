@@ -3,6 +3,7 @@ package org.atdev.artrip.controller.dto.response;
 import lombok.Builder;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
+import org.atdev.artrip.utils.DateTimeUtils;
 
 import java.math.BigDecimal;
 
@@ -37,7 +38,7 @@ public record ExhibitDetailResponse (
                 .status(result.status())
                 .hallName(result.hallName())
                 .hallAddress(result.hallAddress())
-                .hallOpeningHours(result.hallOpeningHours())
+                .hallOpeningHours(DateTimeUtils.normalizeOpeningHours(result.hallOpeningHours()))
                 .hallPhone(result.hallPhone())
                 .hallLatitude(result.hallLatitude())
                 .hallLongitude(result.hallLongitude())
