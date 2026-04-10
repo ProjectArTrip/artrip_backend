@@ -44,9 +44,9 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
                         f.status.eq(true),
                         e.status.ne(Status.FINISHED),
                         locationFilter(normalize(c.regions()), normalize(c.countries()), h),
-                        cursorCondition(cursor, c.sortOption(), f, e)
+                        cursorCondition(cursor, c.sortType(), f, e)
                 )
-                .orderBy(sortOrder(c.sortOption(), f, e))
+                .orderBy(sortOrder(c.sortType(), f, e))
                 .limit(cp.size() + 1)
                 .fetch();
 
