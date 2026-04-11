@@ -5,8 +5,10 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum OverseasCountry {
+public enum Country {
 
+    ALL("전체"),
+    KOREA("한국"),
     FRANCE("프랑스"),
     GERMANY("독일"),
     ITALY("이탈리아"),

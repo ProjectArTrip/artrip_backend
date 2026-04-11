@@ -38,7 +38,7 @@ public record ExhibitDetailResult(
 
                 .hallName(exhibit.getExhibitHall().getName())
                 .hallAddress(exhibit.getExhibitHall().getAddress())
-                .hallOpeningHours(exhibit.getExhibitHall().getOpeningHours())
+                .hallOpeningHours(DateTimeUtils.normalizeOpeningHours(exhibit.getExhibitHall().getOpeningHours()))
                 .hallPhone(exhibit.getExhibitHall().getPhone())
 
                 .hallLatitude(exhibit.getExhibitHall().getLatitude())
