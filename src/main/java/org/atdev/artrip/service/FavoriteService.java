@@ -34,7 +34,7 @@ public class FavoriteService {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
-        SortType type = SortType.fromCode(condition.sortOption().getCode());
+        SortType type = SortType.fromCode(condition.sortType().getCode());
 
         if (type == SortType.POPULAR) {
             throw new GeneralException(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE);
