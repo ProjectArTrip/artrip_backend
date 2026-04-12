@@ -2,9 +2,6 @@ package org.atdev.artrip.utils;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 public record CursorPagination(
         Long cursor,

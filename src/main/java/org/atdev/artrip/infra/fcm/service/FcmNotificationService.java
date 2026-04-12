@@ -14,7 +14,11 @@ import org.atdev.artrip.infra.fcm.service.dto.NotificationSingleCommand;
 import org.atdev.artrip.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Map;
@@ -27,14 +31,18 @@ public class FcmNotificationService {
     private final FirebaseMessaging firebaseMessaging;
     private final UserRepository userRepository;
     private final Executor executor;
+    private final TransactionTemplate transactionTemplate;
 
     public FcmNotificationService(
             FirebaseMessaging firebaseMessaging,
             UserRepository userRepository,
-            @Qualifier("fcmExecutor") Executor executor) {
+            @Qualifier("fcmExecutor") Executor executor,
+            PlatformTransactionManager transactionManager) {
         this.firebaseMessaging = firebaseMessaging;
         this.userRepository = userRepository;
         this.executor = executor;
+        this.transactionTemplate = new TransactionTemplate(transactionManager);
+        this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
     public void sendMessage(final NotificationSingleCommand command) {
@@ -52,6 +60,12 @@ public class FcmNotificationService {
 
                         public void onFailure(Throwable t) {
                             log.warn("FCM failed: {}", command.targetToken(), t);
+                            if (t instanceof FirebaseMessagingException fmc) {
+                                MessagingErrorCode code = fmc.getMessagingErrorCode();
+                                if (code == MessagingErrorCode.UNREGISTERED || code == MessagingErrorCode.INVALID_ARGUMENT || code == MessagingErrorCode.SENDER_ID_MISMATCH) {
+                                    invalidateToken(command.targetToken());
+                                }
+                            }
                         }
                     },
                     executor
@@ -75,6 +89,21 @@ public class FcmNotificationService {
                     new ApiFutureCallback<>() {
                         public void onSuccess(BatchResponse response) {
                             log.debug("FCM multicast sent: success={}, fail={}", response.getSuccessCount(), response.getFailureCount());
+
+                            if (response.getFailureCount() == 0) return;
+
+                            List<SendResponse> responses = response.getResponses();
+                            List<String> tokens = command.targetToken();
+
+                            for (int i = 0; i < responses.size(); i++) {
+                                SendResponse sr = responses.get(i);
+                                if(!sr.isSuccessful() && sr.getException() != null) {
+                                    MessagingErrorCode code = sr.getException().getMessagingErrorCode();
+                                    if (code == MessagingErrorCode.UNREGISTERED || code == MessagingErrorCode.INVALID_ARGUMENT || code == MessagingErrorCode.SENDER_ID_MISMATCH) {
+                                        invalidateToken(tokens.get(i));
+                                    }
+                                }
+                            }
                         }
 
                         public void onFailure(Throwable t) {
@@ -106,7 +135,7 @@ public class FcmNotificationService {
         return ApnsConfig.builder().setAps(aps).build();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     public void sendNoticeMessage(String title, String content) {
         List<String> tokens = userRepository.findValidPushUsers().stream()
                 .map(User::getFcmToken)
@@ -118,6 +147,12 @@ public class FcmNotificationService {
         }
 
         sendMessage(NotificationMulticastCommand.of(tokens, title, content, Map.of("action", NotificationAction.MOVE_NOTICE_DETAIL.getAction())));
+    }
+
+    public void invalidateToken(String token) {
+        transactionTemplate.executeWithoutResult(status -> {
+            userRepository.findByFcmToken(token).ifPresent(User::clearFcmToken);
+        });
     }
 
 }

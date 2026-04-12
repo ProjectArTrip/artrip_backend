@@ -15,8 +15,6 @@ services:
     volumes:
       - ./db/data:/var/lib/mysql
       - ./db/conf:/etc/mysql/conf.d
-    env_file:
-      -
 
   redis:
     image: redis:7.2

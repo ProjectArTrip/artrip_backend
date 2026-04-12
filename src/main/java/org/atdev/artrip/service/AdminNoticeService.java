@@ -32,7 +32,7 @@ public class AdminNoticeService {
         Notice notice = Notice.create(admin, command.title(), command.content());
         noticeRepository.save(notice);
 
-        eventPublisher.publishEvent(new NoticeCreatedEvent(command.title(), command.content()));
+        eventPublisher.publishEvent(new NoticeCreatedEvent(notice.getNoticeId(), command.title(), command.content()));
     }
 
     @Transactional
