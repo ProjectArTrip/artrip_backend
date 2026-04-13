@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
+import org.atdev.artrip.domain.search.SearchHistory;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -68,6 +69,9 @@ public class User {
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SocialAccounts> socialAccounts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<SearchHistory> searchHistories = new ArrayList<>();
 
     public boolean updateUserInfo(String name, String email) {
         boolean changed = false;
