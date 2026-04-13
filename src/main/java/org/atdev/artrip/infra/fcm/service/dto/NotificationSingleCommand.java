@@ -4,23 +4,24 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.NonNull;
 
+import java.util.Map;
+
 public record NotificationSingleCommand(
         @NonNull String targetToken,
         String title,
-        String body) implements NotificationCommand {
+        String body,
+        Map<String, String> data
+) implements NotificationCommand {
 
-    public static NotificationSingleCommand of(String token, String title, String body) {
-        return new NotificationSingleCommand(
-                token,
-                title,
-                body
-        );
+    public static NotificationSingleCommand of(String token, String title, String body, Map<String, String> data) {
+        return new NotificationSingleCommand(token, title, body, data);
     }
 
     public Message.Builder builderMessage() {
         return Message.builder()
                 .setToken(targetToken)
-                .setNotification(toNotification());
+                .setNotification(toNotification())
+                .putAllData(data);
     }
 
     public Notification toNotification() {
