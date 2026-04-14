@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
-import org.atdev.artrip.domain.exhibit.RecentExhibit;
-import org.atdev.artrip.domain.search.SearchHistory;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
