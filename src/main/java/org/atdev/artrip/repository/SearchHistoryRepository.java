@@ -38,5 +38,8 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
             """, nativeQuery = true)
     Optional<SearchHistory> findOldestSearchHistory(@Param("userId") Long userId);
 
-    void deleteAllByUser(User user);
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM SearchHistory s WHERE s.user.userId = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
+
 }

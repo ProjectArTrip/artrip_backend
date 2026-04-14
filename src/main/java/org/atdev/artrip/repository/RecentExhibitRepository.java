@@ -1,5 +1,6 @@
 package org.atdev.artrip.repository;
 
+import io.lettuce.core.dynamic.annotation.Param;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.RecentExhibit;
@@ -22,4 +23,8 @@ public interface RecentExhibitRepository extends JpaRepository<RecentExhibit, Lo
     @Modifying
     @Query("DELETE FROM RecentExhibit r WHERE r.viewAt < :limit")
     void deleteByViewAtBefore(LocalDateTime limit);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM RecentExhibit r WHERE r.user.userId = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
 }
