@@ -85,6 +85,6 @@ public class SearchHistoryService {
     public void deleteAllSearchHistory(Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-        searchHistoryRepository.deleteAllByUser(user);
+        searchHistoryRepository.deleteAllByUserId(user.getUserId());
     }
 }

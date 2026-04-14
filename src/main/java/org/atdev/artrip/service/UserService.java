@@ -6,10 +6,7 @@ import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
-import org.atdev.artrip.repository.FavoriteRepository;
-import org.atdev.artrip.repository.ReviewRepository;
-import org.atdev.artrip.repository.UserKeywordRepository;
-import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.repository.*;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.s3.service.S3Service;
 import org.atdev.artrip.service.dto.result.MypageResult;
@@ -29,6 +26,8 @@ public class UserService {
     private final FavoriteRepository favoriteRepository;
     private final UserKeywordRepository userKeywordRepository;
     private final ReviewRepository reviewRepository;
+    private final SearchHistoryRepository searchHistoryRepository;
+    private final RecentExhibitRepository recentExhibitRepository;
 
     @Transactional
     public MypageResult updateNickName(Long userId, String newNickName){
@@ -119,14 +118,12 @@ public class UserService {
     public void withdraw(Long userId) {
         User user = findUserOrThrow(userId);
 
-        try {
             favoriteRepository.deleteAllByUser(user);
             userKeywordRepository.deleteAllByUser(user);
             reviewRepository.deleteAllByUser(user);
-            userRepository.delete(user);
-        } catch (Exception e) {
-            throw new GeneralException(UserErrorCode._WITHDRAW_FAILED);
-        }
-    }
+            searchHistoryRepository.deleteAllByUserId(userId);
+            recentExhibitRepository.deleteAllByUserId(userId);
 
+            userRepository.delete(user);
+    }
 }
