@@ -2,7 +2,9 @@ package org.atdev.artrip.service.dto.result;
 
 
 import org.atdev.artrip.constants.Status;
+import org.atdev.artrip.domain.curation.CurationExhibit;
 import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.utils.DateTimeUtils;
 import org.springframework.data.domain.Slice;
 
@@ -28,7 +30,23 @@ public record ExhibitFilterResult(
             String hallName,
             String countryName,
             String regionName
-    ) {}
+    ) {
+        public static ExhibitItem from(CurationExhibit curationExhibit, Set<Long> favoriteExhibitIds) {
+            Exhibit exhibit = curationExhibit.getExhibit();
+            ExhibitHall hall = exhibit.getExhibitHall();
+            return new ExhibitItem(
+                    exhibit.getExhibitId(),
+                    exhibit.getTitle(),
+                    exhibit.getPosterUrl(),
+                    exhibit.getStatus(),
+                    DateTimeUtils.convertDate(exhibit.getStartDate(), exhibit.getEndDate()),
+                    favoriteExhibitIds.contains(exhibit.getExhibitId()),
+                    hall.getName(),
+                    hall.getCountry(),
+                    hall.getRegion()
+            );
+        }
+    }
 
     public static ExhibitFilterResult of(Slice<Exhibit> slice, Set<Long> favorites, long totalCount) {
 

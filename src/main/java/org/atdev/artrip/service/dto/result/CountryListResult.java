@@ -1,6 +1,6 @@
 package org.atdev.artrip.service.dto.result;
 
-import org.atdev.artrip.constants.OverseasCountry;
+import org.atdev.artrip.constants.Country;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ public record CountryListResult(
 
     public static CountryListResult from(){
 
-        List<CountryResult> results = Arrays.stream(OverseasCountry.values())
+        List<CountryResult> results = Arrays.stream(Country.values())
                 .map(CountryResult::from)
                 .toList();
 

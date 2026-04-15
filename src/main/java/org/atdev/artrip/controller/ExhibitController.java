@@ -26,7 +26,7 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping("/genre")
-    public ResponseEntity<GenreListResponse> getGenres(){
+    public ResponseEntity<GenreListResponse> getGenres() {
 
         GenreListResult result = homeService.getAllGenres();
 
@@ -38,7 +38,7 @@ public class ExhibitController implements ExhibitSpecification {
     public ResponseEntity<ExhibitDetailResponse> getExhibit(
             @PathVariable Long id,
             @LoginUser Long userId
-            ){
+    ) {
 
         ExhibitDetailCommand query = ExhibitDetailCommand.of(id, userId);
         ExhibitDetailResult result = exhibitService.getExhibitDetail(query);
@@ -57,7 +57,7 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping("/domestic")
-    public ResponseEntity<RegionListResponse> getDomestic(){
+    public ResponseEntity<RegionListResponse> getDomestic() {
 
         RegionListResult results = homeService.getRegions();
 
@@ -66,7 +66,7 @@ public class ExhibitController implements ExhibitSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<FilterCursorResponse> searchExhibit(@ModelAttribute ExhibitFilterRequest dto,
+    public ResponseEntity<FilterCursorResponse> searchExhibit(@Valid @ModelAttribute ExhibitFilterRequest dto,
                                                               @Valid CursorPagination cursorPagination,
                                                               @LoginUser Long userId) {
         ExhibitSearchCondition command = dto.toCommand(userId, cursorPagination);

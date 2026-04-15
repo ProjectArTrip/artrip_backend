@@ -5,6 +5,8 @@ spring:
     active: local
   config:
     import: optional:file:.env[.properties]
+  cache:
+    type: simple
 
   servlet:
     multipart:

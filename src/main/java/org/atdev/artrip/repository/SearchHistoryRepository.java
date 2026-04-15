@@ -1,6 +1,5 @@
 package org.atdev.artrip.repository;
 
-import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.search.SearchHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -38,5 +37,8 @@ public interface SearchHistoryRepository extends JpaRepository<SearchHistory, Lo
             """, nativeQuery = true)
     Optional<SearchHistory> findOldestSearchHistory(@Param("userId") Long userId);
 
-    void deleteAllByUser(User user);
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM SearchHistory s WHERE s.user.userId = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
+
 }
