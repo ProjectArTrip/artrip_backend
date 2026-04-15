@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,6 +36,28 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
 
+        LocalDate cursorCreatedAt = null;
+        LocalDate cursorEndDate = null;
+
+        if (cursor != null) {
+            if (c.sortType() == SortType.ENDING_SOON) {
+                cursorEndDate = queryFactory
+                        .select(e.endDate)
+                        .from(f)
+                        .join(f.exhibit, e)
+                        .where(f.favoriteId.eq(cursor))
+                        .fetchOne();
+                if (cursorEndDate == null) cursor = null;
+            } else {
+                cursorCreatedAt = queryFactory
+                        .select(f.createdAt)
+                        .from(f)
+                        .where(f.favoriteId.eq(cursor))
+                        .fetchOne();
+                if (cursorCreatedAt == null) cursor = null;
+            }
+        }
+
         List<Favorite> content = queryFactory
                 .selectFrom(f)
                 .join(f.exhibit, e).fetchJoin()
@@ -43,8 +66,8 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
                         f.user.userId.eq(userId),
                         f.status.eq(true),
                         e.status.ne(Status.FINISHED),
-                        locationFilter(normalize(c.regions()), normalize(c.countries()), h),
-                        cursorCondition(cursor, c.sortType(), f, e)
+                        locationFilter(c.region(), c.country(), h),
+                        cursorCondition(cursor, cursorCreatedAt, cursorEndDate, c.sortType(), f, e)
                 )
                 .orderBy(sortOrder(c.sortType(), f, e))
                 .limit(cp.size() + 1)
@@ -72,7 +95,7 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
                         f.user.userId.eq(userId),
                         f.status.eq(true),
                         e.status.ne(Status.FINISHED),
-                        locationFilter(normalize(c.regions()), normalize(c.countries()), h)
+                        locationFilter(c.region(), c.country(), h)
                 ).fetchOne();
         return count == null ? 0L : count;
     }
@@ -110,86 +133,53 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
         return new HashSet<>(ids);
     }
 
-    private BooleanExpression locationFilter(List<String> regions, List<String> countries, QExhibitHall h) {
+    private BooleanExpression locationFilter(String region, String country, QExhibitHall h) {
 
-        boolean includeDomestic = regions != null;
-        boolean includeDomesticAll = includeDomestic && regions.isEmpty();
-        boolean includeDomesticSpecific = includeDomestic && !regions.isEmpty();
+        boolean hasRegion = region != null && !region.isBlank();
+        boolean hasCountry = country != null && !country.isBlank();
 
-        boolean includeOverseas = countries != null;
-        boolean includeOverseasAll = includeOverseas && countries.isEmpty();
-        boolean includeOverseasSpecific = includeOverseas && !countries.isEmpty();
+        if (!hasRegion && !hasCountry) return null;
 
-        if (!includeDomestic && !includeOverseas) return null;
+        BooleanExpression domestic = null;
+        BooleanExpression overseas = null;
 
-        BooleanExpression domesticExpr = null;
-        BooleanExpression overseasExpr = null;
-
-        if (includeDomesticAll) {
-            domesticExpr = h.isDomestic.isTrue();
-        } else if (includeDomesticSpecific) {
-            domesticExpr = h.isDomestic.isTrue().and(h.region.in(regions));
+        if (hasRegion) {
+            domestic = "전체".equals(region)
+                    ? h.isDomestic.isTrue()
+                    : h.isDomestic.isTrue().and(h.region.eq(region));
         }
 
-        if (includeOverseasAll) {
-            overseasExpr = h.isDomestic.isFalse();
-        } else if (includeOverseasSpecific) {
-            overseasExpr = h.isDomestic.isFalse().and(h.country.in(countries));
+        if (hasCountry) {
+            overseas = "전체".equals(country)
+                    ? h.isDomestic.isFalse()
+                    : h.isDomestic.isFalse().and(h.country.eq(country));
         }
 
-        if (domesticExpr != null && overseasExpr != null) return domesticExpr.or(overseasExpr);
-        if (domesticExpr != null) return domesticExpr;
-        return overseasExpr;
+        if (domestic != null && overseas != null) return domestic.or(overseas);
+        if (domestic != null) return domestic;
+        return overseas;
+
+
     }
 
-    private BooleanExpression cursorCondition(Long cursor, SortType sortType, QFavorite f, QExhibit e) {
+    private BooleanExpression cursorCondition(Long cursor, LocalDate cursorCreatedAt, LocalDate cursorEndDate, SortType sortType, QFavorite f, QExhibit e) {
         if (cursor == null) return null;
 
         if (sortType == SortType.ENDING_SOON) {
-            return endingSoonCursorCondition(cursor, f, e);
+            return endingSoonCursorCondition(cursor, cursorEndDate, f, e);
         }
 
-        return latestCursorCondition(cursor, f);
+        return latestCursorCondition(cursor, cursorCreatedAt, f);
     }
 
-    private BooleanExpression latestCursorCondition(Long cursor, QFavorite f) {
-        QFavorite subFavorite = new QFavorite("subFavorite");
+    private BooleanExpression latestCursorCondition(Long cursor, LocalDate cursorCreatedAt, QFavorite f) {
+        return f.createdAt.lt(cursorCreatedAt)
+                .or(f.createdAt.eq(cursorCreatedAt).and(f.favoriteId.lt(cursor)));
 
-        return f.createdAt.lt(
-                JPAExpressions
-                        .select(subFavorite.createdAt)
-                        .from(subFavorite)
-                        .where(subFavorite.favoriteId.eq(cursor))
-        ).or(
-                f.createdAt.eq(
-                        JPAExpressions
-                                .select(subFavorite.createdAt)
-                                .from(subFavorite)
-                                .where(subFavorite.favoriteId.eq(cursor))
-                ).and(f.favoriteId.lt(cursor))
-        );
     }
 
-    private BooleanExpression endingSoonCursorCondition(Long cursor, QFavorite f, QExhibit e) {
-        QFavorite subFavorite = new QFavorite("subFavorite");
-        QExhibit subExhibit = new QExhibit("subExhibit");
-
-        return e.endDate.gt(
-                JPAExpressions
-                        .select(subExhibit.endDate)
-                        .from(subFavorite)
-                        .join(subFavorite.exhibit, subExhibit)
-                        .where(subFavorite.favoriteId.eq(cursor))
-        ).or(
-                e.endDate.eq(
-                        JPAExpressions
-                                .select(subExhibit.endDate)
-                                .from(subFavorite)
-                                .join(subFavorite.exhibit, subExhibit)
-                                .where(subFavorite.favoriteId.eq(cursor))
-
-                ).and(f.favoriteId.lt(cursor))
-        );
+    private BooleanExpression endingSoonCursorCondition(Long cursor, LocalDate cursorEndDate, QFavorite f, QExhibit e) {
+        return e.endDate.gt(cursorEndDate).or(e.endDate.eq(cursorEndDate).and(f.favoriteId.lt(cursor)));
     }
 
     private OrderSpecifier<?>[] sortOrder(SortType sortType, QFavorite f, QExhibit e) {
@@ -198,15 +188,4 @@ public class FavoriteRepositoryImpl implements FavoriteRepositoryCustom {
         }
         return new OrderSpecifier[]{f.createdAt.desc(), f.favoriteId.desc()};
     }
-
-    private List<String> normalize(List<String> list) {
-        if (list == null) return null;
-
-        List<String> filtered = list.stream()
-                .filter(s -> s != null && !s.equals("전체"))
-                .toList();
-
-        return filtered;
-    }
-
 }
