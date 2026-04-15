@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class BadWord {
+public class BannedWord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
