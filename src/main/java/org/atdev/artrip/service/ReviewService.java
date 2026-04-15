@@ -3,19 +3,13 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.FileFolder;
-import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.review.Review;
-import org.atdev.artrip.domain.review.ReviewImage;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
-import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.s3.service.S3Service;
-import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.service.bannedword.BannedWordFilter;
 import org.atdev.artrip.service.dto.command.ReviewCreateCommand;
 import org.atdev.artrip.service.dto.command.ReviewUpdateCommand;
 import org.atdev.artrip.service.dto.result.ExhibitReviewResult;
@@ -36,9 +30,11 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final S3Service s3Service;
     private final ReviewCommandService reviewCommandService;
-    private final UserRepository userRepository;
+    private final BannedWordFilter bannedWordFilter;
+
 
     public ReviewResult createReview(ReviewCreateCommand command){
+        bannedWordFilter.validate(command.content());
 
         if (command.images() != null && command.images().size() > 4) {
             throw new GeneralException(ReviewErrorCode._TOO_MANY_REVIEW_IMAGES);
@@ -67,6 +63,10 @@ public class ReviewService {
     }
 
     public void updateReview(ReviewUpdateCommand command) {
+
+        if (command.content() != null) {
+            bannedWordFilter.validate(command.content());
+        }
 
         List<String> urlsToDelete = reviewCommandService.getUrlsToDelete(command.reviewId(), command.deleteImageIds());
 

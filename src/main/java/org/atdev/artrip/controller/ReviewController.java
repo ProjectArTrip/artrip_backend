@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.response.ReviewResponse;
 import org.atdev.artrip.controller.spec.ReviewSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.service.BannedWordCacheService;
 import org.atdev.artrip.service.ReviewService;
 import org.atdev.artrip.controller.dto.request.ReviewCreateRequest;
 import org.atdev.artrip.controller.dto.response.ExhibitReviewSliceResponse;
@@ -27,6 +28,7 @@ import java.util.List;
 public class ReviewController implements ReviewSpecification {
 
     private final ReviewService reviewService;
+    private final BannedWordCacheService cacheService;
 
     @Override
     @PostMapping("/{exhibitId}")
@@ -100,5 +102,10 @@ public class ReviewController implements ReviewSpecification {
 
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public void refreshCache() {
+        cacheService.evict();
     }
 }
