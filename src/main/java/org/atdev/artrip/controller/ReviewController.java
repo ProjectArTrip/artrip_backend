@@ -104,8 +104,4 @@ public class ReviewController implements ReviewSpecification {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/refresh")
-    public void refreshCache() {
-        cacheService.evict();
-    }
 }
