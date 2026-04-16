@@ -34,15 +34,21 @@ public class FavoriteService {
             throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
         }
 
-        SortType type = SortType.fromCode(condition.sortType().getCode());
+        SortType sortType = condition.sortType();
 
-        if (type == SortType.POPULAR) {
+        if (sortType == null || sortType == SortType.NONE) {
+            sortType = SortType.LATEST;
+        }
+
+        if (sortType == SortType.POPULAR) {
             throw new GeneralException(FavoriteErrorCode._UNSUPPORTED_SORT_TYPE);
         }
 
-        Slice<Favorite> slice = favoriteRepository.findFavorites(userId, condition, cursorPagination);
+        FavoriteSearchCondition normalized = new FavoriteSearchCondition(sortType, condition.region(), condition.country());
 
-        long totalCount = favoriteRepository.countFavorites(userId, condition);
+        Slice<Favorite> slice = favoriteRepository.findFavorites(userId, normalized, cursorPagination);
+
+        long totalCount = favoriteRepository.countFavorites(userId, normalized);
 
         return FavoriteResult.of(slice, totalCount);
     }
