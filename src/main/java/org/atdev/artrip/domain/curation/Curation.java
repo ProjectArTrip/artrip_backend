@@ -41,9 +41,6 @@ public class Curation {
     @Column(nullable = false)
     private boolean active;
 
-    @Column
-    private int displayCount;
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDate createdAt;
@@ -51,6 +48,9 @@ public class Curation {
     @LastModifiedDate
     @Column
     private LocalDate updatedAt;
+
+    @Column
+    private long displayCount;
 
     @Enumerated(EnumType.STRING)
     @Column
@@ -61,7 +61,7 @@ public class Curation {
 
     protected Curation() {}
 
-    public Curation(String title, String subtitle, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType, int displayCount) {
+    public Curation(String title, String subtitle, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
         this.title = title;
         this.subtitle = subtitle;
         this.refreshCycle = refreshCycle;
@@ -69,10 +69,9 @@ public class Curation {
         this.visibleTo = visibleTo;
         this.active = active;
         this.sortType = sortType;
-        this.displayCount = displayCount;
     }
 
-    public static Curation of(String title, String subtitle, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType, int displayCount) {
+    public static Curation of(String title, String subtitle, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
         return new Curation(
                 title,
                 subtitle,
@@ -80,8 +79,7 @@ public class Curation {
                 visibleFrom,
                 visibleTo,
                 active,
-                sortType,
-                displayCount
+                sortType
         );
     }
 
