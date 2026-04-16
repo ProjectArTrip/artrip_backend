@@ -5,12 +5,14 @@ import org.atdev.artrip.service.dto.result.SearchHistoryResult;
 import java.time.LocalDateTime;
 
 public record SearchHistoryResponse(
+        Long SearchHistoryId,
         String content,
         LocalDateTime createdAt
 ) {
 
     public static SearchHistoryResponse from(SearchHistoryResult result) {
         return new SearchHistoryResponse(
+                result.SearchHistoryId(),
                 result.content(),
                 result.createdAt()
         );
