@@ -3,13 +3,11 @@ package org.atdev.artrip.service;
 import org.atdev.artrip.constants.RefreshCycle;
 import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.domain.curation.Curation;
-import org.atdev.artrip.domain.curation.CurationExhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.global.apipayload.code.status.CurationErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.CurationRepository;
 import org.atdev.artrip.service.dto.condition.CurationSearchCondition;
-import org.atdev.artrip.service.dto.result.CurationDetailCursorResult;
 import org.atdev.artrip.utils.CursorPagination;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,17 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
