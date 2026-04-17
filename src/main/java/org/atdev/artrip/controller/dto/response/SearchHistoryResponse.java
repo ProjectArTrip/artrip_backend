@@ -5,7 +5,7 @@ import org.atdev.artrip.service.dto.result.SearchHistoryResult;
 import java.time.LocalDateTime;
 
 public record SearchHistoryResponse(
-        Long SearchHistoryId,
+        Long searchHistoryId,
         String content,
         LocalDateTime createdAt
 ) {

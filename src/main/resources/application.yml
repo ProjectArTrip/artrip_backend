@@ -162,6 +162,7 @@ logging:
   level:
     root: info
     org.atdev.artrip: info
+    org.apache.coyote.http11: warn
 
 server:
   port: 8082
