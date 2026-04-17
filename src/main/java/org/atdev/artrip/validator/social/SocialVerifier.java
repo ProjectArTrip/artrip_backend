@@ -7,4 +7,7 @@ public interface SocialVerifier {
 
     Provider getProvider();
     SocialUserInfo verify(String idToken);
+    default String fetchRefreshToken(String authorizationCode) { return null; }
+    void unlink(String providerId, String refreshToken);
+
 }

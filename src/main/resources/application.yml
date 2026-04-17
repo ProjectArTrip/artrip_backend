@@ -97,6 +97,9 @@ notification:
     file_path: ${FILE_PATH}
     project_id: ${PROJECT_ID}
 
+kakao:
+  admin-key: ${KAKAO_ADMIN_KEY}
+
 ---
 spring:
   config:

@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
+import org.atdev.artrip.domain.auth.SocialAccounts;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.AuthErrorCode;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.JwtToken;
+import org.atdev.artrip.repository.SocialRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,8 @@ public class AuthService {
     private final UserRepository userRepository;
     private final List<SocialVerifier> socialVerifiers;
     private final RedisService redisService;
+    private final SocialRepository socialRepository;
+    private final UserService userService;
 
     @Value("${spring.jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
@@ -116,7 +121,7 @@ public class AuthService {
     }
 
     @Transactional
-    public SocialLoginResult loginWithSocial(String providerName, String idToken) {
+    public SocialLoginResult loginWithSocial(String providerName, String idToken, String authorizationCode) {
 
         Provider provider = Provider.from(providerName);
 
@@ -126,17 +131,29 @@ public class AuthService {
                 .orElseThrow(() -> new GeneralException(AuthErrorCode._UNSUPPORTED_SOCIAL_PROVIDER));
 
         SocialUserInfo socialUser = verifier.verify(idToken);
+        String refreshToken = verifier.fetchRefreshToken(authorizationCode);
 
         String email = socialUser.getEmail();
         if (email == null) {
             throw new GeneralException(AuthErrorCode._SOCIAL_EMAIL_NOT_PROVIDED);
         }
-
         Optional<User> userOptional = userRepository.findByEmail(email);
-
         boolean isFirstLogin = userOptional.isEmpty();
 
         User user = userOptional.orElseGet(() -> userRepository.save(User.createUser(socialUser)));
+
+        SocialAccounts socialAccount = socialRepository
+                .findByProviderAndProviderId(provider, socialUser.getProviderId())
+                .orElse(null);
+
+        if (socialAccount == null) {
+            socialAccount = SocialAccounts.create(user, socialUser, refreshToken);
+            socialRepository.save(socialAccount);
+        } else {
+            if (refreshToken != null) {
+                socialAccount.setRefreshToken(refreshToken);
+            }
+        }
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
 
         redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
@@ -152,4 +169,30 @@ public class AuthService {
         user.setOnboardingCompleted(!user.isOnboardingCompleted());
     }
 
+    @Transactional
+    public void withdraw(Long userId, String accessToken, String refreshToken) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+
+        appLogout(accessToken, refreshToken);
+
+        List<SocialAccounts> socials = socialRepository.findAllByUser(user);
+
+        for (SocialAccounts social : socials) {
+            SocialVerifier verifier = socialVerifiers.stream()
+                    .filter(v -> v.getProvider() == social.getProvider())
+                    .findFirst()
+                    .orElseThrow();
+
+            try {
+                verifier.unlink(social.getProviderId(), social.getRefreshToken());
+            } catch (Exception e) {
+                log.error("unlink 실패 provider={}, providerId={}",
+                        social.getProvider(), social.getProviderId(), e);
+            }
+        }
+
+        userService.deleteUserData(userId);
+    }
 }

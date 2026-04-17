@@ -116,17 +116,17 @@ public class UserService {
     }
 
     @Transactional
-    public void withdraw(Long userId) {
+    public void deleteUserData(Long userId) {
         User user = findUserOrThrow(userId);
 
-            favoriteRepository.deleteAllByUser(user);
-            userKeywordRepository.deleteAllByUser(user);
-            reviewImageRepository.deleteAllByUserId(userId);
-            reviewRepository.deleteAllByUser(user);
+        favoriteRepository.deleteAllByUser(user);
+        userKeywordRepository.deleteAllByUser(user);
+        reviewImageRepository.deleteAllByUserId(userId);
+        reviewRepository.deleteAllByUser(user);
 
-            searchHistoryRepository.deleteAllByUserId(userId);
-            recentExhibitRepository.deleteAllByUserId(userId);
+        searchHistoryRepository.deleteAllByUserId(userId);
+        recentExhibitRepository.deleteAllByUserId(userId);
 
-            userRepository.delete(user);
+        userRepository.delete(user);
     }
 }
