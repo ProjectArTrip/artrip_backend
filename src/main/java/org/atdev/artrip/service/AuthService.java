@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -130,8 +131,20 @@ public class AuthService {
                 .findFirst()
                 .orElseThrow(() -> new GeneralException(AuthErrorCode._UNSUPPORTED_SOCIAL_PROVIDER));
 
-        SocialUserInfo socialUser = verifier.verify(idToken);
-        String refreshToken = verifier.fetchRefreshToken(authorizationCode);
+        String actualIdToken = idToken;
+        String refreshToken = null;
+
+        if (authorizationCode != null && !authorizationCode.isBlank()) {
+            Map<String, String> tokens = verifier.exchangeCodeForTokens(authorizationCode);
+            actualIdToken = tokens.get("id_token");
+            refreshToken = tokens.get("refresh_token");
+        }
+
+        if (actualIdToken == null || actualIdToken.isBlank()) {
+            throw new GeneralException(AuthErrorCode._SOCIAL_ID_TOKEN_MISSING);
+        }
+
+        SocialUserInfo socialUser = verifier.verify(actualIdToken);
 
         String email = socialUser.getEmail();
         if (email == null) {
@@ -150,7 +163,7 @@ public class AuthService {
             socialAccount = SocialAccounts.create(user, socialUser, refreshToken);
             socialRepository.save(socialAccount);
         } else {
-            if (refreshToken != null) {
+            if (refreshToken != null && !refreshToken.isBlank()) {
                 socialAccount.setRefreshToken(refreshToken);
             }
         }

@@ -105,8 +105,22 @@ public class GoogleTokenVerifier implements SocialVerifier{
     }
 
     @Override
-    public String fetchRefreshToken(String authorizationCode) {
+    public Map<String, String> exchangeCodeForTokens(String authorizationCode) {
+        log.info("redirect_uri: '{}'", redirectUri);
+        log.info("authorizationCode: '{}'", authorizationCode);
 
+        Map<String, Object> tokenResponse = exchangeAuthorizationCode(authorizationCode);
+
+        Map<String, String> result = new java.util.HashMap<>();
+        if (tokenResponse != null) {
+            result.put("id_token", (String) tokenResponse.get("id_token"));
+            result.put("refresh_token", (String) tokenResponse.get("refresh_token"));
+        }
+        return result;
+    }
+
+
+    private Map<String, Object> exchangeAuthorizationCode(String authorizationCode) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", authorizationCode);
         params.add("client_id", googleClientId);
@@ -118,11 +132,7 @@ public class GoogleTokenVerifier implements SocialVerifier{
                 "https://oauth2.googleapis.com/token", params, Map.class
         );
 
-        Map body = response.getBody();
-        if (body == null || body.get("refresh_token") == null) {
-            return null;
-        }
-        return (String) body.get("refresh_token");
+        return response.getBody();
     }
 
     @Override
