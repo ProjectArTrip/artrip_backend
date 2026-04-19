@@ -106,8 +106,6 @@ public class GoogleTokenVerifier implements SocialVerifier{
 
     @Override
     public Map<String, String> exchangeCodeForTokens(String authorizationCode) {
-        log.info("redirect_uri: '{}'", redirectUri);
-        log.info("authorizationCode: '{}'", authorizationCode);
 
         Map<String, Object> tokenResponse = exchangeAuthorizationCode(authorizationCode);
 
