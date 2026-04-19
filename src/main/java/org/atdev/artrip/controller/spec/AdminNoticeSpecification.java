@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.atdev.artrip.controller.dto.request.AdminCreateNoticeRequest;
 import org.atdev.artrip.controller.dto.request.AdminUpdateNoticeRequest;
+import org.atdev.artrip.controller.dto.response.AdminNoticeCreateResponse;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.NoticeErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -20,7 +21,7 @@ public interface AdminNoticeSpecification {
             user = {UserErrorCode._USER_NOT_FOUND},
             fcmToken = {FcmErrorCode._INVALID_REQUEST_PATTERN, FcmErrorCode._FCM_SERVER_ERROR}
     )
-    public ResponseEntity<Void> createNotice(
+    public ResponseEntity<AdminNoticeCreateResponse> createNotice(
             @LoginUser Long userId,
             @RequestBody AdminCreateNoticeRequest request
             );
