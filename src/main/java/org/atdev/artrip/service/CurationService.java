@@ -34,11 +34,11 @@ public class CurationService {
 
     @Transactional(readOnly = true)
     public CurationSummaryResult getSummaryCuration(Long userId, CurationSearchCondition condition) {
+
         LocalDate today = LocalDate.now();
 
-        String region = (condition.region() == null || condition.region().isBlank() || "전체".equals(condition.region())) ? null : condition.region();
-        String country = (condition.country() == null || condition.country().isBlank() || Country.ALL.getLabel().equals(condition.country())) ? null : condition.country();
-
+        String region = condition.region();
+        String country = condition.country();
         Boolean domestic = condition.domestic();
 
         if (country != null) {

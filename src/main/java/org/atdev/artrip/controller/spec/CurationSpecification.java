@@ -1,10 +1,10 @@
 package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
+import org.atdev.artrip.controller.dto.request.CurationSearchRequest;
 import org.atdev.artrip.controller.dto.response.CurationDetailCursorResponse;
 import org.atdev.artrip.controller.dto.response.CurationSummaryResponse;
 import org.atdev.artrip.global.resolver.LoginUser;
-import org.atdev.artrip.service.dto.condition.CurationSearchCondition;
 import org.atdev.artrip.utils.CursorPagination;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public interface CurationSpecification {
     )
     ResponseEntity<CurationSummaryResponse> getSummary(
             @LoginUser Long userId,
-            @ParameterObject CurationSearchCondition condition);
+            @ParameterObject CurationSearchRequest request);
 
     @Operation(
             summary = "큐레이션 상세 조회",

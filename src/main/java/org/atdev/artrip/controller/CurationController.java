@@ -1,12 +1,12 @@
 package org.atdev.artrip.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.request.CurationSearchRequest;
 import org.atdev.artrip.controller.dto.response.CurationDetailCursorResponse;
 import org.atdev.artrip.controller.dto.response.CurationSummaryResponse;
 import org.atdev.artrip.controller.spec.CurationSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.CurationService;
-import org.atdev.artrip.service.dto.condition.CurationSearchCondition;
 import org.atdev.artrip.service.dto.result.CurationDetailCursorResult;
 import org.atdev.artrip.service.dto.result.CurationSummaryResult;
 import org.atdev.artrip.utils.CursorPagination;
@@ -27,9 +27,9 @@ public class CurationController implements CurationSpecification {
     @GetMapping
     public ResponseEntity<CurationSummaryResponse> getSummary(
             @LoginUser Long userId,
-            CurationSearchCondition condition) {
+            CurationSearchRequest request) {
 
-        CurationSummaryResult result = curationService.getSummaryCuration(userId, condition);
+        CurationSummaryResult result = curationService.getSummaryCuration(userId, request.toCondition());
         return ResponseEntity.ok(CurationSummaryResponse.from(result));
     }
 
