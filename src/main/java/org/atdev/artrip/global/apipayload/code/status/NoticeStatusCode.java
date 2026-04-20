@@ -11,4 +11,8 @@ public enum NoticeStatusCode {
     NOTICE_CREATE_WITH_PUSH("공지사항이 생성되었고 %d명에게 알림이 발송됩니다");
 
     private final String message;
+
+    public String format(Object... args) {
+        return String.format(this.message, args);
+    }
 }

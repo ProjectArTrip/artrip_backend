@@ -40,7 +40,7 @@ public class AdminNoticeService {
 
         String message = pushUserCount == 0
                 ? NoticeStatusCode.NOTICE_CREATE_NO_PUSH_TARGET.getMessage()
-                : NoticeStatusCode.NOTICE_CREATE_WITH_PUSH.getMessage();
+                : NoticeStatusCode.NOTICE_CREATE_WITH_PUSH.format(pushUserCount);
 
 
         return AdminNoticeCreateResult.of(notice.getNoticeId(), pushUserCount, message);

@@ -100,7 +100,7 @@ public class AdminExhibitServiceTest {
         // then
         assertAll(
                 () -> assertThat(result.pushUserCount()).isEqualTo(3L),
-                () -> assertThat(result.message()).isEqualTo(NoticeStatusCode.NOTICE_CREATE_WITH_PUSH.getMessage())
+                () -> assertThat(result.message()).isEqualTo(String.format(NoticeStatusCode.NOTICE_CREATE_WITH_PUSH.getMessage(), 3L))
         );
     }
 }

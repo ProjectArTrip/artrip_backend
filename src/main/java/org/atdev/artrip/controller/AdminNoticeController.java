@@ -12,7 +12,6 @@ import org.atdev.artrip.service.AdminNoticeService;
 import org.atdev.artrip.service.dto.command.AdminNoticeCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminNoticeUpdateCommand;
 import org.atdev.artrip.service.dto.result.AdminNoticeCreateResult;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +34,7 @@ public class AdminNoticeController implements AdminNoticeSpecification {
         AdminNoticeCreateResponse response = AdminNoticeCreateResponse.from(result);
 
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Override
