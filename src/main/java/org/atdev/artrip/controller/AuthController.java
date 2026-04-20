@@ -72,7 +72,7 @@ public class AuthController implements AuthSpecification {
     @PostMapping("/social")
     public ResponseEntity<SocialLoginResponse> socialLogin(@RequestBody SocialLoginRequest request) {
 
-        SocialLoginResult result = authService.loginWithSocial(request.getProvider(), request.getIdToken());
+        SocialLoginResult result = authService.loginWithSocial(request.getProvider(), request.getIdToken(), request.getAuthorizationCode());
         SocialLoginResponse response = SocialLoginResponse.from(result);
 
         return ResponseEntity.ok(response);
@@ -87,5 +87,11 @@ public class AuthController implements AuthSpecification {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping
+    public ResponseEntity<Void> withdraw(@LoginUser Long userId,
+                                         @RequestBody(required = false) LogoutRequest token) {
+        authService.withdraw(userId,token.accessToken(),token.refreshToken());
+        return ResponseEntity.noContent().build();
+    }
 
 }

@@ -6,4 +6,5 @@ import lombok.Data;
 public class SocialLoginRequest {
     private String provider;
     private String idToken;
+    private String authorizationCode;
 }

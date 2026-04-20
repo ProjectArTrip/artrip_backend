@@ -14,6 +14,7 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -79,4 +80,11 @@ public interface AuthSpecification {
     @Operation(summary = "isFirstLogin값 반전 api")
     public ResponseEntity<Void> completeOnboarding(
             @LoginUser Long userId);
+
+    @Operation(summary = "회원 탈퇴", description = "리뷰,즐찾,키워드 전부 Hard Delete, 소셜 unlink")
+    @ApiErrorResponses(
+            user = {UserErrorCode._USER_NOT_FOUND}
+    )
+    public ResponseEntity<Void> withdraw(@LoginUser Long userId,
+                                         @RequestBody(required = false) LogoutRequest token);
 }
