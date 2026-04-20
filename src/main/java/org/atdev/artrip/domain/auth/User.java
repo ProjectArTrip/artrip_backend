@@ -103,9 +103,6 @@ public class User {
                 .socialAccounts(new ArrayList<>())
                 .build();
 
-        SocialAccounts social = SocialAccounts.create(user, info);
-        user.addSocialAccount(social);
-
         return user;
     }
 

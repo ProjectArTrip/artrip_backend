@@ -97,6 +97,9 @@ notification:
     file_path: ${FILE_PATH}
     project_id: ${PROJECT_ID}
 
+kakao:
+  admin-key: ${KAKAO_ADMIN_KEY}
+
 ---
 spring:
   config:
@@ -162,6 +165,7 @@ logging:
   level:
     root: info
     org.atdev.artrip: info
+    org.apache.coyote.http11: warn
 
 server:
   port: 8082

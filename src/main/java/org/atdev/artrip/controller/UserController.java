@@ -91,10 +91,4 @@ public class UserController implements UserSpecification {
 
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> withdraw(@LoginUser Long userId) {
-        userService.withdraw(userId);
-        return ResponseEntity.noContent().build();
-    }
-
 }

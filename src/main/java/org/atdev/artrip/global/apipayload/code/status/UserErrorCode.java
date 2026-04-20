@@ -34,6 +34,7 @@ public enum UserErrorCode implements BaseErrorCode {
     // Social Login Errors
     _SOCIAL_VERIFICATION_FAILED(HttpStatus.UNAUTHORIZED, "SOCIAL401-VERIFICATION_FAILED", "소셜 토큰 검증 중 오류가 발생했습니다."),
     _SOCIAL_ID_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "IDTOKEN401-INVALID", "소셜 ID 토큰이 유효하지 않습니다."),
+    _SOCIAL_ID_TOKEN_MISSING(HttpStatus.BAD_REQUEST, "IDTOKEN400-MISSING", "소셜 ID 토큰이 제공되지 않았습니다."),
     _SOCIAL_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "SOCIAL401-TOKEN_EXPIRED", "소셜 ID 토큰이 만료되었습니다."),
     _SOCIAL_TOKEN_INVALID_SIGNATURE(HttpStatus.UNAUTHORIZED, "SOCIAL401-INVALID_SIGNATURE", "소셜 토큰 서명이 유효하지 않습니다."),
     _SOCIAL_TOKEN_INVALID_AUDIENCE(HttpStatus.UNAUTHORIZED, "SOCIAL401-INVALID_AUDIENCE", "소셜 토큰의 aud 값이 일치하지 않습니다.");
