@@ -5,6 +5,7 @@ import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.notice.Notice;
 import org.atdev.artrip.global.apipayload.code.status.NoticeErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.NoticeStatusCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.fcm.service.dto.NoticeCreatedEvent;
@@ -12,6 +13,7 @@ import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.AdminNoticeCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminNoticeUpdateCommand;
+import org.atdev.artrip.service.dto.result.AdminNoticeCreateResult;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,14 +27,23 @@ public class AdminNoticeService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public void createNotice(AdminNoticeCreateCommand command) {
+    public AdminNoticeCreateResult createNotice(AdminNoticeCreateCommand command) {
 
         User admin = validUser(command.userId());
 
         Notice notice = Notice.create(admin, command.title(), command.content());
         noticeRepository.save(notice);
 
+        long pushUserCount = userRepository.countValidPushUsers();
+
         eventPublisher.publishEvent(new NoticeCreatedEvent(notice.getNoticeId(), command.title(), command.content()));
+
+        String message = pushUserCount == 0
+                ? NoticeStatusCode.NOTICE_CREATE_NO_PUSH_TARGET.getMessage()
+                : NoticeStatusCode.NOTICE_CREATE_WITH_PUSH.format(pushUserCount);
+
+
+        return AdminNoticeCreateResult.of(notice.getNoticeId(), pushUserCount, message);
     }
 
     @Transactional

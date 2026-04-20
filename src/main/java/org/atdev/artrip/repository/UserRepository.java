@@ -26,4 +26,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u where u.pushEnabled = true and u.fcmToken is not null and u.fcmToken != ''")
     List<User> findValidPushUsers();
+
+    @Query("""
+            select count(u)
+            from User u
+            where u.pushEnabled = true
+            and u.fcmToken is not null
+            and u.fcmToken != ''
+            """)
+    long countValidPushUsers();
 }

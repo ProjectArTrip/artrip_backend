@@ -131,8 +131,6 @@ public class FavoriteServiceTest {
                 SortType.LATEST,
                 null,
                 "프랑스"
-
-
         );
         CursorPagination pagination = new CursorPagination(null, 20L);
 
