@@ -114,37 +114,39 @@ public class FavoriteServiceTest {
         );
     }
 
-//    @Test
-//    @DisplayName("해외 필터 검색")
-//    public void getFavorite_overseas() {
-//        //given
-//        Long userId = 1L;
-//
-//        ExhibitHall hall = ExhibitHall.of(6L, "루브르", "프랑스", "파리", false);
-//        Exhibit exhibit = Exhibit.of(6L, "프랑스 전시", hall, Status.ONGOING, LocalDate.now().minusDays(5), LocalDate.now().plusDays(10));
-//        Favorite favorite = Favorite.of(6L, testUser, exhibit, true, LocalDate.now().minusDays(1));
-//
-//        List<Favorite> favorites = List.of(favorite);
-//        SliceImpl<Favorite> slice = new SliceImpl<>(favorites, PageRequest.ofSize(20), false);
-//
-//        FavoriteSearchCondition condition = new FavoriteSearchCondition(
-//                SortType.LATEST,
-//                null,
-//                List.of("프랑스")
-//        );
-//        CursorPagination pagination = new CursorPagination(null, 20L);
-//
-//        when(userRepository.existsById(1L)).thenReturn(true);
-//        when(favoriteRepository.findFavorites(any(), any(), any())).thenReturn(slice);
-//
-//        //when
-//        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
-//
-//        //then
-//        assertAll(
-//                () -> assertThat(result.items().get(0).country()).contains("프")
-//        );
-//    }
+    @Test
+    @DisplayName("해외 필터 검색")
+    public void getFavorite_overseas() {
+        //given
+        Long userId = 1L;
+
+        ExhibitHall hall = ExhibitHall.of(6L, "루브르", "프랑스", "파리", false);
+        Exhibit exhibit = Exhibit.of(6L, "프랑스 전시", hall, Status.ONGOING, LocalDate.now().minusDays(5), LocalDate.now().plusDays(10));
+        Favorite favorite = Favorite.of(6L, testUser, exhibit, true, LocalDate.now().minusDays(1));
+
+        List<Favorite> favorites = List.of(favorite);
+        SliceImpl<Favorite> slice = new SliceImpl<>(favorites, PageRequest.ofSize(20), false);
+
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.LATEST,
+                null,
+                "프랑스"
+
+
+        );
+        CursorPagination pagination = new CursorPagination(null, 20L);
+
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(favoriteRepository.findFavorites(any(), any(), any())).thenReturn(slice);
+
+        //when
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
+
+        //then
+        assertAll(
+                () -> assertThat(result.items().get(0).country()).contains("프")
+        );
+    }
 
     @Test
     @DisplayName("SortType이 인기순 요청일 경우 예외")
@@ -194,30 +196,30 @@ public class FavoriteServiceTest {
         );
     }
 
-//    @Test
-//    @DisplayName("국내/해외 혼합 조회")
-//    public void getFavorite_mixed_search() {
-//        // given
-//        Long userId = 1L;
-//        CursorPagination pagination = new CursorPagination(null, 20L);
-//        FavoriteSearchCondition condition = new FavoriteSearchCondition(
-//                SortType.LATEST,
-//                List.of("서울"),
-//                List.of("프랑스")
-//        );
-//
-//        SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
-//
-//        when(userRepository.existsById(userId)).thenReturn(true);
-//        when(favoriteRepository.findFavorites(any(), any(), any())).thenReturn(slice);
-//
-//        //when
-//        //then
-//        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
-//
-//        assertAll(
-//                () -> assertThat(result).isNotNull(),
-//                () -> assertThat(result.items()).isEmpty()
-//        );
-//    }
+    @Test
+    @DisplayName("국내/해외 혼합 조회")
+    public void getFavorite_mixed_search() {
+        // given
+        Long userId = 1L;
+        CursorPagination pagination = new CursorPagination(null, 20L);
+        FavoriteSearchCondition condition = new FavoriteSearchCondition(
+                SortType.LATEST,
+                "서울",
+                "프랑스"
+        );
+
+        SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);
+
+        when(userRepository.existsById(userId)).thenReturn(true);
+        when(favoriteRepository.findFavorites(any(), any(), any())).thenReturn(slice);
+
+        //when
+        //then
+        FavoriteResult result = assertDoesNotThrow(() -> favoriteService.getFavorites(userId, condition, pagination));
+
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(result.items()).isEmpty()
+        );
+    }
 }

@@ -2,9 +2,6 @@ package org.atdev.artrip.service.dto.result;
 
 import org.atdev.artrip.domain.curation.Curation;
 import org.atdev.artrip.domain.curation.CurationExhibit;
-import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
-import org.atdev.artrip.utils.DateTimeUtils;
 
 import java.util.List;
 import java.util.Set;
