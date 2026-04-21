@@ -42,7 +42,7 @@ public class AuthController implements AuthSpecification {
 
 
     @PostMapping("/app/reissue")
-    public ResponseEntity<AppReissueResponse> appReissue(@RequestBody (required = false) ReissueRequest refreshToken) {
+    public ResponseEntity<AppReissueResponse> appReissue(@RequestBody ReissueRequest refreshToken) {
 
         AppReissueResult result = authService.appReissueToken(refreshToken.refreshToken());
         AppReissueResponse response = AppReissueResponse.from(result);
@@ -61,7 +61,7 @@ public class AuthController implements AuthSpecification {
     }
 
     @PostMapping("/app/logout")
-    public ResponseEntity<Void> appLogout(@RequestBody(required = false) LogoutRequest token) {
+    public ResponseEntity<Void> appLogout(@RequestBody LogoutRequest token) {
 
         authService.appLogout(token.accessToken(),token.refreshToken());
 
@@ -89,7 +89,7 @@ public class AuthController implements AuthSpecification {
 
     @DeleteMapping
     public ResponseEntity<Void> withdraw(@LoginUser Long userId,
-                                         @RequestBody(required = false) LogoutRequest token) {
+                                         @RequestBody LogoutRequest token) {
         authService.withdraw(userId,token.accessToken(),token.refreshToken());
         return ResponseEntity.noContent().build();
     }

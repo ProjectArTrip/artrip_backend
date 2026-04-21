@@ -44,8 +44,8 @@ public class AdminExhibitServiceTest {
     @InjectMocks
     private AdminNoticeService adminNoticeService;
 
-    @InjectMocks
-    private AdminExhibitService adminExhibitService;
+//    @InjectMocks
+//    private AdminExhibitService adminExhibitService;
 
     private User adminUser;
     private User normalInfo;

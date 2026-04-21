@@ -22,7 +22,9 @@ import org.atdev.artrip.service.dto.result.AppReissueResult;
 import org.atdev.artrip.service.dto.result.SocialLoginResult;
 import org.atdev.artrip.service.redis.RedisService;
 import org.atdev.artrip.validator.social.SocialVerifier;
+import org.atdev.artrip.service.event.WithdrawEvent;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,7 @@ public class AuthService {
     private final RedisService redisService;
     private final SocialRepository socialRepository;
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${spring.jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
@@ -186,26 +189,14 @@ public class AuthService {
     public void withdraw(Long userId, String accessToken, String refreshToken) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow();
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        appLogout(accessToken, refreshToken);
-
-        List<SocialAccounts> socials = socialRepository.findAllByUser(user);
-
-        for (SocialAccounts social : socials) {
-            SocialVerifier verifier = socialVerifiers.stream()
-                    .filter(v -> v.getProvider() == social.getProvider())
-                    .findFirst()
-                    .orElseThrow();
-
-            try {
-                verifier.unlink(social.getProviderId(), social.getRefreshToken());
-            } catch (Exception e) {
-                log.error("unlink 실패 provider={}, providerId={}",
-                        social.getProvider(), social.getProviderId(), e);
-            }
-        }
+        List<WithdrawEvent.SocialInfo> socialInfos = socialRepository.findAllByUser(user).stream()
+                .map(s -> new WithdrawEvent.SocialInfo(s.getProvider(), s.getProviderId(), s.getRefreshToken()))
+                .toList();
 
         userService.deleteUserData(userId);
+
+        eventPublisher.publishEvent(new WithdrawEvent(accessToken, refreshToken, socialInfos));
     }
 }
