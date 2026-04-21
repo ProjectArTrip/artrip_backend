@@ -114,13 +114,14 @@ public class AuthService {
         if (refreshToken == null || refreshToken.isEmpty()) {
             throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN);
         }
-
-        if (accessToken != null) {
-            long remainTime = jwtProvider.getExpiration(accessToken);
-
-            if (remainTime>0)
-                redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new GeneralException(UserErrorCode._JWT_EMPTY_TOKEN);
         }
+
+        long remainTime = jwtProvider.getExpiration(accessToken);
+        if (remainTime > 0)
+            redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
+
         redisService.deleteKey(refreshToken);
     }
 
