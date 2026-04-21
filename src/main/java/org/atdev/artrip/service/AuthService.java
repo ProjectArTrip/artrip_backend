@@ -109,19 +109,28 @@ public class AuthService {
     }
 
     @Transactional
-    public void appLogout(String accessToken,String refreshToken) {
+    public void appLogout(Long userId, String accessToken, String refreshToken) {
 
+        validateRefreshTokenOwner(userId, refreshToken);
+        clearSession(accessToken, refreshToken);
+    }
+
+    private void validateRefreshTokenOwner(Long userId, String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
             throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN);
         }
-        if (accessToken == null || accessToken.isEmpty()) {
-            throw new GeneralException(UserErrorCode._JWT_EMPTY_TOKEN);
+        jwtProvider.validateRefreshToken(refreshToken);
+        String storedUserId = redisService.getValue(refreshToken);
+        if (storedUserId == null || !storedUserId.equals(String.valueOf(userId))) {
+            throw new GeneralException(UserErrorCode._INVALID_USER_REFRESH_TOKEN);
         }
+    }
 
+    private void clearSession(String accessToken, String refreshToken) {
         long remainTime = jwtProvider.getExpiration(accessToken);
-        if (remainTime > 0)
+        if (remainTime > 0) {
             redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
-
+        }
         redisService.deleteKey(refreshToken);
     }
 
@@ -189,6 +198,8 @@ public class AuthService {
     @Transactional
     public void withdraw(Long userId, String accessToken, String refreshToken) {
 
+        validateRefreshTokenOwner(userId, refreshToken);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
@@ -196,8 +207,9 @@ public class AuthService {
                 .map(s -> new WithdrawEvent.SocialInfo(s.getProvider(), s.getProviderId(), s.getRefreshToken()))
                 .toList();
 
-        userService.deleteUserData(userId);
+        clearSession(accessToken, refreshToken);
 
-        eventPublisher.publishEvent(new WithdrawEvent(accessToken, refreshToken, socialInfos));
+        userService.deleteUserData(userId);
+        eventPublisher.publishEvent(new WithdrawEvent(userId, accessToken, refreshToken, socialInfos));
     }
 }

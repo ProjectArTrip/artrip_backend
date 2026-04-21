@@ -1,20 +1,16 @@
 package org.atdev.artrip.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.response.AppReissueResponse;
 import org.atdev.artrip.controller.spec.AuthSpecification;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AuthService;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
-import org.atdev.artrip.global.apipayload.CommonResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.result.AppReissueResult;
 import org.atdev.artrip.service.dto.result.SocialLoginResult;
@@ -61,9 +57,11 @@ public class AuthController implements AuthSpecification {
     }
 
     @PostMapping("/app/logout")
-    public ResponseEntity<Void> appLogout(@RequestBody LogoutRequest token) {
+    public ResponseEntity<Void> appLogout(@LoginUser Long userId,
+                                          @RequestBody LogoutRequest token,
+                                          @RequestHeader("Authorization") String authorization) {
 
-        authService.appLogout(token.accessToken(),token.refreshToken());
+        authService.appLogout(userId, authorization.substring(7), token.refreshToken());
 
         return ResponseEntity.noContent().build();
     }
@@ -87,11 +85,12 @@ public class AuthController implements AuthSpecification {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping
+    @PostMapping("/withdraw")
     public ResponseEntity<Void> withdraw(@LoginUser Long userId,
-                                         @RequestBody LogoutRequest token) {
-        authService.withdraw(userId,token.accessToken(),token.refreshToken());
+                                         @RequestBody LogoutRequest token,
+                                         @RequestHeader("Authorization") String authorization) {
+
+        authService.withdraw(userId, authorization.substring(7), token.refreshToken());
         return ResponseEntity.noContent().build();
     }
-
 }

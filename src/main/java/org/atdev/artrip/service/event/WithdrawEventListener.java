@@ -33,7 +33,5 @@ public class WithdrawEventListener {
                         }
                     });
         }
-
-        authService.appLogout(event.accessToken(), event.refreshToken());
     }
 }

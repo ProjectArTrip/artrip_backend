@@ -5,6 +5,7 @@ import org.atdev.artrip.constants.Provider;
 import java.util.List;
 
 public record WithdrawEvent(
+        Long userId,
         String accessToken,
         String refreshToken,
         List<SocialInfo> socials
