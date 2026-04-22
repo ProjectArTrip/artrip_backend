@@ -40,9 +40,6 @@ public class GoogleTokenVerifier implements SocialVerifier{
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
-    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
-    private String redirectUri;
-
     private static final String GOOGLE_JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs";
     private static final String GOOGLE_ISSUER = "https://accounts.google.com";
     private final RestTemplate restTemplate;
@@ -123,7 +120,7 @@ public class GoogleTokenVerifier implements SocialVerifier{
         params.add("code", authorizationCode);
         params.add("client_id", googleClientId);
         params.add("client_secret", googleClientSecret);
-        params.add("redirect_uri", redirectUri);
+        params.add("redirect_uri", "");
         params.add("grant_type", "authorization_code");
 
         ResponseEntity<Map> response = restTemplate.postForEntity(

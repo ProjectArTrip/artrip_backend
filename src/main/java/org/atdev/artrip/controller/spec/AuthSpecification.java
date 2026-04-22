@@ -13,10 +13,7 @@ import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 public interface AuthSpecification {
 
@@ -53,13 +50,14 @@ public interface AuthSpecification {
     public ResponseEntity<Void> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                           HttpServletResponse response);
 
-    @PermitAll
     @Operation(summary = "로그아웃 (앱 전용)", description = "refresh, access 토큰을 제거합니다.")
     @ApiErrorResponses(
-            user = {UserErrorCode._INVALID_REFRESH_TOKEN},
+            user = {UserErrorCode._INVALID_REFRESH_TOKEN, UserErrorCode._INVALID_USER_REFRESH_TOKEN},
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
-    public ResponseEntity<Void> appLogout(@RequestBody(required = false) LogoutRequest token);
+    public ResponseEntity<Void> appLogout(@LoginUser Long userId,
+                                          @RequestBody LogoutRequest token,
+                                          @RequestHeader("Authorization") String authorization);
 
 
     @PermitAll
@@ -83,8 +81,9 @@ public interface AuthSpecification {
 
     @Operation(summary = "회원 탈퇴", description = "리뷰,즐찾,키워드 전부 Hard Delete, 소셜 unlink")
     @ApiErrorResponses(
-            user = {UserErrorCode._USER_NOT_FOUND}
+            user = {UserErrorCode._USER_NOT_FOUND, UserErrorCode._INVALID_REFRESH_TOKEN, UserErrorCode._INVALID_USER_REFRESH_TOKEN}
     )
     public ResponseEntity<Void> withdraw(@LoginUser Long userId,
-                                         @RequestBody(required = false) LogoutRequest token);
+                                         @RequestBody(required = false) LogoutRequest token,
+                                         @RequestHeader("Authorization") String authorization);
 }

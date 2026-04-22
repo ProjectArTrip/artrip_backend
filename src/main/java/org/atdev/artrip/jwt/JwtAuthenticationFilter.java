@@ -22,14 +22,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final RedisService redisService;
-    private static final String GRANT_TYPE = "Bearer ";
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String token = resolveToken(request);
+        String token = jwtProvider.resolveToken(request);
 
         if (StringUtils.hasText(token)) {
             try {
@@ -47,11 +46,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(GRANT_TYPE)) {
-            return bearerToken.substring(GRANT_TYPE.length());
-        }
-        return null;
-    }
 }

@@ -2,6 +2,7 @@ package org.atdev.artrip.jwt;
 
 
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -85,6 +86,14 @@ public class JwtProvider {
         } catch (JwtException e) {
             throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN,e);
         }
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearer = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
     }
 
     public long getExpiration(String accessToken) {

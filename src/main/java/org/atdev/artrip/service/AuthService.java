@@ -22,7 +22,9 @@ import org.atdev.artrip.service.dto.result.AppReissueResult;
 import org.atdev.artrip.service.dto.result.SocialLoginResult;
 import org.atdev.artrip.service.redis.RedisService;
 import org.atdev.artrip.validator.social.SocialVerifier;
+import org.atdev.artrip.service.event.WithdrawEvent;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,7 @@ public class AuthService {
     private final RedisService redisService;
     private final SocialRepository socialRepository;
     private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${spring.jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
@@ -106,17 +109,27 @@ public class AuthService {
     }
 
     @Transactional
-    public void appLogout(String accessToken,String refreshToken) {
+    public void appLogout(Long userId, String accessToken, String refreshToken) {
 
+        validateRefreshTokenOwner(userId, refreshToken);
+        clearSession(accessToken, refreshToken);
+    }
+
+    private void validateRefreshTokenOwner(Long userId, String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
             throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN);
         }
+        jwtProvider.validateRefreshToken(refreshToken);
+        String storedUserId = redisService.getValue(refreshToken);
+        if (storedUserId == null || !storedUserId.equals(String.valueOf(userId))) {
+            throw new GeneralException(UserErrorCode._INVALID_USER_REFRESH_TOKEN);
+        }
+    }
 
-        if (accessToken != null) {
-            long remainTime = jwtProvider.getExpiration(accessToken);
-
-            if (remainTime>0)
-                redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
+    private void clearSession(String accessToken, String refreshToken) {
+        long remainTime = jwtProvider.getExpiration(accessToken);
+        if (remainTime > 0) {
+            redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
         }
         redisService.deleteKey(refreshToken);
     }
@@ -185,27 +198,18 @@ public class AuthService {
     @Transactional
     public void withdraw(Long userId, String accessToken, String refreshToken) {
 
+        validateRefreshTokenOwner(userId, refreshToken);
+
         User user = userRepository.findById(userId)
-                .orElseThrow();
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
-        appLogout(accessToken, refreshToken);
+        List<WithdrawEvent.SocialInfo> socialInfos = socialRepository.findAllByUser(user).stream()
+                .map(s -> new WithdrawEvent.SocialInfo(s.getProvider(), s.getProviderId(), s.getRefreshToken()))
+                .toList();
 
-        List<SocialAccounts> socials = socialRepository.findAllByUser(user);
-
-        for (SocialAccounts social : socials) {
-            SocialVerifier verifier = socialVerifiers.stream()
-                    .filter(v -> v.getProvider() == social.getProvider())
-                    .findFirst()
-                    .orElseThrow();
-
-            try {
-                verifier.unlink(social.getProviderId(), social.getRefreshToken());
-            } catch (Exception e) {
-                log.error("unlink 실패 provider={}, providerId={}",
-                        social.getProvider(), social.getProviderId(), e);
-            }
-        }
+        clearSession(accessToken, refreshToken);
 
         userService.deleteUserData(userId);
+        eventPublisher.publishEvent(new WithdrawEvent(userId, accessToken, refreshToken, socialInfos));
     }
 }
