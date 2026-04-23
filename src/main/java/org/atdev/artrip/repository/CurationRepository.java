@@ -36,22 +36,20 @@ public interface CurationRepository extends JpaRepository<Curation, Long> {
     Slice<CurationExhibit> findExhibitsByCurationIdAndCursor(@Param("curationId") Long curationId, @Param("cursor") int cursor, Pageable pageable);
 
     @Query("""
-            select distinct c.curationId
-            from Curation c
-            join c.curationExhibits ce
-            join ce.exhibit e
-            join e.exhibitHall eh
-            where c.active = true
+          select distinct c.curationId
+          from Curation c
+          join c.curationExhibits ce
+          join ce.exhibit e
+          join e.exhibitHall eh
+          where c.active = true
             and c.visibleFrom <= :today
-            and c.visibleTo >= :today
+            and c.visibleTo   >= :today
             and (:domestic is null or eh.isDomestic = :domestic)
-            and (:region is null or eh.region = :region)
-            and (:country is null or eh.country = :country)
-            """)
+            and (:country  is null or eh.country    = :country)
+          """)
     List<Long> findVisibleCurationIds(
             @Param("today") LocalDate today,
             @Param("domestic") Boolean domestic,
-            @Param("region") String region,
             @Param("country") String country
     );
 

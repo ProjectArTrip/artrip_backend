@@ -37,7 +37,6 @@ public class CurationService {
 
         LocalDate today = LocalDate.now();
 
-        String region = condition.region();
         String country = condition.country();
         Boolean domestic = condition.domestic();
 
@@ -51,11 +50,9 @@ public class CurationService {
         if (Boolean.TRUE.equals(domestic) && country != null) {
             throw new GeneralException(CurationErrorCode._INVALID_LOCATION_FILTER);
         }
-        if (Boolean.FALSE.equals(domestic) && region != null) {
-            throw new GeneralException(CurationErrorCode._INVALID_LOCATION_FILTER);
-        }
 
-        List<Long> candidateIds = curationRepository.findVisibleCurationIds(today, domestic, region, country);
+        List<Long> candidateIds = curationRepository.findVisibleCurationIds(today, domestic, country);
+
 
         if (candidateIds.isEmpty()) {
             throw new GeneralException(CurationErrorCode._CURATION_NOT_FOUND);
@@ -65,7 +62,14 @@ public class CurationService {
 
         Curation picked = curationRepository.findByIdWithExhibits(pickedId).orElseThrow(() -> new GeneralException(CurationErrorCode._CURATION_NOT_FOUND));
 
-        List<CurationExhibit> sampled = reservoirSample(picked.getCurationExhibits(), SUMMARY_CARD_COUNT);
+        List<CurationExhibit> pool = picked.getCurationExhibits();
+        if (country != null) {
+            pool = pool.stream()
+                    .filter(ec -> country.equals(ec.getExhibit().getExhibitHall().getCountry()))
+                    .toList();
+        }
+
+        List<CurationExhibit> sampled = reservoirSample(pool, SUMMARY_CARD_COUNT);
 
         Set<Long> favoriteExhibitIds = (userId != null) ? favoriteRepository.findActiveExhibitIds(userId) : Set.of();
 
