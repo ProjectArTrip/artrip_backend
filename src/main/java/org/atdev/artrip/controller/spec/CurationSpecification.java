@@ -16,9 +16,8 @@ public interface CurationSpecification {
             summary = "큐레이션 랜덤 1개 조회",
             description =
                     """
-                    domestic, region, country 빈값 조회 시 전체 랜덤 1개 조회,
-                    domestic = false, true 맞춰서 국내 및 국외 조회 요청,
-                    country, region 동시 입력값 불가능,
+                    domestic(false) , country 빈값 조회 시 전체 랜덤 1개 조회,
+                    domestic(true) 전체 랜덤
                     """
     )
     ResponseEntity<CurationSummaryResponse> getSummary(
