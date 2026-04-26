@@ -61,7 +61,8 @@ public interface AuthSpecification {
 
 
     @PermitAll
-    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분 ,isFirstLogin true:회원가입 false:로그인")
+    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급",
+            description = "만료일 : refresh: 7일 , access: 15분 | onboardingStep: NICKNAME(닉네임 미설정) / KEYWORD(닉네임 설정 완료·키워드 미설정) / COMPLETED(온보딩 완료)")
     @ApiErrorResponses(
             user = {
                     UserErrorCode._SOCIAL_ID_TOKEN_INVALID,
@@ -74,10 +75,6 @@ public interface AuthSpecification {
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
     public ResponseEntity<SocialLoginResponse> socialLogin(@RequestBody SocialLoginRequest request);
-
-    @Operation(summary = "isFirstLogin값 반전 api")
-    public ResponseEntity<Void> completeOnboarding(
-            @LoginUser Long userId);
 
     @Operation(summary = "회원 탈퇴", description = "리뷰,즐찾,키워드 전부 Hard Delete, 소셜 unlink")
     @ApiErrorResponses(

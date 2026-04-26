@@ -76,15 +76,6 @@ public class AuthController implements AuthSpecification {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/complete")
-    public ResponseEntity<Void> completeOnboarding(
-            @LoginUser Long userId) {
-
-        authService.completeOnboarding(userId);
-
-        return ResponseEntity.noContent().build();
-    }
-
     @PostMapping("/withdraw")
     public ResponseEntity<Void> withdraw(@LoginUser Long userId,
                                          @RequestBody LogoutRequest token,

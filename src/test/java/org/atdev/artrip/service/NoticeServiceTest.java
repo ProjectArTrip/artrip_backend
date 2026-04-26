@@ -83,7 +83,6 @@ public class NoticeServiceTest {
                 .email("test@test.com")
                 .name("testUser")
                 .role(Role.ADMIN)
-                .onboardingCompleted(false)
                 .build();
 
         when(userRepository.findById(anyLong())).thenReturn(Optional.of(admin));
