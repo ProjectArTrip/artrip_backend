@@ -164,7 +164,6 @@ public class AuthService {
             throw new GeneralException(AuthErrorCode._SOCIAL_EMAIL_NOT_PROVIDED);
         }
         Optional<User> userOptional = userRepository.findByEmail(email);
-        boolean isFirstLogin = userOptional.isEmpty();
 
         User user = userOptional.orElseGet(() -> userRepository.save(User.createUser(socialUser)));
 
@@ -184,15 +183,7 @@ public class AuthService {
 
         redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
 
-        return SocialLoginResult.of(jwt.getAccessToken(), jwt.getRefreshToken(), isFirstLogin);
-    }
-
-    @Transactional
-    public void completeOnboarding(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow();
-
-        user.setOnboardingCompleted(!user.isOnboardingCompleted());
+        return SocialLoginResult.of(jwt.getAccessToken(), jwt.getRefreshToken(), user.getOnboardingStep());
     }
 
     @Transactional

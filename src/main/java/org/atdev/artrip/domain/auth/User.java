@@ -3,6 +3,7 @@ package org.atdev.artrip.domain.auth;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+import org.atdev.artrip.constants.OnboardingStep;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.springframework.data.annotation.CreatedDate;
@@ -51,8 +52,9 @@ public class User {
     private String nickName;
 
     @Builder.Default
-    @Column(nullable = false)
-    private boolean onboardingCompleted = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "onboarding_step", nullable = false)
+    private OnboardingStep onboardingStep = OnboardingStep.NICKNAME;
 
     @Email
     @Column(name = "email", nullable = true)
@@ -99,7 +101,6 @@ public class User {
                 .email(info.getEmail())
                 .name(info.getNickname())
                 .role(Role.USER)
-                .onboardingCompleted(false)
                 .socialAccounts(new ArrayList<>())
                 .build();
 
@@ -115,7 +116,16 @@ public class User {
     }
 
     public void updateNickName(String newNickname) {
-        this.nickName  = newNickname ;
+        this.nickName = newNickname;
+        if (this.onboardingStep == OnboardingStep.NICKNAME) {
+            this.onboardingStep = OnboardingStep.KEYWORD;
+        }
+    }
+
+    public void completeKeywordOnboarding() {
+        if (this.onboardingStep == OnboardingStep.KEYWORD) {
+            this.onboardingStep = OnboardingStep.COMPLETED;
+        }
     }
 
     public void updateFcmToken(String fcmToken) {
