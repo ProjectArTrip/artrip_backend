@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.utils.DateTimeUtils;
+import org.atdev.artrip.utils.ImageUrlUtils;
 
 @Builder
 public record ExhibitRandomResult(
@@ -26,14 +27,12 @@ public record ExhibitRandomResult(
         return ExhibitRandomResult.builder()
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
-                .posterUrl(exhibit.getPosterUrl())
+                .posterUrl(ImageUrlUtils.posterUrlDefault(exhibit.getPosterUrl()))
                 .exhibitPeriod(DateTimeUtils.convertDate(exhibit.getStartDate(), exhibit.getEndDate()))
                 .status(exhibit.getStatus())
-
                 .hallName(exhibit.getExhibitHall().getName())
                 .countryName(exhibit.getExhibitHall().getCountry())
                 .regionName(exhibit.getExhibitHall().getRegion())
-
                 .isFavorite(isFavorite)
                 .resizeUrl(resizedUrl)
                 .build();

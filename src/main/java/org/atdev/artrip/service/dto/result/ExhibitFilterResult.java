@@ -6,6 +6,7 @@ import org.atdev.artrip.domain.curation.CurationExhibit;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.utils.DateTimeUtils;
+import org.atdev.artrip.utils.ImageUrlUtils;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
@@ -37,7 +38,7 @@ public record ExhibitFilterResult(
             return new ExhibitItem(
                     exhibit.getExhibitId(),
                     exhibit.getTitle(),
-                    exhibit.getPosterUrl(),
+                    ImageUrlUtils.posterUrlDefault(exhibit.getPosterUrl()),
                     exhibit.getStatus(),
                     DateTimeUtils.convertDate(exhibit.getStartDate(), exhibit.getEndDate()),
                     favoriteExhibitIds.contains(exhibit.getExhibitId()),

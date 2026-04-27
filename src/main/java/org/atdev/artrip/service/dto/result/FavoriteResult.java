@@ -3,6 +3,7 @@ package org.atdev.artrip.service.dto.result;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.favorite.Favorite;
 import org.atdev.artrip.utils.DateTimeUtils;
+import org.atdev.artrip.utils.ImageUrlUtils;
 import org.springframework.data.domain.Slice;
 
 import java.time.LocalDate;
@@ -42,7 +43,7 @@ public record FavoriteResult(
                             e.getFavoriteId(),
                             e.getExhibit().getExhibitId(),
                             e.getExhibit().getTitle(),
-                            e.getExhibit().getPosterUrl(),
+                            ImageUrlUtils.posterUrlDefault(e.getExhibit().getPosterUrl()),
                             e.getExhibit().getStatus(),
                             e.isStatus(),
                             period,
