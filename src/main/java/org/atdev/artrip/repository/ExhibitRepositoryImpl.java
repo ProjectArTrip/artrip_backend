@@ -1,9 +1,7 @@
 package org.atdev.artrip.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -14,15 +12,19 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.QExhibit;
 import org.atdev.artrip.domain.exhibitHall.QExhibitHall;
 import org.atdev.artrip.domain.keyword.QKeyword;
-import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
+import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -124,26 +126,9 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 ? e.randomKey.goe(pivot)
                 : e.randomKey.lt(pivot);
 
-        return queryFactory
-                .select(Projections.constructor(
-                        ExhibitRandomResult.class,
-                        e.exhibitId,
-                        e.title,
-                        e.posterUrl,
-                        e.status,
-                        Expressions.stringTemplate(
-                                "concat({0}, ' ~ ', {1})",
-                                e.startDate.stringValue(),
-                                e.endDate.stringValue()
-                        ),
-                        h.name,
-                        h.country,
-                        h.region,
-                        Expressions.asBoolean(false),
-                        Expressions.asString("")
-                ))
-                .from(e)
-                .join(e.exhibitHall, h)
+        List<Exhibit> exhibits = queryFactory
+                .selectFrom(e)
+                .join(e.exhibitHall, h).fetchJoin()
                 .where(
                         e.status.ne(Status.FINISHED),
                         isDomesticEq(h, c.isDomestic()),
@@ -157,6 +142,11 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 .orderBy(e.randomKey.asc())
                 .limit(limit)
                 .fetch();
+
+        return exhibits.stream()
+                .map(exhibit -> ExhibitRandomResult.of(exhibit, false, ""))
+                .collect(Collectors.toCollection(ArrayList::new));
+
     }
 
     private BooleanExpression cursorCondition(Exhibit cursor, SortType sortType, QExhibit e) {

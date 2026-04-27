@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.utils.DateTimeUtils;
+import org.atdev.artrip.utils.ImageUrlUtils;
 
 import java.math.BigDecimal;
 
@@ -31,22 +32,17 @@ public record ExhibitDetailResult(
                 .exhibitId(exhibit.getExhibitId())
                 .title(exhibit.getTitle())
                 .description(exhibit.getDescription())
-                .posterUrl(exhibit.getPosterUrl())
+                .posterUrl(ImageUrlUtils.posterUrlDefault(exhibit.getPosterUrl()))
                 .exhibitPeriod(DateTimeUtils.convertDate(exhibit.getStartDate(), exhibit.getEndDate()))
                 .ticketUrl(exhibit.getTicketUrl())
                 .status(exhibit.getStatus())
-
                 .hallName(exhibit.getExhibitHall().getName())
                 .hallAddress(exhibit.getExhibitHall().getAddress())
                 .hallOpeningHours(DateTimeUtils.normalizeOpeningHours(exhibit.getExhibitHall().getOpeningHours()))
                 .hallPhone(exhibit.getExhibitHall().getPhone())
-
                 .hallLatitude(exhibit.getExhibitHall().getLatitude())
                 .hallLongitude(exhibit.getExhibitHall().getLongitude())
-
                 .isFavorite(isFavorite)
                 .build();
     }
-
-
 }
