@@ -132,7 +132,11 @@ public class FcmNotificationService {
                 .setBadge(1)
                 .build();
 
-        return ApnsConfig.builder().setAps(aps).build();
+        return ApnsConfig.builder()
+                .setAps(aps)
+                .putHeader("apns-priority", "10")
+                .putHeader("apns-push-type", "alert")
+                .build();
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
@@ -150,9 +154,8 @@ public class FcmNotificationService {
     }
 
     public void invalidateToken(String token) {
-        transactionTemplate.executeWithoutResult(status -> {
-            userRepository.findByFcmToken(token).ifPresent(User::clearFcmToken);
-        });
+        transactionTemplate.executeWithoutResult(status ->
+            userRepository.findByFcmToken(token).ifPresent(User::clearFcmToken));
     }
 
 }

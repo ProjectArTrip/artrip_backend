@@ -132,6 +132,11 @@ logging:
   level:
     org.atdev.artrip: DEBUG
     io.lettuce: WARN
+    com.google.api.client.http: DEBUG
+
+notification:
+  fcm:
+    http-trace: false
 
 server:
   port: 8080
