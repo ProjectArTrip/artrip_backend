@@ -5,6 +5,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Configuration
 @EnableConfigurationProperties(FcmProperties.class)
@@ -20,6 +24,9 @@ public class FcmConfig {
 
     private final ClassPathResource firebaseResource;
     private final String projectId;
+
+    @Value("${notification.fcm.http-trace}")
+    private boolean httpTrace;
 
     public FcmConfig(FcmProperties fcmProperties) {
         this.firebaseResource = new ClassPathResource(fcmProperties.fcm().filePath());
@@ -36,7 +43,17 @@ public class FcmConfig {
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(option);
         }
+
+        if(httpTrace) {
+            Logger httpsLogger = Logger.getLogger("com.google.api.client.http.HttpTransport");
+            httpsLogger.setLevel(Level.CONFIG);
+            ConsoleHandler handler = new ConsoleHandler();
+            handler.setLevel(Level.CONFIG);
+            httpsLogger.addHandler(handler);
+            httpsLogger.setUseParentHandlers(false);
+        }
     }
+
 
     @Bean
     FirebaseMessaging firebaseMessaging() {
@@ -60,6 +77,4 @@ public class FcmConfig {
         executor.initialize();
         return executor;
     }
-
-
 }
