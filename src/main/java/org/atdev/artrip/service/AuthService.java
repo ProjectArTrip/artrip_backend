@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.OnboardingStep;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.domain.auth.SocialAccounts;
@@ -200,5 +201,33 @@ public class AuthService {
 
         userService.deleteUserData(userId);
         eventPublisher.publishEvent(new WithdrawEvent(userId, accessToken, refreshToken, socialInfos));
+    }
+
+    @Transactional
+    public SocialLoginResult loginForAppleReview(String email, String password) {
+
+        if (!"arttrip@test.com".equals(email) || !"12341234".equals(password)) {
+            throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
+        }
+
+        SocialUserInfo mockInfo = SocialUserInfo.builder()
+                .email(email)
+                .nickname("ArtripTester")
+                .providerId("APPLE_REVIEW_GUEST")
+                .provider(Provider.APPLE)
+                .build();
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = User.createUser(mockInfo);
+                    return userRepository.save(newUser);
+                });
+        socialRepository.findByProviderAndProviderId(Provider.APPLE, "APPLE_REVIEW_GUEST")
+                .orElseGet(() -> socialRepository.save(SocialAccounts.create(user, mockInfo, null)));
+
+        JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
+        redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
+
+        return SocialLoginResult.of(jwt.getAccessToken(), jwt.getRefreshToken(), user.getOnboardingStep());
     }
 }
