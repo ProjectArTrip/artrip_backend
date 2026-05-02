@@ -107,14 +107,6 @@ public class User {
         return user;
     }
 
-    public void addSocialAccount(SocialAccounts social) {
-        this.socialAccounts.add(social);
-
-        if (social.getUser() != this) {
-            social.setUser(this);
-        }
-    }
-
     public void updateNickName(String newNickname) {
         this.nickName = newNickname;
         if (this.onboardingStep == OnboardingStep.NICKNAME) {

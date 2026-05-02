@@ -1,7 +1,9 @@
 package org.atdev.artrip.service.dto.result;
 
+import lombok.Builder;
 import org.atdev.artrip.constants.OnboardingStep;
 
+@Builder
 public record SocialLoginResult(
         String accessToken,
         String refreshToken,

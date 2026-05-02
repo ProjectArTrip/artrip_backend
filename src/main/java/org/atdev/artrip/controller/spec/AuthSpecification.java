@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
+import org.atdev.artrip.controller.dto.request.TestLoginRequest;
 import org.atdev.artrip.controller.dto.response.AppReissueResponse;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
@@ -83,4 +84,7 @@ public interface AuthSpecification {
     public ResponseEntity<Void> withdraw(@LoginUser Long userId,
                                          @RequestBody(required = false) LogoutRequest token,
                                          @RequestHeader("Authorization") String authorization);
+
+    @Operation(summary = "애플 심사위원용 테스트 로그인", description = "심사 전용 계정으로 로그인을 진행합니다.")
+    public ResponseEntity<SocialLoginResponse> testLogin(@RequestBody TestLoginRequest request);
 }
