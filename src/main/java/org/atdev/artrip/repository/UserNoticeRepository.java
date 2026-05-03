@@ -1,5 +1,6 @@
 package org.atdev.artrip.repository;
 
+import org.atdev.artrip.constants.NotificationAction;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.notice.UserNotice;
 import org.springframework.data.domain.Pageable;
@@ -16,9 +17,10 @@ public interface UserNoticeRepository extends JpaRepository<UserNotice, Long> {
             from UserNotice un
             where un.user = :user
             and (:cursor is null or un.userNoticeId < :cursor)
+            and (:action is null or un.action = :action)
             order by un.createdAt desc
             """)
-    Slice<UserNotice> findAllByUser(@Param("user") User user, @Param("cursor") Long cursor, Pageable pageable);
+    Slice<UserNotice> findAllByUser(@Param("user") User user, @Param("cursor") Long cursor, @Param("action") NotificationAction action, Pageable pageable);
 
     @Query("""
             select case when count(un) > 0 then true else false end

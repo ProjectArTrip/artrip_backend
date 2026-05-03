@@ -45,6 +45,8 @@ public class FcmNotificationService {
         this.transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
+    private static final String PUSH_SERVICE_TITLE = "ArtTrip";
+
     public void sendMessage(final NotificationSingleCommand command) {
         try {
             Message message = command.builderMessage()
@@ -140,7 +142,7 @@ public class FcmNotificationService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
-    public void sendNoticeMessage(String title, String content) {
+    public void sendNoticeMessage(Long noticeId, String title, String content) {
         List<String> tokens = userRepository.findValidPushUsers().stream()
                 .map(User::getFcmToken)
                 .filter(token -> token != null && !token.isBlank())
@@ -150,12 +152,16 @@ public class FcmNotificationService {
             return;
         }
 
-        sendMessage(NotificationMulticastCommand.of(tokens, title, content, Map.of("action", NotificationAction.MOVE_NOTICE_DETAIL.getAction())));
+        sendMessage(NotificationMulticastCommand.of(
+                tokens,
+                PUSH_SERVICE_TITLE,
+                "[공지]" + title + "\n" + content,
+                Map.of("action", NotificationAction.MOVE_NOTICE_DETAIL.getAction(),
+                        "referenceId", String.valueOf(noticeId))));
     }
 
     public void invalidateToken(String token) {
         transactionTemplate.executeWithoutResult(status ->
             userRepository.findByFcmToken(token).ifPresent(User::clearFcmToken));
     }
-
 }

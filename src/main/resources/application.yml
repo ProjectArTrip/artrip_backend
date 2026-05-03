@@ -96,6 +96,7 @@ notification:
   fcm:
     file_path: ${FILE_PATH}
     project_id: ${PROJECT_ID}
+    http-trace: false
 
 kakao:
   admin-key: ${KAKAO_ADMIN_KEY}
@@ -133,10 +134,6 @@ logging:
     org.atdev.artrip: DEBUG
     io.lettuce: WARN
     com.google.api.client.http: DEBUG
-
-notification:
-  fcm:
-    http-trace: false
 
 server:
   port: 8080

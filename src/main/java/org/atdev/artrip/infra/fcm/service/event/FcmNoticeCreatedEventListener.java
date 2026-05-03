@@ -18,6 +18,6 @@ public class FcmNoticeCreatedEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(NoticeCreatedEvent event) {
         userNoticeService.createNoticeNotification(event);
-        fcmNotificationService.sendNoticeMessage(event.title(), event.content());
+        fcmNotificationService.sendNoticeMessage(event.noticeId(), event.title(), event.content());
     }
 }
