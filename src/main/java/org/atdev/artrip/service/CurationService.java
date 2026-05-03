@@ -8,8 +8,8 @@ import org.atdev.artrip.global.apipayload.code.status.CurationErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.CurationRepository;
 import org.atdev.artrip.repository.FavoriteRepository;
+import org.atdev.artrip.service.dto.condition.CurationSearchCondition;
 import org.atdev.artrip.service.dto.result.CurationDetailCursorResult;
-import org.atdev.artrip.service.dto.result.CurationSummaryListResult;
 import org.atdev.artrip.service.dto.result.CurationSummaryResult;
 import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.data.domain.PageRequest;
@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,25 +33,47 @@ public class CurationService {
     private static final int SUMMARY_CARD_COUNT = 3;
 
     @Transactional(readOnly = true)
-    public CurationSummaryListResult getSummaryCuration(Long userId, Country country) {
+    public CurationSummaryResult getSummaryCuration(Long userId, CurationSearchCondition condition) {
+
         LocalDate today = LocalDate.now();
 
-        boolean allCountry = country == null || country == Country.ALL;
+        String country = condition.country();
+        Boolean domestic = condition.domestic();
 
-        List<Curation> curations = allCountry
-                ? curationRepository.findVisibleCurations(today)
-                : curationRepository.findVisibleCurationsByCountry(country, today);
+        if (country != null) {
+            boolean valid = Arrays.stream(Country.values()).anyMatch(c -> c.getLabel().equals(country));
+            if (!valid) {
+                throw new GeneralException(CurationErrorCode._INVALID_COUNTRY);
+            }
+        }
+
+        if (Boolean.TRUE.equals(domestic) && country != null) {
+            throw new GeneralException(CurationErrorCode._INVALID_LOCATION_FILTER);
+        }
+
+        List<Long> candidateIds = curationRepository.findVisibleCurationIds(today, domestic, country);
+
+
+        if (candidateIds.isEmpty()) {
+            throw new GeneralException(CurationErrorCode._CURATION_NOT_FOUND);
+        }
+
+        Long pickedId = candidateIds.get(ThreadLocalRandom.current().nextInt(candidateIds.size()));
+
+        Curation picked = curationRepository.findByIdWithExhibits(pickedId).orElseThrow(() -> new GeneralException(CurationErrorCode._CURATION_NOT_FOUND));
+
+        List<CurationExhibit> pool = picked.getCurationExhibits();
+        if (country != null) {
+            pool = pool.stream()
+                    .filter(ec -> country.equals(ec.getExhibit().getExhibitHall().getCountry()))
+                    .toList();
+        }
+
+        List<CurationExhibit> sampled = reservoirSample(pool, SUMMARY_CARD_COUNT);
 
         Set<Long> favoriteExhibitIds = (userId != null) ? favoriteRepository.findActiveExhibitIds(userId) : Set.of();
 
-        List<CurationSummaryResult> summaries = curations.stream()
-                .filter(curation -> !curation.getCurationExhibits().isEmpty())
-                .map(curation -> CurationSummaryResult.of(
-                        curation,
-                        reservoirSample(curation.getCurationExhibits(), SUMMARY_CARD_COUNT),
-                        favoriteExhibitIds
-                        )).toList();
-        return CurationSummaryListResult.from(summaries);
+        return CurationSummaryResult.of(picked, sampled, favoriteExhibitIds);
     }
 
     @Transactional(readOnly = true)

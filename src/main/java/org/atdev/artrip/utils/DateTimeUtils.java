@@ -16,9 +16,9 @@ public class DateTimeUtils {
 
     public static String convertDate(LocalDate startDate, LocalDate endDate) {
 
-        if (startDate == null || endDate == null)
-            return "";
-
+        if (startDate == null && endDate == null) return "";
+        if (endDate == null) return startDate.format(formatter) + "- ";
+        if (startDate == null) return endDate.format(formatter);
         return String.format("%s - %s", startDate.format(formatter), endDate.format(formatter));
     }
 

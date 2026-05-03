@@ -1,7 +1,6 @@
 package org.atdev.artrip.infra.fcm.service.event;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.infra.fcm.service.FcmNotificationService;
 import org.atdev.artrip.infra.fcm.service.dto.NoticeCreatedEvent;
 import org.atdev.artrip.service.UserNoticeService;

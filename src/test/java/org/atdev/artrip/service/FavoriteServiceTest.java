@@ -130,7 +130,7 @@ public class FavoriteServiceTest {
         FavoriteSearchCondition condition = new FavoriteSearchCondition(
                 SortType.LATEST,
                 null,
-                List.of("프랑스")
+                "프랑스"
         );
         CursorPagination pagination = new CursorPagination(null, 20L);
 
@@ -202,8 +202,8 @@ public class FavoriteServiceTest {
         CursorPagination pagination = new CursorPagination(null, 20L);
         FavoriteSearchCondition condition = new FavoriteSearchCondition(
                 SortType.LATEST,
-                List.of("서울"),
-                List.of("프랑스")
+                "서울",
+                "프랑스"
         );
 
         SliceImpl<Favorite> slice = new SliceImpl<>(List.of(), PageRequest.ofSize(20), false);

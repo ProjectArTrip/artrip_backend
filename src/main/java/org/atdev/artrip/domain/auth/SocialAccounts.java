@@ -33,9 +33,6 @@ public class SocialAccounts {
     @Column(name = "provider_id", nullable = false)
     private String providerId;
 
-    @Column(name = "access_token")
-    private String accessToken;
-
     @Column(name = "refresh_token")
     private String refreshToken;
 
@@ -43,11 +40,12 @@ public class SocialAccounts {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public static SocialAccounts create(User user, SocialUserInfo info) {
+    public static SocialAccounts create(User user, SocialUserInfo info, String refreshToken) {
         return SocialAccounts.builder()
                 .user(user)
                 .provider(info.getProvider())
                 .providerId(info.getProviderId())
+                .refreshToken(refreshToken)
                 .build();
     }
 

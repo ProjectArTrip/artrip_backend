@@ -74,9 +74,4 @@ public interface UserSpecification {
             @RequestBody @Valid DeviceTokenRequest request
             );
 
-    @Operation(summary = "회원 탈퇴", description = "리뷰,즐찾,키워드 전부 Hard Delete")
-    @ApiErrorResponses(
-            user = {UserErrorCode._USER_NOT_FOUND}
-    )
-    public ResponseEntity<Void> withdraw(@LoginUser Long userId);
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
+import org.atdev.artrip.controller.dto.request.TestLoginRequest;
 import org.atdev.artrip.controller.dto.response.AppReissueResponse;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
@@ -13,9 +14,7 @@ import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 public interface AuthSpecification {
 
@@ -52,17 +51,19 @@ public interface AuthSpecification {
     public ResponseEntity<Void> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
                                           HttpServletResponse response);
 
-    @PermitAll
     @Operation(summary = "로그아웃 (앱 전용)", description = "refresh, access 토큰을 제거합니다.")
     @ApiErrorResponses(
-            user = {UserErrorCode._INVALID_REFRESH_TOKEN},
+            user = {UserErrorCode._INVALID_REFRESH_TOKEN, UserErrorCode._INVALID_USER_REFRESH_TOKEN},
             common = {CommonErrorCode._BAD_REQUEST, CommonErrorCode._UNAUTHORIZED, CommonErrorCode._INTERNAL_SERVER_ERROR}
     )
-    public ResponseEntity<Void> appLogout(@RequestBody(required = false) LogoutRequest token);
+    public ResponseEntity<Void> appLogout(@LoginUser Long userId,
+                                          @RequestBody LogoutRequest token,
+                                          @RequestHeader("Authorization") String authorization);
 
 
     @PermitAll
-    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급", description = "만료일 : refresh: 7일 , access: 15분 ,isFirstLogin true:회원가입 false:로그인")
+    @Operation(summary = "소셜 SDK 토큰 검증 후 jwt 발급",
+            description = "만료일 : refresh: 7일 , access: 15분 | onboardingStep: NICKNAME(닉네임 미설정) / KEYWORD(닉네임 설정 완료·키워드 미설정) / COMPLETED(온보딩 완료)")
     @ApiErrorResponses(
             user = {
                     UserErrorCode._SOCIAL_ID_TOKEN_INVALID,
@@ -76,7 +77,14 @@ public interface AuthSpecification {
     )
     public ResponseEntity<SocialLoginResponse> socialLogin(@RequestBody SocialLoginRequest request);
 
-    @Operation(summary = "isFirstLogin값 반전 api")
-    public ResponseEntity<Void> completeOnboarding(
-            @LoginUser Long userId);
+    @Operation(summary = "회원 탈퇴", description = "리뷰,즐찾,키워드 전부 Hard Delete, 소셜 unlink")
+    @ApiErrorResponses(
+            user = {UserErrorCode._USER_NOT_FOUND, UserErrorCode._INVALID_REFRESH_TOKEN, UserErrorCode._INVALID_USER_REFRESH_TOKEN}
+    )
+    public ResponseEntity<Void> withdraw(@LoginUser Long userId,
+                                         @RequestBody(required = false) LogoutRequest token,
+                                         @RequestHeader("Authorization") String authorization);
+
+    @Operation(summary = "애플 심사위원용 테스트 로그인", description = "심사 전용 계정으로 로그인을 진행합니다.")
+    public ResponseEntity<SocialLoginResponse> testLogin(@RequestBody TestLoginRequest request);
 }

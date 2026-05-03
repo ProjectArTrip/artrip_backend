@@ -28,6 +28,7 @@ public class UserService {
     private final ReviewRepository reviewRepository;
     private final SearchHistoryRepository searchHistoryRepository;
     private final RecentExhibitRepository recentExhibitRepository;
+    private final ReviewImageRepository reviewImageRepository;
 
     @Transactional
     public MypageResult updateNickName(Long userId, String newNickName){
@@ -115,15 +116,17 @@ public class UserService {
     }
 
     @Transactional
-    public void withdraw(Long userId) {
+    public void deleteUserData(Long userId) {
         User user = findUserOrThrow(userId);
 
-            favoriteRepository.deleteAllByUser(user);
-            userKeywordRepository.deleteAllByUser(user);
-            reviewRepository.deleteAllByUser(user);
-            searchHistoryRepository.deleteAllByUserId(userId);
-            recentExhibitRepository.deleteAllByUserId(userId);
+        favoriteRepository.deleteAllByUser(user);
+        userKeywordRepository.deleteAllByUser(user);
+        reviewImageRepository.deleteAllByUserId(userId);
+        reviewRepository.deleteAllByUser(user);
 
-            userRepository.delete(user);
+        searchHistoryRepository.deleteAllByUserId(userId);
+        recentExhibitRepository.deleteAllByUserId(userId);
+
+        userRepository.delete(user);
     }
 }

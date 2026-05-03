@@ -5,11 +5,13 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.request.AdminCreateNoticeRequest;
 import org.atdev.artrip.controller.dto.request.AdminUpdateNoticeRequest;
+import org.atdev.artrip.controller.dto.response.AdminNoticeCreateResponse;
 import org.atdev.artrip.controller.spec.AdminNoticeSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AdminNoticeService;
 import org.atdev.artrip.service.dto.command.AdminNoticeCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminNoticeUpdateCommand;
+import org.atdev.artrip.service.dto.result.AdminNoticeCreateResult;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,15 +24,17 @@ public class AdminNoticeController implements AdminNoticeSpecification {
 
     @Override
     @PostMapping
-    public ResponseEntity<Void> createNotice(
+    public ResponseEntity<AdminNoticeCreateResponse> createNotice(
             @LoginUser Long userId,
             @Valid @RequestBody AdminCreateNoticeRequest request) {
 
         AdminNoticeCreateCommand command = AdminCreateNoticeRequest.toCommand(userId, request.title(), request.content());
 
-        noticeService.createNotice(command);
+        AdminNoticeCreateResult result = noticeService.createNotice(command);
+        AdminNoticeCreateResponse response = AdminNoticeCreateResponse.from(result);
 
-        return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(response);
     }
 
     @Override

@@ -4,13 +4,16 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.atdev.artrip.constants.OnboardingStep;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
+import org.atdev.artrip.domain.auth.SocialAccounts;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.AuthErrorCode;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.JwtToken;
+import org.atdev.artrip.repository.SocialRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -20,12 +23,16 @@ import org.atdev.artrip.service.dto.result.AppReissueResult;
 import org.atdev.artrip.service.dto.result.SocialLoginResult;
 import org.atdev.artrip.service.redis.RedisService;
 import org.atdev.artrip.validator.social.SocialVerifier;
+import org.atdev.artrip.service.event.WithdrawEvent;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -37,6 +44,9 @@ public class AuthService {
     private final UserRepository userRepository;
     private final List<SocialVerifier> socialVerifiers;
     private final RedisService redisService;
+    private final SocialRepository socialRepository;
+    private final UserService userService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${spring.jwt.refresh-token-expiration-millis}")
     private long refreshTokenExpirationMillis;
@@ -100,23 +110,33 @@ public class AuthService {
     }
 
     @Transactional
-    public void appLogout(String accessToken,String refreshToken) {
+    public void appLogout(Long userId, String accessToken, String refreshToken) {
 
+        validateRefreshTokenOwner(userId, refreshToken);
+        clearSession(accessToken, refreshToken);
+    }
+
+    private void validateRefreshTokenOwner(Long userId, String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
             throw new GeneralException(UserErrorCode._INVALID_REFRESH_TOKEN);
         }
+        jwtProvider.validateRefreshToken(refreshToken);
+        String storedUserId = redisService.getValue(refreshToken);
+        if (storedUserId == null || !storedUserId.equals(String.valueOf(userId))) {
+            throw new GeneralException(UserErrorCode._INVALID_USER_REFRESH_TOKEN);
+        }
+    }
 
-        if (accessToken != null) {
-            long remainTime = jwtProvider.getExpiration(accessToken);
-
-            if (remainTime>0)
-                redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
+    private void clearSession(String accessToken, String refreshToken) {
+        long remainTime = jwtProvider.getExpiration(accessToken);
+        if (remainTime > 0) {
+            redisService.save("BLACKLIST:" + accessToken, "logout", remainTime);
         }
         redisService.deleteKey(refreshToken);
     }
 
     @Transactional
-    public SocialLoginResult loginWithSocial(String providerName, String idToken) {
+    public SocialLoginResult loginWithSocial(String providerName, String idToken, String authorizationCode) {
 
         Provider provider = Provider.from(providerName);
 
@@ -125,31 +145,89 @@ public class AuthService {
                 .findFirst()
                 .orElseThrow(() -> new GeneralException(AuthErrorCode._UNSUPPORTED_SOCIAL_PROVIDER));
 
-        SocialUserInfo socialUser = verifier.verify(idToken);
+        String actualIdToken = idToken;
+        String refreshToken = null;
+
+        if (authorizationCode != null && !authorizationCode.isBlank()) {
+            Map<String, String> tokens = verifier.exchangeCodeForTokens(authorizationCode);
+            actualIdToken = tokens.get("id_token");
+            refreshToken = tokens.get("refresh_token");
+        }
+
+        if (actualIdToken == null || actualIdToken.isBlank()) {
+            throw new GeneralException(AuthErrorCode._SOCIAL_ID_TOKEN_MISSING);
+        }
+
+        SocialUserInfo socialUser = verifier.verify(actualIdToken);
 
         String email = socialUser.getEmail();
         if (email == null) {
             throw new GeneralException(AuthErrorCode._SOCIAL_EMAIL_NOT_PROVIDED);
         }
-
         Optional<User> userOptional = userRepository.findByEmail(email);
 
-        boolean isFirstLogin = userOptional.isEmpty();
-
         User user = userOptional.orElseGet(() -> userRepository.save(User.createUser(socialUser)));
+
+        SocialAccounts socialAccount = socialRepository
+                .findByProviderAndProviderId(provider, socialUser.getProviderId())
+                .orElse(null);
+
+        if (socialAccount == null) {
+            socialAccount = SocialAccounts.create(user, socialUser, refreshToken);
+            socialRepository.save(socialAccount);
+        } else {
+            if (refreshToken != null && !refreshToken.isBlank()) {
+                socialAccount.setRefreshToken(refreshToken);
+            }
+        }
         JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
 
         redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
 
-        return SocialLoginResult.of(jwt.getAccessToken(), jwt.getRefreshToken(), isFirstLogin);
+        return SocialLoginResult.of(jwt.getAccessToken(), jwt.getRefreshToken(), user.getOnboardingStep());
     }
 
     @Transactional
-    public void completeOnboarding(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow();
+    public void withdraw(Long userId, String accessToken, String refreshToken) {
 
-        user.setOnboardingCompleted(!user.isOnboardingCompleted());
+        validateRefreshTokenOwner(userId, refreshToken);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+
+        List<WithdrawEvent.SocialInfo> socialInfos = socialRepository.findAllByUser(user).stream()
+                .map(s -> new WithdrawEvent.SocialInfo(s.getProvider(), s.getProviderId(), s.getRefreshToken()))
+                .toList();
+
+        userService.deleteUserData(userId);
+        eventPublisher.publishEvent(new WithdrawEvent(userId, accessToken, refreshToken, socialInfos));
     }
 
+    @Transactional
+    public SocialLoginResult loginForAppleReview(String email, String password) {
+
+        if (!"arttrip@test.com".equals(email) || !"12341234".equals(password)) {
+            throw new GeneralException(UserErrorCode._USER_NOT_FOUND);
+        }
+
+        SocialUserInfo mockInfo = SocialUserInfo.builder()
+                .email(email)
+                .nickname("ArtripTester")
+                .providerId("APPLE_REVIEW_GUEST")
+                .provider(Provider.APPLE)
+                .build();
+
+        User user = userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = User.createUser(mockInfo);
+                    return userRepository.save(newUser);
+                });
+        socialRepository.findByProviderAndProviderId(Provider.APPLE, "APPLE_REVIEW_GUEST")
+                .orElseGet(() -> socialRepository.save(SocialAccounts.create(user, mockInfo, null)));
+
+        JwtToken jwt = jwtGenerator.generateToken(user, user.getRole());
+        redisService.save(jwt.getRefreshToken(), String.valueOf(user.getUserId()), refreshTokenExpirationMillis);
+
+        return SocialLoginResult.of(jwt.getAccessToken(), jwt.getRefreshToken(), user.getOnboardingStep());
+    }
 }

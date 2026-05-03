@@ -97,6 +97,15 @@ notification:
     file_path: ${FILE_PATH}
     project_id: ${PROJECT_ID}
 
+kakao:
+  admin-key: ${KAKAO_ADMIN_KEY}
+
+apple:
+  team-id: ${APPLE_TEAM_ID}
+  key-id: ${APPLE_KEY_ID}
+  client-id: ${APPLE_CLIENT_ID}
+  private-key: ${APPLE_PRIVATE_KEY}
+
 ---
 spring:
   config:
@@ -129,6 +138,11 @@ logging:
   level:
     org.atdev.artrip: DEBUG
     io.lettuce: WARN
+    com.google.api.client.http: DEBUG
+
+notification:
+  fcm:
+    http-trace: false
 
 server:
   port: 8080
@@ -162,6 +176,7 @@ logging:
   level:
     root: info
     org.atdev.artrip: info
+    org.apache.coyote.http11: warn
 
 server:
   port: 8082

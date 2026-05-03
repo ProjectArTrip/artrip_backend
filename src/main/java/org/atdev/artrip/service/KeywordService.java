@@ -46,6 +46,7 @@ public class KeywordService {
                 .toList();
 
         userKeywordRepository.saveAll(userKeywords);
+        user.completeKeywordOnboarding();
     }
 
     @Transactional(readOnly = true)
