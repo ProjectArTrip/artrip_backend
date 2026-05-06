@@ -129,4 +129,10 @@ public class UserService {
 
         userRepository.delete(user);
     }
+
+    @Transactional
+    public void clearFcmToken(Long userId) {
+        User user = findUserOrThrow(userId);
+        user.clearFcmToken();
+    }
 }

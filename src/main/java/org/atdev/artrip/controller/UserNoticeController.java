@@ -1,10 +1,12 @@
 package org.atdev.artrip.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.NotificationAction;
 import org.atdev.artrip.controller.dto.response.ReadStatusResponse;
 import org.atdev.artrip.controller.dto.response.UserNoticeCursorResponse;
 import org.atdev.artrip.controller.spec.UserNoticeSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
+import org.atdev.artrip.infra.fcm.service.dto.NotificationSingleCommand;
 import org.atdev.artrip.service.UserNoticeService;
 import org.atdev.artrip.service.dto.result.UserNoticeCursorResult;
 import org.atdev.artrip.utils.CursorPagination;
@@ -22,9 +24,10 @@ public class UserNoticeController implements UserNoticeSpecification {
     @GetMapping
     public ResponseEntity<UserNoticeCursorResponse> getNotifications(
             @LoginUser Long userId,
+            @RequestParam(required = false) NotificationAction action,
             CursorPagination pagination
     ) {
-        UserNoticeCursorResult result = userNoticeService.getNotifications(userId, pagination);
+        UserNoticeCursorResult result = userNoticeService.getNotifications(userId, pagination, action);
         return ResponseEntity.ok(UserNoticeCursorResponse.from(result));
     }
 
@@ -54,6 +57,15 @@ public class UserNoticeController implements UserNoticeSpecification {
             @LoginUser Long userId
     ) {
         userNoticeService.markAllAsRead(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @PostMapping("/singleToken")
+    public ResponseEntity<Void> sendSingleFcmToken(
+            @LoginUser Long userId,
+            @RequestBody NotificationSingleCommand command) {
+        userNoticeService.sendSingleFcmToken(userId, command);
         return ResponseEntity.noContent().build();
     }
 }

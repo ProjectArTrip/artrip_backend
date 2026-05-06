@@ -113,6 +113,7 @@ public class AuthService {
     public void appLogout(Long userId, String accessToken, String refreshToken) {
 
         validateRefreshTokenOwner(userId, refreshToken);
+        userService.clearFcmToken(userId);
         clearSession(accessToken, refreshToken);
     }
 

@@ -1,5 +1,6 @@
 package org.atdev.artrip.service;
 
+import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
@@ -14,11 +15,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
@@ -28,7 +31,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("FCM 토큰 저장 - 존재하지 않는 유저")
-    public void fcmTokenSaveUserNotFound(){
+    void fcmTokenSaveUserNotFound() {
         //given
         Long userId = 1L;
         String newToken = "token1234";
@@ -45,7 +48,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("FCM 토큰 저장 실패 - 잘못된 토큰 형식")
-    public void fcmTokenSaveInvalidToken(){
+    void fcmTokenSaveInvalidToken() {
         //given
         Long userId = 1L;
         String token = "    ";
@@ -61,4 +64,23 @@ public class UserServiceTest {
                 .isEqualTo(FcmErrorCode._INVALID_REQUEST_PATTERN);
     }
 
+    @Test
+    @DisplayName("FCM 토큰 제거 및 이미 null 일경우 예외 없이 종료")
+    void handle_clear_fcm_token_null_without_exception() {
+        //given
+        Long userId = 1L;
+        User user = User.builder()
+                .userId(userId)
+                .name("user")
+                .role(Role.USER)
+                .build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        //when
+        //then
+        assertAll(
+                () -> assertThatNoException().isThrownBy(() -> userService.clearFcmToken(userId)),
+                () -> assertThat(user.getFcmToken()).isNull()
+        );
+    }
 }
