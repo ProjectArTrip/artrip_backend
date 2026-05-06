@@ -2,16 +2,13 @@ package org.atdev.artrip.controller.spec;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.controller.dto.response.SearchHistoryListResponse;
-import org.atdev.artrip.controller.dto.response.SearchHistoryResponse;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.SearchErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.SearchErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import java.util.List;
 
 public interface SearchHistorySpecification {
 

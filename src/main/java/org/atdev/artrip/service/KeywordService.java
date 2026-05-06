@@ -2,8 +2,8 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.KeywordErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.KeywordErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;

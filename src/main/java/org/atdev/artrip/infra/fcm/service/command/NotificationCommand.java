@@ -1,4 +1,4 @@
-package org.atdev.artrip.infra.fcm.service.dto;
+package org.atdev.artrip.infra.fcm.service.command;
 
 import com.google.firebase.messaging.Notification;
 

@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class AdminExhibitServiceTest {
+public class AdminNoticeServiceTest {
 
     @Mock
     private ExhibitRepository exhibitRepository;
@@ -44,8 +44,6 @@ public class AdminExhibitServiceTest {
     @InjectMocks
     private AdminNoticeService adminNoticeService;
 
-//    @InjectMocks
-//    private AdminExhibitService adminExhibitService;
 
     private User adminUser;
     private User normalInfo;

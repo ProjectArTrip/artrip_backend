@@ -5,7 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.ErrorReasonDTO;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.CommonErrorCode;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;

@@ -2,7 +2,7 @@ package org.atdev.artrip.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import java.util.regex.Pattern;

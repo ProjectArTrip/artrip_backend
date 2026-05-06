@@ -4,6 +4,7 @@ import org.atdev.artrip.constants.RefreshCycle;
 import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.domain.curation.Curation;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
+import org.atdev.artrip.global.apipayload.code.error.CurationErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.CurationRepository;
 import org.atdev.artrip.utils.CursorPagination;

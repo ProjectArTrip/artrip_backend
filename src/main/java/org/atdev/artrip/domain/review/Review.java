@@ -2,9 +2,13 @@ package org.atdev.artrip.domain.review;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.atdev.artrip.constants.ReviewRejectionReason;
+import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.domain.stamp.Stamp;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,6 +49,17 @@ public class Review {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private ReviewStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private ReviewRejectionReason rejectionReason;
+
+    @Column(name = "rejected_at")
+    private LocalDateTime rejectedAt;
+
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Stamp> stamps;
 
@@ -79,6 +94,7 @@ public class Review {
                 .content(content)
                 .visitDate(date)
                 .createdAt(LocalDateTime.now())
+                .status(ReviewStatus.PENDING)
                 .build();
 
         if (s3Urls != null && !s3Urls.isEmpty()) {
@@ -86,5 +102,24 @@ public class Review {
         }
 
         return review;
+    }
+
+    public void reject(ReviewRejectionReason reason) {
+        this.status = ReviewStatus.REJECTED;
+        this.rejectionReason = reason;
+        this.rejectedAt = LocalDateTime.now();
+    }
+
+    public void approve() {
+        this.status = ReviewStatus.APPROVED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
+    public void resubmit() {
+        this.status = ReviewStatus.PENDING;
+        this.rejectionReason = null;
+        this.rejectedAt = null;
+        this.updatedAt = LocalDateTime.now();
     }
 }

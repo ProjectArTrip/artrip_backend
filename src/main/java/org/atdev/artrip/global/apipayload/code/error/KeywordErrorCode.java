@@ -1,4 +1,4 @@
-package org.atdev.artrip.global.apipayload.code.status;
+package org.atdev.artrip.global.apipayload.code.error;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

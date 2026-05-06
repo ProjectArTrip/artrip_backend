@@ -8,7 +8,7 @@ import org.atdev.artrip.repository.*;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;

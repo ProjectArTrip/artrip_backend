@@ -6,11 +6,12 @@ import com.google.firebase.messaging.*;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.NotificationAction;
 import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.infra.fcm.service.dto.NotificationCommand;
-import org.atdev.artrip.infra.fcm.service.dto.NotificationMulticastCommand;
-import org.atdev.artrip.infra.fcm.service.dto.NotificationSingleCommand;
+import org.atdev.artrip.infra.fcm.service.command.NotificationCommand;
+import org.atdev.artrip.infra.fcm.service.command.NotificationMulticastCommand;
+import org.atdev.artrip.infra.fcm.service.command.NotificationSingleCommand;
+import org.atdev.artrip.infra.notification.NotificationMessage;
 import org.atdev.artrip.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -158,6 +159,34 @@ public class FcmNotificationService {
                 "[공지]" + title + "\n" + content,
                 Map.of("action", NotificationAction.MOVE_NOTICE_DETAIL.getAction(),
                         "referenceId", String.valueOf(noticeId))));
+    }
+
+    public void sendToUser(Long userId, NotificationMessage message) {
+        userRepository.findById(userId)
+                .map(User::getFcmToken)
+                .filter(token -> token != null && !token.isBlank())
+                .ifPresent(token -> sendMessage(NotificationSingleCommand.of(
+                        token,
+                        message.title(),
+                        message.body(),
+                        message.reference().toFcmData()
+                )));
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public void sendBroadcast(NotificationMessage message) {
+        List<String> tokens = userRepository.findValidPushUsers().stream()
+                .map(User::getFcmToken)
+                .filter(token -> token != null && !token.isBlank())
+                .distinct()
+                .toList();
+        if (tokens.isEmpty()) return;
+        sendMessage(NotificationMulticastCommand.of(
+                tokens,
+                message.title(),
+                message.body(),
+                message.reference().toFcmData()
+        ));
     }
 
     public void invalidateToken(String token) {
