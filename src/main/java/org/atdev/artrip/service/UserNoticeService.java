@@ -2,12 +2,17 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.NotificationAction;
+import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.domain.notice.Notice;
 import org.atdev.artrip.domain.notice.UserNotice;
 import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.infra.fcm.service.event.NoticeCreatedEvent;
+import org.atdev.artrip.infra.fcm.NotificationSingleDispatch;
+import org.atdev.artrip.domain.notice.event.NoticeCreatedEvent;
+import org.atdev.artrip.infra.notification.NotificationMessage;
+import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserNoticeRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.result.UserNoticeCursorResult;
@@ -27,6 +32,7 @@ public class UserNoticeService {
     private final UserNoticeRepository userNoticeRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
+    private final NoticeRepository noticeRepository;
 
     @Transactional(readOnly = true)
     public UserNoticeCursorResult getNotifications(Long userId, CursorPagination pagination, NotificationAction action) {
@@ -60,10 +66,6 @@ public class UserNoticeService {
         userNoticeRepository.markAllAsRead(user);
     }
 
-    private User findUserOrThrow(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createNoticeNotification(NoticeCreatedEvent event) {
         List<User> pushUsers = userRepository.findValidPushUsers();
@@ -77,6 +79,20 @@ public class UserNoticeService {
                         event.content()
                 )).toList();
         userNoticeRepository.saveAll(notices);
+    }
+
+    @Transactional
+    public void sendSingleFcmToken(Long userId, NotificationSingleDispatch command) {
+        User admin = findUserOrThrow(userId);
+
+        if(admin.getRole() != Role.ADMIN) {
+            throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
+        }
+
+        Notice notice = Notice.create(admin, command.title(), command.body());
+        noticeRepository.save(notice);
+
+        publisher.publishEvent(new NoticeCreatedEvent(notice.getNoticeId(), command.title(), command.body()));
     }
 
     public void saveSingle(Long userId, NotificationMessage message) {
@@ -107,21 +123,5 @@ public class UserNoticeService {
 
     private User findUserOrThrow(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
-    }
-
-
-
-    @Transactional
-    public void sendSingleFcmToken(Long userId, NotificationSingleCommand command) {
-
-        User admin = findUserOrThrow(userId);
-        if(admin.getRole() != Role.ADMIN) {
-            throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
-        }
-
-        Notice notice = Notice.create(admin, command.title(), command.body());
-        noticeRepository.save(notice);
-
-        publisher.publishEvent(new NoticeCreatedEvent(notice.getNoticeId(), command.title(), command.body()));
     }
 }

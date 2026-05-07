@@ -1,6 +1,5 @@
 package org.atdev.artrip.controller.dto.response;
 
-import org.atdev.artrip.constants.ReviewRejectionReason;
 import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.service.dto.result.AdminReviewResult;
 
@@ -11,7 +10,7 @@ import java.util.List;
 public record AdminReviewResponse(
         Long reviewId,
         ReviewStatus status,
-        ReviewRejectionReason rejectionReason,
+        String rejectionReason,
         LocalDateTime rejectedAt,
         Long userId,
         String nickname,

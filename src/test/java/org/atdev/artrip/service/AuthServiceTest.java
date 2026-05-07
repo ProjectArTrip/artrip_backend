@@ -1,6 +1,7 @@
 package org.atdev.artrip.service;
 
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;

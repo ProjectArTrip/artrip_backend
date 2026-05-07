@@ -7,7 +7,7 @@ import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.infra.fcm.service.FcmNotificationService;
+import org.atdev.artrip.infra.fcm.FcmNotificationService;
 import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.AdminNoticeCreateCommand;
@@ -55,7 +55,7 @@ public class NoticeServiceTest {
 
     @Test
     @DisplayName("공지사항 생성 - Role Admin")
-    public void createNoticeUserIsNotAdmin() {
+    void createNoticeUserIsNotAdmin() {
         //given
         AdminNoticeCreateCommand command = new AdminNoticeCreateCommand(1L, "공지사항 생성생성생성", "내용입니다아아아아아");
         User user = User.builder()
@@ -76,7 +76,7 @@ public class NoticeServiceTest {
 
     @Test
     @DisplayName("관리자 공지사항 수정 - 존재하지 않는 공지")
-    public void updateNoticeNotFound() {
+    void updateNoticeNotFound() {
         //given
         AdminNoticeUpdateCommand command = new AdminNoticeUpdateCommand(1L, 0L,"title",  "수정된 공지사항");
         User admin = User.builder()
@@ -98,7 +98,7 @@ public class NoticeServiceTest {
 
     @Test
     @DisplayName("공지사항 삭제 - 존재하지 않는 공지")
-    public void deleteNoticeNotFound() {
+    void deleteNoticeNotFound() {
         //given
         User admin = User.builder()
                 .userId(1L)

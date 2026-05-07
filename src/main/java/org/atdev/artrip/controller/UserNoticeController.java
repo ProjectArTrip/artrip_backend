@@ -6,7 +6,7 @@ import org.atdev.artrip.controller.dto.response.ReadStatusResponse;
 import org.atdev.artrip.controller.dto.response.UserNoticeCursorResponse;
 import org.atdev.artrip.controller.spec.UserNoticeSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
-import org.atdev.artrip.infra.fcm.service.dto.NotificationSingleCommand;
+import org.atdev.artrip.infra.fcm.NotificationSingleDispatch;
 import org.atdev.artrip.service.UserNoticeService;
 import org.atdev.artrip.service.dto.result.UserNoticeCursorResult;
 import org.atdev.artrip.utils.CursorPagination;
@@ -64,7 +64,7 @@ public class UserNoticeController implements UserNoticeSpecification {
     @PostMapping("/singleToken")
     public ResponseEntity<Void> sendSingleFcmToken(
             @LoginUser Long userId,
-            @RequestBody NotificationSingleCommand command) {
+            @RequestBody NotificationSingleDispatch command) {
         userNoticeService.sendSingleFcmToken(userId, command);
         return ResponseEntity.noContent().build();
     }

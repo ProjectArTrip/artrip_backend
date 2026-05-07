@@ -8,7 +8,7 @@ import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
 import org.atdev.artrip.global.apipayload.code.status.NoticeStatusCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.infra.fcm.service.event.NoticeCreatedEvent;
+import org.atdev.artrip.domain.notice.event.NoticeCreatedEvent;
 import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.AdminNoticeCreateCommand;

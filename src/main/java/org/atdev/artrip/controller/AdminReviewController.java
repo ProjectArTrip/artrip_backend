@@ -11,9 +11,8 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AdminReviewService;
 import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
 import org.atdev.artrip.service.dto.command.AdminReviewSearchCommand;
-import org.atdev.artrip.service.dto.result.AdminReviewResult;
+import org.atdev.artrip.service.dto.result.AdminReviewListResult;
 import org.atdev.artrip.utils.page.Criteria;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +31,7 @@ public class AdminReviewController implements AdminReviewSpecification {
             Criteria criteria
     ) {
         AdminReviewSearchCommand command = request.toCommand();
-        Page<AdminReviewResult> reviews = adminReviewService.list(adminId, command, criteria.toPageable());
+        AdminReviewListResult reviews = adminReviewService.list(adminId, command, criteria.toPageable());
         AdminReviewPageResponse response = AdminReviewPageResponse.from(reviews);
 
         return ResponseEntity.ok(response);

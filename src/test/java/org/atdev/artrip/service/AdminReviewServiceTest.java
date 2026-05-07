@@ -1,17 +1,15 @@
 package org.atdev.artrip.service;
 
-import org.atdev.artrip.constants.ReviewRejectionReason;
-import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.review.Review;
+import org.atdev.artrip.domain.review.event.ReviewRejectedEvent;
 import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.infra.fcm.service.event.ReviewRejectedEvent;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
@@ -19,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,6 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -78,8 +78,9 @@ public class AdminReviewServiceTest {
     void reject_pending_changesStatus_andPublishesEvent() {
         // given
         Long reviewId = 700L;
+        String rejectReason = "반려";
         Review review = Review.create(reviewer, exhibit, "리뷰", LocalDate.now(), List.of());
-        AdminReviewRejectCommand command = new AdminReviewRejectCommand(admin.getUserId(), reviewId, ReviewRejectionReason.BANNED_WORD);
+        AdminReviewRejectCommand command = new AdminReviewRejectCommand(admin.getUserId(), reviewId, rejectReason);
 
         when(userRepository.findById(admin.getUserId())).thenReturn(Optional.of(admin));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
@@ -88,8 +89,14 @@ public class AdminReviewServiceTest {
         adminReviewService.rejectReview(command);
 
         // then
-        assertThat(review.getStatus()).isEqualTo(ReviewStatus.REJECTED);
-        verify(eventPublisher).publishEvent(any(ReviewRejectedEvent.class));
+        ArgumentCaptor<ReviewRejectedEvent> captor = ArgumentCaptor.forClass(ReviewRejectedEvent.class);
+        verify(eventPublisher).publishEvent(captor.capture());
+        ReviewRejectedEvent event = captor.getValue();
+        assertAll(
+                () -> assertThat(event.reason()).isEqualTo(rejectReason),
+                () -> assertThat(event.exhibitTitle()).isEqualTo(exhibit.getTitle()),
+                () -> assertThat(event.reviewContent()).isEqualTo("리뷰")
+        );
     }
 
     @Test
@@ -98,7 +105,7 @@ public class AdminReviewServiceTest {
         // given
         Long reviewId = 701L;
         Review review = Review.create(reviewer, exhibit, "리뷰", LocalDate.now(), List.of());
-        review.reject(ReviewRejectionReason.POLICY_VIOLATION);
+        review.reject("잘못된 리뷰");
 
         when(userRepository.findById(admin.getUserId())).thenReturn(Optional.of(admin));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));

@@ -2,13 +2,10 @@ package org.atdev.artrip.domain.review;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.atdev.artrip.constants.ReviewRejectionReason;
 import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.domain.stamp.Stamp;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
-import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
-import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,9 +50,8 @@ public class Review {
     @Column
     private ReviewStatus status;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private ReviewRejectionReason rejectionReason;
+    @Column(length = 500)
+    private String rejectionReason;
 
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
@@ -104,7 +100,7 @@ public class Review {
         return review;
     }
 
-    public void reject(ReviewRejectionReason reason) {
+    public void reject(String reason) {
         this.status = ReviewStatus.REJECTED;
         this.rejectionReason = reason;
         this.rejectedAt = LocalDateTime.now();

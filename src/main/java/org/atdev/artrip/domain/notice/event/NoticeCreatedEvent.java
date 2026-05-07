@@ -1,4 +1,4 @@
-package org.atdev.artrip.infra.fcm.service.event;
+package org.atdev.artrip.domain.notice.event;
 
 public record NoticeCreatedEvent(
         Long noticeId,

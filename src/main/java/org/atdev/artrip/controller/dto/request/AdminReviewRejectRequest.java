@@ -1,13 +1,13 @@
 package org.atdev.artrip.controller.dto.request;
 
-import jakarta.validation.constraints.NotNull;
-import org.atdev.artrip.constants.ReviewRejectionReason;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
 
 public record AdminReviewRejectRequest(
-        @NotNull String rejectionReason
+        @NotBlank @Size(max = 200) String rejectionReason
 ) {
     public AdminReviewRejectCommand toCommand(Long adminId, Long reviewId) {
-        return new AdminReviewRejectCommand(adminId, reviewId, ReviewRejectionReason.valueOf(rejectionReason));
+        return new AdminReviewRejectCommand(adminId, reviewId, rejectionReason);
     }
 }

@@ -1,11 +1,11 @@
-package org.atdev.artrip.global.apipayload.code.status;
+package org.atdev.artrip.infra.notification;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum ReviewNotificationMessage {
+public enum NotificationTemplate {
     REVIEW_APPROVED(
             "리뷰가 승인되었습니다.",
             "%s 전시에 작성하신 리뷰가 승인되어 전시 상세페이지에 노출됩니다."
@@ -14,13 +14,9 @@ public enum ReviewNotificationMessage {
             "리뷰가 삭제되었습니다.",
             "작성하신 리뷰가 운영 정책에 따라 삭제되었습니다."
     ),
-    REVIEW_REJECTED_POLICY(
+    REVIEW_REJECTED(
             "리뷰가 반려되었습니다.",
-            "운영 정책에 따라 리뷰가 반려되었습니다. 리뷰 내용을 수정해 다시 등록해주세요."
-    ),
-    REVIEW_REJECTED_BANNED_WORD(
-            "리뷰가 반려되었습니다.",
-            "부적절한 표현이 포함되어 리뷰가 반려되었습니다. 내용을 수정해 다시 등록해 주세요."
+            "[%s] 반려되었습니다.\n[%s] %s"
     );
 
     private final String title;

@@ -1,6 +1,5 @@
 package org.atdev.artrip.service.dto.result;
 
-import org.atdev.artrip.constants.ReviewRejectionReason;
 import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.domain.review.Review;
 import org.atdev.artrip.domain.review.ReviewImage;
@@ -12,7 +11,7 @@ import java.util.List;
 public record AdminReviewResult(
         Long reviewId,
         ReviewStatus status,
-        ReviewRejectionReason rejectionReason,
+        String rejectionReason,
         LocalDateTime rejectedAt,
         Long userId,
         String nickname,
@@ -32,7 +31,7 @@ public record AdminReviewResult(
     public AdminReviewResult(
             Long reviewId,
             ReviewStatus status,
-            ReviewRejectionReason rejectionReason,
+            String rejectionReason,
             LocalDateTime rejectedAt,
             Long userId,
             String nickname,

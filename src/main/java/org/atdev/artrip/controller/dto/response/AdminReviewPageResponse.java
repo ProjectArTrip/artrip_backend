@@ -1,8 +1,7 @@
 package org.atdev.artrip.controller.dto.response;
 
-import org.atdev.artrip.service.dto.result.AdminReviewResult;
+import org.atdev.artrip.service.dto.result.AdminReviewListResult;
 import org.atdev.artrip.utils.page.PageDTO;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -11,12 +10,12 @@ public record AdminReviewPageResponse(
         PageDTO page
 ) {
 
-    public static AdminReviewPageResponse from(Page<AdminReviewResult> resultPage) {
+    public static AdminReviewPageResponse from(AdminReviewListResult result) {
         return new AdminReviewPageResponse(
-                resultPage.getContent().stream()
+                result.reviews().stream()
                         .map(AdminReviewResponse::from)
                         .toList(),
-                PageDTO.from(resultPage)
+                result.pageInfo()
         );
     }
 

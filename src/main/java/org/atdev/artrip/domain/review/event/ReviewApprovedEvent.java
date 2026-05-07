@@ -1,4 +1,4 @@
-package org.atdev.artrip.infra.fcm.service.event;
+package org.atdev.artrip.domain.review.event;
 
 public record ReviewApprovedEvent(
         Long reviewId,
