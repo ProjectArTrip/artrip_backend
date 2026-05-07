@@ -4,9 +4,9 @@ import org.atdev.artrip.constants.RefreshCycle;
 import org.atdev.artrip.constants.SortType;
 import org.atdev.artrip.domain.curation.Curation;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
-import org.atdev.artrip.global.apipayload.code.error.CurationErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.CurationRepository;
+import org.atdev.artrip.service.dto.condition.CurationSearchCondition;
 import org.atdev.artrip.utils.CursorPagination;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -73,5 +73,29 @@ public class CurationServiceTest {
         //when
         //then
         assertThrows(GeneralException.class, () -> curationService.getCurationDetail(user, curation.getCurationId(), new CursorPagination(null, 20L)));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 큐레이션 상세 조회 시 예외")
+    void curationDetail_notFound_throws() {
+        // given
+        Long curationId = 999L;
+        when(curationRepository.findById(curationId)).thenReturn(Optional.empty());
+
+        // when
+        // then
+        assertThrows(GeneralException.class,
+                () -> curationService.getCurationDetail(1L, curationId, new CursorPagination(null, 20L)));
+    }
+
+    @Test
+    @DisplayName("국내 필터와 country 같이 조회할 경우 예외")
+    void summary_domesticAndCountryTogether_throws() {
+        // given
+        CurationSearchCondition condition = new CurationSearchCondition(true, "프랑스");
+
+        // when
+        // then
+        assertThrows(GeneralException.class, () -> curationService.getSummaryCuration(1L, condition));
     }
 }

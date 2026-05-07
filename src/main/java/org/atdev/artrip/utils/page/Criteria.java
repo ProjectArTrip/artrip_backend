@@ -1,4 +1,4 @@
-package org.atdev.artrip.global.page;
+package org.atdev.artrip.utils.page;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

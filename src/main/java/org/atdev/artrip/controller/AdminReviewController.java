@@ -1,19 +1,21 @@
 package org.atdev.artrip.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.controller.dto.request.AdminReviewRejectRequest;
 import org.atdev.artrip.controller.dto.request.AdminSearchReviewRequest;
-import org.atdev.artrip.controller.dto.response.AdminReviewListResponse;
+import org.atdev.artrip.controller.dto.response.AdminReviewPageResponse;
+import org.atdev.artrip.controller.dto.response.AdminReviewResponse;
 import org.atdev.artrip.controller.spec.AdminReviewSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AdminReviewService;
+import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
 import org.atdev.artrip.service.dto.command.AdminReviewSearchCommand;
-import org.springframework.data.web.PageableDefault;
+import org.atdev.artrip.service.dto.result.AdminReviewResult;
+import org.atdev.artrip.utils.page.Criteria;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.awt.print.Pageable;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/reviews")
@@ -24,15 +26,61 @@ public class AdminReviewController implements AdminReviewSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<AdminReviewListResponse> list(
+    public ResponseEntity<AdminReviewPageResponse> list(
             @LoginUser Long adminId,
             AdminSearchReviewRequest request,
-            @PageableDefault Pageable pageable
+            Criteria criteria
     ) {
-        AdminReviewSearchCommand command = request.toCommand(adminId);
-        AdminReviewListResult result = adminReviewService.list(adminId, command, pageable);
-        return ResponseEntity.ok(AdminReviewListResponse.from(result));
+        AdminReviewSearchCommand command = request.toCommand();
+        Page<AdminReviewResult> reviews = adminReviewService.list(adminId, command, criteria.toPageable());
+        AdminReviewPageResponse response = AdminReviewPageResponse.from(reviews);
 
+        return ResponseEntity.ok(response);
     }
+
+    @Override
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<AdminReviewResponse> detail(
+            @LoginUser Long adminId,
+            @PathVariable Long reviewId
+    ) {
+        AdminReviewResponse response = AdminReviewResponse.from(
+                adminReviewService.detail(adminId, reviewId));
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PostMapping("/{reviewId}/approve")
+    public ResponseEntity<Void> approve(
+            @LoginUser Long adminId,
+            @PathVariable Long reviewId
+    ) {
+        adminReviewService.approveReview(adminId, reviewId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @PostMapping("/{reviewId}/reject")
+    public ResponseEntity<Void> reject(
+            @LoginUser Long adminId,
+            @PathVariable Long reviewId,
+            @Valid @RequestBody AdminReviewRejectRequest request
+    ) {
+        AdminReviewRejectCommand command = request.toCommand(adminId, reviewId);
+        adminReviewService.rejectReview(command);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/{reviewId}")
+    public ResponseEntity<Void> delete(
+            @LoginUser Long adminId,
+            @PathVariable Long reviewId
+    ) {
+        adminReviewService.delete(adminId, reviewId);
+        return ResponseEntity.noContent().build();
+    }
+
 
 }

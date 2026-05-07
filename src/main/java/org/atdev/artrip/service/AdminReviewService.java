@@ -2,6 +2,7 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.NotificationAction;
+import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.notice.Notice;
@@ -15,9 +16,14 @@ import org.atdev.artrip.infra.notification.NotificationMessage;
 import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserNoticeRepository;
 import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
+import org.atdev.artrip.service.dto.command.AdminReviewSearchCommand;
+import org.atdev.artrip.service.dto.result.AdminReviewResult;
 import org.atdev.artrip.service.dto.result.UserNoticeCursorResult;
 import org.atdev.artrip.utils.CursorPagination;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -49,9 +55,26 @@ public class AdminReviewService {
     public boolean unreadStatus(Long userId) {
         User user = findUserOrThrow(userId);
         return userNoticeRepository.existsUnreadByUser(user);
+    public Page<AdminReviewResult> list (Long adminId, AdminReviewSearchCommand command, Pageable pageable) {
+        findAdminOrThrow(adminId);
+        return reviewRepository.searchForAdmin(command, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminReviewResult detail(Long adminId, Long reviewId) {
+        findAdminOrThrow(adminId);
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+        return AdminReviewResult.from(review);
     }
 
     @Transactional
+    public void approveReview(Long adminId, Long reviewId) {
+        findAdminOrThrow(adminId);
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+
+        if (review.getStatus() == ReviewStatus.APPROVED) {
+            throw new GeneralException(ReviewErrorCode._REVIEW_ALREADY_APPROVED);
+        }
     public void markAsRead(Long userId, Long userNoticeId) {
         UserNotice notice = userNoticeRepository.findById(userNoticeId).orElseThrow(() -> new
                 GeneralException(NoticeErrorCode._USER_NOTICE_NOT_FOUND));
@@ -68,6 +91,11 @@ public class AdminReviewService {
         User user = findUserOrThrow(userId);
         userNoticeRepository.markAllAsRead(user);
     }
+    public void delete(Long adminId, Long reviewId) {
+        findAdminOrThrow(adminId);
+
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+        Long ownerId = review.getUser().getUserId();
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createNoticeNotification(NoticeCreatedEvent event) {
@@ -88,6 +116,30 @@ public class AdminReviewService {
     public void sendSingleFcmToken(Long userId, NotificationSingleCommand command) {
         User admin = findUserOrThrow(userId);
         if (admin.getRole() != Role.ADMIN) {
+    public void rejectReview(AdminReviewRejectCommand command) {
+        findAdminOrThrow(command.adminId());
+        Review review = reviewRepository.findById(command.reviewId()).orElseThrow(() -> new GeneralException(ReviewErrorCode._REVIEW_NOT_FOUND));
+
+        if(review.getStatus() == ReviewStatus.REJECTED) {
+            throw new GeneralException(ReviewErrorCode._REVIEW_ALREADY_REJECTED);
+        }
+
+        if (review.getStatus() != ReviewStatus.PENDING) {
+            throw new GeneralException(ReviewErrorCode._REVIEW_NOT_PENDING);
+        }
+
+        review.reject(command.rejectionReason());
+
+        publisher.publishEvent(new ReviewRejectedEvent(
+                review.getReviewId(),
+                review.getUser().getUserId(),
+                command.rejectionReason()
+        ));
+    }
+
+    private User findAdminOrThrow(Long adminId) {
+        User user = userRepository.findById(adminId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
+        if (user.getRole() != Role.ADMIN) {
             throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
         }
 

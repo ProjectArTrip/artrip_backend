@@ -1,4 +1,4 @@
-package org.atdev.artrip.global.page;
+package org.atdev.artrip.utils.page;
 
 import lombok.*;
 import org.springframework.data.domain.Page;

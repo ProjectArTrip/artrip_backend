@@ -5,18 +5,22 @@ import org.atdev.artrip.service.dto.command.AdminReviewSearchCommand;
 import java.time.LocalDate;
 
 public record AdminSearchReviewRequest(
-        String status, //nullable
-        String keyword, //nullable
-        LocalDate startDate, //nullable
-        LocalDate endDate // nullable
+        String status,
+        String keyword,
+        Long userId,
+        Boolean stampIssued,
+        LocalDate startDate,
+        LocalDate endDate
 ) {
-    public AdminReviewSearchCommand toCommand(Long adminId) {
-        return new AdminReviewSearchCommand(
-                this.status,
-                this.keyword,
-                adminId,
-                this.startDate,
-                this.endDate
+    public AdminReviewSearchCommand toCommand() {
+        return AdminReviewSearchCommand.of(
+                status,
+                keyword,
+                userId,
+                stampIssued,
+                startDate,
+                endDate
         );
     }
+
 }

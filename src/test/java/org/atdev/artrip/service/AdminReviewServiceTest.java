@@ -9,11 +9,12 @@ import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.review.Review;
 import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
-import org.atdev.artrip.infra.fcm.service.event.ReviewApprovedEvent;
-import org.atdev.artrip.infra.fcm.service.event.ReviewDeleteByAdminEvent;
+import org.atdev.artrip.infra.fcm.service.event.ReviewRejectedEvent;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,80 +57,59 @@ public class AdminReviewServiceTest {
     }
 
     @Test
-    @DisplayName("관리자가 PENDING 리뷰를 승인하면 APPROVED + 이벤트 발행")
-    void approve_pending_publishesEvent() {
+    @DisplayName("일반 유저는 리뷰 승인 및 반려시도 할 경우 예외")
+    void approve_nonAdmin_throwsForbidden() {
         //given
-        Long reviewId = 500L;
-        Review review = Review.create(reviewer, exhibit, "리뷰", LocalDate.now(), List.of());
-        when(userRepository.findById(admin.getUserId())).thenReturn(Optional.of(admin));
-        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
-
-        //when
-        adminReviewService.approveReview(admin.getUserId(), reviewId);
-
-        //then
-        assertThat(review.getStatus()).isEqualTo(ReviewStatus.APPROVED);
-        verify(eventPublisher).publishEvent(new ReviewApprovedEvent(
-                review.getReviewId(),
-                reviewer.getUserId(),
-                exhibit.getExhibitId(),
-                exhibit.getTitle()));
-    }
-
-    @Test
-    @DisplayName("이미 승인된 리뷰는 다시 승인 불가")
-    void approve_alreadyApproved_throws() {
-        //given
-        Long reviewId = 510L;
-        Review review = Review.create(reviewer, exhibit, "리뷰", LocalDate.now(), List.of());
-        review.approve();
-
-        when(userRepository.findById(admin.getUserId())).thenReturn(Optional.of(admin));
-        when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
+        User user = User.builder()
+                .userId(3L)
+                .role(Role.USER)
+                .build();
+        when(userRepository.findById(user.getUserId())).thenReturn(Optional.of(user));
 
         //when
         //then
-        assertThatThrownBy(() -> adminReviewService.approveReview(admin.getUserId(), reviewId))
-                .isInstanceOfSatisfying(GeneralException.class,
-                        ex -> assertThat(ex.getCode()).isEqualTo(ReviewErrorCode._REVIEW_ALREADY_APPROVED));
-        verifyNoInteractions(eventPublisher);
+        assertThatThrownBy(() -> adminReviewService.approveReview(user.getUserId(), 500L)).isInstanceOfSatisfying(GeneralException.class,
+                ex -> assertThat(ex.getCode()).isEqualTo(UserErrorCode._USER_FORBIDDEN));
+        verifyNoInteractions(reviewRepository, eventPublisher);
     }
 
     @Test
-    @DisplayName("이미 반려된 리뷰는 다시 반려 불가")
-    void reject_alreadyRejected_throws() {
-        //given
+    @DisplayName("PENDING 리뷰를 반려하면 REJECTED로 변경되고 이벤트 발행")
+    void reject_pending_changesStatus_andPublishesEvent() {
+        // given
         Long reviewId = 700L;
         Review review = Review.create(reviewer, exhibit, "리뷰", LocalDate.now(), List.of());
-        review.reject(ReviewRejectionReason.POLICY_VIOLATION);
+        AdminReviewRejectCommand command = new AdminReviewRejectCommand(admin.getUserId(), reviewId, ReviewRejectionReason.BANNED_WORD);
+
         when(userRepository.findById(admin.getUserId())).thenReturn(Optional.of(admin));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
-        //when
-        //then
-        assertThatThrownBy(() -> adminReviewService.rejectReview(
-                admin.getUserId(), reviewId, ReviewRejectionReason.BANNED_WORD))
-                .isInstanceOfSatisfying(GeneralException.class,
-                        ex -> assertThat(ex.getCode()).isEqualTo(ReviewErrorCode._REVIEW_ALREADY_REJECTED));
-        verifyNoInteractions(eventPublisher);
+        // when
+        adminReviewService.rejectReview(command);
+
+        // then
+        assertThat(review.getStatus()).isEqualTo(ReviewStatus.REJECTED);
+        verify(eventPublisher).publishEvent(any(ReviewRejectedEvent.class));
     }
 
     @Test
-    @DisplayName("관리자가 리뷰 삭제 시 이벤트 발행")
-    void delete_publishesEvent() {
-        //given
-        Long reviewId = 800L;
+    @DisplayName("이미 반려된 리뷰를 승인하면 NOT_PENDING 예외")
+    void approve_rejectedReview_throwsNotPending() {
+        // given
+        Long reviewId = 701L;
         Review review = Review.create(reviewer, exhibit, "리뷰", LocalDate.now(), List.of());
+        review.reject(ReviewRejectionReason.POLICY_VIOLATION);
+
         when(userRepository.findById(admin.getUserId())).thenReturn(Optional.of(admin));
         when(reviewRepository.findById(reviewId)).thenReturn(Optional.of(review));
 
-        //when
-        adminReviewService.delete(admin.getUserId(), reviewId);
+        // when
+        // then
+        assertThatThrownBy(() -> adminReviewService.approveReview(admin.getUserId(), reviewId))
+                .isInstanceOfSatisfying(GeneralException.class,
+                        ex -> assertThat(ex.getCode()).isEqualTo(ReviewErrorCode._REVIEW_NOT_PENDING));
 
-        //then
-        verify(reviewRepository).delete(review);
-        verify(eventPublisher).publishEvent(
-                new ReviewDeleteByAdminEvent(reviewId, reviewer.getUserId(), exhibit.getTitle()));
+        verifyNoInteractions(eventPublisher);
     }
 
 }
