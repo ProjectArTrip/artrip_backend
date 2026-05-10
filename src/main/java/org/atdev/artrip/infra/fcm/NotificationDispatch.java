@@ -1,12 +1,13 @@
 package org.atdev.artrip.infra.fcm;
 
-import com.google.firebase.messaging.*;
+import com.google.firebase.messaging.ApnsConfig;
+import com.google.firebase.messaging.Aps;
+import com.google.firebase.messaging.ApsAlert;
+import com.google.firebase.messaging.Notification;
 
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.function.Consumer;
 
-public interface NotificationDispatch {
+public sealed interface NotificationDispatch permits NotificationSingleDispatch, NotificationMulticastDispatch {
     String title();
 
     String body();
@@ -14,8 +15,6 @@ public interface NotificationDispatch {
     Notification toNotification();
 
     Map<String, String> data();
-
-    void send(FirebaseMessaging messaging, Executor executor, Consumer<String> tokenInvalidator);
 
     default ApnsConfig toApnsConfig() {
         ApsAlert alert = ApsAlert.builder()

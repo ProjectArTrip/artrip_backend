@@ -38,4 +38,11 @@ public interface UserNoticeRepository extends JpaRepository<UserNotice, Long> {
             """)
     int markAllAsRead(@Param("user") User user);
 
+    @Modifying
+    @Query("""
+            delete from UserNotice un
+            where un.user.userId = :userId
+            """)
+    void deleteAllByUserId(@Param("userId") Long userId);
+
 }

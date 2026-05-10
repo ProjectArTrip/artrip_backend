@@ -1,12 +1,12 @@
 package org.atdev.artrip.infra.fcm;
 
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.infra.notification.NotificationTemplate;
 import org.atdev.artrip.domain.review.event.ReviewApprovedEvent;
 import org.atdev.artrip.domain.review.event.ReviewDeleteByAdminEvent;
 import org.atdev.artrip.domain.review.event.ReviewRejectedEvent;
 import org.atdev.artrip.infra.notification.NotificationMessage;
 import org.atdev.artrip.infra.notification.NotificationReference;
+import org.atdev.artrip.infra.notification.NotificationTemplate;
 import org.atdev.artrip.service.UserNoticeService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
