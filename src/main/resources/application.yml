@@ -107,6 +107,21 @@ apple:
   client-id: ${APPLE_CLIENT_ID}
   private-key: ${APPLE_PRIVATE_KEY}
 
+maintenance:
+  access:
+    allowed-paths:
+      - /maintenance
+      - /error
+      - /swagger-ui/**
+      - /v3/api-docs
+      - /v3/api-docs/**
+      - /swagger-resources/**
+      - /swagger-ui.html
+      - /webjars/**
+      - /auth/social
+    allowed-ips:
+      - 127.0.0.1
+      - ::1
 ---
 spring:
   config:

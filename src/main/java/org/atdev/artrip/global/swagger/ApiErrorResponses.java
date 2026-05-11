@@ -33,4 +33,6 @@ public @interface ApiErrorResponses {
     FcmErrorCode[] fcmToken() default {};
 
     NoticeErrorCode[] notis() default {};
+
+    MaintenanceErrorCode[] maintenance() default {};
 }
