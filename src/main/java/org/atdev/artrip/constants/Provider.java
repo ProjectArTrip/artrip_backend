@@ -1,6 +1,6 @@
 package org.atdev.artrip.constants;
 
-import org.atdev.artrip.global.apipayload.code.status.AuthErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.AuthErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 import java.util.Arrays;

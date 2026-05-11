@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.atdev.artrip.global.apipayload.code.BaseCode;
-import org.atdev.artrip.global.apipayload.code.status.SuccessStatusCode;
+import org.atdev.artrip.global.apipayload.code.error.SuccessStatusCode;
 
 @Getter
 @AllArgsConstructor

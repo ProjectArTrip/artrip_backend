@@ -1,13 +1,14 @@
 package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.review.Review;
 import org.atdev.artrip.domain.review.ReviewImage;
-import org.atdev.artrip.global.apipayload.code.status.ExhibitErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.ExhibitErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.ReviewRepository;
@@ -92,6 +93,10 @@ public class ReviewCommandService {
 
         if (!newS3Urls.isEmpty()) {
             review.addImages(newS3Urls);
+        }
+
+        if (review.getStatus() == ReviewStatus.REJECTED) {
+            review.resubmit();
         }
     }
 

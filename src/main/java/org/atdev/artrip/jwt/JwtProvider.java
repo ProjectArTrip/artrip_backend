@@ -5,7 +5,7 @@ import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.jwt.exception.JwtAuthenticationException;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

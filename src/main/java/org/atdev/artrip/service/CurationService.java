@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.Country;
 import org.atdev.artrip.domain.curation.Curation;
 import org.atdev.artrip.domain.curation.CurationExhibit;
-import org.atdev.artrip.global.apipayload.code.status.CurationErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.CurationErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.CurationRepository;
 import org.atdev.artrip.repository.FavoriteRepository;

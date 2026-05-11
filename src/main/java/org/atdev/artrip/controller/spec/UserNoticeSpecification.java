@@ -4,11 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import org.atdev.artrip.constants.NotificationAction;
 import org.atdev.artrip.controller.dto.response.ReadStatusResponse;
 import org.atdev.artrip.controller.dto.response.UserNoticeCursorResponse;
-import org.atdev.artrip.global.apipayload.code.status.NoticeErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.atdev.artrip.infra.fcm.service.dto.NotificationSingleCommand;
+import org.atdev.artrip.infra.fcm.NotificationSingleDispatch;
 import org.atdev.artrip.utils.CursorPagination;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +51,6 @@ public interface UserNoticeSpecification {
 
     @Operation(summary = "단일 FCM 토큰 푸시 발송")
     @ApiErrorResponses(user = {UserErrorCode._USER_NOT_FOUND})
-    ResponseEntity<Void> sendSingleFcmToken(@LoginUser Long userId, @RequestBody NotificationSingleCommand command);
+    ResponseEntity<Void> sendSingleFcmToken(@LoginUser Long userId, @RequestBody NotificationSingleDispatch command);
 
 }

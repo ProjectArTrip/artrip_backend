@@ -1,18 +1,16 @@
 package org.atdev.artrip.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
+import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
 import org.atdev.artrip.controller.dto.request.TestLoginRequest;
 import org.atdev.artrip.controller.dto.response.AppReissueResponse;
+import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.controller.spec.AuthSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AuthService;
-import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
-import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
-import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.service.dto.result.AppReissueResult;
 import org.atdev.artrip.service.dto.result.SocialLoginResult;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +48,7 @@ public class AuthController implements AuthSpecification {
 
     @PostMapping("/web/logout")
     public ResponseEntity<Void> webLogout(@CookieValue(value = "refreshToken", required = false) String refreshToken,
-                                       HttpServletResponse response) {
+                                          HttpServletResponse response) {
 
         authService.webLogout(refreshToken, response);
 
