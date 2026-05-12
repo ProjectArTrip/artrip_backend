@@ -15,7 +15,6 @@ import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -24,24 +23,20 @@ import org.springframework.http.*;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class GoogleTokenVerifier implements SocialVerifier{
 
-    @Value("${spring.security.oauth2.client.registration.google.aod-client-id}")
-    private String googleAodClientId;
+    @Value("${spring.security.oauth2.client.registration.google.project-id}")
+    private String projectId;
 
-    @Value("${spring.security.oauth2.client.registration.google.client-id}")
-    private String googleClientId;
+    private String getIssuer() {
+        return "https://securetoken.google.com/" + projectId;
+    }
 
-    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
-    private String googleClientSecret;
-
-    private static final String GOOGLE_JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs";
-    private static final String GOOGLE_ISSUER = "https://accounts.google.com";
+    private static final String GOOGLE_JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
     private final RestTemplate restTemplate;
 
     @Override
@@ -64,12 +59,8 @@ public class GoogleTokenVerifier implements SocialVerifier{
             }
 
             String aud = audiences.get(0);
-            String expectedAud;
-            if (aud.equals(googleAodClientId)) {
-                expectedAud = googleAodClientId;
-            } else if (aud.equals(googleClientId)) {
-                expectedAud = googleClientId;
-            } else {
+
+            if (!aud.equals(projectId)) {
                 throw new GeneralException(UserErrorCode._SOCIAL_TOKEN_INVALID_AUDIENCE);
             }
 
@@ -77,8 +68,8 @@ public class GoogleTokenVerifier implements SocialVerifier{
             Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(GOOGLE_ISSUER)
-                    .withAudience(expectedAud)
+                    .withIssuer(getIssuer())
+                    .withAudience(projectId)
                     .build();
 
             DecodedJWT verified;
@@ -96,38 +87,11 @@ public class GoogleTokenVerifier implements SocialVerifier{
 
             return SocialUserInfo.of(verified, nickname, getProvider());
 
+        } catch (GeneralException e) {
+            throw e;
         } catch (Exception e) {
             throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);
         }
-    }
-
-    @Override
-    public Map<String, String> exchangeCodeForTokens(String authorizationCode) {
-
-        Map<String, Object> tokenResponse = exchangeAuthorizationCode(authorizationCode);
-
-        Map<String, String> result = new java.util.HashMap<>();
-        if (tokenResponse != null) {
-            result.put("id_token", (String) tokenResponse.get("id_token"));
-            result.put("refresh_token", (String) tokenResponse.get("refresh_token"));
-        }
-        return result;
-    }
-
-
-    private Map<String, Object> exchangeAuthorizationCode(String authorizationCode) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("code", authorizationCode);
-        params.add("client_id", googleClientId);
-        params.add("client_secret", googleClientSecret);
-        params.add("redirect_uri", "");
-        params.add("grant_type", "authorization_code");
-
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "https://oauth2.googleapis.com/token", params, Map.class
-        );
-
-        return response.getBody();
     }
 
     @Override

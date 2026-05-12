@@ -51,9 +51,9 @@ spring:
             client-name: Kakao
 
           google:
+            project-id: ${GOOGLE_PROJECT_ID}
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            aod-client-id: ${GOOGLE_AOD_CLIENT_ID}
             authorization-grant-type: authorization_code
             scope:
               - profile
