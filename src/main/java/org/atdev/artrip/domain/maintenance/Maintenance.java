@@ -10,6 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Getter
 @Entity
@@ -105,6 +106,24 @@ public class Maintenance {
                 refreshAfterSeconds,
                 1L
         );
+    }
+
+    public static Maintenance 정createOrUpdate(
+            Optional<Maintenance> existing,
+            MaintenanceState state,
+            String title,
+            String message,
+            LocalDateTime startAt,
+            LocalDateTime endAt,
+            String buttonText,
+            boolean forceExit,
+            int refreshAfterSeconds
+    ) {
+        if (existing.isPresent()) {
+            existing.get().update(state, title, message, startAt, endAt, buttonText, forceExit, refreshAfterSeconds);
+            return existing.get();
+        }
+        return Maintenance.create(state, title, message, startAt, endAt, buttonText, forceExit, refreshAfterSeconds);
     }
 
     public void update(

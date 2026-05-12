@@ -65,52 +65,26 @@ public class MaintenanceService {
             throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
         }
 
-        if (command.state() != MaintenanceState.NORMAL) {
-            boolean missingRequiredValues = !StringUtils.hasText(command.title())
-                    || !StringUtils.hasText(command.message())
-                    || command.startAt() == null
-                    || command.endAt() == null
-                    || !StringUtils.hasText(command.buttonText())
-                    || command.forceExit() == null
-                    || command.refreshAfterSeconds() == null;
-            if (missingRequiredValues) {
-                throw new GeneralException(MaintenanceErrorCode._MAINTENANCE_INVALID_REQUEST);
-            }
-            if (!command.endAt().isAfter(command.startAt())) {
-                throw new GeneralException(MaintenanceErrorCode._MAINTENANCE_INVALID_PERIOD);
-            }
-        }
+        command.validate();
 
         Optional<Maintenance> latestMaintenance = maintenanceRepository.findLatest(PageRequest.of(0, 1)).stream().findFirst();
 
-        Maintenance maintenance;
+        Maintenance maintenance = Maintenance.createOrUpdate(
+                latestMaintenance,
+                command.state(),
+                command.title(),
+                command.message(),
+                command.startAt(),
+                command.endAt(),
+                command.buttonText(),
+                command.forceExit(),
+                command.refreshAfterSeconds()
+        );
 
-        if (latestMaintenance.isPresent()) {
-            maintenance = latestMaintenance.get();
-            maintenance.update(
-                    command.state(),
-                    command.title(),
-                    command.message(),
-                    command.startAt(),
-                    command.endAt(),
-                    command.buttonText(),
-                    command.forceExit(),
-                    command.refreshAfterSeconds()
-            );
-        } else {
-            maintenance = maintenanceRepository.save(
-                    Maintenance.create(
-                            command.state(),
-                            command.title(),
-                            command.message(),
-                            command.startAt(),
-                            command.endAt(),
-                            command.buttonText(),
-                            command.forceExit(),
-                            command.refreshAfterSeconds()
-                    )
-            );
+        if (latestMaintenance.isEmpty()) {
+            maintenanceRepository.save(maintenance);
         }
+
         return MaintenanceStatusResult.from(maintenance, LocalDateTime.now());
     }
 }

@@ -1,6 +1,7 @@
 package org.atdev.artrip.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,11 @@ public class MaintenanceInterceptor implements HandlerInterceptor {
         }
 
         String requestUri = request.getRequestURI();
-        if ("/maintenance".equals(requestUri) || "/error".equals(requestUri)) {
+        if ("/maintenance".equals(requestUri)) {
+            return true;
+        }
+
+        if (DispatcherType.ERROR == request.getDispatcherType()) {
             return true;
         }
 
