@@ -87,6 +87,8 @@ public class GoogleTokenVerifier implements SocialVerifier{
 
             return SocialUserInfo.of(verified, nickname, getProvider());
 
+        } catch (GeneralException e) {
+            throw e;
         } catch (Exception e) {
             throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);
         }
