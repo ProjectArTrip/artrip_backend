@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.atdev.artrip.controller.dto.request.DeviceTokenRequest;
 import org.atdev.artrip.controller.dto.request.NicknameRequest;
+import org.atdev.artrip.controller.dto.request.PushEnabledRequest;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.global.apipayload.code.error.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.ExhibitErrorCode;
@@ -72,5 +73,15 @@ public interface UserSpecification {
             @LoginUser Long userId,
             @RequestBody @Valid DeviceTokenRequest request
             );
+
+    @Operation(summary = "푸시 알림 허용 여부 변경", description = "사용자의 푸시 알림 수신 여부를 변경합니다.")
+    @ApiErrorResponses(
+            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
+            user = {UserErrorCode._USER_NOT_FOUND}
+    )
+    ResponseEntity<Void> updatePushEnabled(
+            @LoginUser Long userId,
+            @RequestBody @Valid PushEnabledRequest request
+    );
 
 }
