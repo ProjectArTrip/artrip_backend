@@ -137,4 +137,10 @@ public class UserService {
         User user = findUserOrThrow(userId);
         user.clearFcmToken();
     }
+
+    @Transactional
+    public void updatePushEnabled(Long userId, Boolean enabled) {
+        User user = findUserOrThrow(userId);
+        user.updatePushEnabled(enabled);
+    }
 }

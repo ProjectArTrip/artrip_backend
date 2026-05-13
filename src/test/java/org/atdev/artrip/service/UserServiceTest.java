@@ -83,4 +83,39 @@ class UserServiceTest {
                 () -> assertThat(user.getFcmToken()).isNull()
         );
     }
+
+    @Test
+    @DisplayName("푸시 알림 수신 여부 변경")
+    void update_push_enabled() {
+        //given
+        Long userId = 1L;
+        User user = User.builder()
+                .userId(userId)
+                .name("user")
+                .role(Role.USER)
+                .pushEnabled(true)
+                .build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        //when
+        userService.updatePushEnabled(userId, false);
+
+        //then
+        assertThat(user.getPushEnabled()).isFalse();
+    }
+
+    @Test
+    @DisplayName("푸시 알림 수신 여부 변경 - 존재하지 않는 유저")
+    void update_push_enabled_user_not_found() {
+        //given
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> userService.updatePushEnabled(userId, false))
+                .isInstanceOf(GeneralException.class)
+                .extracting("code")
+                .isEqualTo(UserErrorCode._USER_NOT_FOUND);
+    }
 }
