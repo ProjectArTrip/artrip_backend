@@ -15,9 +15,11 @@ import org.atdev.artrip.controller.dto.response.SocialUserInfo;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
 import java.net.URL;
@@ -33,15 +35,20 @@ public class GoogleTokenVerifier implements SocialVerifier{
     @Value("${spring.security.oauth2.client.registration.google.aod-client-id}")
     private String googleAodClientId;
 
+    @Value("${spring.security.oauth2.client.registration.google.ios-client-id}")
+    private String googleIosClientId;
+
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
 
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri}")
+    private String googleRedirectUri;
+
     private static final String GOOGLE_JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs";
     private static final String GOOGLE_ISSUER = "https://accounts.google.com";
-
     private final RestTemplate restTemplate;
 
     @Override
@@ -64,13 +71,14 @@ public class GoogleTokenVerifier implements SocialVerifier{
             }
 
             String aud = audiences.get(0);
-
             String expectedAud;
             if (aud.equals(googleAodClientId)) {
                 expectedAud = googleAodClientId;
             } else if (aud.equals(googleClientId)) {
                 expectedAud = googleClientId;
-            } else  {
+            } else if (aud.equals(googleIosClientId)) {
+                expectedAud = googleIosClientId;
+            }else {
                 throw new GeneralException(UserErrorCode._SOCIAL_TOKEN_INVALID_AUDIENCE);
             }
 
@@ -100,6 +108,7 @@ public class GoogleTokenVerifier implements SocialVerifier{
         } catch (GeneralException e) {
             throw e;
         } catch (Exception e) {
+            log.warn("예외외 실패", e);
             throw new GeneralException(UserErrorCode._SOCIAL_VERIFICATION_FAILED);
         }
     }
@@ -119,20 +128,23 @@ public class GoogleTokenVerifier implements SocialVerifier{
 
 
     private Map<String, Object> exchangeAuthorizationCode(String authorizationCode) {
+
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", authorizationCode);
         params.add("client_id", googleClientId);
         params.add("client_secret", googleClientSecret);
-        params.add("redirect_uri", "");
+        params.add("redirect_uri", googleRedirectUri);
         params.add("grant_type", "authorization_code");
-
-        ResponseEntity<Map> response = restTemplate.postForEntity(
-                "https://oauth2.googleapis.com/token", params, Map.class
-        );
-
-        return response.getBody();
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    "https://oauth2.googleapis.com/token", params, Map.class
+            );
+            return response.getBody();
+        } catch (HttpClientErrorException e) {
+            log.error("status = {}, body = {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw e;
+        }
     }
-
 
     @Override
     public void unlink(String providerId, String refreshToken) {
