@@ -133,7 +133,7 @@ public class GoogleTokenVerifier implements SocialVerifier{
         params.add("code", authorizationCode);
         params.add("client_id", googleClientId);
         params.add("client_secret", googleClientSecret);
-        params.add("redirect_uri", googleRedirectUri);
+        params.add("redirect_uri", "");
         params.add("grant_type", "authorization_code");
         try {
             ResponseEntity<Map> response = restTemplate.postForEntity(
