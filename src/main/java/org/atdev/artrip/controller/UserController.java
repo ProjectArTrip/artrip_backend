@@ -13,6 +13,7 @@ import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
+import org.atdev.artrip.service.dto.result.PushEnabledResult;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -101,5 +102,12 @@ public class UserController implements UserSpecification {
         userService.updatePushEnabled(userId, request.enabled());
 
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @GetMapping("/push-enabled")
+    public ResponseEntity<PushEnabledResponse> getPushEnabled(@LoginUser Long userId) {
+        PushEnabledResult result = userService.getPushEnabled(userId);
+        return ResponseEntity.ok(PushEnabledResponse.from(result));
     }
 }
