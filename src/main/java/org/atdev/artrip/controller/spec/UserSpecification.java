@@ -84,4 +84,11 @@ public interface UserSpecification {
             @RequestBody @Valid PushEnabledRequest request
     );
 
+    @Operation(summary = "푸시 알림 허용 여부 조회")
+    @ApiErrorResponses(
+            common = {CommonErrorCode._INTERNAL_SERVER_ERROR, CommonErrorCode._UNAUTHORIZED},
+            user = {UserErrorCode._USER_NOT_FOUND}
+    )
+    ResponseEntity<PushEnabledResponse> getPushEnabled(@LoginUser Long userId);
+
 }
