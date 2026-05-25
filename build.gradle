@@ -42,6 +42,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'com.opencsv:opencsv:5.12.0'
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'

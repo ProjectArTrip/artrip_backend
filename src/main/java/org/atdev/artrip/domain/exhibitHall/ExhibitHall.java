@@ -32,7 +32,7 @@ public class ExhibitHall {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "opening_hours")
+    @Column(name = "opening_hours", length = 500)
     private String openingHours;
 
     @Column(name = "closed_days", length = 255)
@@ -41,7 +41,7 @@ public class ExhibitHall {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "homepage_url")
+    @Column(name = "homepage_url", length = 1024)
     private String homepageUrl;
 
     @Column(name = "is_domestic")
@@ -67,5 +67,33 @@ public class ExhibitHall {
         exhibitHall.region = region;
         exhibitHall.isDomestic = isDomestic;
         return exhibitHall;
+    }
+
+    public void updateInfo(String name, String country, String region, String address, String openingHours, String phone,
+                            BigDecimal latitude, BigDecimal longitude, Boolean isDomestic) {
+        this.name = name;
+        this.country = country;
+        this.region = region;
+        this.address = address;
+        this.openingHours = openingHours;
+        this.phone = phone;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.isDomestic = isDomestic;
+    }
+
+    public static ExhibitHall create(String name, String country, String region, String address, String openingHours, String phone,
+                                    BigDecimal latitude, BigDecimal longitude, Boolean isDomestic) {
+        ExhibitHall hall = new ExhibitHall();
+        hall.name = name;
+        hall.country = country;
+        hall.region = region;
+        hall.address = address;
+        hall.openingHours = openingHours;
+        hall.phone = phone;
+        hall.latitude = latitude;
+        hall.longitude = longitude;
+        hall.isDomestic = isDomestic;
+        return hall;
     }
 }

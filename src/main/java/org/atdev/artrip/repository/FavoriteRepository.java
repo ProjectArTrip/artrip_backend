@@ -15,15 +15,21 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long>, Favor
 
     @Query(
             """
-            select f
-            from Favorite f
-            where f.user.userId = :userId
-            and f.exhibit.exhibitId = :exhibitId
-            """
+                    select f
+                    from Favorite f
+                    where f.user.userId = :userId
+                    and f.exhibit.exhibitId = :exhibitId
+                    """
     )
     Optional<Favorite> findFavorite(@Param("userId") Long userId, @Param("exhibitId") Long exhibitId);
 
     @Modifying
     @Query("DELETE FROM Favorite f WHERE f.user = :user")
     void deleteAllByUser(@Param("user") User user);
+
+    @Modifying
+    @Query("""
+            delete from Favorite f where f.exhibit.exhibitId = :exhibitId
+            """)
+    void deleteByExhibitId(Long exhibitId);
 }
