@@ -3,6 +3,7 @@ package org.atdev.artrip.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.request.DeviceTokenRequest;
+import org.atdev.artrip.controller.dto.request.PushEnabledRequest;
 import org.atdev.artrip.controller.dto.response.*;
 import org.atdev.artrip.controller.spec.UserSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
@@ -12,6 +13,7 @@ import org.atdev.artrip.controller.dto.request.NicknameRequest;
 import org.atdev.artrip.controller.dto.response.MypageResponse;
 import org.atdev.artrip.service.dto.result.ExhibitRecentResult;
 import org.atdev.artrip.service.dto.result.MypageResult;
+import org.atdev.artrip.service.dto.result.PushEnabledResult;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,7 @@ public class UserController implements UserSpecification {
             @LoginUser Long userId,
             @RequestPart("image") MultipartFile image) {
 
-        MypageResult result =userService.updateUserImage(userId, image);
+        MypageResult result = userService.updateUserImage(userId, image);
 
         return ResponseEntity.ok(MypageResponse.from(result));
     }
@@ -54,7 +56,7 @@ public class UserController implements UserSpecification {
             @LoginUser Long userId,
             @RequestBody @Valid NicknameRequest request) {
 
-        MypageResult result =userService.updateNickName(userId,request.nickName());
+        MypageResult result = userService.updateNickName(userId, request.nickName());
 
         return ResponseEntity.ok(MypageResponse.from(result));
     }
@@ -91,4 +93,21 @@ public class UserController implements UserSpecification {
 
     }
 
+    @Override
+    @PatchMapping("/push-enabled")
+    public ResponseEntity<Void> updatePushEnabled(
+            @LoginUser Long userId,
+            @RequestBody @Valid PushEnabledRequest request) {
+
+        userService.updatePushEnabled(userId, request.enabled());
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @GetMapping("/push-enabled")
+    public ResponseEntity<PushEnabledResponse> getPushEnabled(@LoginUser Long userId) {
+        PushEnabledResult result = userService.getPushEnabled(userId);
+        return ResponseEntity.ok(PushEnabledResponse.from(result));
+    }
 }

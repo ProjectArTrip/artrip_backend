@@ -9,14 +9,14 @@ import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.domain.auth.SocialAccounts;
 import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.AuthErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.AuthErrorCode;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.jwt.JwtToken;
 import org.atdev.artrip.repository.SocialRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.security.utill.CookieUtils;
 import org.atdev.artrip.service.dto.result.AppReissueResult;
@@ -113,6 +113,7 @@ public class AuthService {
     public void appLogout(Long userId, String accessToken, String refreshToken) {
 
         validateRefreshTokenOwner(userId, refreshToken);
+        userService.clearFcmToken(userId);
         clearSession(accessToken, refreshToken);
     }
 

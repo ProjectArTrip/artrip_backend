@@ -3,7 +3,7 @@ package org.atdev.artrip.service.bannedword;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.domain.review.BannedWord;
-import org.atdev.artrip.global.apipayload.code.status.ReviewErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.BannedWordCacheService;
 import org.springframework.stereotype.Component;

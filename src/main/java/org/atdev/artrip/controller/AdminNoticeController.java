@@ -33,7 +33,6 @@ public class AdminNoticeController implements AdminNoticeSpecification {
         AdminNoticeCreateResult result = noticeService.createNotice(command);
         AdminNoticeCreateResponse response = AdminNoticeCreateResponse.from(result);
 
-
         return ResponseEntity.ok(response);
     }
 

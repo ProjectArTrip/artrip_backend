@@ -1,9 +1,8 @@
 package org.atdev.artrip.constants;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.FavoriteErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 
 @Getter

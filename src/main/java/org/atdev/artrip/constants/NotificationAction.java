@@ -11,7 +11,8 @@ public enum NotificationAction {
     MOVE_CURATION_DETAIL("MOVE_CURATION_DETAIL"),
     MOVE_EXHIBIT_DETAIL("MOVE_EXHIBIT_DETAIL"),
     MOVE_STAMP("MOVE_STAMP"),
-    MOVE_REVIEW_EDIT("MOVE_REVIEW_EDIT");
+    MOVE_REVIEW_EDIT("MOVE_REVIEW_EDIT"),
+    NONE("NONE");
 
     private final String action;
 

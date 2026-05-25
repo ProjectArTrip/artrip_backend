@@ -1,7 +1,7 @@
 package org.atdev.artrip.global.swagger;
 
 
-import org.atdev.artrip.global.apipayload.code.status.*;
+import org.atdev.artrip.global.apipayload.code.error.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -33,4 +33,6 @@ public @interface ApiErrorResponses {
     FcmErrorCode[] fcmToken() default {};
 
     NoticeErrorCode[] notis() default {};
+
+    MaintenanceErrorCode[] maintenance() default {};
 }

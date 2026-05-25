@@ -1,8 +1,9 @@
 package org.atdev.artrip.service;
 
+import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.FcmErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -14,11 +15,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @InjectMocks
     private UserService userService;
@@ -28,7 +31,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("FCM 토큰 저장 - 존재하지 않는 유저")
-    public void fcmTokenSaveUserNotFound(){
+    void fcmTokenSaveUserNotFound() {
         //given
         Long userId = 1L;
         String newToken = "token1234";
@@ -45,7 +48,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("FCM 토큰 저장 실패 - 잘못된 토큰 형식")
-    public void fcmTokenSaveInvalidToken(){
+    void fcmTokenSaveInvalidToken() {
         //given
         Long userId = 1L;
         String token = "    ";
@@ -61,4 +64,58 @@ public class UserServiceTest {
                 .isEqualTo(FcmErrorCode._INVALID_REQUEST_PATTERN);
     }
 
+    @Test
+    @DisplayName("FCM 토큰 제거 및 이미 null 일경우 예외 없이 종료")
+    void handle_clear_fcm_token_null_without_exception() {
+        //given
+        Long userId = 1L;
+        User user = User.builder()
+                .userId(userId)
+                .name("user")
+                .role(Role.USER)
+                .build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        //when
+        //then
+        assertAll(
+                () -> assertThatNoException().isThrownBy(() -> userService.clearFcmToken(userId)),
+                () -> assertThat(user.getFcmToken()).isNull()
+        );
+    }
+
+    @Test
+    @DisplayName("푸시 알림 수신 여부 변경")
+    void update_push_enabled() {
+        //given
+        Long userId = 1L;
+        User user = User.builder()
+                .userId(userId)
+                .name("user")
+                .role(Role.USER)
+                .pushEnabled(true)
+                .build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        //when
+        userService.updatePushEnabled(userId, false);
+
+        //then
+        assertThat(user.getPushEnabled()).isFalse();
+    }
+
+    @Test
+    @DisplayName("푸시 알림 수신 여부 변경 - 존재하지 않는 유저")
+    void update_push_enabled_user_not_found() {
+        //given
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        assertThatThrownBy(() -> userService.updatePushEnabled(userId, false))
+                .isInstanceOf(GeneralException.class)
+                .extracting("code")
+                .isEqualTo(UserErrorCode._USER_NOT_FOUND);
+    }
 }

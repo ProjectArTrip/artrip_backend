@@ -54,6 +54,7 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             aod-client-id: ${GOOGLE_AOD_CLIENT_ID}
+            ios-client-id: ${GOOGLE_IOS_CLIENT_ID}
             authorization-grant-type: authorization_code
             scope:
               - profile
@@ -96,6 +97,7 @@ notification:
   fcm:
     file_path: ${FILE_PATH}
     project_id: ${PROJECT_ID}
+    http-trace: false
 
 kakao:
   admin-key: ${KAKAO_ADMIN_KEY}
@@ -106,6 +108,21 @@ apple:
   client-id: ${APPLE_CLIENT_ID}
   private-key: ${APPLE_PRIVATE_KEY}
 
+maintenance:
+  access:
+    allowed-paths:
+      - /maintenance
+      - /error
+      - /swagger-ui/**
+      - /v3/api-docs
+      - /v3/api-docs/**
+      - /swagger-resources/**
+      - /swagger-ui.html
+      - /webjars/**
+      - /auth/social
+    allowed-ips:
+      - 127.0.0.1
+      - ::1
 ---
 spring:
   config:
@@ -139,10 +156,6 @@ logging:
     org.atdev.artrip: DEBUG
     io.lettuce: WARN
     com.google.api.client.http: DEBUG
-
-notification:
-  fcm:
-    http-trace: false
 
 server:
   port: 8080

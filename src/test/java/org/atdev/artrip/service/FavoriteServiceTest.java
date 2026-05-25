@@ -8,7 +8,7 @@ import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.favorite.Favorite;
-import org.atdev.artrip.global.apipayload.code.status.FavoriteErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.FavoriteErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.repository.UserRepository;

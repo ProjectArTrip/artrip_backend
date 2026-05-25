@@ -2,7 +2,7 @@ package org.atdev.artrip.infra.s3.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.FileFolder;
-import org.atdev.artrip.global.apipayload.code.status.S3ErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.S3ErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

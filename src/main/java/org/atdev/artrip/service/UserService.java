@@ -4,12 +4,13 @@ package org.atdev.artrip.service;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.FileFolder;
 import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.global.apipayload.code.status.FcmErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.FcmErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.repository.*;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.s3.service.S3Service;
 import org.atdev.artrip.service.dto.result.MypageResult;
+import org.atdev.artrip.service.dto.result.PushEnabledResult;
 import org.atdev.artrip.utils.NicknameUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class UserService {
     private final SearchHistoryRepository searchHistoryRepository;
     private final RecentExhibitRepository recentExhibitRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final UserNoticeRepository userNoticeRepository;
 
     @Transactional
     public MypageResult updateNickName(Long userId, String newNickName){
@@ -126,7 +128,26 @@ public class UserService {
 
         searchHistoryRepository.deleteAllByUserId(userId);
         recentExhibitRepository.deleteAllByUserId(userId);
+        userNoticeRepository.deleteAllByUserId(userId);
 
         userRepository.delete(user);
+    }
+
+    @Transactional
+    public void clearFcmToken(Long userId) {
+        User user = findUserOrThrow(userId);
+        user.clearFcmToken();
+    }
+
+    @Transactional
+    public void updatePushEnabled(Long userId, Boolean enabled) {
+        User user = findUserOrThrow(userId);
+        user.updatePushEnabled(enabled);
+    }
+
+    @Transactional
+    public PushEnabledResult getPushEnabled(Long userId) {
+        User user = findUserOrThrow(userId);
+        return PushEnabledResult.of(user.getPushEnabled());
     }
 }

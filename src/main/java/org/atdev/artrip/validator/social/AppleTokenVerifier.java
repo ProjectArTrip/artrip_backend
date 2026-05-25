@@ -12,10 +12,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.controller.dto.response.SocialUserInfo;
-import org.atdev.artrip.global.apipayload.code.status.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -24,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URL;
 import java.security.KeyFactory;
 import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
@@ -68,7 +71,7 @@ public class AppleTokenVerifier implements SocialVerifier {
             String kid = decodedJWT.getKeyId();
 
             Jwk jwk = jwkProvider.get(kid);
-            Algorithm algorithm = Algorithm.ECDSA256((ECPublicKey) jwk.getPublicKey(), null);
+            Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) jwk.getPublicKey(), null);
 
             JWTVerifier verifier = JWT.require(algorithm)
                     .withIssuer(APPLE_ISSUER)

@@ -128,4 +128,8 @@ public class User {
         this.fcmToken = null;
     }
 
+    public void updatePushEnabled(boolean pushEnabled) {
+        this.pushEnabled = pushEnabled;
+    }
+
 }

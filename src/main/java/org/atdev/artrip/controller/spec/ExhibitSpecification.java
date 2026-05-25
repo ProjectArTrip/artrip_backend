@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.atdev.artrip.controller.dto.request.ExhibitFilterRequest;
 import org.atdev.artrip.controller.dto.response.*;
-import org.atdev.artrip.global.apipayload.code.status.CommonErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.HomeErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.CommonErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.HomeErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
 import org.atdev.artrip.utils.CursorPagination;
@@ -13,7 +13,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 public interface ExhibitSpecification {
 
