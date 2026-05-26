@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 public class ExhibitHall {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exhibit_hall_seq_gen")
+    @SequenceGenerator(name = "exhibit_hall_seq_gen", sequenceName = "exhibit_hall_seq", allocationSize = 50)
     @Column(name = "exhibit_hall_id")
     private Long exhibitHallId;
 

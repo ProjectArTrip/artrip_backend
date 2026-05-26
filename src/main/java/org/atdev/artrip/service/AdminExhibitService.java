@@ -24,13 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -60,7 +57,7 @@ public class AdminExhibitService {
     @Transactional
     public AdminExhibitCreateResult create(AdminExhibitCreateCommand command) {
         findAdminOrThrow(command.adminId());
-        Long exhibitId = createInternal(command);
+        Long exhibitId = createInternal(command, null, null);
         return AdminExhibitCreateResult.of(exhibitId);
     }
 
@@ -73,9 +70,32 @@ public class AdminExhibitService {
             throw new GeneralException(ExhibitErrorCode._CSV_EMPTY);
         }
 
+        Set<String> allGenres = commands.stream().flatMap(c -> c.genres().stream()).collect(Collectors.toSet());
+        Set<String> allStyles = commands.stream().flatMap(c -> c.styles().stream()).collect(Collectors.toSet());
+        Set<String> allHallNames = commands.stream()
+                .map(AdminExhibitCreateCommand::exhibitHallName)
+                .filter(name -> name != null && !name.isBlank())
+                .collect(Collectors.toSet());
+
+        List<Keyword> foundKeywords = keywordRepository.findGenresAndStyles(KeywordType.GENRE, allGenres, KeywordType.STYLE, allStyles);
+
+        Set<String> foundGenreNames = foundKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.GENRE)
+                .map(Keyword::getName).collect(Collectors.toSet());
+        Set<String> foundStyleNames = foundKeywords.stream()
+                .filter(k -> k.getType() == KeywordType.STYLE)
+                .map(Keyword::getName).collect(Collectors.toSet());
+
+        validateMissingKeywords(allGenres, allStyles, foundGenreNames, foundStyleNames);
+
+        Map<String, Keyword> keywordByName = foundKeywords.stream()
+                .collect(Collectors.toMap(Keyword::getName, k -> k));
+        Map<String, ExhibitHall> hallByName = exhibitHallRepository.findByNameIn(allHallNames).stream()
+                .collect(Collectors.toMap(ExhibitHall::getName, h -> h));
+
         List<Long> savedIds = new ArrayList<>(commands.size());
         for (AdminExhibitCreateCommand command : commands) {
-            savedIds.add(createInternal(command));
+            savedIds.add(createInternal(command, keywordByName, hallByName));
         }
         return AdminExhibitBulkCreateResult.of(savedIds);
     }
@@ -127,25 +147,17 @@ public class AdminExhibitService {
         exhibitRepository.delete(exhibit);
     }
 
-    private ExhibitHall upsertHall(String name, String country, String region, String address, String openingHours, String phone, BigDecimal latitude, BigDecimal longitude, boolean isDomestic) {
-        return exhibitHallRepository.findByName(name)
+    private ExhibitHall upsertHall(AdminExhibitCreateCommand command) {
+        return exhibitHallRepository.findByName(command.exhibitHallName())
                 .map(existing -> {
-                    existing.updateInfo(name, country, region, address, openingHours, phone, latitude, longitude, isDomestic);
+                    applyHallInfo(existing, command);
                     return existing;
                 })
-                .orElseGet(() -> exhibitHallRepository.save(
-                        ExhibitHall.create(name, country, region, address, openingHours, phone, latitude, longitude, isDomestic)
-                ));
+                .orElseGet(() -> exhibitHallRepository.save(buildHall(command)));
     }
 
-    private Long createInternal(AdminExhibitCreateCommand command) {
-        if (command.startDate() != null && command.endDate() != null && command.startDate().isAfter(command.endDate())) {
-            throw new GeneralException(ExhibitErrorCode._EXHIBIT_INVALID_DATE_RANGE);
-        }
-
-        Set<Keyword> keywords = resolveAllKeywords(command.genres(), command.styles());
-
-        ExhibitHall hall = upsertHall(
+    private ExhibitHall buildHall(AdminExhibitCreateCommand command) {
+        return ExhibitHall.create(
                 command.exhibitHallName(),
                 command.country(),
                 command.region(),
@@ -156,7 +168,16 @@ public class AdminExhibitService {
                 command.longitude(),
                 command.isDomestic()
         );
+    }
 
+    private Long createInternal(AdminExhibitCreateCommand command, Map<String, Keyword> keywordCache, Map<String, ExhibitHall> hallCache) {
+
+        if (command.startDate() != null && command.endDate() != null && command.startDate().isAfter(command.endDate())) {
+            throw new GeneralException(ExhibitErrorCode._EXHIBIT_INVALID_DATE_RANGE);
+        }
+
+        Set<Keyword> keywords = resolveKeywords(command, keywordCache);
+        ExhibitHall hall = resolveHall(command, hallCache);
         Status status = resolveStatus(command.startDate(), command.endDate());
 
         Exhibit exhibit = Exhibit.create(
@@ -169,7 +190,6 @@ public class AdminExhibitService {
                 status,
                 hall
         );
-
         exhibit.replaceKeywords(keywords);
         return exhibitRepository.save(exhibit).getExhibitId();
     }
@@ -181,6 +201,39 @@ public class AdminExhibitService {
         if (start.isAfter(today)) return Status.UPCOMING;
         if (!end.isAfter(today.plusDays(3))) return Status.ENDING_SOON;
         return Status.ONGOING;
+    }
+
+    private Set<Keyword> resolveKeywords(AdminExhibitCreateCommand command, Map<String, Keyword> cache) {
+        if (cache != null) {
+            return Stream.concat(
+                            command.genres().stream(),command.styles().stream())
+                    .map(name -> {
+                        Keyword k = cache.get(name);
+                        if (k == null) {
+                            log.warn("CSV 키워드 cache miss - key: {}", name);
+                            throw new GeneralException(ExhibitErrorCode._EXHIBIT_KEYWORD_NOT_FOUND);
+                        }
+                        return k;
+                    })
+                    .collect(Collectors.toCollection(HashSet::new));
+        }
+        return resolveAllKeywords(command.genres(), command.styles());
+    }
+
+    private ExhibitHall resolveHall(AdminExhibitCreateCommand command, Map<String, ExhibitHall> cache) {
+
+        if (cache != null) {
+            ExhibitHall hall = cache.get(command.exhibitHallName());
+            if (hall == null) {
+                hall = exhibitHallRepository.save(buildHall(command));
+                cache.put(command.exhibitHallName(), hall);
+                return hall;
+            }
+            applyHallInfo(hall, command);
+
+            return hall;
+        }
+        return upsertHall(command);
     }
 
     private Set<Keyword> resolveAllKeywords(Set<String> genres, Set<String> styles) {
@@ -199,16 +252,34 @@ public class AdminExhibitService {
                 .map(Keyword::getName)
                 .collect(Collectors.toSet());
 
-        Set<String> missingGenres = new HashSet<>(safeGenres);
+        validateMissingKeywords(safeGenres, safeStyles, foundGenreNames, foundStyleNames);
+        return new HashSet<>(found);
+    }
+
+    private void validateMissingKeywords(Set<String> requestedGenres, Set<String> requestedStyles, Set<String> foundGenreNames, Set<String> foundStyleNames) {
+        Set<String> missingGenres = new HashSet<>(requestedGenres);
         missingGenres.removeAll(foundGenreNames);
-        Set<String> missingStyles = new HashSet<>(safeStyles);
+        Set<String> missingStyles = new HashSet<>(requestedStyles);
         missingStyles.removeAll(foundStyleNames);
 
         if (!missingGenres.isEmpty() || !missingStyles.isEmpty()) {
-            log.warn("CSV 키워드 매칭 Error - genres: {}, styles: {}", missingGenres, missingStyles);
+            log.warn("CSV 키워드 매칭 에러 - genres: {}, styles: {}", missingGenres, missingStyles);
             throw new GeneralException(ExhibitErrorCode._EXHIBIT_KEYWORD_NOT_FOUND);
         }
-        return new HashSet<>(found);
+    }
+
+    private void applyHallInfo(ExhibitHall hall, AdminExhibitCreateCommand command) {
+        hall.updateInfo(
+                command.exhibitHallName(),
+                command.country(),
+                command.region(),
+                command.address(),
+                command.openingHours(),
+                command.phone(),
+                command.latitude(),
+                command.longitude(),
+                command.isDomestic()
+        );
     }
 
     private User findAdminOrThrow(Long adminId) {
