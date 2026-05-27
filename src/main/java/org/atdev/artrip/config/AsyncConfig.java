@@ -11,8 +11,8 @@ import java.util.concurrent.Executor;
 @EnableAsync
 public class AsyncConfig {
 
-    @Bean(name = "redisThreadPoolExecutor")
-    public Executor redisThreadPoolExecutor() {
+    @Bean(name = "withdrawExecutor")
+    public Executor withdrawExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
         executor.setCorePoolSize(5);

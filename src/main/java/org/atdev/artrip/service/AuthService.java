@@ -190,7 +190,6 @@ public class AuthService {
 
     @Transactional
     public void withdraw(Long userId, String accessToken, String refreshToken) {
-
         validateRefreshTokenOwner(userId, refreshToken);
 
         User user = userRepository.findById(userId)
