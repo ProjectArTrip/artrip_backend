@@ -113,6 +113,17 @@ apple:
   key-id: ${APPLE_KEY_ID}
   client-id: ${APPLE_CLIENT_ID}
   private-key: ${APPLE_PRIVATE_KEY}
+app:
+  front:
+    url: ${FRONT_URL:http://localhost:3000}
+  cookie:
+    secure: ${SECURE:false}
+    same-site: ${SAMESITE:Lax}
+  cors:
+    allowed-origins:
+      - ${BACKEND:http://localhost:8080}
+      - ${FRONTEND:http://localhost:3000}
+      - ${DEVURL}
 
 maintenance:
   access:

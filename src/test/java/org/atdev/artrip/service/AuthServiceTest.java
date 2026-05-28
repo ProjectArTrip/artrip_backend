@@ -7,6 +7,7 @@ import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.repository.SocialRepository;
 import org.atdev.artrip.repository.UserRepository;
+import org.atdev.artrip.security.utill.TokenKeys;
 import org.atdev.artrip.service.redis.RedisService;
 import org.atdev.artrip.validator.social.SocialVerifier;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +58,9 @@ class AuthServiceTest {
         Long userId = 1L;
         String accessToken = "ACCESS";
         String refreshToken = "REFRESH";
-        given(redisService.getValue(refreshToken)).willReturn(String.valueOf(userId));
+        String refreshKey = TokenKeys.refreshKey(refreshToken);
+
+        given(redisService.getValue(refreshKey)).willReturn(String.valueOf(userId));
         given(jwtProvider.getExpiration(accessToken)).willReturn(1_000L);
 
         //when
@@ -65,7 +68,7 @@ class AuthServiceTest {
 
         //then
         verify(userService).clearFcmToken(userId);
-        verify(redisService).deleteKey(refreshToken);
+        verify(redisService).deleteKey(refreshKey);
     }
 
     @Test
@@ -75,9 +78,9 @@ class AuthServiceTest {
         Long userId = 1L;
         String accessToken = "ACCESS";
         String refreshToken = "REFRESH";
+        String refreshKey = TokenKeys.refreshKey(refreshToken);
 
-        given(redisService.getValue(refreshToken)).willReturn(String.valueOf(userId));
-
+        given(redisService.getValue(refreshKey)).willReturn(String.valueOf(userId));
         willThrow(new GeneralException(UserErrorCode._USER_NOT_FOUND)).given(userService).clearFcmToken(userId);
 
         // when
@@ -85,6 +88,6 @@ class AuthServiceTest {
         assertThatThrownBy(() -> authService.appLogout(userId, accessToken, refreshToken)).isInstanceOf(GeneralException.class);
 
         verify(redisService, never()).save(anyString(), anyString(), anyLong());
-        verify(redisService, never()).deleteKey(refreshToken);
+        verify(redisService, never()).deleteKey(refreshKey);
     }
 }
