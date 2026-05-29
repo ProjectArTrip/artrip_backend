@@ -4,14 +4,19 @@ package org.atdev.artrip.security;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.atdev.artrip.constants.Provider;
+import org.atdev.artrip.constants.Role;
+import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.oauth.OAuth2UserInfo;
+import org.atdev.artrip.global.apipayload.code.error.AuthErrorCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.jwt.JwtGenerator;
 import org.atdev.artrip.jwt.JwtToken;
 import org.atdev.artrip.jwt.repository.RefreshTokenRedisRepository;
-import org.atdev.artrip.constants.Provider;
-import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.repository.UserRepository;
-import org.springframework.http.ResponseCookie;
+import org.atdev.artrip.security.utill.CookieUtils;
+import org.atdev.artrip.security.utill.TokenKeys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -19,15 +24,22 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.Duration;
 
 @RequiredArgsConstructor
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
+    private static final Duration ACCESS_TTL = Duration.ofMinutes(15);
+    private static final Duration REFRESH_TTL = Duration.ofDays(7);
+
     private final JwtGenerator jwtGenerator;
     private final UserRepository userRepository;
-    private final RefreshTokenRedisRepository refreshTokenRedisRepository; // 변경됨
+    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+    private final CookieUtils cookieUtils;
 
+    @Value("${app.front.url}")
+    private String frontUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -36,93 +48,28 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         DefaultOAuth2User oAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
 
-        String registrationId = authToken.getAuthorizedClientRegistrationId();
-        Provider provider = Provider.valueOf(registrationId.toUpperCase());
-
+        Provider provider = Provider.valueOf(authToken.getAuthorizedClientRegistrationId().toUpperCase());
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
 
-        String providerId = userInfo.getId();
-        String email = userInfo.getEmail();
-        String name = userInfo.getName();
+        User user = userRepository.findBySocialAccountsProviderAndProviderId(provider, userInfo.getId())
+                .orElseThrow(() -> new GeneralException(AuthErrorCode._WEB_LOGIN_USER_NOT_FOUND));
 
+        if (user.getRole() != Role.ADMIN) {
+            throw new GeneralException(AuthErrorCode._WEB_LOGIN_FORBIDDEN);
+        }
 
-        User user = userRepository.findBySocialAccountsProviderAndProviderId(provider, providerId)
-                .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));
-
-        JwtToken jwtToken = jwtGenerator.generateToken(user, user.getRole());
-
-//        String redisKey = "refresh:" + user.getName();
-        String refreshToken = jwtToken.getRefreshToken();
-        String redisKey = refreshToken;
+        JwtToken token = jwtGenerator.generateToken(user, user.getRole());
 
         refreshTokenRedisRepository.save(
-                redisKey,
+                TokenKeys.refreshKey(token.getRefreshToken()),
                 String.valueOf(user.getUserId()),
-                1000L * 60 * 60 * 24 * 7
+                REFRESH_TTL.toMillis()
         );
 
-        //  provideid로 찾기 디비저장
-//        RefreshToken 저장 (username = providerId 로 임시 관리)
-//        refreshTokenRepository.findByUsername(providerId)
-//                .ifPresentOrElse(
-//                        existing -> {
-//                            RefreshToken updated = existing.toBuilder()
-//                                    .refreshToken(jwtToken.getRefreshToken())
-//                                    .build();
-//                            refreshTokenRepository.save(updated);
-//                        },
-//                        () -> refreshTokenRepository.save(
-//                                RefreshToken.builder()
-//                                        .username(providerId) // 임시 추후 email+redis로 변경
-//                                        .refreshToken(jwtToken.getRefreshToken())
-//                                        .build())
-//                );
+        cookieUtils.writeAccessToken(response, token.getAccessToken(), ACCESS_TTL);
+        cookieUtils.writeRefreshToken(response, token.getRefreshToken(), REFRESH_TTL);
 
-        // 이메일로 찾기
-//        String email = (String) oAuth2User.getAttributes().get("email");
-//
-//        User user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new RuntimeException("사용자 정보 없음"));
-//
-//        JwtToken jwtToken = jwtGenerator.generateToken(user, user.getRole());
-//
-//        // RefreshToken 저장
-//        refreshTokenRepository.findByUsername(email)
-//                .ifPresentOrElse(
-//                        existing -> {
-//                            RefreshToken updated = existing.toBuilder()
-//                                    .refreshToken(jwtToken.getRefreshToken())
-//                                    .build();
-//                            refreshTokenRepository.save(updated); //추후 디비가 아닌 레디스로 관리하자
-//                        },
-//                        () -> refreshTokenRepository.save(
-//                                RefreshToken.builder()
-//                                        .username(email)
-//                                        .refreshToken(jwtToken.getRefreshToken())
-//                                        .build())
-//                );
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", jwtToken.getRefreshToken())
-                .httpOnly(true)
-                .secure(false) // HTTPS 환경일 경우 true, 개발 중이면 false
-                .path("/")
-                .sameSite("Lax") // 프론트 분리 환경에서는 None (CORS 허용)
-                .maxAge(7 * 24 * 60 * 60)
-                .build();
-
-        ResponseCookie accessCookie = ResponseCookie.from("accessToken", jwtToken.getAccessToken())
-                .httpOnly(true)
-                .secure(false) // HTTPS 환경일 경우 true, 개발 중이면 false
-                .path("/")
-                .sameSite("Lax") // 프론트 분리 환경에서는 None (CORS 허용)
-                .maxAge(900)
-                .build();
-
-        response.addHeader("Set-Cookie", refreshCookie.toString());
-        response.addHeader("Set-Cookie", accessCookie.toString());
-
-        String targetUrl = "http://localhost:5173/?token=" + jwtToken.getAccessToken();
-        response.sendRedirect(targetUrl);
-
+        response.sendRedirect(frontUrl + "/admin/exhibits");
     }
+
 }
