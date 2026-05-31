@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.code.ErrorReasonDTO;
+import org.atdev.artrip.jwt.exception.JwtAuthenticationException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             AuthenticationException authException
     ) throws IOException {
 
-        UserErrorCode errorCode = UserErrorCode._JWT_EMPTY_TOKEN;
+        UserErrorCode errorCode;
+
+        if (authException instanceof JwtAuthenticationException jwtEx) {
+            errorCode = jwtEx.getUserErrorCode();
+        } else {
+            errorCode = UserErrorCode._JWT_EMPTY_TOKEN;
+        }
 
         response.setStatus(errorCode.getHttpStatus().value());
         response.setContentType("application/json;charset=UTF-8");

@@ -6,7 +6,6 @@ import org.atdev.artrip.global.apipayload.exception.handler.JwtAccessDeniedHandl
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAuthenticationEntryPoint;
 import org.atdev.artrip.jwt.JwtAuthenticationFilter;
 import org.atdev.artrip.jwt.JwtProvider;
-import org.atdev.artrip.jwt.exception.JwtExceptionFilter;
 import org.atdev.artrip.security.OAuth2LoginSuccessHandler;
 import org.atdev.artrip.service.CustomOAuth2UserService;
 import org.atdev.artrip.service.redis.RedisService;
@@ -65,8 +64,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtExceptionFilter(), JwtAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -76,10 +74,6 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(jwtProvider, redisService);
     }
 
-    @Bean
-    public JwtExceptionFilter jwtExceptionFilter() {
-        return new JwtExceptionFilter(objectMapper);
-    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
