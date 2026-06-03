@@ -8,6 +8,8 @@ import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.repository.ExhibitRepository;
 import org.atdev.artrip.repository.FavoriteRepository;
 import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
+import org.atdev.artrip.service.dto.result.CountryListResult;
+import org.atdev.artrip.service.dto.result.CountryResult;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +69,7 @@ public class HomeServiceTest {
 
     @Test
     @DisplayName("제목 검색어 입력 시 조회")
-        public void searchExhibit_byTitle() {
+        void searchExhibit_byTitle() {
         //given
         ExhibitSearchCondition defaultCommand = ExhibitSearchCondition.builder()
                 .userId(1L)
@@ -101,7 +103,7 @@ public class HomeServiceTest {
 
     @Test
     @DisplayName("장르 및 스타일 필터링 조회")
-    public void searchExhibit_byGenres() {
+    void searchExhibit_byGenres() {
         //given
         Set<String> genreNames = Set.of(genreKeyword.getName());
         Set<String> styleNames = Set.of(styleKeyword.getName());
@@ -130,7 +132,7 @@ public class HomeServiceTest {
 
     @Test
     @DisplayName("국가 필터링 조회")
-    public void searchExhibit_byCountry() {
+    void searchExhibit_byCountry() {
         //given
         ExhibitSearchCondition command = ExhibitSearchCondition.builder()
                 .country(testExhibitHall.getCountry())
@@ -149,5 +151,18 @@ public class HomeServiceTest {
                 () -> assertThat(result.items().get(0).countryName()).contains("한국"),
                 () -> assertThat(result.items().get(0).countryName()).doesNotContain("대한민국")
         );
+    }
+
+    @DisplayName("한국 제외 확인")
+    @Test
+    void getOverseas_excludes_korea() {
+        //given
+        //when
+        CountryListResult result = homeService.getOverseas();
+
+        //then
+        assertThat(result.countries())
+                .extracting(CountryResult::label)
+                .doesNotContain("한국");
     }
 }
