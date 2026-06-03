@@ -4,12 +4,15 @@ import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.service.dto.result.AdminExhibitListItemResult;
 import org.atdev.artrip.utils.DateTimeUtils;
 
+import java.util.List;
+
 public record AdminExhibitListItemResponse(
         Long exhibitId,
         String title,
         String exhibitPeriod,
         String country,
         String region,
+        List<String> genres,
         Status status,
         String hallName
 ) {
@@ -21,6 +24,7 @@ public record AdminExhibitListItemResponse(
                 DateTimeUtils.convertDate(item.startDate(), item.endDate()),
                 item.country(),
                 item.region(),
+                item.genres(),
                 item.status(),
                 item.hallName()
         );
