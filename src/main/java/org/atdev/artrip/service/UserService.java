@@ -31,6 +31,7 @@ public class UserService {
     private final RecentExhibitRepository recentExhibitRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final UserNoticeRepository userNoticeRepository;
+    private final NoticeRepository noticeRepository;
 
     @Transactional
     public MypageResult updateNickName(Long userId, String newNickName){
@@ -129,6 +130,8 @@ public class UserService {
         searchHistoryRepository.deleteAllByUserId(userId);
         recentExhibitRepository.deleteAllByUserId(userId);
         userNoticeRepository.deleteAllByUserId(userId);
+
+        noticeRepository.detachUser(userId);
 
         userRepository.delete(user);
     }

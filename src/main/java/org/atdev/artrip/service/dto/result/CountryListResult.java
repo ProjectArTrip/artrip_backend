@@ -12,6 +12,7 @@ public record CountryListResult(
     public static CountryListResult from(){
 
         List<CountryResult> results = Arrays.stream(Country.values())
+                .filter(c -> c != Country.KOREA)
                 .map(CountryResult::from)
                 .toList();
 
