@@ -1,6 +1,5 @@
 package org.atdev.artrip.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAccessDeniedHandler;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAuthenticationEntryPoint;
@@ -31,7 +30,6 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final JwtProvider jwtProvider;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-    private final ObjectMapper objectMapper;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final RedisService redisService;
