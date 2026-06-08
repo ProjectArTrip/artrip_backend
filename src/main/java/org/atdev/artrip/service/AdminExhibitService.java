@@ -17,7 +17,10 @@ import org.atdev.artrip.service.csv.AdminExhibitCsvParser;
 import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminExhibitSearchCommand;
 import org.atdev.artrip.service.dto.command.AdminExhibitUpdateCommand;
-import org.atdev.artrip.service.dto.result.*;
+import org.atdev.artrip.service.dto.result.AdminExhibitBulkCreateResult;
+import org.atdev.artrip.service.dto.result.AdminExhibitCreateResult;
+import org.atdev.artrip.service.dto.result.AdminExhibitListItemResult;
+import org.atdev.artrip.service.dto.result.AdminExhibitResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,10 +44,9 @@ public class AdminExhibitService {
     private final FavoriteRepository favoriteRepository;
 
     @Transactional(readOnly = true)
-    public AdminExhibitListResult list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
+    public Page<AdminExhibitListItemResult> list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
         findAdminOrThrow(adminId);
-        Page<AdminExhibitListItemResult> page = exhibitRepository.searchForAdmin(command, pageable);
-        return AdminExhibitListResult.from(page);
+        return exhibitRepository.searchForAdmin(command, pageable);
     }
 
     @Transactional(readOnly = true)

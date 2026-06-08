@@ -4,15 +4,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.request.AdminReviewRejectRequest;
 import org.atdev.artrip.controller.dto.request.AdminSearchReviewRequest;
-import org.atdev.artrip.controller.dto.response.AdminReviewPageResponse;
 import org.atdev.artrip.controller.dto.response.AdminReviewResponse;
 import org.atdev.artrip.controller.spec.AdminReviewSpecification;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AdminReviewService;
 import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
-import org.atdev.artrip.service.dto.command.AdminReviewSearchCommand;
-import org.atdev.artrip.service.dto.result.AdminReviewListResult;
-import org.atdev.artrip.utils.page.Criteria;
+import org.atdev.artrip.service.dto.result.AdminReviewResult;
+import org.atdev.artrip.utils.page.PageQuery;
+import org.atdev.artrip.utils.page.PageResponse;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,16 +25,13 @@ public class AdminReviewController implements AdminReviewSpecification {
 
     @Override
     @GetMapping
-    public ResponseEntity<AdminReviewPageResponse> list(
+    public ResponseEntity<PageResponse<AdminReviewResponse>> list(
             @LoginUser Long adminId,
             AdminSearchReviewRequest request,
-            Criteria criteria
+            PageQuery pageQuery
     ) {
-        AdminReviewSearchCommand command = request.toCommand();
-        AdminReviewListResult reviews = adminReviewService.list(adminId, command, criteria.toPageable());
-        AdminReviewPageResponse response = AdminReviewPageResponse.from(reviews);
-
-        return ResponseEntity.ok(response);
+        Page<AdminReviewResult> page = adminReviewService.list(adminId, request.toCommand(), pageQuery.toPageable());
+        return ResponseEntity.ok(PageResponse.from(page, AdminReviewResponse::from));
     }
 
     @Override

@@ -5,17 +5,16 @@ import org.atdev.artrip.constants.ReviewStatus;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.review.Review;
-import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
-import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
-import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.domain.review.event.ReviewApprovedEvent;
 import org.atdev.artrip.domain.review.event.ReviewDeleteByAdminEvent;
 import org.atdev.artrip.domain.review.event.ReviewRejectedEvent;
+import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.ReviewRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.AdminReviewRejectCommand;
 import org.atdev.artrip.service.dto.command.AdminReviewSearchCommand;
-import org.atdev.artrip.service.dto.result.AdminReviewListResult;
 import org.atdev.artrip.service.dto.result.AdminReviewResult;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -32,10 +31,9 @@ public class AdminReviewService {
     private final ApplicationEventPublisher publisher;
 
     @Transactional(readOnly = true)
-    public AdminReviewListResult list(Long adminId, AdminReviewSearchCommand command, Pageable pageable) {
+    public Page<AdminReviewResult> list(Long adminId, AdminReviewSearchCommand command, Pageable pageable) {
         findAdminOrThrow(adminId);
-        Page<AdminReviewResult> page = reviewRepository.searchForAdmin(command, pageable);
-        return AdminReviewListResult.from(page);
+        return reviewRepository.searchForAdmin(command, pageable);
     }
 
     @Transactional(readOnly = true)
