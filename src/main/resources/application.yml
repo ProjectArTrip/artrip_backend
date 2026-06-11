@@ -138,6 +138,15 @@ maintenance:
     allowed-ips:
       - 127.0.0.1
       - ::1
+
+sentry:
+  dsn: ${SENTRY_DSN:}
+  send-default-pii: true
+  environment: ${SENTRY_ENVIRONMENT:local}
+  traces-sample-rate: 0
+  logging:
+    minimum-event-level: error
+
 ---
 spring:
   config:
@@ -209,6 +218,45 @@ logging:
     root: info
     org.atdev.artrip: info
     org.apache.coyote.http11: warn
+
+server:
+  port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+          google:
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+
+
+
+logging:
+  level:
+    root: info
+    org.atdev.artrip: info
+    org.apache.coyote.http11: warn
+    io.lettuce: warn
+    com.zaxxer.hikari: warn
+    org.hibernate: warn
 
 server:
   port: 8080
