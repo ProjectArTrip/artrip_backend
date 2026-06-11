@@ -5,9 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ExhibitHallRepository extends JpaRepository<ExhibitHall, Long> {
 
@@ -16,15 +18,8 @@ public interface ExhibitHallRepository extends JpaRepository<ExhibitHall, Long> 
     @Query("SELECT DISTINCT e.country FROM ExhibitHall e WHERE e.country <> '한국'")
     List<String> findAllOverseasCountries();
 
-//    @Query("""
-//    select distinct e.regions
-//    from ExhibitHall e
-//    where (e.isDomestic = true
-//        or e.countries in ('한국', '대한민국'))
-//      and e.regions is not null
-//    """)
-//    List<String> findAllDomesticRegions();
-
-
     Optional<ExhibitHall> findByName(String placeName);
+
+    @Query("select h from ExhibitHall h where h.name in :names")
+    List<ExhibitHall> findByNameIn(@Param("names") Set<String> names);
 }

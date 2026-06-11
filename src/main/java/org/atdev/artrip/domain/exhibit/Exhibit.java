@@ -3,7 +3,6 @@ package org.atdev.artrip.domain.exhibit;
 import jakarta.persistence.*;
 import lombok.*;
 import org.atdev.artrip.constants.Status;
-
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.keyword.Keyword;
 
@@ -13,7 +12,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "exhibit")
+@Table(name = "exhibit",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_exhibit_hall_title_start",
+                columnNames = {"exhibit_hall_id", "title", "start_date"}
+        )
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,7 +26,8 @@ import java.util.Set;
 public class Exhibit {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "exhibit_seq_gen")
+    @SequenceGenerator(name = "exhibit_seq_gen", sequenceName = "exhibit_seq", allocationSize = 50)
     @Column(name = "exhibit_id")
     private Long exhibitId;
 
@@ -33,7 +38,7 @@ public class Exhibit {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "start_date")
@@ -46,10 +51,10 @@ public class Exhibit {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @Column(name = "poster_url", length = 512)
+    @Column(name = "poster_url", length = 1024)
     private String posterUrl;
 
-    @Column(name = "ticket_url")
+    @Column(name = "ticket_url", length = 1024)
     private String ticketUrl;
 
     @Builder.Default
@@ -109,4 +114,38 @@ public class Exhibit {
         this.keywords = keywords;
         return this;
     }
+
+    public void updateBasicInfo(String title, String description, String posterUrl, String ticketUrl, LocalDate startDate, LocalDate endDate) {
+        this.title = title;
+        this.description = description;
+        this.posterUrl = posterUrl;
+        this.ticketUrl = ticketUrl;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public void changeStatus(Status status) {
+        this.status = status;
+    }
+
+    public void replaceKeywords(Set<Keyword> newKeywords) {
+        this.keywords.clear();
+        this.keywords.addAll(newKeywords);
+    }
+
+    public static Exhibit create(String title, String description, String posterUrl, String ticketUrl, LocalDate startDate, LocalDate endDate, Status status, ExhibitHall hall) {
+        Exhibit exhibit = new Exhibit();
+        exhibit.title = title;
+        exhibit.description = description;
+        exhibit.posterUrl = posterUrl;
+        exhibit.ticketUrl = ticketUrl;
+        exhibit.startDate = startDate;
+        exhibit.endDate = endDate;
+        exhibit.status = status;
+        exhibit.exhibitHall = hall;
+        exhibit.keywords = new HashSet<>();
+        exhibit.favoriteCount = 0L;
+        return exhibit;
+    }
+
 }

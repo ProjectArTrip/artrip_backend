@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.jwt.JwtProvider;
 import org.atdev.artrip.service.redis.RedisService;
 import org.atdev.artrip.validator.social.SocialVerifier;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -20,9 +21,9 @@ public class WithdrawEventListener {
     private final RedisService redisService;
     private final JwtProvider jwtProvider;
 
+    @Async("withdrawExecutor")
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(WithdrawEvent event) {
-
         try {
             clearSession(event.accessToken(), event.refreshToken());
         } catch (Exception e) {

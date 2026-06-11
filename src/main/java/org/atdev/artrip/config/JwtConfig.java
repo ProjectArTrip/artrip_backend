@@ -16,13 +16,21 @@ public class JwtConfig {
 
     @Bean
     public Key jwtSigningKey(@Value("${spring.jwt.secret}") String secret) {
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
+        byte[] decoded = Decoders.BASE64.decode(secret);
+
+        if (decoded.length < 32) {
+            throw new IllegalStateException("JWT secret must be at least 32 bytes long, but was " + decoded.length);
+        }
+
+        return Keys.hmacShaKeyFor(decoded);
     }
 
     @Bean
-    public JwtParser jwtParser(Key key) {
+    public JwtParser jwtParser(Key key, @Value("${spring.jwt.issuer}") String issuer) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
+                .requireIssuer(issuer)
+                .setAllowedClockSkewSeconds(30)
                 .build();
     }
 

@@ -3,14 +3,12 @@ spring:
     name: artrip
   profiles:
     active: local
-  config:
-    import: optional:file:.env[.properties]
   cache:
     type: simple
 
   servlet:
     multipart:
-      max-file-size: 2MB
+      max-file-size: 5MB
       max-request-size: 10MB
 
   datasource:
@@ -23,6 +21,12 @@ spring:
   jpa:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 
   cloud:
     aws:
@@ -107,6 +111,17 @@ apple:
   key-id: ${APPLE_KEY_ID}
   client-id: ${APPLE_CLIENT_ID}
   private-key: ${APPLE_PRIVATE_KEY}
+app:
+  front:
+    url: ${FRONT_URL:http://localhost:3000}
+  cookie:
+    secure: ${SECURE:false}
+    same-site: ${SAMESITE:Lax}
+  cors:
+    allowed-origins:
+      - ${BACKEND:http://localhost:8080}
+      - ${FRONTEND:http://localhost:3000}
+      - ${DEVURL}
 
 maintenance:
   access:
@@ -128,6 +143,7 @@ spring:
   config:
     activate:
       on-profile: local
+    import: optional:file:.env[.properties]
 
   jpa:
     hibernate:
@@ -136,6 +152,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        generate_statistics: true
 
   data:
     redis:
@@ -156,6 +173,8 @@ logging:
     org.atdev.artrip: DEBUG
     io.lettuce: WARN
     com.google.api.client.http: DEBUG
+    org.hibernate.engine.jdbc.batch.internal.BatchingBatc: DEBUG
+    org.hibernate.stat: DEBUG
 
 server:
   port: 8080
@@ -173,8 +192,8 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
   security:
     oauth2:
@@ -192,4 +211,4 @@ logging:
     org.apache.coyote.http11: warn
 
 server:
-  port: 8082
+  port: 8080

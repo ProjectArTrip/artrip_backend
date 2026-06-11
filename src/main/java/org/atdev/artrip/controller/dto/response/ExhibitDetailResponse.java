@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.service.dto.result.ExhibitDetailResult;
 import org.atdev.artrip.utils.DateTimeUtils;
+import org.atdev.artrip.utils.StringUtils;
 
 import java.math.BigDecimal;
 
@@ -32,7 +33,7 @@ public record ExhibitDetailResponse (
                 .exhibitId(result.exhibitId())
                 .title(result.title())
                 .description(result.description())
-                .posterUrl(result.posterUrl())
+                .posterUrl(StringUtils.emptyIfNull(result.posterUrl()))
                 .ticketUrl(result.ticketUrl())
                 .exhibitPeriod(result.exhibitPeriod())
                 .status(result.status())
