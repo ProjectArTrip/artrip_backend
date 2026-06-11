@@ -4,6 +4,7 @@ import lombok.Builder;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.service.dto.result.ExhibitFilterResult;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
+import org.atdev.artrip.utils.StringUtils;
 
 import java.util.List;
 
@@ -29,7 +30,7 @@ public record HomeResponse(
 
                 .exhibitId(result.exhibitId())
                 .title(result.title())
-                .posterUrl(result.posterUrl())
+                .posterUrl(StringUtils.emptyIfNull(result.posterUrl()))
                 .status(result.status())
                 .exhibitPeriod(result.exhibitPeriod())
 
@@ -45,7 +46,7 @@ public record HomeResponse(
         return HomeResponse.builder()
                 .exhibitId(item.exhibitId())
                 .title(item.title())
-                .posterUrl(item.posterUrl())
+                .posterUrl(StringUtils.emptyIfNull(item.posterUrl()))
                 .status(item.status())
                 .exhibitPeriod(item.exhibitPeriod())
                 .isFavorite(item.isFavorite())

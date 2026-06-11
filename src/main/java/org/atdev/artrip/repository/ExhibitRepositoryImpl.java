@@ -1,12 +1,13 @@
 package org.atdev.artrip.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.KeywordType;
@@ -22,6 +23,7 @@ import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
 import org.atdev.artrip.service.dto.result.AdminExhibitListItemResult;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -174,20 +176,17 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 .and(genreContains(e, command.genre()))
                 .and(startDateGoe(e, command.startDate()))
                 .and(endDateLoe(e, command.endDate()))
-                .and(adminKeywordContains(e, h, command.keyword()));
+                .and(queryContain(e, h, command.keyword()));
 
-        List<AdminExhibitListItemResult> content = queryFactory
-                .select(Projections.constructor(
-                        AdminExhibitListItemResult.class,
-                        e.exhibitId,
+        List<Tuple> rows = queryFactory
+                .select(e.exhibitId,
                         e.title,
                         e.startDate,
                         e.endDate,
                         h.country,
                         h.region,
                         e.status,
-                        h.name
-                ))
+                        h.name)
                 .from(e)
                 .join(e.exhibitHall, h)
                 .where(where)
@@ -196,14 +195,50 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        Long total = queryFactory
+        List<Long> exhibitIds = rows.stream().map(r -> r.get(e.exhibitId)).toList();
+        Map<Long, List<String>> genresByExhibit = fetchGenresByExhibit(exhibitIds);
+
+        List<AdminExhibitListItemResult> content = rows.stream()
+                .map(r -> new AdminExhibitListItemResult(
+                        r.get(e.exhibitId),
+                        r.get(e.title),
+                        r.get(e.startDate),
+                        r.get(e.endDate),
+                        r.get(h.country),
+                        r.get(h.region),
+                        r.get(e.status),
+                        r.get(h.name),
+                        genresByExhibit.getOrDefault(r.get(e.exhibitId), List.of())
+                ))
+                .toList();
+
+        JPAQuery<Long> countQuery = queryFactory
                 .select(e.count())
                 .from(e)
                 .join(e.exhibitHall, h)
-                .where(where)
-                .fetchOne();
+                .where(where);
 
-        return new PageImpl<>(content, pageable, total == null ? 0L : total);
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    private Map<Long, List<String>> fetchGenresByExhibit(List<Long> exhibitIds) {
+        if (exhibitIds.isEmpty()) return Map.of();
+
+        QExhibit e = QExhibit.exhibit;
+        QKeyword k = QKeyword.keyword;
+
+        List<Tuple> tuples = queryFactory
+                .select(e.exhibitId, k.name)
+                .from(e)
+                .join(e.keywords, k)
+                .where(e.exhibitId.in(exhibitIds).and(k.type.eq(KeywordType.GENRE)))
+                .orderBy(e.exhibitId.asc(), k.name.desc())
+                .fetch();
+
+        return tuples.stream().collect(Collectors.groupingBy(
+                t -> t.get(e.exhibitId),
+                Collectors.mapping(t -> t.get(k.name), Collectors.toList())
+        ));
     }
 
     private BooleanExpression cursorCondition(Exhibit cursor, SortType sortType, QExhibit e) {
@@ -337,14 +372,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         return status == null ? null : e.status.eq(status);
     }
 
-    private BooleanExpression eqCountry(QExhibitHall h, String country) {
-        return (country == null || country.isBlank()) ? null : h.country.eq(country);
-    }
-
-    private BooleanExpression eqRegion(QExhibitHall h, String region) {
-        return (region == null || region.isBlank()) ? null : h.region.eq(region);
-    }
-
     private BooleanExpression genreContains(QExhibit e, String genre) {
         if (genre == null || genre.isBlank()) return null;
         QKeyword k = new QKeyword("adminGenreKeyword");
@@ -367,22 +394,12 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         return endDate == null ? null : e.endDate.loe(endDate);
     }
 
-    private BooleanExpression adminKeywordContains(QExhibit e, QExhibitHall h, String keyword) {
-        if (keyword == null || keyword.isBlank()) return null;
-        String trimmed = keyword.trim();
-        QKeyword k = new QKeyword("adminSearchKeyword");
+    private BooleanExpression eqCountry(QExhibitHall h, String country) {
+        return (country == null || country.isBlank()) ? null : h.country.eq(country);
+    }
 
-        BooleanExpression keywordExists = JPAExpressions
-                .selectOne()
-                .from(k)
-                .where(e.keywords.contains(k), k.name.containsIgnoreCase(trimmed))
-                .exists();
-
-        return e.title.containsIgnoreCase(trimmed)
-                .or(h.name.containsIgnoreCase(trimmed))
-                .or(h.country.containsIgnoreCase(trimmed))
-                .or(h.region.containsIgnoreCase(trimmed))
-                .or(keywordExists);
+    private BooleanExpression eqRegion(QExhibitHall h, String region) {
+        return (region == null || region.isBlank()) ? null : h.region.eq(region);
     }
 
     private OrderSpecifier<?>[] adminOrderSpecifiers(Pageable pageable, QExhibit e) {

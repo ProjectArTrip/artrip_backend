@@ -3,8 +3,6 @@ spring:
     name: artrip
   profiles:
     active: local
-  config:
-    import: optional:file:.env[.properties]
   cache:
     type: simple
 
@@ -145,6 +143,7 @@ spring:
   config:
     activate:
       on-profile: local
+    import: optional:file:.env[.properties]
 
   jpa:
     hibernate:
@@ -193,8 +192,8 @@ spring:
 
   data:
     redis:
-      host: localhost
-      port: 6379
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
 
   security:
     oauth2:
@@ -212,4 +211,4 @@ logging:
     org.apache.coyote.http11: warn
 
 server:
-  port: 8082
+  port: 8080

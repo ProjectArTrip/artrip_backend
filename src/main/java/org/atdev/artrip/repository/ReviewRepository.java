@@ -1,6 +1,7 @@
 package org.atdev.artrip.repository;
 
 import org.atdev.artrip.domain.auth.User;
+import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.review.Review;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -11,23 +12,23 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review,Long>, ReviewRepositoryCustom{
+public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
 
     @Query("select r from Review r where r.user.userId = :userId order by r.reviewId desc")
     Slice<Review> findTopByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("select r from Review r where r.user.userId = :userId and r.reviewId < :cursor order by r.reviewId desc")
     Slice<Review> findByUserIdAndIdLessThan(@Param("userId") Long userId,
-                                                        @Param("cursor") Long cursor,
-                                                        Pageable pageable);
+                                            @Param("cursor") Long cursor,
+                                            Pageable pageable);
 
     @Query("select r from Review r where r.exhibit.exhibitId = :exhibitId order by r.reviewId desc")
     Slice<Review> findByExhibitId(@Param("exhibitId") Long exhibitId, Pageable pageable);
 
     @Query("select r from Review r where r.exhibit.exhibitId = :exhibitId and r.reviewId < :cursor order by r.reviewId desc")
     Slice<Review> findByExhibitIdAndIdLessThan(@Param("exhibitId") Long exhibitId,
-                                            @Param("cursor") Long cursor,
-                                            Pageable pageable);
+                                               @Param("cursor") Long cursor,
+                                               Pageable pageable);
 
     long countByExhibit_ExhibitId(Long exhibitId);
 
@@ -36,4 +37,6 @@ public interface ReviewRepository extends JpaRepository<Review,Long>, ReviewRepo
     @Modifying
     @Query("DELETE FROM Review r WHERE r.user = :user")
     void deleteAllByUser(@Param("user") User user);
+
+    void deleteByExhibit(Exhibit exhibit);
 }

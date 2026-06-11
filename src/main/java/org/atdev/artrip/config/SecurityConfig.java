@@ -1,6 +1,5 @@
 package org.atdev.artrip.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAccessDeniedHandler;
 import org.atdev.artrip.global.apipayload.exception.handler.JwtAuthenticationEntryPoint;
@@ -16,7 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,7 +30,6 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final JwtProvider jwtProvider;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-    private final ObjectMapper objectMapper;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final RedisService redisService;
@@ -64,7 +62,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter(), AuthorizationFilter.class);
 
         return http.build();
     }

@@ -2,6 +2,7 @@ package org.atdev.artrip.repository;
 
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -99,4 +100,17 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
     WHERE e.status IN :statuses
     """)
     ExhibitMarkerMeta findMarkerMeta(@Param("statuses") List<Status> statuses);
+
+    @Query("""
+select count(e) > 0
+from Exhibit e
+where e.exhibitHall = :hall
+and e.title = :title
+and ((:startDate is null and e.startDate is null) or e.startDate = :startDate)
+""")
+    boolean existsByHallAndTitleAndStartDate(
+            @Param("hall") ExhibitHall hall,
+            @Param("title") String title,
+            @Param("startDate") LocalDate startDate
+    );
 }

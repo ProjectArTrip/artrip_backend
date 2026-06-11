@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.global.apipayload.CommonResponse;
 import org.atdev.artrip.global.apipayload.code.ErrorReasonDTO;
 import org.atdev.artrip.global.apipayload.code.error.CommonErrorCode;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -70,6 +71,13 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         );
 
         return super.handleExceptionInternal(e, body, headers, status, request);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> onDataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request) {
+        log.warn("Data Integrity Violation: {}", e.getMostSpecificCause().getMessage());
+        GeneralException converted = new GeneralException(CommonErrorCode._CONFLICT);
+        return handleExceptionInternal(converted, converted.getErrorReasonHttpStatus(), null, request);
     }
 
     @ExceptionHandler

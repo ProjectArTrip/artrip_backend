@@ -2,6 +2,7 @@ package org.atdev.artrip.controller.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.atdev.artrip.utils.StringUtils;
 
 @Getter
 @Builder
@@ -13,7 +14,7 @@ public class ImageResponse {
     public static ImageResponse of(String originalUrl, String posterUrl) {
         return ImageResponse.builder()
                 .originalUrl(originalUrl)
-                .posterUrl(posterUrl)
+                .posterUrl(StringUtils.emptyIfNull(posterUrl))
                 .build();
     }
 }

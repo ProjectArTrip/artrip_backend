@@ -3,6 +3,7 @@ package org.atdev.artrip.controller.dto.response;
 import lombok.*;
 import org.atdev.artrip.domain.review.Review;
 import org.atdev.artrip.domain.review.ReviewImage;
+import org.atdev.artrip.utils.StringUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public record MyReviewResponse(
                 .content(review.getContent())
                 .photoUrls(review.getImages().stream()
                         .map(ReviewImage::getImageUrl)
+                        .map(StringUtils::emptyIfNull)
                         .toList())
                 .posterUrl(review.getExhibit().getPosterUrl())
                 .hallName(review.getExhibit().getExhibitHall().getName())

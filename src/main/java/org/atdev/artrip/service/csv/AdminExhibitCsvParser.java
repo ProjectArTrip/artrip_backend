@@ -6,9 +6,7 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -16,8 +14,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class AdminExhibitCsvParser {
-    private AdminExhibitCsvParser() {}
+    private AdminExhibitCsvParser() {
+    }
 
+    private static final String HEADER_FIRST_COLUMN = "제목";
     private static final Long MAX_FILE_SIZE_BYTES = 5L * 1024 * 1024;
     private static final int MAX_ROW_COUNT = 1000;
 
@@ -34,7 +34,7 @@ public final class AdminExhibitCsvParser {
             throw new GeneralException(ExhibitErrorCode._CSV_INVALID_FORMAT);
         }
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))){
+        try (Reader reader = new StringReader(extractCsvBody(file))) {
             List<AdminExhibitCsvRow> rows = new CsvToBeanBuilder<AdminExhibitCsvRow>(reader)
                     .withType(AdminExhibitCsvRow.class)
                     .withIgnoreLeadingWhiteSpace(true)
@@ -52,6 +52,24 @@ public final class AdminExhibitCsvParser {
         } catch (RuntimeException e) {
             throw new GeneralException(ExhibitErrorCode._CSV_INVALID_ROW);
         }
+    }
+
+    private static String extractCsvBody(MultipartFile file) throws IOException {
+        String content = new String(file.getBytes(), StandardCharsets.UTF_8);
+        if (!content.isEmpty() && content.charAt(0) == '\uFEFF') {
+            content = content.substring(1);
+        }
+
+        String body = content.lines()
+                .dropWhile(line -> !line.trim().startsWith(HEADER_FIRST_COLUMN))
+                .filter(line -> !line.replace(",", "").isBlank())
+                .collect(Collectors.joining("\n"));
+
+        if (body.isBlank()) {
+            throw new GeneralException(ExhibitErrorCode._CSV_INVALID_FORMAT);
+        }
+
+        return body;
     }
 
     private static AdminExhibitCreateCommand toCommand(Long adminId, AdminExhibitCsvRow row) {

@@ -77,9 +77,9 @@ public class ExhibitHall {
         this.region = region;
         this.address = address;
         this.openingHours = openingHours;
-        this.phone = phone;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.phone = phone != null ? phone : this.phone;
+        this.latitude = latitude != null ? latitude : this.latitude;
+        this.longitude = longitude != null ? longitude : this.longitude;
         this.isDomestic = isDomestic;
     }
 

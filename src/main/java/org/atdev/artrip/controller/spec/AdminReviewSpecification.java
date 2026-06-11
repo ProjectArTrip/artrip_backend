@@ -4,14 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.atdev.artrip.controller.dto.request.AdminReviewRejectRequest;
 import org.atdev.artrip.controller.dto.request.AdminSearchReviewRequest;
-import org.atdev.artrip.controller.dto.response.AdminReviewPageResponse;
 import org.atdev.artrip.controller.dto.response.AdminReviewResponse;
 import org.atdev.artrip.global.apipayload.code.error.CommonErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.ReviewErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
-import org.atdev.artrip.utils.page.Criteria;
+import org.atdev.artrip.utils.page.PageQuery;
+import org.atdev.artrip.utils.page.PageResponse;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +24,10 @@ public interface AdminReviewSpecification {
             common = {CommonErrorCode._UNAUTHORIZED},
             user = {UserErrorCode._USER_NOT_FOUND, UserErrorCode._USER_FORBIDDEN}
     )
-    ResponseEntity<AdminReviewPageResponse> list(
+    ResponseEntity<PageResponse<AdminReviewResponse>> list(
             @LoginUser Long adminId,
             AdminSearchReviewRequest request,
-            @ParameterObject Criteria criteria
+            @ParameterObject PageQuery pageQuery
     );
 
 

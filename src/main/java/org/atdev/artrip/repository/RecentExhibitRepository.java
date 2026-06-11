@@ -28,4 +28,6 @@ public interface RecentExhibitRepository extends JpaRepository<RecentExhibit, Lo
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM RecentExhibit r WHERE r.user.userId = :userId")
     void deleteAllByUserId(@Param("userId") Long userId);
+
+    void deleteByExhibit(Exhibit exhibit);
 }

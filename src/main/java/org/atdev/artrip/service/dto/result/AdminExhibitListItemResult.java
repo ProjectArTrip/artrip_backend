@@ -3,6 +3,7 @@ package org.atdev.artrip.service.dto.result;
 import org.atdev.artrip.constants.Status;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record AdminExhibitListItemResult(
         Long exhibitId,
@@ -12,6 +13,7 @@ public record AdminExhibitListItemResult(
         String country,
         String region,
         Status status,
-        String hallName
+        String hallName,
+        List<String> genres
 ) {
 }
