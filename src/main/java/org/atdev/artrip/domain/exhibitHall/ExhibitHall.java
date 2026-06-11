@@ -51,10 +51,10 @@ public class ExhibitHall {
     @Column(name = "latitude", nullable = false)
     private BigDecimal latitude;
 
-    @Column(name = "longitude", nullable = false)
+    @Column(name = "longitude", nullable = false, precision = 10, scale = 7)
     private BigDecimal longitude;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = false, precision = 10, scale = 7)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -77,9 +77,9 @@ public class ExhibitHall {
         this.region = region;
         this.address = address;
         this.openingHours = openingHours;
-        this.phone = phone;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.phone = phone != null ? phone : this.phone;
+        this.latitude = latitude != null ? latitude : this.latitude;
+        this.longitude = longitude != null ? longitude : this.longitude;
         this.isDomestic = isDomestic;
     }
 

@@ -14,10 +14,7 @@ import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.service.AdminExhibitService;
 import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminExhibitUpdateCommand;
-import org.atdev.artrip.service.dto.result.AdminExhibitBulkCreateResult;
-import org.atdev.artrip.service.dto.result.AdminExhibitCreateResult;
-import org.atdev.artrip.service.dto.result.AdminExhibitListItemResult;
-import org.atdev.artrip.service.dto.result.AdminExhibitResult;
+import org.atdev.artrip.service.dto.result.*;
 import org.atdev.artrip.utils.page.PageQuery;
 import org.atdev.artrip.utils.page.PageResponse;
 import org.springframework.data.domain.Page;
@@ -74,6 +71,15 @@ public class AdminExhibitController implements AdminExhibitSpecification {
 
         AdminExhibitBulkCreateResult result = adminExhibitService.bulkCreateFromCsv(adminId, file);
         return ResponseEntity.ok(AdminExhibitBulkCreateResponse.from(result));
+    }
+
+    @Override
+    @PostMapping("/csv/parse")
+    public ResponseEntity<AdminExhibitCsvPreviewResult> previewCsv(
+            @LoginUser Long adminId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        return ResponseEntity.ok(adminExhibitService.previewCsv(adminId, file));
     }
 
     @Override

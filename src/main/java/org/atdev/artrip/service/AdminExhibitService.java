@@ -17,10 +17,7 @@ import org.atdev.artrip.service.csv.AdminExhibitCsvParser;
 import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminExhibitSearchCommand;
 import org.atdev.artrip.service.dto.command.AdminExhibitUpdateCommand;
-import org.atdev.artrip.service.dto.result.AdminExhibitBulkCreateResult;
-import org.atdev.artrip.service.dto.result.AdminExhibitCreateResult;
-import org.atdev.artrip.service.dto.result.AdminExhibitListItemResult;
-import org.atdev.artrip.service.dto.result.AdminExhibitResult;
+import org.atdev.artrip.service.dto.result.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,6 +39,10 @@ public class AdminExhibitService {
     private final KeywordRepository keywordRepository;
     private final ExhibitHallRepository exhibitHallRepository;
     private final FavoriteRepository favoriteRepository;
+    private final ReviewRepository reviewRepository;
+    private final CurationRepository curationRepository;
+    private final RecentExhibitRepository recentExhibitRepository;
+    private final ReviewImageRepository reviewImageRepository;
 
     @Transactional(readOnly = true)
     public Page<AdminExhibitListItemResult> list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
@@ -96,10 +97,19 @@ public class AdminExhibitService {
                 .collect(Collectors.toMap(ExhibitHall::getName, h -> h));
 
         List<Long> savedIds = new ArrayList<>(commands.size());
+        int skippedCount = 0;
         for (AdminExhibitCreateCommand command : commands) {
-            savedIds.add(createInternal(command, keywordByName, hallByName));
+            try {
+                savedIds.add(createInternal(command, keywordByName, hallByName));
+            } catch (GeneralException e) {
+                if (e.getCode() == ExhibitErrorCode._EXHIBIT_DUPLICATE) {
+                    skippedCount++;
+                } else {
+                    throw e;
+                }
+            }
         }
-        return AdminExhibitBulkCreateResult.of(savedIds);
+        return AdminExhibitBulkCreateResult.of(savedIds, skippedCount);
     }
 
     @Transactional
@@ -139,13 +149,29 @@ public class AdminExhibitService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public AdminExhibitCsvPreviewResult previewCsv(Long adminId, MultipartFile file) {
+
+        findAdminOrThrow(adminId);
+        List<AdminExhibitCreateCommand> commands = AdminExhibitCsvParser.parse(file, adminId);
+
+        if (commands.isEmpty()) {
+            throw new GeneralException(ExhibitErrorCode._CSV_EMPTY);
+        }
+        return AdminExhibitCsvPreviewResult.from(commands);
+    }
+
     @Transactional
     public void delete(Long adminId, Long exhibitId) {
         findAdminOrThrow(adminId);
         Exhibit exhibit = exhibitRepository.findById(exhibitId).orElseThrow(() -> new GeneralException(ExhibitErrorCode._EXHIBIT_NOT_FOUND));
 
-        exhibit.replaceKeywords(Set.of());
+        reviewImageRepository.deleteByReviewExhibit(exhibit);
+        reviewRepository.deleteByExhibit(exhibit);
+        curationRepository.deleteCurationExhibitByExhibitId(exhibitId);
+        recentExhibitRepository.deleteByExhibit(exhibit);
         favoriteRepository.deleteByExhibitId(exhibitId);
+        exhibit.replaceKeywords(Set.of());
         exhibitRepository.delete(exhibit);
     }
 
@@ -179,7 +205,14 @@ public class AdminExhibitService {
         }
 
         Set<Keyword> keywords = resolveKeywords(command, keywordCache);
+
         ExhibitHall hall = resolveHall(command, hallCache);
+
+        if (exhibitRepository.existsByHallAndTitleAndStartDate(hall, command.title(), command.startDate())) {
+            throw new GeneralException(ExhibitErrorCode._EXHIBIT_DUPLICATE);
+        }
+
+
         Status status = resolveStatus(command.startDate(), command.endDate());
 
         Exhibit exhibit = Exhibit.create(
@@ -208,7 +241,7 @@ public class AdminExhibitService {
     private Set<Keyword> resolveKeywords(AdminExhibitCreateCommand command, Map<String, Keyword> cache) {
         if (cache != null) {
             return Stream.concat(
-                            command.genres().stream(),command.styles().stream())
+                            command.genres().stream(), command.styles().stream())
                     .map(name -> {
                         Keyword k = cache.get(name);
                         if (k == null) {

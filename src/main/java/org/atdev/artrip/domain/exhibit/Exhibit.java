@@ -12,7 +12,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "exhibit")
+@Table(name = "exhibit",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_exhibit_hall_title_start",
+                columnNames = {"exhibit_hall_id", "title", "start_date"}
+        )
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -110,7 +115,7 @@ public class Exhibit {
         return this;
     }
 
-    public void updateBasicInfo(String title, String description, String posterUrl, String ticketUrl, LocalDate startDate, LocalDate endDate){
+    public void updateBasicInfo(String title, String description, String posterUrl, String ticketUrl, LocalDate startDate, LocalDate endDate) {
         this.title = title;
         this.description = description;
         this.posterUrl = posterUrl;

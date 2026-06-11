@@ -176,7 +176,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
                 .and(genreContains(e, command.genre()))
                 .and(startDateGoe(e, command.startDate()))
                 .and(endDateLoe(e, command.endDate()))
-                .and(adminKeywordContains(e, h, command.keyword()));
+                .and(queryContain(e, h, command.keyword()));
 
         List<Tuple> rows = queryFactory
                 .select(e.exhibitId,
@@ -372,14 +372,6 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         return status == null ? null : e.status.eq(status);
     }
 
-    private BooleanExpression eqCountry(QExhibitHall h, String country) {
-        return (country == null || country.isBlank()) ? null : h.country.eq(country);
-    }
-
-    private BooleanExpression eqRegion(QExhibitHall h, String region) {
-        return (region == null || region.isBlank()) ? null : h.region.eq(region);
-    }
-
     private BooleanExpression genreContains(QExhibit e, String genre) {
         if (genre == null || genre.isBlank()) return null;
         QKeyword k = new QKeyword("adminGenreKeyword");
@@ -402,22 +394,12 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         return endDate == null ? null : e.endDate.loe(endDate);
     }
 
-    private BooleanExpression adminKeywordContains(QExhibit e, QExhibitHall h, String keyword) {
-        if (keyword == null || keyword.isBlank()) return null;
-        String trimmed = keyword.trim();
-        QKeyword k = new QKeyword("adminSearchKeyword");
+    private BooleanExpression eqCountry(QExhibitHall h, String country) {
+        return (country == null || country.isBlank()) ? null : h.country.eq(country);
+    }
 
-        BooleanExpression keywordExists = JPAExpressions
-                .selectOne()
-                .from(k)
-                .where(e.keywords.contains(k), k.name.containsIgnoreCase(trimmed))
-                .exists();
-
-        return e.title.containsIgnoreCase(trimmed)
-                .or(h.name.containsIgnoreCase(trimmed))
-                .or(h.country.containsIgnoreCase(trimmed))
-                .or(h.region.containsIgnoreCase(trimmed))
-                .or(keywordExists);
+    private BooleanExpression eqRegion(QExhibitHall h, String region) {
+        return (region == null || region.isBlank()) ? null : h.region.eq(region);
     }
 
     private OrderSpecifier<?>[] adminOrderSpecifiers(Pageable pageable, QExhibit e) {

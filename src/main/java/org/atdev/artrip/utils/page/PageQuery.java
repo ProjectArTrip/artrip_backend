@@ -25,7 +25,7 @@ public record PageQuery(
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_SIZE = 20;
-    private static final int MAX_SIZE = 100;
+    private static final int MAX_SIZE = 9999;
     private static final String DEFAULT_SORT = "createdAt";
 
     public Pageable toPageable() {

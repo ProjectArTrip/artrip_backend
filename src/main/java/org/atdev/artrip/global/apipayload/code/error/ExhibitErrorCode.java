@@ -12,6 +12,7 @@ public enum ExhibitErrorCode implements BaseErrorCode {
     _EXHIBIT_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBIT404-NOT_FOUND", "전시 정보를 찾을 수 없습니다."),
     _EXHIBIT_HALL_NOT_FOUND(HttpStatus.NOT_FOUND, "EXHIBITHALL404-NOT_FOUND", "전시관 정보를 찾을 수 없습니다."),
     _EXHIBIT_HALL_IN_USE(HttpStatus.BAD_REQUEST, "EXHIBITHALL400-IN_USE", "전시관이 전시와 연관되어 있어 삭제할 수 없습니다."),
+    _EXHIBIT_DUPLICATE(HttpStatus.CONFLICT, "EXHIBIT409-DUPLICATE", "전시가 이미 존재합니다."),
 
     _EXHIBIT_INVALID_STATUS(HttpStatus.BAD_REQUEST, "EXHIBIT400-INVALID_STATUS", "유효하지 않은 전시 상태입니다."),
     _EXHIBIT_INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "EXHIBIT400-INVALID_DATE_RANGE", "전시 시작일이 종료일보다 늦을 수 없습니다."),

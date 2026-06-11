@@ -6,10 +6,11 @@ import java.util.List;
 
 public record AdminExhibitBulkCreateResponse(
         int createdCount,
+        int skippedCount,
         List<Long> exhibitIds
 ) {
 
     public static AdminExhibitBulkCreateResponse from(AdminExhibitBulkCreateResult result) {
-        return new AdminExhibitBulkCreateResponse(result.createdCount(), result.exhibitIds());
+        return new AdminExhibitBulkCreateResponse(result.createdCount(), result.skippedCount(), result.exhibitIds());
     }
 }

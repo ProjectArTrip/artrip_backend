@@ -11,6 +11,7 @@ import org.atdev.artrip.global.apipayload.code.error.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.service.dto.result.AdminExhibitCsvPreviewResult;
 import org.atdev.artrip.utils.page.PageQuery;
 import org.atdev.artrip.utils.page.PageResponse;
 import org.springdoc.core.annotations.ParameterObject;
@@ -68,6 +69,18 @@ public interface AdminExhibitSpecification {
             @LoginUser Long adminId,
             @RequestParam("file") MultipartFile file
     );
+
+    @Operation(summary = "전시 CSV 등록 전 미리보기")
+    @ApiErrorResponses(
+            common = {CommonErrorCode._UNAUTHORIZED},
+            user = {UserErrorCode._USER_NOT_FOUND, UserErrorCode._USER_FORBIDDEN},
+            exhibit = {ExhibitErrorCode._CSV_EMPTY, ExhibitErrorCode._CSV_INVALID_FORMAT, ExhibitErrorCode._CSV_INVALID_ROW}
+    )
+    ResponseEntity<AdminExhibitCsvPreviewResult> previewCsv(
+            @LoginUser Long adminId,
+            @RequestParam("file") MultipartFile file
+    );
+
 
 
     @Operation(summary = "관리자 전시 수정")
