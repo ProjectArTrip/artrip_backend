@@ -13,6 +13,7 @@ public record PageQuery(
         Integer page,
 
         @Schema(description = "페이지 크기", example = "20")
+
         Integer size,
 
         @Schema(description = "정렬 필드", example = "createdAt")
