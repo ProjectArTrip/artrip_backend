@@ -7,8 +7,9 @@ services:
     build:
       context: ./
       dockerfile: docker/Dockerfile
-      target: staging-stage
+      target: production-stage
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     env_file:
       - ./.env
+    restart: unless-stopped
