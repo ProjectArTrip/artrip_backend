@@ -8,13 +8,22 @@ FROM deps AS builder
 COPY src ./src
 RUN ./gradlew bootJar --no-daemon -x test
 
-FROM eclipse-temurin:17-jre-jammy AS staging-stage
+FROM eclipse-temurin:17-jre-jammy AS runtime-base
 WORKDIR /app
 RUN addgroup --system --gid 1001 appgroup && \
-    adduser --system --uid 1001 --ingroup appgroup appuser
+  adduser --system --uid 1001 --ingroup appgroup appuser
 COPY --from=builder --chown=appuser:appgroup /app/build/libs/*.jar app.jar
 USER appuser
 EXPOSE 8080
+
+FROM runtime-base AS staging-stage
 ENTRYPOINT ["java", "-jar", "app.jar"]
 
-# FROM staging-stage AS production-stage
+FROM runtime-base AS production-stage
+ENTRYPOINT ["java", \
+"-XX:+UseContainerSupport", \
+"-XX:MaxRAMPercentage=75.0", \
+"-XX:+UseG1GC", \
+"-XX:+ExitOnOutOfMemoryError", \
+"-Djava.security.egd=file:/dev/./urandom", \
+"-jar", "app.jar"]
