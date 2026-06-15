@@ -141,7 +141,7 @@ maintenance:
 
 sentry:
   dsn: ${SENTRY_DSN:}
-  send-default-pii: false
+  send-default-pii: true
   environment: ${SENTRY_ENVIRONMENT:local}
   traces-sample-rate: 0
   logging:
@@ -261,6 +261,9 @@ springdoc:
   swagger-ui:
     enabled: false
 
+sentry:
+  send-default-pii: false
+
 logging:
   level:
     root: info
@@ -270,8 +273,6 @@ logging:
     com.zaxxer.hikari: warn
     org.hibernate: warn
     org.apache.catalina: warn
-
-
 
 server:
   port: 8080
