@@ -1,0 +1,13 @@
+services:
+  backend:
+    container_name: artrip-java
+    platform: linux/amd64
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+      target: production-stage
+    ports:
+      - "127.0.0.1:8080:8080"
+    env_file:
+      - ./.env
+    restart: unless-stopped

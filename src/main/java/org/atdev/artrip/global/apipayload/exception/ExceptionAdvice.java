@@ -90,6 +90,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = GeneralException.class)
     public ResponseEntity<Object> onThrowException(GeneralException generalException, HttpServletRequest request) {
         ErrorReasonDTO errorReasonHttpStatus = generalException.getErrorReasonHttpStatus();
+        log.warn("[{}] {} - {}", request.getMethod(), request.getRequestURI(), errorReasonHttpStatus.getCode());
         return handleExceptionInternal(generalException, errorReasonHttpStatus, null, request);
     }
 
@@ -97,7 +98,6 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                                                            HttpHeaders headers, HttpServletRequest request) {
 
         CommonResponse<Object> body = CommonResponse.onFailure(reason.getCode(), reason.getMessage(), null);
-//        e.printStackTrace();
 
         WebRequest webRequest = new ServletWebRequest(request);
         return super.handleExceptionInternal(
