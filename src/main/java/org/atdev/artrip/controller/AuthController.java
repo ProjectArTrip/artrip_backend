@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.controller.dto.request.LogoutRequest;
 import org.atdev.artrip.controller.dto.request.ReissueRequest;
 import org.atdev.artrip.controller.dto.request.SocialLoginRequest;
-import org.atdev.artrip.controller.dto.request.TestLoginRequest;
 import org.atdev.artrip.controller.dto.response.AppReissueResponse;
 import org.atdev.artrip.controller.dto.response.SocialLoginResponse;
 import org.atdev.artrip.controller.spec.AuthSpecification;
@@ -82,14 +81,5 @@ public class AuthController implements AuthSpecification {
 
         authService.withdraw(userId, authorization.substring(7), token.refreshToken());
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/login/test")
-    public ResponseEntity<SocialLoginResponse> testLogin(@RequestBody TestLoginRequest request) {
-
-        SocialLoginResult result = authService.loginForAppleReview(request.email(), request.password());
-        SocialLoginResponse response = SocialLoginResponse.from(result);
-
-        return ResponseEntity.ok(response);
     }
 }

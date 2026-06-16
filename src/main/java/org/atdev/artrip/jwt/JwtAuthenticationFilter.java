@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtAuthenticationException e) {
                 SecurityContextHolder.clearContext();
+                log.warn("JWT 인증 실패 [{}] {} - {}", request.getMethod(), request.getRequestURI(), e.getMessage());
                 request.setAttribute("exception", e);
             }
         }

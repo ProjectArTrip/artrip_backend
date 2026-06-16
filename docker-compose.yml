@@ -1,14 +1,6 @@
-version: '3.7'
-
 services:
   backend:
-    container_name: artrip-java
-    platform: linux/amd64
     build:
       context: ./
-      dockerfile: docker/Dockerfile
-      target: staging-stage
-    ports:
-      - "8080:8080"
     env_file:
       - ./.env

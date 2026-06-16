@@ -48,8 +48,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/", "/a", "/login/**", "/oauth2/**", "/error",
-                                "/swagger-ui/**", "/v3/api-docs/**", "/auth/web/reissue", "/auth/app/reissue", "/s3/**", "/auth/social","/auth/login/test", "/maintenance").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**").permitAll()//스웨거 에러
+                                "/swagger-ui/**", "/v3/api-docs/**", "/auth/web/reissue", "/auth/app/reissue", "/auth/social", "/maintenance").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/swagger-ui.html", "/webjars/**", "/auth/login/test").permitAll()//스웨거 에러
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exception -> exception

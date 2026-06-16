@@ -1,0 +1,13 @@
+services:
+  backend:
+    container_name: artrip-java-staging
+    platform: linux/amd64
+    build: 
+      context: ./
+      dockerfile: docker/Dockerfile
+      target: staging-stage
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./.env
+    restart: unless-stopped
