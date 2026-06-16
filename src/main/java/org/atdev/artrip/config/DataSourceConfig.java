@@ -41,4 +41,22 @@ public class DataSourceConfig {
 
     }
 
+    @Bean
+    @Profile("prod")
+    public DataSource prodDataSource(
+            @Value("${DB_HOST}") String dbHost,
+            @Value("${DB_PORT}") int dbPort,
+            @Value("${DB_NAME}") String dbName,
+            @Value("${DB_USERNAME}") String username,
+            @Value("${DB_PASSWORD}") String password
+    ) {
+
+        HikariDataSource dataSource = new HikariDataSource();
+        String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true",
+                dbHost, dbPort, dbName);
+        dataSource.setJdbcUrl(jdbcUrl);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
 }
