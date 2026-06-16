@@ -13,10 +13,10 @@ public class DateTimeUtils {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
     private static final Pattern TIME_RANGE_PATTERN = Pattern.compile("(\\d{1,2})(시|:)(\\d{0,2})\\s*~\\s*(\\d{1,2})(시|:)(\\d{0,2})");
+    private static final String DATE_IS_NULL = "상시 진행중";
 
     public static String convertDate(LocalDate startDate, LocalDate endDate) {
-
-        if (startDate == null && endDate == null) return "";
+        if (startDate == null && endDate == null) return DATE_IS_NULL;
         if (endDate == null) return startDate.format(formatter) + "- ";
         if (startDate == null) return endDate.format(formatter);
         return String.format("%s - %s", startDate.format(formatter), endDate.format(formatter));

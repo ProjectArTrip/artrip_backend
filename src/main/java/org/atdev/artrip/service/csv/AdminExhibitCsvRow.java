@@ -15,9 +15,9 @@ public class AdminExhibitCsvRow {
     private String description;
 
     @CsvDate("yyyy-MM-dd")
-    @CsvBindByName(column = "전시 시작", required = true)
+    @CsvBindByName(column = "전시 시작")
     private LocalDate startDate;
-
+    
     @CsvDate("yyyy-MM-dd")
     @CsvBindByName(column = "전시 종료")
     private LocalDate endDate;

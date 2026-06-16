@@ -6,8 +6,12 @@ import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -60,20 +64,29 @@ public final class AdminExhibitCsvParser {
             content = content.substring(1);
         }
 
-        String body = content.lines()
-                .dropWhile(line -> !line.trim().startsWith(HEADER_FIRST_COLUMN))
-                .filter(line -> !line.replace(",", "").isBlank())
-                .collect(Collectors.joining("\n"));
+        int start = findBodyStart(content);
+        if (start < 0) throw new GeneralException(ExhibitErrorCode._CSV_INVALID_FORMAT);
 
-        if (body.isBlank()) {
-            throw new GeneralException(ExhibitErrorCode._CSV_INVALID_FORMAT);
-        }
-
+        String body = content.substring(start);
+        if (body.isBlank()) throw new GeneralException(ExhibitErrorCode._CSV_INVALID_FORMAT);
         return body;
     }
 
-    private static AdminExhibitCreateCommand toCommand(Long adminId, AdminExhibitCsvRow row) {
+    private static int findBodyStart(String content) {
+        int pos = 0;
+        while (pos < content.length()) {
+            int lf = content.indexOf('\n', pos);
+            int lineEnd = (lf < 0) ? content.length() : lf;
+            if (content.substring(pos, lineEnd).stripLeading().startsWith(HEADER_FIRST_COLUMN)) {
+                return pos;
+            }
+            if (lf < 0) break;
+            pos = lf + 1;
+        }
+        return -1;
+    }
 
+    private static AdminExhibitCreateCommand toCommand(Long adminId, AdminExhibitCsvRow row) {
         Set<String> genres = splitToSet(row.getGenres(), ",");
         Set<String> styles = splitToSet(row.getStyles(), ",");
 

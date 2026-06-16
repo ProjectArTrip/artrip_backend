@@ -230,6 +230,7 @@ public class AdminExhibitService {
     }
 
     private Status resolveStatus(LocalDate start, LocalDate end) {
+        if(start == null && end == null) return Status.ONGOING;
         LocalDate today = LocalDate.now();
         if (end == null || start == null) return Status.UPCOMING;
         if (end.isBefore(today)) return Status.FINISHED;
