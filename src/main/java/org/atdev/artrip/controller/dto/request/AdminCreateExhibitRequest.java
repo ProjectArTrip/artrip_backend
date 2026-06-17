@@ -1,7 +1,6 @@
 package org.atdev.artrip.controller.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
 
@@ -19,8 +18,8 @@ public record AdminCreateExhibitRequest(
         @Pattern(regexp = "^https?://.*")
         String ticketUrl,
 
-        @NotNull LocalDate startDate,
-        @NotNull LocalDate endDate,
+        LocalDate startDate,
+        LocalDate endDate,
         @NotBlank String exhibitHallName,
         @NotBlank String country,
         String region,

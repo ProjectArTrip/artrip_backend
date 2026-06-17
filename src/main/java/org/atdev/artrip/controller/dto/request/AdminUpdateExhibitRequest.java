@@ -20,8 +20,8 @@ public record AdminUpdateExhibitRequest(
         @Pattern(regexp = "^https?://.*")
         String ticketUrl,
 
-        @NotNull LocalDate startDate,
-        @NotNull LocalDate endDate,
+        LocalDate startDate,
+        LocalDate endDate,
         @NotNull Status status,
         @NotBlank String exhibitHallName,
         @NotBlank String country,
