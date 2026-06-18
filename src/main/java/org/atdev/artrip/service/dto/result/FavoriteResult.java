@@ -21,7 +21,7 @@ public record FavoriteResult(
             String title,
             String posterUrl,
             Status status,
-            boolean active,
+            boolean isFavorite,
             String exhibitPeriod,
             String exhibitHallName,
             String country,
@@ -48,7 +48,7 @@ public record FavoriteResult(
                             e.isStatus(),
                             period,
                             e.getExhibit().getExhibitHall().getName(),
-                            e.getExhibit().getExhibitHall().getCountry(),
+                            Boolean.TRUE.equals(e.getExhibit().getExhibitHall().getIsDomestic()) ? null : e.getExhibit().getExhibitHall().getCountry(),
                             e.getExhibit().getExhibitHall().getRegion(),
                             e.getCreatedAt()
                     );
