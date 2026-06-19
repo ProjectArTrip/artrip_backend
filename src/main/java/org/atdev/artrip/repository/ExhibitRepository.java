@@ -4,6 +4,7 @@ import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.repository.dto.ExhibitMarkerDto;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,10 +12,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,11 +22,13 @@ public interface ExhibitRepository extends JpaRepository<Exhibit, Long>,ExhibitR
 
 
     @Query(value = """
-        SELECT DISTINCT k.name
-        FROM keyword k
-        WHERE k.type = 'GENRE'
-        ORDER BY k.name ASC
-        """, nativeQuery = true)
+            SELECT DISTINCT k.name
+            FROM keyword k
+            WHERE k.type = 'GENRE'
+            ORDER BY FIELD(k.name,
+                        '현대미술', '순수미술', '사진', '회화', '조각',
+                        '디지털/미디어아트', '공예', '설치미술', '역사/고전미술', '근대미술', '팝아트')
+            """, nativeQuery = true)
     List<String> findAllGenres();
 
 
