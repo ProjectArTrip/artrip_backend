@@ -43,30 +43,37 @@ public interface CurationRepository extends JpaRepository<Curation, Long> {
             join ce.exhibit e
             join e.exhibitHall eh
             where c.active = true
-              and c.visibleFrom <= :today
-              and c.visibleTo   >= :today
-              and (:domestic is null or eh.isDomestic = :domestic)
-              and (:country  is null or eh.country    = :country)
+                and c.visibleFrom <= :today
+                and c.visibleTo   >= :today
+                and (:domestic is null or eh.isDomestic = :domestic)
+                and (:country  is null or eh.country    = :country)
+            group by c.curationId
+            having count(ce.curationExhibitId) >= :minCount
             """)
     List<Long> findVisibleCurationIds(
             @Param("today") LocalDate today,
             @Param("domestic") Boolean domestic,
-            @Param("country") String country
+            @Param("country") String country,
+            @Param("minCount") int minCount
     );
-
-    @Query("""
-            select c
-            from Curation c
-            left join fetch c.curationExhibits ce
-            left join fetch ce.exhibit e
-            left join fetch e.exhibitHall
-            where c.curationId = :curationId
-            """)
-    Optional<Curation> findByIdWithExhibits(@Param("curationId") Long curationId);
 
     @Modifying
     @Query("""
             delete from CurationExhibit ce where ce.exhibit.exhibitId = :exhibitId
             """)
     void deleteCurationExhibitByExhibitId(@Param("exhibitId") Long exhibitId);
+
+    @Query("""
+            select distinct c
+            from Curation c
+            left join fetch c.curationExhibits ce
+            left join fetch ce.exhibit e
+            left join fetch e.exhibitHall eh
+                where c.curationId = :curationId
+            and (:country is null or eh.country = :country)
+            """)
+    Optional<Curation> findByIdWithExhibits(
+            @Param("curationId") Long curationId,
+            @Param("country") String country
+    );
 }
