@@ -132,4 +132,8 @@ public class User {
         this.pushEnabled = pushEnabled;
     }
 
+    public String getDisplayName() {
+        return nickName != null ? nickName : name;
+    }
+
 }

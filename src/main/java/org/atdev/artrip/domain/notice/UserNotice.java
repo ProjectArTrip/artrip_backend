@@ -21,7 +21,7 @@ public class UserNotice {
     private Long userNoticeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id",nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
@@ -66,5 +66,4 @@ public class UserNotice {
             this.readAt = LocalDateTime.now();
         }
     }
-
 }
