@@ -65,6 +65,22 @@ public class FcmNotificationService {
         );
     }
 
+    public void sendMulticastToUsers(List<User> users, NotificationMessage message) {
+        List<String> tokens = users.stream()
+                .map(User::getFcmToken)
+                .filter(t -> t != null && !t.isBlank())
+                .distinct().toList();
+        if(tokens.isEmpty()) return;
+        messageSender.sendMulticast(
+                NotificationMulticastDispatch.of(
+                        tokens,
+                        PUSH_SERVICE_TITLE,
+                        message.body(),
+                        message.reference().toFcmData()),
+                this::invalidateToken
+        );
+    }
+
     public void invalidateToken(String token) {
         transactionTemplate.executeWithoutResult(status ->
                 userRepository.findByFcmToken(token).ifPresent(User::clearFcmToken));

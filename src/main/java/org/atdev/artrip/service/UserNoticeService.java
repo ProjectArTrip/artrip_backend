@@ -6,11 +6,11 @@ import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.notice.Notice;
 import org.atdev.artrip.domain.notice.UserNotice;
+import org.atdev.artrip.domain.notice.event.NoticeCreatedEvent;
 import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.infra.fcm.NotificationSingleDispatch;
-import org.atdev.artrip.domain.notice.event.NoticeCreatedEvent;
 import org.atdev.artrip.infra.notification.NotificationMessage;
 import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserNoticeRepository;
@@ -38,7 +38,7 @@ public class UserNoticeService {
     public UserNoticeCursorResult getNotifications(Long userId, CursorPagination pagination, NotificationAction action) {
         User user = findUserOrThrow(userId);
 
-        Slice<UserNotice> slice = userNoticeRepository.findAllByUser(user, pagination.cursor(), action ,PageRequest.of(0, pagination.size().intValue()));
+        Slice<UserNotice> slice = userNoticeRepository.findAllByUser(user, pagination.cursor(), action, PageRequest.of(0, pagination.size().intValue()));
 
         return UserNoticeCursorResult.of(slice);
     }
@@ -85,7 +85,7 @@ public class UserNoticeService {
     public void sendSingleFcmToken(Long userId, NotificationSingleDispatch command) {
         User admin = findUserOrThrow(userId);
 
-        if(admin.getRole() != Role.ADMIN) {
+        if (admin.getRole() != Role.ADMIN) {
             throw new GeneralException(UserErrorCode._USER_FORBIDDEN);
         }
 
@@ -119,6 +119,26 @@ public class UserNoticeService {
                         message.body()
                 )).toList();
         userNoticeRepository.saveAll(notices);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveAll(List<User> users, NotificationMessage message) {
+        List<UserNotice> notices = users.stream()
+                .map(u -> UserNotice.create(u, message.reference().action(), message.reference().referenceId(), message.title(), message.body())).toList();
+        if (!notices.isEmpty()) userNoticeRepository.saveAll(notices);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void saveAllPersonalized(List<User> users, NotificationMessage message, String titleTemplate) {
+        List<UserNotice> notices = users.stream()
+                .map(u -> UserNotice.create(
+                        u,
+                        message.reference().action(),
+                        message.reference().referenceId(),
+                        titleTemplate.formatted(u.getDisplayName()),
+                        message.body()
+                )).toList();
+        if (!notices.isEmpty()) userNoticeRepository.saveAll(notices);
     }
 
     private User findUserOrThrow(Long userId) {
