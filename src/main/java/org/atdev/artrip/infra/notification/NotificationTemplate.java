@@ -17,13 +17,29 @@ public enum NotificationTemplate {
     REVIEW_REJECTED(
             "리뷰가 반려되었습니다.",
             "[%s] 반려되었습니다.\n[%s] %s"
-    );
+    ),
+    EXHIBIT_NEW_MULTIPLE(
+            "새로운 전시가 등록되었어요.",
+            "'%s' 외 %d건의 새로운 전시를 확인해보세요."
+
+    ),
+    EXHIBIT_NEW_SINGLE(
+            "새로운 전시가 등록되었어요",
+            "오늘 새롭게 공개된 전시가 있어요. %s의 '%s'을 지금 확인해보세요."
+    ),
+    EXHIBIT_NEW_PERSONALIZED(
+            "%s님 취향에 맞는 새로운 전시가 등록되었어요",
+            "회원님의 관심 장르와 스타일에 맞는 전시가 새로 공개되었어요. %s의 '%s'을 지금 확인해보세요."
+    )
+    ;
 
     private final String title;
     private final String body;
 
+    public String formatTitle(Object... args) {
+        return String.format(title, args);
+    }
     public String formatBody(Object... args) {
         return body.formatted(args);
     }
-
 }

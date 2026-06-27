@@ -7,6 +7,7 @@ import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.constants.Status;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
+import org.atdev.artrip.domain.exhibit.event.ExhibitCreatedEvent;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.global.apipayload.code.error.ExhibitErrorCode;
@@ -18,6 +19,7 @@ import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminExhibitSearchCommand;
 import org.atdev.artrip.service.dto.command.AdminExhibitUpdateCommand;
 import org.atdev.artrip.service.dto.result.*;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,7 @@ public class AdminExhibitService {
     private final CurationRepository curationRepository;
     private final RecentExhibitRepository recentExhibitRepository;
     private final ReviewImageRepository reviewImageRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public Page<AdminExhibitListItemResult> list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
@@ -60,8 +63,12 @@ public class AdminExhibitService {
     @Transactional
     public AdminExhibitCreateResult create(AdminExhibitCreateCommand command) {
         findAdminOrThrow(command.adminId());
-        Long exhibitId = createInternal(command, null, null);
-        return AdminExhibitCreateResult.of(exhibitId);
+
+        Exhibit exhibit = createInternal(command, null, null);
+
+        eventPublisher.publishEvent(new ExhibitCreatedEvent(List.of(ExhibitCreatedEvent.ExhibitSummary.from(exhibit))));
+
+        return AdminExhibitCreateResult.of(exhibit.getExhibitId());
     }
 
     @Transactional
@@ -96,11 +103,11 @@ public class AdminExhibitService {
         Map<String, ExhibitHall> hallByName = exhibitHallRepository.findByNameIn(allHallNames).stream()
                 .collect(Collectors.toMap(ExhibitHall::getName, h -> h));
 
-        List<Long> savedIds = new ArrayList<>(commands.size());
+        List<Exhibit> savedExhibits = new ArrayList<>(commands.size());
         int skippedCount = 0;
         for (AdminExhibitCreateCommand command : commands) {
             try {
-                savedIds.add(createInternal(command, keywordByName, hallByName));
+                savedExhibits.add(createInternal(command, keywordByName, hallByName));
             } catch (GeneralException e) {
                 if (e.getCode() == ExhibitErrorCode._EXHIBIT_DUPLICATE) {
                     skippedCount++;
@@ -109,6 +116,14 @@ public class AdminExhibitService {
                 }
             }
         }
+
+        if (!savedExhibits.isEmpty()) {
+            List<ExhibitCreatedEvent.ExhibitSummary> summaries = savedExhibits.stream()
+                    .map(ExhibitCreatedEvent.ExhibitSummary::from)
+                    .toList();
+            eventPublisher.publishEvent(new ExhibitCreatedEvent(summaries));
+        }
+        List<Long> savedIds = savedExhibits.stream().map(Exhibit::getExhibitId).toList();
         return AdminExhibitBulkCreateResult.of(savedIds, skippedCount);
     }
 
@@ -198,7 +213,7 @@ public class AdminExhibitService {
         );
     }
 
-    private Long createInternal(AdminExhibitCreateCommand command, Map<String, Keyword> keywordCache, Map<String, ExhibitHall> hallCache) {
+    private Exhibit createInternal(AdminExhibitCreateCommand command, Map<String, Keyword> keywordCache, Map<String, ExhibitHall> hallCache) {
 
         if (command.startDate() != null && command.endDate() != null && command.startDate().isAfter(command.endDate())) {
             throw new GeneralException(ExhibitErrorCode._EXHIBIT_INVALID_DATE_RANGE);
@@ -226,11 +241,11 @@ public class AdminExhibitService {
                 hall
         );
         exhibit.replaceKeywords(keywords);
-        return exhibitRepository.save(exhibit).getExhibitId();
+        return exhibitRepository.save(exhibit);
     }
 
     private Status resolveStatus(LocalDate start, LocalDate end) {
-        if(start == null && end == null) return Status.ONGOING;
+        if (start == null && end == null) return Status.ONGOING;
         LocalDate today = LocalDate.now();
         if (end == null || start == null) return Status.UPCOMING;
         if (end.isBefore(today)) return Status.FINISHED;

@@ -1,7 +1,6 @@
 package org.atdev.artrip.repository;
 
 import org.atdev.artrip.domain.auth.User;
-import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.domain.keyword.UserKeyword;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface UserKeywordRepository extends JpaRepository<UserKeyword, Long> {
@@ -28,10 +28,17 @@ public interface UserKeywordRepository extends JpaRepository<UserKeyword, Long> 
             from user_keyword uk
             where uk.user_id = :userId
             order by rand()
-            """ ,nativeQuery = true)
+            """, nativeQuery = true)
     List<UserKeyword> findRandomKeywordByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Modifying
     @Query("DELETE FROM UserKeyword uk WHERE uk.user = :user")
     void deleteAllByUser(@Param("user") User user);
+
+    @Query(value = """
+            select distinct uk.user.userId
+            from UserKeyword uk
+            where uk.keyword.keywordId in :keywordIds
+            """)
+    Set<Long> findUserIdsWithKeywordIn(@Param("keywordIds") Set<Long> keywordIds);
 }
