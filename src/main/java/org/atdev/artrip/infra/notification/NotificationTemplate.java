@@ -39,6 +39,7 @@ public enum NotificationTemplate {
     public String formatTitle(Object... args) {
         return String.format(title, args);
     }
+
     public String formatBody(Object... args) {
         return body.formatted(args);
     }
