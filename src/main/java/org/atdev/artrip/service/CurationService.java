@@ -39,7 +39,7 @@ public class CurationService {
 
         String country = condition.country();
         Boolean domestic = condition.domestic();
-        Boolean domesticFilter = Boolean.TRUE.equals(domestic) ? Boolean.TRUE : null;
+        Boolean domesticFilter = domestic;
 
         if (country != null) {
             boolean valid = Arrays.stream(Country.values()).anyMatch(c -> c.getLabel().equals(country));
