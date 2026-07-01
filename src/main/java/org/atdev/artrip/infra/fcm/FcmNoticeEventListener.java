@@ -21,7 +21,7 @@ public class FcmNoticeEventListener {
         NotificationMessage message = NotificationMessage.of(
                 NotificationReference.notice(event.noticeId()),
                 event.title(),
-                "[공지]" + event.title() + "\n" + event.content()
+                "[공지] " + event.title() + "\n" + event.content()
         );
         userNoticeService.broadcast(message);
         fcmNotificationService.sendBroadcast(message);

@@ -47,6 +47,8 @@ elasticsearch/
 AGENTS.md
 !/docker/elasticsearch
 /src/main/resources/firebase/
+/docs/
+.claude
 
 ## FCM
 src/main/resources/firebase/

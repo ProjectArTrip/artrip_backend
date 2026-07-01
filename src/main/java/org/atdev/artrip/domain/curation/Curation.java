@@ -25,9 +25,6 @@ public class Curation {
     @Column(nullable = false, length = 100)
     private String title;
 
-    @Column(nullable = false, length = 200)
-    private String subtitle;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private RefreshCycle refreshCycle;
@@ -61,9 +58,8 @@ public class Curation {
 
     protected Curation() {}
 
-    public Curation(String title, String subtitle, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
+    public Curation(String title, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
         this.title = title;
-        this.subtitle = subtitle;
         this.refreshCycle = refreshCycle;
         this.visibleFrom = visibleFrom;
         this.visibleTo = visibleTo;
@@ -71,10 +67,9 @@ public class Curation {
         this.sortType = sortType;
     }
 
-    public static Curation of(String title, String subtitle, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
+    public static Curation of(String title, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
         return new Curation(
                 title,
-                subtitle,
                 refreshCycle,
                 visibleFrom,
                 visibleTo,

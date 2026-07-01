@@ -1,23 +1,17 @@
 package org.atdev.artrip.domain.notice;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.atdev.artrip.constants.Role;
 import org.atdev.artrip.domain.auth.User;
-import org.springframework.data.annotation.CreatedDate;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Entity
 @Table(name = "notice")
 @NoArgsConstructor
-@AllArgsConstructor
 public class Notice {
 
     @Id
@@ -33,47 +27,45 @@ public class Notice {
     @Column(nullable = false)
     private Role role;
 
-    @CreatedDate
     @Column(nullable = false)
-    private LocalDateTime registerDate;
+    private LocalDateTime createdAt;
 
-    @CreatedDate
     @Column(nullable = false)
-    private LocalDateTime updateDate;
+    private LocalDateTime updatedAt;
 
     private String title;
     private String content;
 
     public static Notice create(User user, String title, String content) {
-        LocalDateTime now =  LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
-        return new Notice(
-                null,
-                user,
-                user.getRole(),
-                now,
-                now,
-                title,
-                content
-        );
+        Notice notice = new Notice();
+        notice.user = user;
+        notice.title = title;
+        notice.content = content;
+        notice.createdAt = now;
+        notice.updatedAt = now;
+        notice.role = user.getRole();
+        return notice;
     }
 
-    public static Notice of (Long noticeId, User user, LocalDateTime registerDate, LocalDateTime updateDate, String title, String content) {
-        return new Notice(
-                noticeId,
-                user,
-                user.getRole(),
-                registerDate,
-                updateDate,
-                title,
-                content
-        );
+    public static Notice of(Long noticeId, User user, LocalDateTime createdAt, LocalDateTime updatedAt, String title, String content) {
+        Notice notice = new Notice();
+        notice.noticeId = noticeId;
+        notice.user = user;
+        notice.role = user.getRole();
+        notice.createdAt = createdAt;
+        notice.updatedAt = updatedAt;
+        notice.title = title;
+        notice.content = content;
+
+        return notice;
     }
 
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
-        this.updateDate = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
 }

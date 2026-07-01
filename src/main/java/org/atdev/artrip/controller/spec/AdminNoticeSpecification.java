@@ -5,16 +5,28 @@ import jakarta.validation.Valid;
 import org.atdev.artrip.controller.dto.request.AdminCreateNoticeRequest;
 import org.atdev.artrip.controller.dto.request.AdminUpdateNoticeRequest;
 import org.atdev.artrip.controller.dto.response.AdminNoticeCreateResponse;
+import org.atdev.artrip.controller.dto.response.AdminNoticeListResponse;
 import org.atdev.artrip.global.apipayload.code.error.FcmErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.resolver.LoginUser;
 import org.atdev.artrip.global.swagger.ApiErrorResponses;
+import org.atdev.artrip.utils.page.PageQuery;
+import org.atdev.artrip.utils.page.PageResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface AdminNoticeSpecification {
+
+    @Operation(summary = "공지사항 리스트")
+    @ApiErrorResponses(
+            user = {UserErrorCode._USER_NOT_FOUND}
+    )
+    public ResponseEntity<PageResponse<AdminNoticeListResponse>> listNotices(
+            @LoginUser Long adminId,
+            PageQuery pageQuery
+    );
 
     @Operation(summary = "관리자 공지사항 생성")
     @ApiErrorResponses(
@@ -24,7 +36,7 @@ public interface AdminNoticeSpecification {
     public ResponseEntity<AdminNoticeCreateResponse> createNotice(
             @LoginUser Long userId,
             @RequestBody AdminCreateNoticeRequest request
-            );
+    );
 
     @Operation(summary = "관리자 공지사항 수정")
     @ApiErrorResponses(
