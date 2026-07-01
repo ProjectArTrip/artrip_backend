@@ -2,19 +2,22 @@ package org.atdev.artrip.service;
 
 import lombok.RequiredArgsConstructor;
 import org.atdev.artrip.constants.Role;
+import org.atdev.artrip.controller.dto.response.AdminNoticeListResponse;
 import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.notice.Notice;
-import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
-import org.atdev.artrip.global.apipayload.code.status.NoticeStatusCode;
-import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
-import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.domain.notice.event.NoticeCreatedEvent;
+import org.atdev.artrip.global.apipayload.code.error.NoticeErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
+import org.atdev.artrip.global.apipayload.code.status.NoticeStatusCode;
+import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.NoticeRepository;
 import org.atdev.artrip.repository.UserRepository;
 import org.atdev.artrip.service.dto.command.AdminNoticeCreateCommand;
 import org.atdev.artrip.service.dto.command.AdminNoticeUpdateCommand;
 import org.atdev.artrip.service.dto.result.AdminNoticeCreateResult;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,6 +67,7 @@ public class AdminNoticeService {
         noticeRepository.delete(notice);
     }
 
+
     private User validUser(Long userId) {
         User admin = userRepository.findById(userId).orElseThrow(() -> new GeneralException(UserErrorCode._USER_NOT_FOUND));
 
@@ -74,4 +78,9 @@ public class AdminNoticeService {
         return admin;
     }
 
+    @Transactional(readOnly = true)
+    public Page<AdminNoticeListResponse> listNotices(Pageable pageable) {
+        return noticeRepository.findAll(pageable)
+                .map(AdminNoticeListResponse::from);
+    }
 }
