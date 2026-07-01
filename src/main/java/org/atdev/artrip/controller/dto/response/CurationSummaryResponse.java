@@ -8,7 +8,6 @@ import java.util.List;
 public record CurationSummaryResponse(
         Long curationId,
         String title,
-        String subtitle,
         List<ExhibitFilterResult.ExhibitItem> exhibits
 ) {
 
@@ -16,7 +15,6 @@ public record CurationSummaryResponse(
         return new CurationSummaryResponse(
                 result.curationId(),
                 result.title(),
-                result.subtitle(),
                 result.exhibits()
         );
     }

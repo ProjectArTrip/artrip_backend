@@ -1,6 +1,7 @@
 package org.atdev.artrip.service.csv;
 
 import com.opencsv.bean.CsvToBeanBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.atdev.artrip.global.apipayload.code.error.ExhibitErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.service.dto.command.AdminExhibitCreateCommand;
@@ -10,13 +11,12 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 public final class AdminExhibitCsvParser {
     private AdminExhibitCsvParser() {
     }
@@ -54,6 +54,7 @@ public final class AdminExhibitCsvParser {
         } catch (IOException e) {
             throw new GeneralException(ExhibitErrorCode._CSV_INVALID_FORMAT);
         } catch (RuntimeException e) {
+            log.error("CSV parsing error: {}, Cause: {}", e.getMessage(), e, e.getCause() != null ? e.getCause().getMessage() : "Unknown", e);
             throw new GeneralException(ExhibitErrorCode._CSV_INVALID_ROW);
         }
     }

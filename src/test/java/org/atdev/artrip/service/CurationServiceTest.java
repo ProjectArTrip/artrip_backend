@@ -39,7 +39,6 @@ public class CurationServiceTest {
     void setCuration() {
         curation = Curation.of(
                 "봄 큐레이션",
-                "벚꽃 전시",
                 RefreshCycle.MONTHLY,
                 LocalDate.now().minusDays(10),
                 LocalDate.now().plusDays(10),
@@ -59,7 +58,6 @@ public class CurationServiceTest {
         Long user = 1L;
         Curation curation = Curation.of(
                 "비활성화 된 큐레이션",
-                "서어브 타이틀",
                 RefreshCycle.MONTHLY,
                 LocalDate.now().minusDays(10),
                 LocalDate.now().plusDays(10),
