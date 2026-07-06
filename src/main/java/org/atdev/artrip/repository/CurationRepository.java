@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface CurationRepository extends JpaRepository<Curation, Long> {
+public interface CurationRepository extends JpaRepository<Curation, Long>, CurationRepositoryCustom {
 
     @Query(value = """
             select ce

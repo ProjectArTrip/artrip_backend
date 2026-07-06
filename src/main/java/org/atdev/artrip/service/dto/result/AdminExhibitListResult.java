@@ -5,7 +5,7 @@ import org.atdev.artrip.constants.Status;
 import java.time.LocalDate;
 import java.util.List;
 
-public record AdminExhibitListItemResult(
+public record AdminExhibitListResult(
         Long exhibitId,
         String title,
         LocalDate startDate,

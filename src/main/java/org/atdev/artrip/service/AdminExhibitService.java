@@ -48,7 +48,7 @@ public class AdminExhibitService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
-    public Page<AdminExhibitListItemResult> list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
+    public Page<AdminExhibitListResult> list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
         findAdminOrThrow(adminId);
         return exhibitRepository.searchForAdmin(command, pageable);
     }
