@@ -60,7 +60,7 @@ public class AdminCurationController implements AdminCurationSpecification {
     }
 
     @Override
-    @PutMapping("/{curationId}")
+    @RequestMapping(value = "/{curationId}", method = {RequestMethod.PUT, RequestMethod.PATCH})
     public ResponseEntity<Void> update(
             @LoginUser Long adminId,
             @PathVariable Long curationId,
