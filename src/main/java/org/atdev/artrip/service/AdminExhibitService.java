@@ -9,8 +9,11 @@ import org.atdev.artrip.domain.auth.User;
 import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.atdev.artrip.domain.exhibit.event.ExhibitCreatedEvent;
 import org.atdev.artrip.domain.exhibitHall.ExhibitHall;
+import org.atdev.artrip.domain.exhibitReport.ExhibitReport;
+import org.atdev.artrip.domain.exhibitReport.ExhibitReportRegisteredEvent;
 import org.atdev.artrip.domain.keyword.Keyword;
 import org.atdev.artrip.global.apipayload.code.error.ExhibitErrorCode;
+import org.atdev.artrip.global.apipayload.code.error.ExhibitReportErrorCode;
 import org.atdev.artrip.global.apipayload.code.error.UserErrorCode;
 import org.atdev.artrip.global.apipayload.exception.GeneralException;
 import org.atdev.artrip.repository.*;
@@ -46,9 +49,10 @@ public class AdminExhibitService {
     private final RecentExhibitRepository recentExhibitRepository;
     private final ReviewImageRepository reviewImageRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final ExhibitReportRepository exhibitReportRepository;
 
     @Transactional(readOnly = true)
-    public Page<AdminExhibitListItemResult> list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
+    public Page<AdminExhibitListResult> list(Long adminId, AdminExhibitSearchCommand command, Pageable pageable) {
         findAdminOrThrow(adminId);
         return exhibitRepository.searchForAdmin(command, pageable);
     }
@@ -68,6 +72,21 @@ public class AdminExhibitService {
 
         eventPublisher.publishEvent(new ExhibitCreatedEvent(List.of(ExhibitCreatedEvent.ExhibitSummary.from(exhibit))));
 
+        if (command.exhibitReportId() != null) {
+            ExhibitReport report = exhibitReportRepository.findById(command.exhibitReportId()).orElseThrow(() -> new GeneralException(ExhibitReportErrorCode._EXHIBIT_REPORT_NOT_FOUND));
+
+            if (report.isRegistered()) {
+                throw new GeneralException(ExhibitReportErrorCode._EXHIBIT_REPORT_ALREADY_REGISTERED);
+            }
+
+            report.markRegistered(exhibit);
+            eventPublisher.publishEvent(new ExhibitReportRegisteredEvent(
+                    report.getExhibitReportId(),
+                    report.getUser().getUserId(),
+                    report.getTitle(),
+                    exhibit.getExhibitId()
+            ));
+        }
         return AdminExhibitCreateResult.of(exhibit.getExhibitId());
     }
 

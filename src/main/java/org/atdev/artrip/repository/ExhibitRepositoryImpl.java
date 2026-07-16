@@ -20,7 +20,7 @@ import org.atdev.artrip.domain.keyword.QKeyword;
 import org.atdev.artrip.service.dto.command.AdminExhibitSearchCommand;
 import org.atdev.artrip.service.dto.command.ExhibitRandomCommand;
 import org.atdev.artrip.service.dto.condition.ExhibitSearchCondition;
-import org.atdev.artrip.service.dto.result.AdminExhibitListItemResult;
+import org.atdev.artrip.service.dto.result.AdminExhibitListResult;
 import org.atdev.artrip.service.dto.result.ExhibitRandomResult;
 import org.springframework.data.domain.*;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -165,7 +165,7 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
     }
 
     @Override
-    public Page<AdminExhibitListItemResult> searchForAdmin(AdminExhibitSearchCommand command, Pageable pageable) {
+    public Page<AdminExhibitListResult> searchForAdmin(AdminExhibitSearchCommand command, Pageable pageable) {
         QExhibit e = QExhibit.exhibit;
         QExhibitHall h = QExhibitHall.exhibitHall;
 
@@ -198,8 +198,8 @@ public class ExhibitRepositoryImpl implements ExhibitRepositoryCustom {
         List<Long> exhibitIds = rows.stream().map(r -> r.get(e.exhibitId)).toList();
         Map<Long, List<String>> genresByExhibit = fetchGenresByExhibit(exhibitIds);
 
-        List<AdminExhibitListItemResult> content = rows.stream()
-                .map(r -> new AdminExhibitListItemResult(
+        List<AdminExhibitListResult> content = rows.stream()
+                .map(r -> new AdminExhibitListResult(
                         r.get(e.exhibitId),
                         r.get(e.title),
                         r.get(e.startDate),
