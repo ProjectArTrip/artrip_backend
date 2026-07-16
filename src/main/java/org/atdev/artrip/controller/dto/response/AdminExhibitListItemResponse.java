@@ -1,7 +1,7 @@
 package org.atdev.artrip.controller.dto.response;
 
 import org.atdev.artrip.constants.Status;
-import org.atdev.artrip.service.dto.result.AdminExhibitListItemResult;
+import org.atdev.artrip.service.dto.result.AdminExhibitListResult;
 import org.atdev.artrip.utils.DateTimeUtils;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public record AdminExhibitListItemResponse(
         String hallName
 ) {
 
-    public static AdminExhibitListItemResponse from(AdminExhibitListItemResult item) {
+    public static AdminExhibitListItemResponse from(AdminExhibitListResult item) {
         return new AdminExhibitListItemResponse(
                 item.exhibitId(),
                 item.title(),

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.atdev.artrip.constants.RefreshCycle;
 import org.atdev.artrip.constants.SortType;
+import org.atdev.artrip.domain.exhibit.Exhibit;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -56,7 +57,8 @@ public class Curation {
     @OneToMany(mappedBy = "curation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CurationExhibit> curationExhibits = new ArrayList<>();
 
-    protected Curation() {}
+    protected Curation() {
+    }
 
     public Curation(String title, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
         this.title = title;
@@ -80,5 +82,22 @@ public class Curation {
 
     public boolean isVisibleOn(LocalDate today) {
         return active && !visibleFrom.isAfter(today) && !visibleTo.isBefore(today);
+    }
+
+    public void updateInfo(String title, RefreshCycle refreshCycle, LocalDate visibleFrom, LocalDate visibleTo, boolean active, SortType sortType) {
+        this.title = title;
+        this.refreshCycle = refreshCycle;
+        this.visibleFrom = visibleFrom;
+        this.visibleTo = visibleTo;
+        this.active = active;
+        this.sortType = sortType;
+    }
+
+    public void replaceExhibits(List<Exhibit> exhibits) {
+        this.curationExhibits.clear();
+        int order = 0;
+        for (Exhibit exhibit : exhibits) {
+            this.curationExhibits.add(CurationExhibit.of(this, exhibit, order++));
+        }
     }
 }

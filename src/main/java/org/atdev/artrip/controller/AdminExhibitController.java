@@ -36,7 +36,7 @@ public class AdminExhibitController implements AdminExhibitSpecification {
             AdminSearchExhibitRequest request,
             PageQuery pageQuery
     ) {
-        Page<AdminExhibitListItemResult> page = adminExhibitService.list(adminId, request.toCommand(), pageQuery.toPageable());
+        Page<AdminExhibitListResult> page = adminExhibitService.list(adminId, request.toCommand(), pageQuery.toPageable());
         return ResponseEntity.ok(PageResponse.from(page, AdminExhibitListItemResponse::from));
     }
 
