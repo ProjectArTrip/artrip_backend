@@ -35,4 +35,6 @@ public @interface ApiErrorResponses {
     NoticeErrorCode[] notis() default {};
 
     MaintenanceErrorCode[] maintenance() default {};
+
+    ExhibitReportErrorCode[] exhibitReport() default {};
 }

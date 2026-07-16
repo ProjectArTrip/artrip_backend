@@ -30,6 +30,14 @@ public enum NotificationTemplate {
     EXHIBIT_NEW_PERSONALIZED(
             "%s님 취향에 맞는 새로운 전시가 등록되었어요",
             "회원님의 관심 장르와 스타일에 맞는 전시가 새로 공개되었어요. %s의 '%s'을 지금 확인해보세요."
+    ),
+    EXHIBIT_REPORT_RECEIVED(
+            "전시 제보가 접수되었어요.",
+            "'%' 제보가 정상적으로 접수되었어요. 확인 후 등록해드릴게요."
+    ),
+    EXHIBIT_REPORT_REGISTERED(
+            "제보하신 전시가 등록되었습니다.",
+            "'%' 전시가 등록되었습니다. 지금 확인해보세요!"
     )
     ;
 

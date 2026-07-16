@@ -29,7 +29,8 @@ public record AdminCreateExhibitRequest(
         BigDecimal latitude,
         BigDecimal longitude,
         Set<String> genres,
-        Set<String> styles
+        Set<String> styles,
+        Long exhibitReportId
 ) {
     public AdminExhibitCreateCommand toCommand(Long adminId) {
         return AdminExhibitCreateCommand.of(
@@ -49,7 +50,8 @@ public record AdminCreateExhibitRequest(
                 latitude,
                 longitude,
                 genres == null ? Set.of() : genres,
-                styles == null ? Set.of() : styles
+                styles == null ? Set.of() : styles,
+                exhibitReportId
         );
     }
 }
