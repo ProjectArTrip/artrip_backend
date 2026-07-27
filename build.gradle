@@ -48,6 +48,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'com.opencsv:opencsv:5.12.0'
 
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
