@@ -146,6 +146,13 @@ sentry:
   traces-sample-rate: 0
   logging:
     minimum-event-level: error
+opendata:
+  culture:
+    base-url: https://apis.data.go.kr/B553457/cultureinfo
+    service-key: ${OPENDATA_SERVICE_KEY}
+  sync:
+    cron: "0 0 14 * * FRI"
+    zone: Asia/Seoul
 
 ---
 spring:

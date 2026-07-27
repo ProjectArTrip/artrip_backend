@@ -26,6 +26,10 @@ public record NotificationReference(
         return new NotificationReference(NotificationAction.MOVE_EXHIBIT_DETAIL, exhibitId);
     }
 
+    public static NotificationReference exhibitList() {
+        return new NotificationReference(NotificationAction.MOVE_EXHIBIT_LIST, null);
+    }
+
 
     public Map<String, String> toFcmData() {
         Map<String, String> data = new HashMap<>();

@@ -16,4 +16,12 @@ public class RestTemplateConfig {
 
         return new RestTemplate(factory);
     }
+
+    @Bean("opendataRestTemplate")
+    public RestTemplate opendataRestTemplate() {
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        factory.setConnectTimeout(5000);
+        factory.setReadTimeout(10000);
+        return new RestTemplate(factory);
+    }
 }
