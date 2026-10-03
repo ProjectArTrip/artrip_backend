@@ -1,6 +1,22 @@
-# Artrip
+<h1>
+  <img src="https://github.com/user-attachments/assets/d4706a8f-49b0-4c96-82c3-4a82616957cb" alt="arttrip logo" width="36">
+  &nbsp;아트트립 - ArtTrip (Android)
+</h1>
 
-> Java Monologue 버전
+**아트트립과 함께 국내·해외 전시·공연을 한 번에 모아보고, 일상과 여행 속 문화 경험을 더 가볍게 시작해 보세요.**  
+> 여행 중 “지금 이 도시에서 볼 만한 전시”부터, 관심사에 맞는 전시까지 한 흐름으로 이어집니다.
+
+<img width="1200" alt="10" src="https://github.com/user-attachments/assets/4ed844d1-7682-46e3-b3ab-91645fed0261" />
+<img width="1920" height="1200" alt="arttrip_page2 (1)" src="https://github.com/user-attachments/assets/39438569-c276-49eb-aa8e-e8db6f94271b" />
+
+## Key Features
+* **일정에 맞는 전시 찾기**: 원하는 날짜/기간을 선택하면, 그때 볼 수 있는 전시만 모아 보여줘요.
+* **취향에 맞는 추천**: 관심 장르/스타일을 바탕으로 당신에게 어울리는 전시를 추천해요.
+* **전시 상세 정보 한눈에**: 장소·기간·가격·소개는 물론, **진행 중/오픈 예정/마감 임박** 상태까지 바로 확인할 수 있어요.
+* **공식 사이트로 바로 이동**: 더 자세한 정보나 예매가 필요하면, 공식 예매처/전시 사이트로 즉시 이동할 수 있어요.
+* **보관함 & 최근 본 전시**: 저장해 둔 전시와 최근에 본 전시를 다시 쉽게 확인할 수 있어요.
+<br><br><br>
+
 
 ## Tech Stack
 - Java, SpringBoot
