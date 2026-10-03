@@ -1,6 +1,6 @@
 <h1>
   <img src="https://github.com/user-attachments/assets/d4706a8f-49b0-4c96-82c3-4a82616957cb" alt="arttrip logo" width="36">
-  &nbsp;아트트립 - ArtTrip (Android)
+  &nbsp;아트트립 - ArtTrip
 </h1>
 
 **아트트립과 함께 국내·해외 전시·공연을 한 번에 모아보고, 일상과 여행 속 문화 경험을 더 가볍게 시작해 보세요.**  
