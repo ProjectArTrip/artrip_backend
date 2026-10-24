@@ -95,6 +95,7 @@ public class UserNoticeService {
         publisher.publishEvent(new NoticeCreatedEvent(notice.getNoticeId(), command.title(), command.body()));
     }
 
+    @Transactional
     public void saveSingle(Long userId, NotificationMessage message) {
         User user = findUserOrThrow(userId);
 
@@ -107,7 +108,7 @@ public class UserNoticeService {
         ));
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void broadcast(NotificationMessage message) {
         List<User> pushUsers = userRepository.findValidPushUsers();
         List<UserNotice> notices = pushUsers.stream()
@@ -121,14 +122,14 @@ public class UserNoticeService {
         userNoticeRepository.saveAll(notices);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void saveAll(List<User> users, NotificationMessage message) {
         List<UserNotice> notices = users.stream()
                 .map(u -> UserNotice.create(u, message.reference().action(), message.reference().referenceId(), message.title(), message.body())).toList();
         if (!notices.isEmpty()) userNoticeRepository.saveAll(notices);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void saveAllPersonalized(List<User> users, NotificationMessage message, String titleTemplate) {
         List<UserNotice> notices = users.stream()
                 .map(u -> UserNotice.create(
