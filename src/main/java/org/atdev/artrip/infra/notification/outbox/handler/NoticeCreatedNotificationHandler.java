@@ -11,6 +11,8 @@ import org.atdev.artrip.infra.notification.outbox.OutboxEventType;
 import org.atdev.artrip.service.UserNoticeService;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Component
 @RequiredArgsConstructor
 public class NoticeCreatedNotificationHandler implements NotificationHandler<NoticeCreatedEvent> {
@@ -19,8 +21,8 @@ public class NoticeCreatedNotificationHandler implements NotificationHandler<Not
     private final FcmNotificationService fcmNotificationService;
 
     @Override
-    public OutboxEventType type() {
-        return OutboxEventType.NOTICE_CREATED;
+    public Set<OutboxEventType> types() {
+        return Set.of(OutboxEventType.NOTICE_CREATED);
     }
 
     @Override

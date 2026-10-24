@@ -20,6 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,7 +49,7 @@ class OutboxProcessorTest {
     @BeforeEach
     void setUp() {
         payloadMapper = new OutboxPayloadMapper(new ObjectMapper());
-        when(handler.type()).thenReturn(OutboxEventType.NOTICE_CREATED);
+        when(handler.types()).thenReturn(Set.of(OutboxEventType.NOTICE_CREATED));
         processor = new OutboxProcessor(outboxRepository, payloadMapper, List.of(handler), transactionManager);
 
         outbox = NotificationOutbox.pending(

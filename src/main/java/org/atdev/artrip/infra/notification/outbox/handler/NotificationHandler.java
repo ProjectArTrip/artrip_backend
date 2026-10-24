@@ -4,12 +4,15 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import org.atdev.artrip.infra.notification.PushProgress;
 import org.atdev.artrip.infra.notification.outbox.OutboxEventType;
 
+import java.util.Set;
+
 /**
- * outbox 이벤트 한 종류에 대한 알림 처리. 알림함 저장과 푸시 발송을 단계별로 나눠, 재시도 시 끝난 단계는 건너뛴다.
+ * outbox 이벤트에 대한 알림 처리. 알림함 저장과 푸시 발송을 단계별로 나눠, 재시도 시 끝난 단계는 건너뛴다.
  */
 public interface NotificationHandler<E> {
 
-    OutboxEventType type();
+    /** 이 handler가 처리하는 이벤트 타입 */
+    Set<OutboxEventType> types();
 
     /** 알림함(UserNotice) 저장. outbox의 inbox_saved 갱신과 같은 트랜잭션에서 호출된다. */
     void saveInbox(E event);

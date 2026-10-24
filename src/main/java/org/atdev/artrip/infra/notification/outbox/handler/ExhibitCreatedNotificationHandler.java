@@ -30,8 +30,8 @@ public class ExhibitCreatedNotificationHandler implements NotificationHandler<Ex
     private final UserKeywordRepository userKeywordRepository;
 
     @Override
-    public OutboxEventType type() {
-        return OutboxEventType.EXHIBIT_CREATED;
+    public Set<OutboxEventType> types() {
+        return Set.of(OutboxEventType.EXHIBIT_CREATED);
     }
 
     @Override

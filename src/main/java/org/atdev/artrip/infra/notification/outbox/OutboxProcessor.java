@@ -38,7 +38,7 @@ public class OutboxProcessor {
         this.outboxRepository = outboxRepository;
         this.payloadMapper = payloadMapper;
         this.handlers = new EnumMap<>(OutboxEventType.class);
-        handlers.forEach(handler -> this.handlers.put(handler.type(), handler));
+        handlers.forEach(handler -> handler.types().forEach(type -> this.handlers.put(type, handler)));
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
