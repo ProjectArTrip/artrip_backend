@@ -2,6 +2,7 @@ package org.atdev.artrip.repository;
 
 import org.atdev.artrip.constants.Provider;
 import org.atdev.artrip.domain.auth.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +27,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u where u.pushEnabled = true and u.fcmToken is not null and u.fcmToken != ''")
     List<User> findValidPushUsers();
+
+    @Query("""
+            select u from User u
+            where u.pushEnabled = true
+            and u.fcmToken is not null
+            and u.fcmToken != ''
+            and u.userId > :cursor
+            order by u.userId
+            """)
+    List<User> findValidPushUsersAfter(@Param("cursor") Long cursor, Pageable pageable);
 
     @Query("""
             select count(u)
