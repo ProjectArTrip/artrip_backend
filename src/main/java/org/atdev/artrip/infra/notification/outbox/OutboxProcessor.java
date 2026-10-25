@@ -49,8 +49,8 @@ public class OutboxProcessor {
         if (outbox == null) return;
 
         try {
-            dispatch(outbox);
-            update(outboxId, o -> o.markSent(LocalDateTime.now()));
+            dispatch(outbox);//알림 보내고 개별 저장
+            update(outboxId, o -> o.markSent(LocalDateTime.now()));// 전부 sent처리 짧은 트랜잭션
         } catch (Exception e) {
             handleFailure(outbox, e);
         }
@@ -63,17 +63,17 @@ public class OutboxProcessor {
     }
 
     @SuppressWarnings("unchecked")
-    private <E> void dispatch(NotificationOutbox outbox) throws Exception {
+    private <E> void dispatch(NotificationOutbox outbox) throws Exception {//userNoticeRepository에 알림 전체 insert
         NotificationHandler<E> handler = (NotificationHandler<E>) handlers.get(outbox.getEventType());
         if (handler == null) {
             throw new IllegalStateException("알림 handler가 없습니다: " + outbox.getEventType());
         }
         E event = (E) payloadMapper.read(outbox.getEventType(), outbox.getPayload());
 
-        if (!outbox.isInboxSaved()) {
+        if (!outbox.isInboxSaved()) {// 1. 이미 알림함에 저장되었는지 확인 (중복 저장 방지)
             transactionTemplate.executeWithoutResult(status -> {
-                handler.saveInbox(event);
-                findOrThrow(outbox.getOutboxId()).markInboxSaved();
+                handler.saveInbox(event);//① 유저별 알림함 DB에 알림 데이터들 INSERT
+                findOrThrow(outbox.getOutboxId()).markInboxSaved();// ② Outbox 테이블의 inbox_saved 컬럼을 true로 UPDATE
             });
         }
 
@@ -82,7 +82,9 @@ public class OutboxProcessor {
 
     private void handleFailure(NotificationOutbox outbox, Exception e) {
         int attempt = outbox.getRetryCount() + 1;
-        boolean retry = OutboxRetryPolicy.isRetryable(e) && attempt <= OutboxRetryPolicy.MAX_RETRY;
+
+        boolean retry = OutboxRetryPolicy.isRetryable(e)
+                && attempt <= OutboxRetryPolicy.MAX_RETRY;
         String error = e.getClass().getSimpleName() + ": " + e.getMessage();
 
         try {

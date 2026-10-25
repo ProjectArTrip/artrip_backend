@@ -27,8 +27,8 @@ public class OutboxRecorder {
     private final OutboxPayloadMapper payloadMapper;
     private final ApplicationEventPublisher publisher;
 
-    @EventListener({
-            NoticeCreatedEvent.class,
+    @EventListener({ //  공지사항 책임 분리를 위해 이벤트로 나누었음 !공지사항에 outboxRepository가 들어가면 srp원칙 위배
+            NoticeCreatedEvent.class,//NoticeCreatedEvent 이벤트 발생시 수신
             ExhibitCreatedEvent.class,
             ReviewApprovedEvent.class,
             ReviewRejectedEvent.class,

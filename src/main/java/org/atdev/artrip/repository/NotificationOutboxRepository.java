@@ -32,19 +32,19 @@ public interface NotificationOutboxRepository extends JpaRepository<Notification
     /**
      * 처리 가능한 상태일 때만 PROCESSING으로 선점한다. 즉시 발송과 폴러가 동시에 집어도 한쪽만 1을 받는다.
      */
-    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Modifying(flushAutomatically = true, clearAutomatically = true)// 선점 락 FCM 쏘기 시작했으니까, 1분마다 도는 스케줄러(Poller) 선점락
     @Query("""
             update NotificationOutbox o
                set o.status = :processing, o.lockedUntil = :lockedUntil
              where o.outboxId = :outboxId
-               and ((o.status = :pending and o.nextRetryAt <= :now)
+               and ((o.status = :pending and o.nextRetryAt <= :now) 
                  or (o.status = :processing and o.lockedUntil < :now))
             """)
     int claim(@Param("outboxId") Long outboxId,
               @Param("pending") OutboxStatus pending,
               @Param("processing") OutboxStatus processing,
               @Param("now") LocalDateTime now,
-              @Param("lockedUntil") LocalDateTime lockedUntil);
+              @Param("lockedUntil") LocalDateTime lockedUntil);//서버 다운시 복구용
 
     default boolean claim(Long outboxId, LocalDateTime now, LocalDateTime lockedUntil) {
         return claim(outboxId, OutboxStatus.PENDING, OutboxStatus.PROCESSING, now, lockedUntil) == 1;
